@@ -2,12 +2,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("org.springframework.boot") version "2.4.2"
-	id("io.spring.dependency-management") version "1.0.8.RELEASE"
-	kotlin("jvm") version "1.3.61"
-	kotlin("plugin.spring") version "1.3.61"
-	kotlin("plugin.allopen") version "1.3.61"
-	kotlin("plugin.jpa") version "1.3.61"
-	kotlin("kapt") version "1.3.61"
+	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	kotlin("jvm") version "1.4.21"
+	kotlin("plugin.spring") version "1.4.21"
+	kotlin("plugin.allopen") version "1.4.21"
+	kotlin("plugin.jpa") version "1.4.21"
+	// kotlin("kapt") version "1.4.21"
 }
 
 group = "no.nsd"
@@ -46,7 +46,7 @@ dependencies {
 //	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 
-	kapt("org.springframework.boot:spring-boot-configuration-processor")
+	// kapt("org.springframework.boot:spring-boot-configuration-processor")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

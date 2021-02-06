@@ -1,12 +1,12 @@
 package no.nsd.qddt.domain.category
 
 import com.itextpdf.layout.Document
-import no.nsd.qddt.domain.responsedomain.Code
-import no.nsd.qddt.utils.StringTool
-import org.joda.time.DateTime
 import java.util.*
 import java.util.function.Consumer
 import javax.persistence.*
+import org.joda.time.DateTime
+import no.nsd.qddt.domain.responsedomain.Code
+import no.nsd.qddt.utils.StringTool
 
 /**
  *
@@ -40,66 +40,66 @@ import javax.persistence.*
     uniqueConstraints = [UniqueConstraint(
         columnNames = ["label", "name", "category_kind"],
         name = "UNQ_CATEGORY_NAME_KIND"
-    )]
-) //https://github.com/DASISH/qddt-client/issues/606
-class Category() : AbstractEntityAudit(), Comparable<Category>, Cloneable {
-    @Transient
-    @JsonSerialize
-    @JsonDeserialize
-    var code: Code?
+    )]                                                      //https://github.com/DASISH/qddt-client/issues/606
+) 
+class Category(
+    /*
+     *   A display label for the category.
+     *   May be expressed in multiple languages.
+     *   Repeat for labels with different content, for example,
+     *   labels with differing length limitations or of different types or applications.
+     */
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @OrderColumn(name = "category_idx")
-    private var children: List<Category>? = ArrayList()
+    var label: String
+    get {
+        SafeString(label)
+    },
 
-    @Column(name = "label")
-    @OrderBy
-    private var label: String? = null
+    /*
+     *   A description of the content and purpose of the category.
+     *   May be expressed in multiple languages and supports the use of structured content.
+     *   Note that comparison of categories is done using the content of description.
+    */
+    @Column(length = 2000)
+    var description: String = "?"
+        set(value) {
+            field =  StringTool.CapString(value)
+        }
+        get{
+            if StringTool.IsNullOrEmpty(field)
+                field = getCategoryType().getName()
+            return field
+        },
 
-    @Column(name = "description", length = 2000)
-    private var description: String? = null
-
+    /**
+     *  This field is only used for categories that facilitates user input.
+     *  like numeric range / text length /
+     */
     @Embedded
-    private var inputLimit: ResponseCardinality? = null
+    var inputLimit: ResponseCardinality = ResponseCardinality(0, 1, 1),
 
     @Column(name = "classification_level")
     @Enumerated(EnumType.STRING)
-    var classificationLevel: CategoryRelationCodeType? = null
-        private set
+    var classificationLevel: CategoryRelationCodeType?
+        private set,
 
     /**
-     * format is used by datetime, and other kinds if needed.
+     *  format is used by datetime, and other kinds if needed.
      */
-    var format: String? = null
+    var format: String = "",
 
-    @Column(name = "Hierarchy_level", nullable = false)
+    // @Column(name = "Hierarchy_level", nullable = false)
     @Enumerated(EnumType.STRING)
-    var hierarchyLevel: HierarchyLevel
+    var hierarchyLevel: HierarchyLevel,
 
-    @Column(name = "category_kind", nullable = false)
+    // @Column(name = "category_kind", nullable = false)
     @Enumerated(EnumType.STRING)
-    private var categoryType: CategoryType? = null
-
-    /***
-     *
-     * @param name Category name
-     * @param label Shorter version of name if applicable
-     */
-    constructor(name: String?, label: String?) : this() {
-        name = name
-        setLabel(label)
-    }
-
-    fun getCategoryType(): CategoryType? {
-        if (categoryType == null) setCategoryType(CategoryType.CATEGORY)
-        return categoryType
-    }
-
-    fun setCategoryType(categoryType: CategoryType?) {
-        this.categoryType = categoryType
-        if (classificationLevel == null) {
-            when (categoryType) {
-                CategoryType.MISSING_GROUP, CategoryType.LIST -> {
+    var categoryType: CategoryType = CategoryType.CATEGORY
+        set(value) {
+            field = value
+            when (value) {
+                CategoryType.MISSING_GROUP,
+                CategoryType.LIST -> {
                     classificationLevel = CategoryRelationCodeType.Ordinal
                     hierarchyLevel = HierarchyLevel.GROUP_ENTITY
                 }
@@ -113,53 +113,35 @@ class Category() : AbstractEntityAudit(), Comparable<Category>, Cloneable {
                 }
                 else -> hierarchyLevel = HierarchyLevel.ENTITY
             }
+        },
+
+) : AbstractEntityAudit(), Comparable<Category>, Cloneable {
+
+    var name: String
+        get() {
+            if (StringTool.IsNullOrTrimEmpty(super.name)) super.name = getLabel()!!.toUpperCase()
+            return super.name
         }
-    }
 
-    /*
-    A display label for the category.
-    May be expressed in multiple languages.
-    Repeat for labels with different content, for example,
-    labels with differing length limitations or of different types or applications.
+
+    @Transient
+    @JsonSerialize
+    @JsonDeserialize
+    var code: Code?
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @OrderColumn(name = "category_idx")
+    var children: List<Category>? = ArrayList()
+
+    /***
+     *
+     * @param name Category name
+     * @param label Shorter version of name if applicable
      */
-    fun getLabel(): String? {
-        return SafeString(label)
-    }
-
-    fun setLabel(label: String?) {
-        this.label = label
-    }
-
-    /*
-   A description of the content and purpose of the category.
-   May be expressed in multiple languages and supports the use of structured content.
-   Note that comparison of categories is done using the content of description.
-    */
-    fun getDescription(): String? {
-        if (StringTool.IsNullOrEmpty(description)) description = getCategoryType().getName()
-        return StringTool.CapString(description)
-    }
-
-    fun setDescription(description: String?) {
-        this.description = description
-    }
-
-    /**
-     * This field is only used for categories that facilitates user input.
-     * like numeric range / text length /
-     */
-    fun getInputLimit(): ResponseCardinality? {
-        if (inputLimit == null) setInputLimit(0, 1, 1)
-        return inputLimit
-    }
-
-    fun setInputLimit(inputLimit: ResponseCardinality?) {
-        this.inputLimit = inputLimit
-    }
-
-    fun setInputLimit(minimum: Int?, maximum: Int?, step: Int?) {
-        inputLimit = ResponseCardinality(minimum, maximum, step)
-    }
+    // constructor(name: String?, label: String?) : this() {
+    //     name = name
+    //     setLabel(label)
+    // }
 
     fun getChildren(): List<Category> {
         return if (categoryType == CategoryType.SCALE) {
@@ -176,48 +158,6 @@ class Category() : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         this.children = children
     }
 
-    @get:Column(nullable = false)
-    var name: String?
-        get() {
-            if (StringTool.IsNullOrTrimEmpty(super.name)) super.name = getLabel()!!.toUpperCase()
-            return super.name
-        }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is Category) return false
-        if (!super.equals(o)) return false
-        val category = o
-        if (if (getLabel() != null) getLabel() != category.getLabel() else category.getLabel() != null) return false
-        return if (if (getDescription() != null) getDescription() != category.getDescription() else category.getDescription() != null) false else hierarchyLevel == category.hierarchyLevel
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + if (getLabel() != null) getLabel().hashCode() else 0
-        result = 31 * result + if (getDescription() != null) getDescription().hashCode() else 0
-        result = 31 * result + if (hierarchyLevel != null) hierarchyLevel.hashCode() else 0
-        return result
-    }
-
-    override fun toString(): String {
-        return if (categoryType == CategoryType.CATEGORY) "{" +
-                "\"label\":" + (if (label == null) "null" else "\"" + label + "\"") + ", " +
-                "\"code\":" + (if (code == null) "null" else code!!.value) +
-                "}" else "{" +
-                "\"id\":" + (if (id == null) "null" else "\"" + id + "\"") + ", " +
-                "\"name\":" + (if (name == null) "null" else "\"" + name + "\"") + ", " +
-                "\"label\":" + (if (label == null) "null" else "\"" + label + "\"") + ", " +
-                "\"description\":" + (if (description == null) "null" else "\"" + description + "\"") + ", " +
-                "\"classificationLevel\":" + (if (classificationLevel == null) "null" else classificationLevel) + ", " +
-                "\"format\":" + (if (format == null) "null" else "\"" + format + "\"") + ", " +
-                "\"categoryType\":" + (if (categoryType == null) "null" else categoryType) + ", " +
-                "\"inputLimit\":" + (if (inputLimit == null) "null" else inputLimit) + ", " +
-                "\"children\":" + (if (children == null) "null" else Arrays.toString(children!!.toTypedArray())) + ", " +
-                "\"modified\":" + (if (modified == null) "null" else "\"" + modified + "\"") + " , " +
-                "\"modifiedBy\":" + (if (modifiedBy == null) "null" else modifiedBy) +
-                "}"
-    }
 
     override fun fillDoc(pdfReport: PdfReport?, counter: String?) {
         val document: Document = pdfReport.theDocument

@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.controlconstruct.json
 
 import no.nsd.qddt.domain.classes.interfaces.Version
-import no.nsd.qddt.domain.user.json.UserJson
+import no.nsd.qddt.domain.user.json.User
 import java.sql.Timestamp
 
 /**
@@ -30,7 +30,7 @@ open class ConstructJsonView(construct: ControlConstruct?) {
      * @return the modified
      */
     val modified: Timestamp
-    private val modifiedBy: UserJson
+    private val modifiedBy: User
 
     /**
      * @return the id
@@ -42,14 +42,14 @@ open class ConstructJsonView(construct: ControlConstruct?) {
     /**
      * @return the modifiedBy
      */
-    fun getModifiedBy(): UserJson {
+    fun getModifiedBy(): User {
         return modifiedBy
     }
 
     // /**
     //  * @return the agency
     //  */
-    // public AgencyJsonView getAgency() {
+    // public Agency getAgency() {
     //     return agency;
     // }
     override fun equals(o: Any?): Boolean {
@@ -82,6 +82,6 @@ open class ConstructJsonView(construct: ControlConstruct?) {
         version = construct.version
         classKind = construct.classKind
         modifiedBy = construct.modifiedBy
-        // agency = new AgencyJsonView(construct.getAgency());
+        // agency = new Agency(construct.getAgency());
     }
 }

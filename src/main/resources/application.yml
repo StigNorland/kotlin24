@@ -1,0 +1,108 @@
+## JWT Auth
+#  auth.expires=86400
+#  auth.header=Authorization
+#auth.secret=some-random-secret
+
+spring:
+  # security:
+  #   oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         issuer-uri: http://localhost:8083/auth/realms/baeldung
+  #         jwk-set-uri: http://localhost:8083/auth/realms/baeldung/protocol/openid-connect/certs
+  application:
+    name: qddt-service
+  data:
+    rest:
+      base-path: /api
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+      use-new-id-generator-mappings: false
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    properties:
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _aud
+            default_schema: audit
+            store_data_at_delete: true
+            do_not_audit_optimistic_locking_field: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    initialization-mode: embedded
+    continue-on-error: true
+    hikari.connectionTimeout: 20000
+    hikari.maximumPoolSize: 5
+    password: ${QDDT_DB_USER:qddt}
+    username: ${QDDT_DB_PASSWORD_PSQL:qddt}
+    url: jdbc:postgresql://${QDDT_DB_HOST:localhost}:${QDDT_DB_PORT:5432}/${QDDT_DB_NAME:qddt-dev}
+  jmx:
+    enabled: false
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+server:
+  forward-headers-strategy: framework
+  port:  ${QDDT_PORT:5001}
+  http2:
+    enabled: true
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/hal+json,application/hal
+
+jwt-security:
+  secret: some-random-secret
+  expiration-time: 86400
+
+#  header: Authorization
+#  expires: 86400
+#  secret: some-random-secret
+#  expiration-time: 86400
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+  datasource:
+    initialization-mode: always
+    continue-on-error: true
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    continue-on-error: false
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    password: qddt
+    username: qddt
+    url: jdbc:postgresql://localhost:5432/qddt-dev
+server:
+  port: 8080
+  servlet:
+    context-path: /api
