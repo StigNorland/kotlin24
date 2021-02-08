@@ -188,7 +188,7 @@
 
 //             } else {
 //                 instance.getTopicQuestionItems().stream()
-//                     .filter( p -> IsNullOrTrimEmpty(p.getName()) )
+//                     .filter( p -> IsNullOrTrimEmpty(p.name) )
 //                     .forEach( qiLoader::fill );
 //             }
 

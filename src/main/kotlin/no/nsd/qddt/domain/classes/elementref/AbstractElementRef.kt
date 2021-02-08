@@ -3,36 +3,52 @@ package no.nsd.qddt.domain.classes.elementref
 /**
  * @author Stig Norland
  */
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.domain.classes.interfaces.IElementRef
 import no.nsd.qddt.domain.classes.interfaces.IWebMenuPreview
 import no.nsd.qddt.domain.classes.interfaces.Version
+import no.nsd.qddt.domain.controlconstruct.pojo.ConditionConstruct
+import no.nsd.qddt.domain.controlconstruct.pojo.QuestionConstruct
+import no.nsd.qddt.domain.controlconstruct.pojo.StatementItem
+import no.nsd.qddt.domain.questionitem.QuestionItem
+import no.nsd.qddt.utils.StringTool
 import org.hibernate.annotations.Type
 import java.util.*
 import javax.persistence.*
 
 @MappedSuperclass
-abstract class AbstractElementRef<T : IWebMenuPreview?> : IElementRef<T> {
+abstract class AbstractElementRef<T : IWebMenuPreview?>  (
+     elementKind: ElementKind,
+     elementId: UUID,
+     elementRevision: Int?
+) : IElementRef<T> {
     @Enumerated(EnumType.STRING)
-    override var elementKind: ElementKind? = null
+    override lateinit var elementKind: ElementKind
 
     @Type(type = "pg-uuid")
-    var elementId: UUID? = null
+    override lateinit var elementId: UUID
 
     @Column(name = "element_revision")
-    var elementRevision: Int? = null
+    override var elementRevision: Int? = 0
 
     @Column(name = "element_name", length = 500)
-    var name: String? = null
+    override var name: String? = null
+
+    override var version: Version
+        get() = Version(major, minor, elementRevision?:0, versionLabel?:"")
+        set(value) {
+            major = value.major
+            minor = value.minor
+            versionLabel = value.versionLabel
+            elementRevision = value.revision
+        }
 
     @Column(name = "element_major")
-    private var major: Int? = null
+    private var major: Int = 1
 
     @Column(name = "element_minor")
-    private var minor: Int? = null
+    private var minor: Int = 0
 
     @Column(name = "element_version_label")
     private var versionLabel: String? = null
@@ -40,84 +56,38 @@ abstract class AbstractElementRef<T : IWebMenuPreview?> : IElementRef<T> {
     @Transient
     @JsonSerialize
     @JsonDeserialize
-    protected var element: T? = null
-
-
-    @JsonCreator
-    constructor(
-        @JsonProperty("elementKind") kind: ElementKind?,
-        @JsonProperty("id") id: UUID?,
-        @JsonProperty("revisionNumber") rev: Int?
-    ) {
-        elementKind = kind
-        setElementId(id)
-        elementRevision = rev
-    }
-
-
-    val version: Version?
-        get() = Version(major, minor, elementRevision, versionLabel)
-
-    fun setVersion(version: Version) {
-        major = version.major
-        minor = version.minor
-        versionLabel = version.versionLabel
-    }
-
-    fun getElement(): T? {
-        return element
-    }
-
-    override fun setElement(element: T?) {
-        this.element = element
+    override var element: T? = null
+    set(value) {
+        field = value
         setValues()
     }
 
-    protected open fun setValues(): AbstractElementRef<T> {
-        if (getElement() == null) return this
+    private fun setValues(): AbstractElementRef<T> {
         if (StringTool.IsNullOrEmpty(name)) {
-            if (element is QuestionItem) name =
-                getElement().name + " ➫ " + (element as QuestionItem?).getQuestion() else if (element is StatementItem) name =
-                getElement().name + " ➫ " + (element as StatementItem?).getStatement() else if (element is ConditionConstruct) {
-                name = getElement().name + " ➫ " + (element as ConditionConstruct?).getCondition()
-                println(
-                    ElementKind.Companion.getEnum(element.javaClass.getSimpleName())
-                        .toString() + " - ConditionConstruct- name set"
-                )
-            } else if (element is QuestionConstruct) {
-                println(
-                    ElementKind.Companion.getEnum(element.javaClass.getSimpleName())
-                        .toString() + " - QuestionConstruct name not set"
-                )
-            } else println(ElementKind.Companion.getEnum(element.javaClass.getSimpleName()).toString() + " - set name")
-            name = getElement().name
+            when (element) {
+                is QuestionItem -> name =
+                    element!!.name + " ➫ " + (element as QuestionItem?)!!.question
+                is StatementItem -> name =
+                    element!!.name + " ➫ " + (element as StatementItem?)!!.statement
+                is ConditionConstruct -> {
+                    name = element!!.name + " ➫ " + (element as ConditionConstruct?)!!.condition
+                    println(
+                        ElementKind.getEnum(element!!::class.simpleName)
+                            .toString() + " - ConditionConstruct- name set"
+                    )
+                }
+                is QuestionConstruct -> {
+                    println(
+                        ElementKind.getEnum(element!!::class.simpleName)
+                            .toString() + " - QuestionConstruct name not set"
+                    )
+                }
+                else -> println(ElementKind.getEnum(element!!::class.simpleName).toString() + " - set name")
+            }
+            name = element!!.name
         }
-        setVersion(getElement().getVersion())
-        if (elementKind == null) elementKind = ElementKind.Companion.getEnum(element.javaClass.getSimpleName())
+        version = element!!.version
         return this
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is AbstractElementRef<*>) return false
-        val that: AbstractElementRef<T> = o
-        if (elementKind != that.elementKind) return false
-        return if (elementId != that.elementId) false else elementRevision == that.elementRevision
-    }
-
-    override fun hashCode(): Int {
-        var result = if (elementKind != null) elementKind.hashCode() else 0
-        result = 31 * result + if (elementId != null) elementId.hashCode() else 0
-        result = 31 * result + if (elementRevision != null) elementRevision.hashCode() else 0
-        return result
-    }
-
-    override fun toString(): String {
-        return "{" +
-                "\"Kind\":" + (if (elementKind == null) "null" else elementKind) + ", " +
-                "\"id\":" + (if (elementId == null) "null" else "\"" + elementId + "\"") + ", " +
-                "\"version\":" + (if (version == null) "null" else version) + ", " +
-                "\"name\":" + (if (name == null) "null" else "\"" + name + "\"") + ", " +
-                "}"
-    }
 }

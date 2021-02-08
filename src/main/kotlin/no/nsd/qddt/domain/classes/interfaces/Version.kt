@@ -12,8 +12,9 @@ class Version : Comparable<Version> {
 
     @Transient
     final var isModified = false
-        get() = field
+        get
         private set
+
 
     var major = 1
         set(value) {

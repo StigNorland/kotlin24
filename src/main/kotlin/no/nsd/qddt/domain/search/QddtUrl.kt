@@ -59,7 +59,7 @@ public class QddtUrl {
         return  path + "/" + id.toString();
     }
 
-    public String getName() {
+    public String name {
         return name;
     }
 

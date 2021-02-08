@@ -1,8 +1,6 @@
 package no.nsd.qddt.domain.classes.xml
 
 import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.AbstractEntityAudit.getAgency
-import no.nsd.qddt.domain.AbstractEntityAudit.getVersion
 import no.nsd.qddt.domain.classes.elementref.*
 import java.util.*
 
@@ -19,19 +17,19 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit?>(protected val ent
 
     override fun addXmlFragments(fragments: Map<ElementKind?, MutableMap<String?, String>>) {
         var kind: ElementKind? = null
-        kind = try {
-            ElementKind.Companion.getEnum(entity.javaClass.getSimpleName())
+        try {
+            kind = ElementKind.getEnum(entity!!.classKind)
         } catch (ex: Exception) {
-            ElementKind.Companion.getEnum(entity!!.classKind)
+            kind = ElementKind.getEnum(entity!!::class.simpleName)
         } finally {
-            fragments[kind]!!.putIfAbsent(urnId, xmlFragment)
+            fragments[kind]!!.putIfAbsent(urnId, xmlFragment!!)
         }
     }
 
     override fun getXmlEntityRef(depth: Int): String? {
         return String.format(
             xmlRef,
-            entity.javaClass.getSimpleName(),
+            entity!!::class.simpleName,
             getXmlURN(entity),
             java.lang.String.join("", Collections.nCopies(depth, "\t"))
         )
@@ -40,8 +38,8 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit?>(protected val ent
     val urnId: String
         get() = java.lang.String.format(
             "%1\$s:%2\$s:%3\$s",
-            entity!!.getAgency()!!.name,
+            entity!!.agency!!.name,
             entity.id,
-            entity.getVersion().toDDIXml()
+            entity.version.toDDIXml()
         )
 }

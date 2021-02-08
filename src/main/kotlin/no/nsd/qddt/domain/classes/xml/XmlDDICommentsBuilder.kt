@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.classes.xml
 
+import no.nsd.qddt.domain.Comment
 import no.nsd.qddt.domain.classes.elementref.ElementKind
-import no.nsd.qddt.domain.comment.Comment
 
 /**
  * @author Stig Norland

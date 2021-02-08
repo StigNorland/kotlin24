@@ -144,7 +144,7 @@ public class Study extends AbstractEntityAudit implements IAuthor, IArchived, ID
         this.topicGroups.add( topicGroup );
         topicGroup.setStudy(this);
         setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION);
-        setChangeComment("TopicGroup ["+ topicGroup.getName() +"] added");
+        setChangeComment("TopicGroup ["+ topicGroup.name +"] added");
         return topicGroup;
     }
 
@@ -221,9 +221,9 @@ public class Study extends AbstractEntityAudit implements IAuthor, IArchived, ID
         pdfReport.addHeader(this,"Study " + counter );
         pdfReport.addParagraph( this.description );
 
-        if(getComments().size()>0)
+        if(comments.size()>0)
             pdfReport.addheader2("Comments");
-        pdfReport.addComments(getComments());
+        pdfReport.addComments(comments);
         pdfReport.addPadding();
 
         if (counter.length()>0)
@@ -238,7 +238,7 @@ public class Study extends AbstractEntityAudit implements IAuthor, IArchived, ID
     public void remove(){
         LOG.debug(" Study pre remove");
         if (this.getSurveyProgram() != null) {
-            LOG.debug(getSurveyProgram().getName());
+            LOG.debug(getSurveyProgram().name);
             this.getSurveyProgram().getStudies().removeIf(p->p.getId() == this.getId());
         }
         this.getAuthors().clear();

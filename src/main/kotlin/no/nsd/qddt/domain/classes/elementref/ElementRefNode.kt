@@ -107,8 +107,8 @@ class ElementRefNode<T : AbstractEntityAudit?> : AbstractElementRef<T>, Iterable
             println("ignorerer set value")
         } else if (element is QuestionConstruct) {
             //
-        } else setVersion(getElement().getVersion())
-        if (elementKind == null) elementKind = ElementKind.Companion.getEnum(element.javaClass.getSimpleName())
+        } else setVersion(getElement().version)
+        if (elementKind == null) elementKind = ElementKind.Companion.getEnum(element.class.simpleName)
         return this
     }
 

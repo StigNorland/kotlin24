@@ -26,15 +26,12 @@ import java.util.ArrayList
 class QuestionItem:AbstractEntityAudit() {
 
   @Embedded
-  var responseDomainRef:ElementRefResponseDomain
-  get() {
-    return if ((field == null)) ElementRefResponseDomain() else field
-  }
+  var responseDomainRef:ElementRefResponseDomain = ElementRefResponseDomain()
 
-  @Column(name = "question", length = 2000)
+  @Column(length = 2000)
   var question:String
 
-  @Column(name = "intent", length = 3000)
+  @Column(length = 3000)
   var intent:String
 
   @Transient
@@ -57,10 +54,10 @@ class QuestionItem:AbstractEntityAudit() {
   fun toString():String {
     return ("{" +
             "\"id\":" + (if (getId() == null) "null" else "\"" + getId() + "\"") + ", " +
-            "\"name\":" + (if (getName() == null) "null" else "\"" + getName() + "\"") + ", " +
+            "\"name\":" + (if (name == null) "null" else "\"" + name + "\"") + ", " +
             "\"intent\":" + (if (intent == null) "null" else "\"" + intent + "\"") + ", " +
             "\"question\":" + (if (question == null) "null" else "\"" + question + "\"") + ", " +
-            "\"responseDomainName\":" + (if (field.getName() == null) "null" else "\"" + field.getName() + "\"") + ", " +
+            "\"responseDomainName\":" + (if (field.name == null) "null" else "\"" + field.name + "\"") + ", " +
             "\"modified\":" + (if (getModified() == null) "null" else "\"" + getModified() + "\"") + " , " +
             "\"modifiedBy\":" + (if (getModifiedBy() == null) "null" else getModifiedBy()) +
             "}")
@@ -78,9 +75,9 @@ class QuestionItem:AbstractEntityAudit() {
     {
       this.responseDomainRef.getElement().fillDoc(pdfReport, "")
     }
-    if (getComments().size() > 0)
+    if (comments.size() > 0)
     pdfReport.addheader2("Comments")
-    pdfReport.addComments(getComments())
+    pdfReport.addComments(comments)
   }
 ¨
 }

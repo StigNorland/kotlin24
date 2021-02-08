@@ -28,8 +28,8 @@
 //         elementRevision = elementRefResponseDomain.getElementRevision();
 //         if (elementRefResponseDomain.getElement() != null)
 //             element =  new ResponseDomainJsonEdit( elementRefResponseDomain.getElement());
-//         name = elementRefResponseDomain.getName();
-//         version = elementRefResponseDomain.getVersion();
+//         name = elementRefResponseDomain.name;
+//         version = elementRefResponseDomain.version;
 //     }
 
 //     @Override
@@ -53,12 +53,12 @@
 //     }
 
 //     @Override
-//     public String getName() {
+//     public String name {
 //         return this.name;
 //     }
 
 //     @Override
-//     public Version getVersion() {
+//     public Version version {
 //         return this.version;
 //     }
 

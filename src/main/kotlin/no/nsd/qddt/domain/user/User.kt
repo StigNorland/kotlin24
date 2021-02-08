@@ -26,26 +26,25 @@ class User (
     var agency : Agency,
 
     @ManyToMany(fetch = FetchType.EAGER)
-    val authority: Set<Authority>,
+    val authority: MutableCollection<Authority>,
 
     @Version
     val modified: Timestamp? = null,
 
-    var username : String,
+    @JsonIgnore private val password : String,
 
-    @JsonIgnore
-    val password : String,
-
-    var isEnabled : Boolean
 
     ): UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        TODO("Not yet implemented")
+        return authority.map {
+            GrantedAuthority { it.authority }
+        }.toMutableList()
     }
 
     override fun getPassword(): String {
         return password
     }
+
 
     override fun getUsername(): String {
         return username

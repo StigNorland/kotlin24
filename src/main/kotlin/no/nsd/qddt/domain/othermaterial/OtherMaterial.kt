@@ -79,7 +79,7 @@ class OtherMaterial(
   }
 
   fun getUrnId(entity:AbstractEntityAudit):String {
-    return String.format("%1\$s:%2\$s:%3\$s", entity.getAgency().getName(), entity.getId(), this.fileName)
+    return String.format("%1\$s:%2\$s:%3\$s", entity.agency.name, entity.getId(), this.fileName)
   }
   
   companion object {

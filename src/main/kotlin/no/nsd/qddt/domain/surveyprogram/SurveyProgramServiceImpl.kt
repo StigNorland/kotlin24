@@ -88,7 +88,7 @@ class SurveyProgramServiceImpl implements SurveyProgramService {
     @Override
     // @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
     public List<SurveyProgram> findByAgency(User user) {
-        return surveyProgramRepository.findByAgencyOrIsArchived(user.getAgency().getId(), true)
+        return surveyProgramRepository.findByAgencyOrIsArchived(user.agency.getId(), true)
             .stream().map(this::postLoadProcessing).collect(Collectors.toList());
     }
 
@@ -104,7 +104,7 @@ class SurveyProgramServiceImpl implements SurveyProgramService {
             }
         }
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getDetails();
-        return surveyProgramRepository.findByAgencyOrderByAgencyIdx(user.getAgency())
+        return surveyProgramRepository.findByAgencyOrderByAgencyIdx(user.agency)
             .stream().map(this::postLoadProcessing).collect(Collectors.toList());
     }
 
@@ -116,14 +116,14 @@ class SurveyProgramServiceImpl implements SurveyProgramService {
     private SurveyProgram postLoadProcessing(SurveyProgram instance) {
         assert  (instance != null);
         try{
-            String tekst = (instance.getComments().size() > 0) ? " has comments": "has NOT comments";
-            System.out.println(instance.getName() +  tekst);
+            String tekst = (instance.comments.size() > 0) ? " has comments": "has NOT comments";
+            System.out.println(instance.name +  tekst);
 
             instance.getStudies().forEach( study ->
                 Hibernate.initialize(study.getInstruments()));
 
             if (StackTraceFilter.stackContains("getPdf","getXml")) {
-//                Hibernate.initialize(instance.getComments());
+//                Hibernate.initialize(instance.comments);
                 instance.getStudies().forEach(  study ->
                     study.getTopicGroups().forEach( this::loadTopic ));
             }
@@ -137,7 +137,7 @@ class SurveyProgramServiceImpl implements SurveyProgramService {
 
     private void loadTopic(TopicGroup topic){
         topic.getTopicQuestionItems().forEach( qiLoader::fill );
-//        Hibernate.initialize(topic.getComments());
+//        Hibernate.initialize(topic.comments);
         Hibernate.initialize(topic.getConcepts());
         LOG.debug("PDF -> fetching  concepts ");
         topic.getConcepts().forEach( this::loadConceptQuestion );
@@ -145,7 +145,7 @@ class SurveyProgramServiceImpl implements SurveyProgramService {
 
     private void loadConceptQuestion(Concept parent) {
         parent.getChildren().forEach( this::loadConceptQuestion );
-//        Hibernate.initialize(parent.getComments());
+//        Hibernate.initialize(parent.comments);
         parent.getConceptQuestionItems().forEach( qiLoader::fill );
     }
 

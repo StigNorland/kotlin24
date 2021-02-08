@@ -8,7 +8,7 @@ class ResponseDomainFactory:IEntityFactory<ResponseDomain> {
     return ResponseDomain()
   }
   fun copyBody(source:ResponseDomain, dest:ResponseDomain):ResponseDomain {
-    dest.setName(source.getName())
+    dest.setName(source.name)
     dest.setDescription(source.getDescription())
     dest.setDisplayLayout(source.getDisplayLayout())
     // List<Code> codes = source.getCodes();

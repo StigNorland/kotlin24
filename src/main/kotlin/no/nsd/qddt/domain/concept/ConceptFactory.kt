@@ -19,7 +19,7 @@
 // 	public Concept copyBody(Concept source, Concept dest) {
 //         dest.setDescription(source.getDescription());
 //         dest.setLabel(source.getLabel());
-//         dest.setName(source.getName());
+//         dest.setName(source.name);
 
 //         dest.setChildren(source.getChildren().stream()
 //             .map(mapper -> copy(mapper, dest.getBasedOnRevision()))

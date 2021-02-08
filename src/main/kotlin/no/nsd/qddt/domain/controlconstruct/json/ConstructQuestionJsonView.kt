@@ -41,7 +41,7 @@ class ConstructQuestionJsonView(construct: QuestionConstruct?) : ConstructJsonVi
     init {
         if (construct.getQuestionItemRef() != null) {
             questionItemUUID = construct.getQuestionItemRef().getElementId()
-            questionName = construct.getQuestionItemRef().getName()
+            questionName = construct.getQuestionItemRef().name
             questionText = construct.getQuestionItemRef().getText()
             questionItemRevision = construct.getQuestionItemRef().elementRevision
         } else {

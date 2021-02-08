@@ -36,13 +36,13 @@ abstract class AbstractEntityAudit(
     override var agency : Agency? = null,
 
     @Column(updatable = false)
-    val basedOnObject: UUID? = null,
+    var basedOnObject: UUID? = null,
 
     @Column( updatable = false)
-    val basedOnRevision: Int? = null,
+    var basedOnRevision: Int? = null,
 
     @Embedded
-    override var version: EmbeddedVersion= EmbeddedVersion()
+    override var version: EmbeddedVersion= EmbeddedVersion(),
 
     var xmlLang: String? = "en-GB"
 
@@ -108,7 +108,7 @@ abstract class AbstractEntityAudit(
     @NotAudited
     @OrderColumn(name = "owner_idx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
-    var comments: List<Comment> = ArrayList()
+    var comments: MutableList<Comment> = mutableListOf()
 
     @JsonSerialize
     @JsonDeserialize

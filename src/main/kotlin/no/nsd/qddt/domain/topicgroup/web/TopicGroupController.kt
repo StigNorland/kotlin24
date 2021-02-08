@@ -73,7 +73,7 @@
 //                 topicGroup.setId( UUID.randomUUID() );
 //             }
 //             for (MultipartFile file : multipartFiles) {
-//                 LOG.info( file.getName() );
+//                 LOG.info( file.name );
 //                 topicGroup.addOtherMaterial(ioService.saveFile( file, topicGroup.getId() ));
 //             }
 //             if (CREATED.equals( topicGroup.getChangeKind() ))

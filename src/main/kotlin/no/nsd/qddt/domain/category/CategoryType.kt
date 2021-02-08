@@ -6,7 +6,7 @@ import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
  * @author Stig Norland
  * @see Category
  */
-enum class CategoryType(override val name: String, val description: String, val ddiComment: String) {
+enum class CategoryType( name: String, val description: String, val ddiComment: String) {
     /**
      * single USER INPUT Category,
      */

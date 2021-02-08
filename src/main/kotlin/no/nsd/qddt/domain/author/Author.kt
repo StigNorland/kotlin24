@@ -97,7 +97,7 @@ class Author : AbstractEntity() {
     //    @PreUpdate
     //    private void onUpdate() {
     //        try {
-    //            // LOG.info( "PreUpdate " + this.getClass().getSimpleName() + " - " + getName() );
+    //            // LOG.info( "PreUpdate " + this.getClass().getSimpleName() + " - " + name );
     //            User user = SecurityContext.getUserDetails().getUser();
     //            setModifiedBy( user );
     //        } catch (Exception ex) {

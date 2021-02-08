@@ -14,4 +14,12 @@ class Agency (
     @Version
     val updated : Date,
     var xmlLang:String
-    )
+    ): Comparable<Agency> {
+    override fun compareTo(other: Agency): Int {
+        val i = this.id.compareTo(other.id)
+        return when {
+            i != 0 -> i
+            else -> updated.compareTo(other.updated)
+        }
+    }
+}

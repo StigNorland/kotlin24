@@ -48,7 +48,7 @@ constructor(responseDomainAuditRepository:ResponseDomainAuditRepository):Abstrac
     assert((instance != null))
     try
     {
-      Hibernate.initialize(instance.getEntity().getComments())
+      Hibernate.initialize(instance.getEntity().comments)
       Hibernate.initialize(instance.getEntity().getManagedRepresentation()) //Lazy loading trick... (we want the MRep when locking at a revision).
     }
     catch (ex:Exception) {

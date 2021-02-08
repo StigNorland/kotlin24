@@ -29,7 +29,7 @@ class QuestionItemFragmentBuilder(questionItem:QuestionItem):XmlDDIFragmentBuild
   get() {
     return String.format(xmlQuestionItem,
                          getXmlHeader(entity),
-                         entity.getName(),
+                         entity.name,
                          getXmlLang(entity),
                          entity.getIntent(),
                          entity.getQuestion(),
@@ -40,7 +40,7 @@ class QuestionItemFragmentBuilder(questionItem:QuestionItem):XmlDDIFragmentBuild
   get() {
     return entity.getParentRefs().stream()
     .map({ cr->
-          val urn = String.format(xmlURN, cr.getAgency(), cr.getId(), cr.getVersion().toDDIXml())
+          val urn = String.format(xmlURN, cr.agency, cr.getId(), cr.version.toDDIXml())
           String.format(xmlRef, "Concept", urn, "\t\t\t") })
     .collect(Collectors.joining())
   }

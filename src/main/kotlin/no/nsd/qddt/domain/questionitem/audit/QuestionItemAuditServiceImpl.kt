@@ -96,8 +96,8 @@ class QuestionItemAuditServiceImpl extends AbstractAuditFilter<Integer,QuestionI
 //            .collect( Collectors.toList()));
 //
 //        instance.setParentRefs( list);
-        Hibernate.initialize( instance.getEntity().getComments() );
-        instance.getEntity().getVersion().setRevision( instance.getRevisionNumber().get() );
+        Hibernate.initialize( instance.getEntity().comments );
+        instance.getEntity().version.setRevision( instance.getRevisionNumber().get() );
 
         return instance;
     }

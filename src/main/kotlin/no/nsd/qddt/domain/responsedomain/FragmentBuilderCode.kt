@@ -17,7 +17,7 @@ class FragmentBuilderCode(entity:Category):CategoryFragmentBuilder(entity) {
   }
   private val codeURN:String
   get() {
-    return String.format(xmlURN, entity.getAgency().getName(), entity.getId(), entity.getCode().getValue())
+    return String.format(xmlURN, entity.agency.name, entity.getId(), entity.getCode().getValue())
   }
   fun getXmlEntityRef(depth:Int):String {
     return String.format(xmlCode, codeURN, super.getXmlEntityRef(depth + 1), entity.getCode().getValue().trim(), getTabs(depth))

@@ -1,5 +1,4 @@
 package no.nsd.qddt.domain.topicgroup
-import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.domain.AbstractEntityAudit
 import no.nsd.qddt.domain.author.Author
 import no.nsd.qddt.domain.author.IAuthor
@@ -17,9 +16,10 @@ import no.nsd.qddt.domain.study.Study
 import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import javax.persistence.*
 import java.util.*
 import java.util.stream.Collectors
+import javax.persistence.*
+
 /**
 *
 * <ul class="inheritance">
@@ -65,7 +65,7 @@ class TopicGroup:AbstractEntityAudit(), IAuthor, IArchived, IDomainObjectParentR
   @OrderColumn(name = "concept_idx")
   @AuditMappedBy(mappedBy = "topicGroup", positionMappedBy = "conceptIdx")
   @OneToMany(mappedBy = "topicGroup", fetch = FetchType.LAZY, targetEntity = Concept::class, orphanRemoval = true, cascade = {CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE})
-  var concepts:List<Concept> = ArrayList<Concept>(0)
+  var concepts: MutableList<Concept> = mutableListOf()
 
   // @OneToMany(fetch = FetchType.LAZY, mappedBy = "topicGroup", cascade = {CascadeType.REMOVE,CascadeType.PERSIST})
   // @OrderColumn(name="concept_idx")
@@ -89,7 +89,7 @@ class TopicGroup:AbstractEntityAudit(), IAuthor, IArchived, IDomainObjectParentR
     field = archived
     if (archived)
     {
-      LOG.info(getName() + " isArchived(" + getConcepts().size + ")")
+      LOG.info(name + " isArchived(" + getConcepts().size + ")")
       setChangeKind(ChangeKind.ARCHIVED)
       for (concept in getConcepts())
       {
@@ -98,7 +98,7 @@ class TopicGroup:AbstractEntityAudit(), IAuthor, IArchived, IDomainObjectParentR
       }
     }
   }
-  val xmlBuilder:AbstractXmlBuilder
+  override val xmlBuilder:AbstractXmlBuilder
   get() {
     return TopicGroupFragmentBuilder(this)
   }
@@ -110,7 +110,7 @@ class TopicGroup:AbstractEntityAudit(), IAuthor, IArchived, IDomainObjectParentR
     this.concepts.add(concept)
     concept.setTopicGroup(this)
     setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION)
-    setChangeComment("Concept [" + concept.getName() + "] added")
+    setChangeComment("Concept [" + concept.name + "] added")
     return concept
   }
   fun getConcepts():List<Concept> {
@@ -162,20 +162,20 @@ class TopicGroup:AbstractEntityAudit(), IAuthor, IArchived, IDomainObjectParentR
   }
   
   
-  fun fillDoc(pdfReport:PdfReport, counter:String) {
+  override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "Module " + counter)
     pdfReport.addParagraph(this.description)
-    if (getComments().size() > 0)
+    if (comments.size > 0)
     {
       pdfReport.addheader2("Comments")
-      pdfReport.addComments(getComments())
+      pdfReport.addComments(comments)
     }
     if (topicQuestionItems.size > 0)
     {
       pdfReport.addheader2("QuestionItem(s)")
       for (item in topicQuestionItems)
       {
-        pdfReport.addheader2(item.getElement().getName(), String.format("Version %s", item.getElement().getVersion()))
+        pdfReport.addheader2(item.getElement()!!.name, String.format("Version %s", item.getElement()!!.version))
         pdfReport.addParagraph(item.getElement().getQuestion())
         if (item.getElement().getResponseDomainRef().getElement() != null)
         item.getElement().getResponseDomainRef().getElement().fillDoc(pdfReport, "")

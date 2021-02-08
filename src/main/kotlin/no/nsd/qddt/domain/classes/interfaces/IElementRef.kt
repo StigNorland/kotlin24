@@ -7,10 +7,10 @@ import java.util.*
  * @author Stig Norland
  */
 interface IElementRef<T : IWebMenuPreview?> : Cloneable {
+    var name: String?
+    var version: Version
     var elementId: UUID
     var elementRevision: Int?
-    var version: Version?
     var elementKind: ElementKind
-    var name: String?
     var element: T?
 }

@@ -39,17 +39,17 @@
 //     public QuestionItemListJson(QuestionItem entity) {
 //         if (entity == null) return;
 //         id = entity.getId();
-//         name = entity.getName();
-//         agency = new Agency(entity.getAgency());
-//         version = entity.getVersion();
+//         name = entity.name;
+//         agency = new Agency(entity.agency);
+//         version = entity.version;
 //         modified = entity.getModified();
 //         modifiedBy = entity.getModifiedBy();
 //         question = entity.getQuestion();
 //         intent = entity.getIntent();
-//         responseDomainName =  (entity.getResponseDomainRef() != null) ? entity.getResponseDomainRef().getName() : "";
+//         responseDomainName =  (entity.getResponseDomainRef() != null) ? entity.getResponseDomainRef().name : "";
 //         classKind = "QUESTION_ITEM";
 // //        responseDomain = new ResponseDomainJsonView(entity.getResponseDomain());
-// //        responseDomain.getVersion().setRevision(entity.getResponseDomainRevision());
+// //        responseDomain.version.setRevision(entity.getResponseDomainRevision());
 //     }
 
 //     public UUID getId() {
@@ -57,7 +57,7 @@
 //     }
 
 
-//     public String getName() {
+//     public String name {
 //         return name;
 //     }
 
@@ -85,12 +85,12 @@
 //     }
 
 
-//     public Agency getAgency() {
+//     public Agency agency {
 //         return agency;
 //     }
 
 
-//     public Version getVersion() {
+//     public Version version {
 //         return version;
 //     }
 

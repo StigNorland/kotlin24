@@ -21,14 +21,14 @@ import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
         name = "UNQ_universe_name"
     )]                                                      //https://github.com/DASISH/qddt-client/issues/606
 )
-class Universe():AbstractEntityAudit() {
+class Universe(override var name: String = "?"):AbstractEntityAudit() {
 
     @Column(length = 2000)
     var description: String = ""
       set(value) {
         field = value
         if (IsNullOrTrimEmpty(name)) {
-          var max25 = minOf(description.length,25)
+          val max25 = minOf(description.length,25)
           name = description.substring(0,max25).toUpperCase().replace(' ','_')
         }
       }

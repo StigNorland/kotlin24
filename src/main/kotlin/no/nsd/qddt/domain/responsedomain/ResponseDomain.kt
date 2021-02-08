@@ -112,7 +112,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
   val name:String
   @Column(nullable = false)
   get() {
-    return CapString(super.getName())
+    return CapString(super.name)
   }
   val managedRepresentationFlatten:List<Category>
   @JsonIgnore
@@ -160,7 +160,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
     }
     if (StringTool.IsNullOrTrimEmpty(managedRepresentation.getLabel()))
     managedRepresentation.setLabel(name)
-    managedRepresentation.setName(managedRepresentation.getCategoryType().getName() + "[" + (if ((getId() != null)) getId().toString() else name) + "]")
+    managedRepresentation.setName(managedRepresentation.getCategoryType().name + "[" + (if ((getId() != null)) getId().toString() else name) + "]")
     if (managedRepresentation.getHierarchyLevel() === HierarchyLevel.GROUP_ENTITY)
     managedRepresentation.setDescription(managedRepresentation.getCategoryType().getDescription())
     else
@@ -168,12 +168,12 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
     managedRepresentation.setChangeComment(getChangeComment())
     managedRepresentation.setChangeKind(getChangeKind())
     managedRepresentation.setXmlLang(getXmlLang())
-    if (!getVersion().isModified())
+    if (!version.isModified())
     {
       LOG.debug("onUpdate not run yet ♣♣♣ ")
     }
-    managedRepresentation.setVersion(getVersion())
-    LOG.debug("ResponseDomain PrePersist " + name + " - " + getVersion())
+    managedRepresentation.setVersion(version)
+    LOG.debug("ResponseDomain PrePersist " + name + " - " + version)
   }
   fun getCodes():List<Code> {
     if (codes == null)
@@ -196,7 +196,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
                   .setBorder(DottedBorder(ColorConstants.GRAY, 1)))
     .addCell(Cell()
              .setTextAlignment(TextAlignment.RIGHT)
-             .add(Paragraph(String.format("Version %s", getVersion()))))
+             .add(Paragraph(String.format("Version %s", version))))
     for (cat in getFlatManagedRepresentation(getManagedRepresentation()))
     if (cat.getCategoryType() === CategoryType.CATEGORY)
     {

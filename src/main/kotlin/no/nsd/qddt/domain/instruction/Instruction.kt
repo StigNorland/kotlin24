@@ -44,7 +44,7 @@ class Instruction(
             public String getXmlFragment() {
                 return String.format( xmlInstruction,
                     getXmlHeader(entity),
-                    entity.getName(),
+                    entity.name,
                     entity.getDescription(),
                     entity.getXmlLang());
             }

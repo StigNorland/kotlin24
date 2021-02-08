@@ -51,9 +51,9 @@ class ParentRef<T : IDomainObjectParentRef?>(entity: T?) : IParentRef {
         if (entity == null) return
         try {
             id = entity.getId()
-            version = entity.getVersion()
-            name = entity.getName()
-            agency = entity.getAgency().name
+            version = entity.version
+            name = entity.name
+            agency = entity.agency.name
             parentRef = entity.getParentRef()
             this.entity = entity
         } catch (npe: NullPointerException) {

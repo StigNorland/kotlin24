@@ -72,10 +72,10 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     return getXmlCodeList()
     else
     return String.format(xmlManaged,
-                         entity.getCategoryType().getName(),
+                         entity.getCategoryType().name,
                          getXmlHeader<AbstractEntityAudit>(entity),
                          entity.getXmlLang(),
-                         entity.getName(),
+                         entity.name,
                          entity.getDescription(),
                          entity.getLabel(),
                          this.xmlRefs)
@@ -101,7 +101,7 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
   }
   private val missingCodeURN:String
   get() {
-    return String.format(xmlURN, entity.getAgency().getName(), entity.getName(), entity.getVersion().toDDIXml())
+    return String.format(xmlURN, entity.agency.name, entity.name, entity.version.toDDIXml())
   }
   init{
     this.degreeSlopeFromHorizontal = degreeSlopeFromHorizontal
@@ -119,10 +119,10 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     ""
     if (entity.getCategoryType().equals(CategoryType.LIST))
     {
-      return String.format(xmlHeaderMR, "l:" + entity.getCategoryType().getName(), getInstanceDate(instance), "", "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance))
+      return String.format(xmlHeaderMR, "l:" + entity.getCategoryType().name, getInstanceDate(instance), "", "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance))
     }
     else
-    return String.format(xmlHeaderMR, "r:Managed" + entity.getCategoryType().getName() + "Representation", getInstanceDate(instance), attr, "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance))
+    return String.format(xmlHeaderMR, "r:Managed" + entity.getCategoryType().name + "Representation", getInstanceDate(instance), attr, "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance))
   }
   fun addXmlFragments(fragments:Map<ElementKind, Map<String, String>>) {
     super.addXmlFragments(fragments)
@@ -132,10 +132,10 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
   }
   private fun getXmlCodeList():String {
     return String.format(xmlCodeList,
-                         entity.getCategoryType().getName(),
+                         entity.getCategoryType().name,
                          getXmlHeader<AbstractEntityAudit>(entity),
                          entity.getXmlLang(),
-                         entity.getName(),
+                         entity.name,
                          entity.getDescription(),
                          entity.getLabel(),
                          children.stream()

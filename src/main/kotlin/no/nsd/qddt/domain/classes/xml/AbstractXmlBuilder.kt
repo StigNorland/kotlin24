@@ -2,8 +2,6 @@ package no.nsd.qddt.domain.classes.xml
 
 import no.nsd.qddt.domain.AbstractEntity
 import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.AbstractEntityAudit.getAgency
-import no.nsd.qddt.domain.AbstractEntityAudit.getVersion
 import no.nsd.qddt.domain.classes.elementref.*
 import no.nsd.qddt.domain.classes.interfaces.*
 import java.time.ZoneId
@@ -42,11 +40,12 @@ abstract class AbstractXmlBuilder {
     abstract fun addXmlFragments(fragments: Map<ElementKind?, MutableMap<String?, String>>)
     abstract fun getXmlEntityRef(depth: Int): String?
     abstract val xmlFragment: String?
-    protected fun <S : AbstractEntityAudit?> getXmlHeader(instance: S): String {
-        val prefix: String = ElementKind.Companion.getEnum(instance.javaClass.getSimpleName()).getDdiPreFix()
+
+    protected open fun <S : AbstractEntityAudit?> getXmlHeader(instance: S): String {
+        val prefix: String = ElementKind.getEnum(instance!!::class.simpleName).ddiPreFix
         return String.format(
             xmlHeader, prefix,
-            instance.javaClass.getSimpleName(),
+            instance!!::class.simpleName,
             getInstanceDate(instance),
             "",
             "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance)
@@ -54,8 +53,8 @@ abstract class AbstractXmlBuilder {
     }
 
     protected fun <S : AbstractEntityAudit?> getXmlFooter(instance: S): String {
-        val prefix: String = ElementKind.Companion.getEnum(instance.javaClass.getSimpleName()).getDdiPreFix()
-        return String.format(xmlFooter, prefix, instance.javaClass.getSimpleName())
+        val prefix: String = ElementKind.getEnum(instance!!::class.simpleName).ddiPreFix
+        return String.format(xmlFooter, prefix, instance!!::class.simpleName)
     }
 
     protected fun <S : AbstractEntityAudit?> getXmlLang(instance: S): String {
@@ -65,20 +64,20 @@ abstract class AbstractXmlBuilder {
     fun <S : AbstractEntityAudit?> getXmlURN(instance: S): String {
         return java.lang.String.format(
             xmlURN,
-            instance!!.getAgency()!!.name,
+            instance!!.agency!!.name,
             instance.id,
-            instance.getVersion().toDDIXml()
+            instance.version.toDDIXml()
         )
     }
 
     protected fun <S : AbstractEntity?> getXmlUserId(instance: S): String {
-        return String.format(xmlUserId, instance!!.modifiedBy.id)
+        return String.format(xmlUserId, instance!!.modifiedBy!!.id)
     }
 
     protected fun <S : AbstractEntityAudit?> getXmlRationale(instance: S): String {
         return String.format(
-            xmlRationale, instance!!.modifiedBy.getName().toString() + "@" + instance.getAgency()!!.name,
-            "[" + instance.changeKind!!.description + "] ➫ " + instance.changeComment, instance.changeKind!!.name
+            xmlRationale, instance!!.modifiedBy!!.username + "@" + instance.agency!!.name,
+            "[" + instance.changeKind.description + "] ➫ " + instance.changeComment, instance.changeKind.name
         )
     }
 
@@ -87,15 +86,15 @@ abstract class AbstractXmlBuilder {
         val uri = "https://qddt.nsd.no/preview/" + instance.basedOnObject + "/" + instance.basedOnRevision
         val urn = java.lang.String.format(
             xmlURN,
-            instance.getAgency()!!.name,
+            instance.agency!!.name,
             instance.basedOnObject,
-            Version(1, 0, instance.basedOnRevision, "").toDDIXml()
+            instance.basedOnRevision?.let { Version(1, 0, it, "").toDDIXml() }
         )
-        return String.format(xmlBasedOn, urn, instance.javaClass.getSimpleName(), uri)
+        return String.format(xmlBasedOn, urn, instance!!::class.simpleName, uri)
     }
 
     protected fun <S : AbstractEntityAudit?> getInstanceDate(instance: S): String {
-        return instance!!.modified.toLocalDateTime()
+        return instance!!.modified!!.toLocalDateTime()
             .atZone(ZoneId.systemDefault())
             .withZoneSameInstant(ZoneOffset.UTC)
             .format(DateTimeFormatter.ISO_DATE_TIME)

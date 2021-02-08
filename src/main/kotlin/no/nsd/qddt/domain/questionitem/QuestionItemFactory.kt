@@ -8,7 +8,7 @@ class QuestionItemFactory:IEntityFactory<QuestionItem> {
     return QuestionItem()
   }
   fun copyBody(source:QuestionItem, dest:QuestionItem):QuestionItem {
-    dest.setName(source.getName())
+    dest.setName(source.name)
     dest.setResponseDomainRef(source.getResponseDomainRef())
     dest.setQuestion(source.getQuestion())
     dest.setIntent(source.getIntent())

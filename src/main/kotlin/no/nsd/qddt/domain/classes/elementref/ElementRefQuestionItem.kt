@@ -51,7 +51,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem?> {
         elementId = id
     }
 
-    override fun getName(): String? {
+    override fun name: String? {
         return name
     }
 
@@ -78,7 +78,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem?> {
     }
 
     val version: Version?
-        get() = if (element == null) null else element.getVersion()
+        get() = if (element == null) null else element.version
 
     override fun getElement(): QuestionItem? {
         return element
@@ -88,7 +88,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem?> {
         this.element = element
         if (element != null) {
             setElementId(element.getId())
-            setName(element.getName())
+            setName(element.name)
             setText(element.getQuestion())
             version.setRevision(elementRevision)
         } else {

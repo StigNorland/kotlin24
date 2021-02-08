@@ -1,11 +1,19 @@
-package no.nsd.qddt.domain.concept;
+package no.nsd.qddt.domain.concept
 
-import no.nsd.qddt.domain.classes.*
-import java.util.*
-import java.util.function.Function
-import java.util.stream.Collectors
-import javax.persistence.*
+import com.fasterxml.jackson.annotation.JsonBackReference
+import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.domain.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.domain.classes.interfaces.IArchived
+import no.nsd.qddt.domain.classes.interfaces.IDomainObjectParentRef
+import no.nsd.qddt.domain.classes.interfaces.IParentRef
+import no.nsd.qddt.domain.classes.pdf.PdfReport
+import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.domain.questionitem.QuestionItem
+import no.nsd.qddt.domain.topicgroup.TopicGroup
+import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import java.util.*
+import javax.persistence.*
 
 /**
  * <ul>
@@ -25,23 +33,23 @@ import org.hibernate.envers.Audited
 @Table(name = "CONCEPT")
 class Concept(
 
-    private var label: String,
+    var label: String,
 
     @Column(length = 20000)
-    private var description: String,
+    var description: String,
 
-    private var isArchived: Boolean,
+    override var isArchived: Boolean,
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "topicGroupRef")
     @JoinColumn(name="topicgroup_id", nullable = false,updatable = false)
-    val topicGroup: TopicGroup,
+    val topicGroup: TopicGroup?,
 
     @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name="concept_id")
     @JsonBackReference(value = "conceptParentRef")
-    var parent: Concept,
+    var parent: Concept?,
 
     // in the @OrderColumn annotation on the referencing entity.
     @Column( name = "concept_idx", insertable = false, updatable = false)
@@ -50,145 +58,122 @@ class Concept(
 
     @OrderColumn(name="concept_idx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "conceptIdx")
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER,
-        orphanRemoval = true, cascade = {CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE})
-    var  children: List<Concept>,
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, orphanRemoval = true,
+        cascade = [CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE])
+    var children:  MutableList<Concept> = mutableListOf(),
 
 
     @OrderColumn(name="concept_idx")
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "CONCEPT_QUESTION_ITEM",
-        joinColumns = @JoinColumn(name="concept_id", referencedColumnName = "id"))
-    var conceptQuestionItems: List<ElementRefEmbedded<QuestionItem>>,
+    @CollectionTable(name = "CONCEPT_QUESTION_ITEM", joinColumns = [JoinColumn(name = "concept_id", referencedColumnName = "id")])
+    var conceptQuestionItems: MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf(),
+
+    @Transient override var parentRef: IParentRef?,
+    override var name: String,
 
 
-    @Transient
-    private var parentRef ParentRef<TopicGroup>
+): AbstractEntityAudit(), IArchived, IDomainObjectParentRef {
 
-): AbstractEntityAudit , IArchived, IDomainObjectParentRef {
-
-    fun removeQuestionItem(UUID id, Integer rev) {
-        if (conceptQuestionItems.removeIf( q -> q.getElementId().equals( id) && q.getElementRevision().equals( rev ))) {
-            this.setChangeKind( ChangeKind.UPDATED_HIERARCHY_RELATION );
-            this.setChangeComment( "QuestionItem assosiation removed" );
-            this.getParents().forEach( p -> {
-                p.setChangeKind( ChangeKind.UPDATED_CHILD );
-                p.setChangeComment( "QuestionItem assosiation removed from child" );
-            } );
+    fun removeQuestionItem(id: UUID, rev: Int) {
+        conceptQuestionItems.removeIf { it.elementId == id && it.elementRevision == rev }.also {
+            if (it) {
+                this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+                this.changeComment = "QuestionItem assosiation removed"
+                this.getParents().forEach{
+                    it.changeKind = ChangeKind.UPDATED_CHILD
+                    it.changeComment = "QuestionItem assosiation removed from child"
+                }
+            }
         }
     }
 
-    fun addQuestionItem(UUID id, Integer rev) {
-        addQuestionItem( new ElementRefEmbedded<>( ElementKind.QUESTION_ITEM, id,rev ) );
-    }
+//        fun addQuestionItem(id: UUID,  rev: Int) {
+//            addQuestionItem( ElementRefEmbedded<QuestionItem>( ElementKind.QUESTION_ITEM, id,rev ) )
+//        }
 
-    fun addQuestionItem(ElementRefEmbedded<QuestionItem> qef) {
-        if (this.conceptQuestionItems.stream().noneMatch(cqi->cqi.equals( qef ))) {
-
-            conceptQuestionItems.add(qef);
-            this.setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION);
-            this.setChangeComment("QuestionItem assosiation added");
-            this.getParents().forEach(p->p.setChangeKind(ChangeKind.UPDATED_CHILD));
+    fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {
+        this.conceptQuestionItems.stream().noneMatch{it === qef}.run {
+            conceptQuestionItems.add(qef)
+            changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+            changeComment = "QuestionItem assosiation added"
+            getParents().forEach{ it.changeKind = ChangeKind.UPDATED_CHILD}
         }
-        else
-            LOG.debug("ConceptQuestionItem not inserted, match found" );
     }
 
-    fun addChildren(Concept concept): Concept {
-        if(concept == null) return null;
-        this.children.add( concept );
-        concept.setParent( this);
-        setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION);
-        setChangeComment("SubConcept added");
-        getParents().forEach(p->p.setChangeKind(ChangeKind.UPDATED_CHILD));
-        return concept;
+    fun addChildren(concept: Concept): Concept {
+        this.children.add(concept)
+        concept.parent = this
+        changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment = "SubConcept added"
+        getParents().forEach{ it.changeKind = ChangeKind.UPDATED_CHILD}
+        return concept
     }
 
 
     fun hasTopicGroup(): Boolean {
-        return (topicGroup != null);
-    }
-
-    private fun getParents(): List<AbstractEntityAudit> {
-        List<AbstractEntityAudit> retvals = new ArrayList<>( 1 );
-        Concept current = this;
-        while(current.getParent() !=  null){
-            current = current.getParent();
-            retvals.add( current );
+            return (topicGroup != null)
         }
-        if (current.getTopicGroup()!= null)
-            retvals.add( current.getTopicGroup() );         //this will fail for Concepts that return from clients.
-        return retvals; // .stream().filter( f -> f != null ).collect( Collectors.toList());
-    }
 
-    @Override
-    public String toString() {
-        return "{" +
-            "\"id\":" + (getId() == null ? "null" : "\"" + getId() +"\"" ) + ", " +
-            "\"name\":" + (getName() == null ? "null" : "\"" + getName() + "\"") + ", " +
-            "\"label\":" + (label == null ? "null" : "\"" + label + "\"") + ", " +
-            "\"description\":" + (description == null ? "null" : "\"" + description + "\"") + ", " +
-            "\"topicGroupId\":" + (topicGroupId == null ? "null" : topicGroupId) + ", " +
-            "\"conceptQuestionItems\":" + (conceptQuestionItems == null ? "null" : Arrays.toString( conceptQuestionItems.toArray() )) + ", " +
-            "\"children\":" + (children == null ? "null" : Arrays.toString( children.toArray() )) + ", " +
-            "\"modified\":" + (getModified() == null ? "null" : "\"" + getModified()+ "\"" ) + " , " +
-            "\"modifiedBy\":" + (getModifiedBy() == null ? "null" : getModifiedBy()) +
-            "}";
-    }
-
-
-    @Override
-    fun getXmlBuilder():AbstractXmlBuilder {
-        return new ConceptFragmentBuilder(this);
-    }
-
-    @Override
-    fun fillDoc(PdfReport pdfReport,String counter ) {
-        try {
-            pdfReport.addHeader(this, "Concept " + counter )
-            pdfReport.addParagraph( this.description )
-
-            if (getComments().size() > 0) {
-                pdfReport.addheader2("Comments")
-                pdfReport.addComments(getComments())
+    private fun getParents(): MutableList<AbstractEntityAudit> {
+        var  current = this
+        return sequence<AbstractEntityAudit> {
+            while (current.parent != null) {
+                current = current.parent!!
+                yield(current)
             }
+            if (current.topicGroup != null)
+                yield(current.topicGroup!!)
+        }.toMutableList()
+    }
 
-            if (getConceptQuestionItems().size() > 0) {
-                pdfReport.addheader2("QuestionItem(s)")
-                getConceptQuestionItems().stream()
-                    .map( cqi -> {
-                        if (cqi.getElement() == null) {
-                            LOG.info( cqi.toString() )
-                            return null;
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+            try {
+                pdfReport.addHeader(this, "Concept $counter")
+                pdfReport.addParagraph(this.description)
+
+                if (comments.size > 0) {
+                    pdfReport.addheader2("Comments")
+                    pdfReport.addComments(comments)
+                }
+
+                if (conceptQuestionItems.size > 0) {
+                    pdfReport.addheader2("QuestionItem(s)")
+                    conceptQuestionItems.stream().map {
+                        it.element
+                    }
+                        .forEach {
+                            if (it != null) {
+                                pdfReport.addheader2(it.name, String.format("Version %s", it.version))
+                                pdfReport.addParagraph(it.question)
+                                it.responseDomainRef.element?.fillDoc(pdfReport, "")
+                            }
                         }
-                        return cqi.getElement()
-                    } )
-                    .filter( Objects::nonNull )
-                    .forEach( item -> {
-                        pdfReport.addheader2( item.getName(), String.format( "Version %s", item.getVersion() ) )
-                        pdfReport.addParagraph( item.getQuestion() )
-                        if (item.getResponseDomainRef().getElement() != null)
-                            item.getResponseDomainRef().getElement().fillDoc( pdfReport, "" )
-                })
+                }
+                pdfReport.addPadding()
+
+                var i = 0
+                children.forEach {
+                    it.fillDoc(pdfReport, counter + "." + ++i)
+                }
+
+                if (children.size == 0)
+                    pdfReport.addPadding()
+
+            } catch (ex:Exception) {
+                LOG.error(ex.message)
+                throw ex
             }
-
-            pdfReport.addPadding()
-
-            if (counter.length()>0)
-                counter = counter+"."
-                int i = 0;
-            for (Concept concept : getChildren()) {
-                concept.fillDoc(pdfReport, counter + ++i )
-            }
-
-            if (getChildren().size() == 0)
-                 pdfReport.addPadding()
-
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage())
-            throw ex
         }
+
+    override fun beforeUpdate() {
+        TODO("Not yet implemented")
     }
 
+    override fun beforeInsert() {
+        TODO("Not yet implemented")
+    }
+
+    override val xmlBuilder: AbstractXmlBuilder?
+        get() = ConceptFragmentBuilder(this)
 
 }

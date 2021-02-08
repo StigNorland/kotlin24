@@ -27,7 +27,7 @@
 //     public QuestionItemJsonEdit(QuestionItem questionItem) {
 //         super(questionItem);
 //         if (questionItem == null) return;
-//         setComments(questionItem.getComments());
+//         setComments(questionItem.comments);
 //         setQuestion(questionItem.getQuestion());
 //         setIntent(questionItem.getIntent());
 //         setResponseDomainRef( new ResponseDomainRefJsonEdit(questionItem.getResponseDomainRef()));
@@ -59,7 +59,7 @@
 //         this.intent = intent;
 //     }
 
-//     public List<CommentJsonEdit> getComments() {
+//     public List<CommentJsonEdit> comments {
 //         return comments;
 //     }
 

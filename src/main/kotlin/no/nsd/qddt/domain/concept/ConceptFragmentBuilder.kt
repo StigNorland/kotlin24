@@ -1,75 +1,64 @@
-// package no.nsd.qddt.domain.concept;
+package no.nsd.qddt.domain.concept
 
-// import no.nsd.qddt.domain.AbstractEntityAudit;
-// import no.nsd.qddt.domain.classes.elementref.ElementKind;
-// import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder;
-// import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder;
+import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.domain.classes.elementref.ElementKind
+import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder
+import java.util.stream.Collectors
 
-// import java.util.List;
-// import java.util.Map;
-// import java.util.stream.Collectors;
+/**
+ * @author Stig Norland
+ */
+class ConceptFragmentBuilder(concept: Concept) : XmlDDIFragmentBuilder<Concept>(concept) {
+    private val xmlConcept = """%1${"$"}s			<c:ConceptName>
+				<r:String xml:lang="%5${"$"}s">%2${"$"}s</r:String>
+			</c:ConceptName>
+			<r:Description>
+				<r:Content xml:lang="%5${"$"}s" isPlainText="false"><![CDATA[%3${"$"}s]]></r:Content>
+			</r:Description>
+%4${"$"}s		</c:Concept>
+"""
+    private val children:  MutableList<AbstractXmlBuilder> =  concept.children.stream()
+        .filter { it != null }
+        .map { it.xmlBuilder }
+        .collect(Collectors.toList())
 
-// /**
-//  * @author Stig Norland
-//  */
-// public class ConceptFragmentBuilder extends XmlDDIFragmentBuilder<Concept> {
+    private val questions:  MutableList<AbstractXmlBuilder> = concept.conceptQuestionItems.stream()
+        .filter { it.element != null }
+        .map { it.element!!.xmlBuilder }
+        .collect(Collectors.toList())
 
-//     private final String xmlConcept =
-//         "%1$s"+
-//         "\t\t\t<c:ConceptName>\n" +
-//         "\t\t\t\t<r:String xml:lang=\"%5$s\">%2$s</r:String>\n" +
-//         "\t\t\t</c:ConceptName>\n"+
-//         "\t\t\t<r:Description>\n" +
-//         "\t\t\t\t<r:Content xml:lang=\"%5$s\" isPlainText=\"false\"><![CDATA[%3$s]]></r:Content>\n" +
-//         "\t\t\t</r:Description>\n" +
-//         "%4$s" +
-//         "\t\t</c:Concept>\n";
+    override fun <S : AbstractEntityAudit?> getXmlHeader(instance: S): String {
+        val prefix: String = ElementKind.getEnum(instance!!::class.simpleName).ddiPreFix
+        val child = if ((instance as Concept).children.isEmpty()) "" else " isCharacteristic =\"true\""
+        return String.format(
+            xmlHeader, prefix,
+            instance.javaClass.simpleName,
+            getInstanceDate(instance),
+            child,
+            "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance)
+        )
+    }
 
-//             private final List<AbstractXmlBuilder> children;
-//             private final List<AbstractXmlBuilder> questions;
+    override fun addXmlFragments(fragments: Map<ElementKind?, MutableMap<String?, String>>) {
+        super.addXmlFragments(fragments)
+        for (question in questions) {
+            question.addXmlFragments(fragments)
+        }
+        for (child in children) {
+            child.addXmlFragments(fragments)
+        }
+    }
 
-//             public ConceptFragmentBuilder(Concept concept) {
-//                 super(concept);
-//                 // TODO fix questions, add them to export, then reference Concept
-//                 questions = concept.getConceptQuestionItems().stream()
-//                 .filter(f ->  f.getElement() != null )
-//                 .map( cqi ->   cqi.getElement().getXmlBuilder() )
-//                 .collect( Collectors.toList() );
+    override val xmlFragment: String
+        get() = java.lang.String.format(xmlConcept,
+            getXmlHeader(entity),
+            entity.name,
+            entity.description,
+            children.stream()
+                .map { c: AbstractXmlBuilder -> c.getXmlEntityRef(3) }
+                .collect(Collectors.joining()),
+            entity.xmlLang)
 
-//                 children = concept.getChildren().stream()
-//                     .map( c -> c.getXmlBuilder() )
-//                     .collect( Collectors.toList() );
-//             }
- 
-//             @Override
-//             protected <S extends AbstractEntityAudit> String getXmlHeader(S instance){
-//                 String prefix = ElementKind.getEnum(instance.getClass().getSimpleName()).getDdiPreFix();
-//                 String child =  (((Concept)instance).getChildren().isEmpty()) ? "" : " isCharacteristic =\"true\"";
-//                 return String.format(xmlHeader, prefix, 
-//                     instance.getClass().getSimpleName(),
-//                     getInstanceDate(instance),
-//                     child,
-//                     "\t\t\t"+ getXmlURN(instance)+ getXmlUserId(instance)+ getXmlRationale(instance)+ getXmlBasedOn(instance));
-//             }        
-//             @Override
-//             public void addXmlFragments(Map<ElementKind, Map<String, String>> fragments) {
-//                 super.addXmlFragments( fragments );
-//                 for(AbstractXmlBuilder question: questions) {
-//                     question.addXmlFragments( fragments );
-//                 }
-//                 for(AbstractXmlBuilder child : children) {
-//                     child.addXmlFragments( fragments );
-//                 }
-//             }
-        
-//             public String getXmlFragment() {
-//                 return String.format( xmlConcept,
-//                     getXmlHeader(entity),
-//                     entity.getName(),
-//                     entity.getDescription(),
-//                     children.stream()
-//                         .map( c -> c.getXmlEntityRef(3) )
-//                         .collect( Collectors.joining()),
-//                     entity.getXmlLang());
-//             }
-// }
+
+}

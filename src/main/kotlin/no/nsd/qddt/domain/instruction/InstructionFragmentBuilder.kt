@@ -36,7 +36,7 @@ package no.nsd.qddt.domain.instruction;
 //    public String getXmlFragment() {
 //        return String.format( xmlInstruction,
 //            getXmlHeader(entity),
-//            entity.getName(),
+//            entity.name,
 //            entity.getDescription(),
 //            entity.getXmlLang());
 //    }

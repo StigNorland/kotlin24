@@ -28,7 +28,8 @@ class Comment(
 
     @OrderColumn(name = "owner_idx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
-    var comments: List<Comment>? = ArrayList(0),
+
+    var comments: MutableList<Comment> = mutableListOf(),
 
     @Column(name = "is_public", columnDefinition = "boolean not null default true")
     var isPublic: Boolean = true
@@ -36,8 +37,8 @@ class Comment(
 
     fun size(): Int {
         return when {
-            comments == null || comments!!.isEmpty() -> 0
-            else -> comments!!.stream()
+            comments.isEmpty() -> 0
+            else -> comments.stream()
                 .filter { obj: Comment? -> Objects.nonNull(obj) }
                 .mapToInt { c: Comment -> c.size() + 1 }
                 .sum()

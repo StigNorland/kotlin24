@@ -77,7 +77,7 @@ data class ElementRefCondition<T : ControlConstruct?> : IElementRef<T> {
         this.element = element
         if (element != null) {
             setElementId(element.getId())
-            name = element.getName()
+            name = element.name
             //            setCondition( element.getCondition() );
             version.setRevision(elementRevision)
         } else {

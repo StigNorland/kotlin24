@@ -1,44 +1,33 @@
-package no.nsd.qddt.domain.topicgroup;
+package no.nsd.qddt.domain.topicgroup
 
-import no.nsd.qddt.domain.IEntityFactory;
-import no.nsd.qddt.domain.classes.elementref.ElementRefEmbedded;
-import no.nsd.qddt.domain.concept.ConceptFactory;
-
-import java.util.stream.Collectors;
+import no.nsd.qddt.domain.concept.ConceptFactory
+import java.util.function.Consumer
+import java.util.function.Function
 
 /**
  * @author Stig Norland
  */
+internal class TopicGroupFactory : IEntityFactory<TopicGroup?> {
+    override fun create(): TopicGroup {
+        return TopicGroup()
+    }
 
-class TopicGroupFactory implements IEntityFactory<TopicGroup> {
-
-	@Override
-	public TopicGroup create() {
-		return new TopicGroup();
-	}
-
-	@Override
-    public TopicGroup copyBody(TopicGroup source, TopicGroup dest) {
-	    dest.setDescription(source.getDescription());
-      dest.setName(source.getName());
-      dest.setOtherMaterials(source.getOtherMaterials().stream()
-      .map( m -> m.clone())
-      .collect(Collectors.toList()) ); 
-
-      ConceptFactory cf = new ConceptFactory();
-
-      dest.setConcepts(source.getConcepts().stream()
-          .map(mapper ->  cf.copy(mapper,dest.getBasedOnRevision()))
-          .collect(Collectors.toList()));
-
-      dest.getConcepts().forEach( concept -> concept.setTopicGroup( dest ) );
-
-      dest.setTopicQuestionItems( source.getTopicQuestionItems().stream()
-          .map( ElementRefEmbedded::clone )
-          .collect(Collectors.toList()));
-
-      return dest;
-	}
-
-
+    override fun copyBody(source: TopicGroup, dest: TopicGroup): TopicGroup {
+        dest.description = source.description
+        dest.name = source.name
+        dest.otherMaterials = source.otherMaterials.stream()
+            .map(Function<OtherMaterial, OtherMaterial> { m: OtherMaterial -> m.clone() })
+            .collect(Collectors.toList())
+        val cf = ConceptFactory()
+        dest.setConcepts(
+            source.getConcepts().stream()
+                .map(Function<Concept, Any> { mapper: Concept? -> cf.copy(mapper, dest.basedOnRevision) })
+                .collect(Collectors.toList())
+        )
+        dest.getConcepts().forEach(Consumer<Concept> { concept: Concept -> concept.setTopicGroup(dest) })
+        dest.topicQuestionItems = source.topicQuestionItems.stream()
+            .map(Function<ElementRefEmbedded<QuestionItem?>, ElementRefEmbedded<QuestionItem>> { obj: ElementRefEmbedded<QuestionItem?> -> obj.clone() })
+            .collect(Collectors.toList())
+        return dest
+    }
 }

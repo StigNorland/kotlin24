@@ -1,12 +1,21 @@
 package no.nsd.qddt.domain.category
 
-import com.itextpdf.layout.Document
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import java.util.*
 import java.util.function.Consumer
 import javax.persistence.*
 import org.joda.time.DateTime
+import org.hibernate.envers.Audited
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.domain.ResponseCardinality
+import no.nsd.qddt.domain.classes.pdf.PdfReport
+import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.domain.responsedomain.Code
 import no.nsd.qddt.utils.StringTool
+import java.util.stream.Collectors
 
 /**
  *
@@ -37,10 +46,7 @@ import no.nsd.qddt.utils.StringTool
 @Entity
 @Table(
     name = "CATEGORY",
-    uniqueConstraints = [UniqueConstraint(
-        columnNames = ["label", "name", "category_kind"],
-        name = "UNQ_CATEGORY_NAME_KIND"
-    )]                                                      //https://github.com/DASISH/qddt-client/issues/606
+    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "category_kind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
 class Category(
     /*
@@ -49,11 +55,8 @@ class Category(
      *   Repeat for labels with different content, for example,
      *   labels with differing length limitations or of different types or applications.
      */
-
-    var label: String
-    get {
-        SafeString(label)
-    },
+    var label: String? = null,
+//        get() = SafeString(field?:""),
 
     /*
      *   A description of the content and purpose of the category.
@@ -61,15 +64,15 @@ class Category(
      *   Note that comparison of categories is done using the content of description.
     */
     @Column(length = 2000)
-    var description: String = "?"
-        set(value) {
-            field =  StringTool.CapString(value)
-        }
-        get{
-            if StringTool.IsNullOrEmpty(field)
-                field = getCategoryType().getName()
-            return field
-        },
+    var description: String? = null,
+//        set(value) {
+//            field =  StringTool.CapString(value)
+//        }
+//        get {
+//            if StringTool.IsNullOrEmpty(field)
+//                field = getCategoryType().name
+//            return field
+//        },
 
     /**
      *  This field is only used for categories that facilitates user input.
@@ -80,8 +83,8 @@ class Category(
 
     @Column(name = "classification_level")
     @Enumerated(EnumType.STRING)
-    var classificationLevel: CategoryRelationCodeType?
-        private set,
+    var classificationLevel: CategoryRelationCodeType? = null,
+//        private set,
 
     /**
      *  format is used by datetime, and other kinds if needed.
@@ -90,9 +93,19 @@ class Category(
 
     // @Column(name = "Hierarchy_level", nullable = false)
     @Enumerated(EnumType.STRING)
-    var hierarchyLevel: HierarchyLevel,
+    var hierarchyLevel: HierarchyLevel
 
     // @Column(name = "category_kind", nullable = false)
+
+) : AbstractEntityAudit(), Comparable<Category>, Cloneable {
+
+    override var name: String = ""
+        get() {
+            if (StringTool.IsNullOrTrimEmpty(field))
+                field = label!!.toUpperCase()
+            return field
+        }
+
     @Enumerated(EnumType.STRING)
     var categoryType: CategoryType = CategoryType.CATEGORY
         set(value) {
@@ -100,7 +113,7 @@ class Category(
             when (value) {
                 CategoryType.MISSING_GROUP,
                 CategoryType.LIST -> {
-                    classificationLevel = CategoryRelationCodeType.Ordinal
+                    classificationLevel = CategoryRelationCodeType.Nominal
                     hierarchyLevel = HierarchyLevel.GROUP_ENTITY
                 }
                 CategoryType.SCALE -> {
@@ -113,58 +126,40 @@ class Category(
                 }
                 else -> hierarchyLevel = HierarchyLevel.ENTITY
             }
-        },
-
-) : AbstractEntityAudit(), Comparable<Category>, Cloneable {
-
-    var name: String
-        get() {
-            if (StringTool.IsNullOrTrimEmpty(super.name)) super.name = getLabel()!!.toUpperCase()
-            return super.name
         }
 
 
     @Transient
     @JsonSerialize
     @JsonDeserialize
-    var code: Code?
+    var code: Code = Code()
 
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "category_idx")
-    var children: List<Category>? = ArrayList()
-
-    /***
-     *
-     * @param name Category name
-     * @param label Shorter version of name if applicable
-     */
-    // constructor(name: String?, label: String?) : this() {
-    //     name = name
-    //     setLabel(label)
-    // }
-
-    fun getChildren(): List<Category> {
+    var children: MutableList<Category>? =  mutableListOf()
+    get() {
         return if (categoryType == CategoryType.SCALE) {
-            if (children == null || children!!.size == 0) LOG.error("getChildren() is 0/NULL")
-            children!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }
+            if (field == null || field!!.isEmpty()) LOG.error("getChildren() is 0/NULL")
+            field!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }
                 .sorted(Comparator.comparing { obj: Category -> obj.code })
                 .collect(Collectors.toList())
-        } else children!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }.collect(Collectors.toList())
+        } else
+            field!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }.collect(Collectors.toList())
+        }
+    set(value) {
+        field =
+        when (categoryType) {
+            CategoryType.SCALE -> value!!.stream().sorted(Comparator.comparing { obj: Category -> obj.code }).collect(Collectors.toList())
+            else -> value
+        }
     }
 
-    fun setChildren(children: List<Category>?) {
-        if (categoryType == CategoryType.SCALE) this.children =
-            children!!.stream().sorted(Comparator.comparing { obj: Category -> obj.code }).collect(Collectors.toList())
-        this.children = children
-    }
-
-
-    override fun fillDoc(pdfReport: PdfReport?, counter: String?) {
-        val document: Document = pdfReport.theDocument
-        when (getCategoryType()) {
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+        val document: Document = pdfReport.theDocument!!
+        when (categoryType) {
             CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN, CategoryType.CATEGORY -> {
-                document.add(Paragraph("Category " + getLabel()))
-                document.add(Paragraph("Type " + getCategoryType()!!.name))
+                document.add(Paragraph("Category $label"))
+                document.add(Paragraph("Type ${categoryType.name}"))
             }
             CategoryType.MISSING_GROUP -> {
             }
@@ -181,12 +176,11 @@ class Category(
     /*
     preRec for valid Categories
      */
-    @get:JsonIgnore
     val isValid: Boolean
         get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryType) {
             CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children!!.size == 0 && inputLimit.isValid()
-            CategoryType.CATEGORY -> children!!.size == 0 && label != null && !label!!.trim { it <= ' ' }.isEmpty()
-                    && name != null && !name!!.trim { it <= ' ' }.isEmpty()
+            CategoryType.CATEGORY -> children!!.size == 0 && label != null && label!!.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
+                .isNotEmpty()
             else -> false
         } else when (categoryType) {
             CategoryType.MISSING_GROUP, CategoryType.LIST -> children!!.size > 0 && inputLimit.isValid() && classificationLevel != null
@@ -195,40 +189,36 @@ class Category(
             else -> false
         }
 
-    override fun compareTo(o: Category): Int {
-        var i: Int
-        i = this.agency.compareTo(o.agency)
+    override fun compareTo(other: Category): Int {
+        var i = this.agency!!.compareTo(other.agency!!)
         if (i != 0) return i
-        i = hierarchyLevel.compareTo(o.hierarchyLevel)
+        i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i
-        i = getCategoryType()!!.compareTo(o.getCategoryType()!!)
+        i = categoryType.compareTo(other.categoryType)
         if (i != 0) return i
-        i = name!!.compareTo(o.name!!)
+        i = name.compareTo(other.name)
         if (i != 0) return i
-        i = getLabel()!!.compareTo(o.getLabel()!!)
+        i = label!!.compareTo(other.label!!)
         if (i != 0) return i
-        i = getDescription()!!.compareTo(o.getDescription()!!)
+        i = description!!.compareTo(other.description!!)
         if (i != 0) return i
-        i = this.id.compareTo(o.id)
-        return if (i != 0) i else super.modified.compareTo(o.modified)
+        i = this.id.compareTo(other.id)
+        return if (i != 0) i else modified?.compareTo(other.modified)!!
     }
 
-    protected override fun beforeUpdate() {
-        LOG.debug("Category beforeUpdate $name")
-        if (inputLimit == null) setInputLimit(0, 1, 1)
-        beforeInsert()
+    override fun beforeUpdate() {
+        TODO("Not yet implemented")
     }
 
     override fun beforeInsert() {
         LOG.debug("Category beforeInsert $name")
-        if (getCategoryType() == null) setCategoryType(CategoryType.CATEGORY)
-        if (hierarchyLevel == null) when (getCategoryType()) {
-            CategoryType.DATETIME, CategoryType.BOOLEAN, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.CATEGORY -> hierarchyLevel =
-                HierarchyLevel.ENTITY
-            CategoryType.MISSING_GROUP, CategoryType.LIST, CategoryType.SCALE, CategoryType.MIXED -> hierarchyLevel =
+        hierarchyLevel = when (categoryType) {
+            CategoryType.DATETIME, CategoryType.BOOLEAN, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.CATEGORY ->
+                 HierarchyLevel.ENTITY
+            CategoryType.MISSING_GROUP, CategoryType.LIST, CategoryType.SCALE, CategoryType.MIXED ->
                 HierarchyLevel.GROUP_ENTITY
         }
-        name = name!!.trim { it <= ' ' }
+        name = name.trim { it <= ' ' }
     }
 
     // /used to keep track of current item in the recursive call populateCatCodes
@@ -237,7 +227,6 @@ class Category(
 
     //codes.clear();
     // this is useful for populating codes before saving to DB (used in the service)
-    @get:JsonIgnore
     var codes: List<Code>
         get() = harvestCatCodes(this)
         set(codes) {
@@ -249,10 +238,10 @@ class Category(
     private fun harvestCatCodes(current: Category?): List<Code> {
         val tmplist: MutableList<Code> = ArrayList(0)
         if (current == null) return tmplist
-        if (current.hierarchyLevel == HierarchyLevel.ENTITY && current.code != null) {
-            tmplist.add((if (current.code == null) Code("") else current.code!!))
+        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
+            tmplist.add((current.code))
         }
-        current.getChildren().forEach(Consumer { c: Category? -> tmplist.addAll(harvestCatCodes(c)) })
+        current.children?.forEach(Consumer { c: Category? -> tmplist.addAll(harvestCatCodes(c)) })
         return tmplist
     }
 
@@ -273,32 +262,22 @@ class Category(
                 current.code = Code()
             }
         }
-        current.getChildren().forEach(Consumer { c: Category? -> populateCatCodes(c, codes) })
+        current.children!!.forEach(Consumer { c: Category? -> populateCatCodes(c, codes) })
     }
 
     public override fun clone(): Category {
-        val clone = Category(name, label)
-        clone.setCategoryType(categoryType)
-        clone.classificationLevel = classificationLevel
-        clone.setChildren(children)
-        clone.code = code
-        clone.setDescription(description)
-        clone.format = format
-        clone.hierarchyLevel = hierarchyLevel
-        clone.setInputLimit(inputLimit)
-        clone.basedOnObject = id
-        clone.changeKind = ChangeKind.NEW_COPY
-        clone.changeComment = "Copy of [$name]"
-        return clone
+        return Category(name, label,inputLimit,classificationLevel,format,hierarchyLevel).apply {
+            categoryType = categoryType
+            children = children
+            code = code
+            description = description
+            basedOnObject = id
+            changeKind = ChangeKind.NEW_COPY
+            changeComment = "Copy of [$name]"
+        }
     }
 
-    val xmlBuilder: AbstractXmlBuilder
+    override val xmlBuilder: AbstractXmlBuilder
         get() = CategoryFragmentBuilder(this)
 
-    init {
-        code = Code()
-        hierarchyLevel = HierarchyLevel.ENTITY
-        setCategoryType(CategoryType.CATEGORY)
-        setInputLimit(0, 1, 1)
-    }
 }

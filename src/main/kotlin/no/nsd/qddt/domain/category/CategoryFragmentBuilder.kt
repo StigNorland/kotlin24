@@ -35,7 +35,7 @@ open class CategoryFragmentBuilder(category: Category?) : XmlDDIFragmentBuilder<
             xmlCategory,
             getXmlHeader(entity!!),
             getXmlLang(entity),
-            entity.getName(),
+            entity.name,
             entity.label,
             getXmlFooter(entity)
         )
@@ -46,7 +46,7 @@ open class CategoryFragmentBuilder(category: Category?) : XmlDDIFragmentBuilder<
                 entity
             ), getTabs(depth)
         ) else String.format(
-            xmlDomainReference, entity.categoryType.getName(), getXmlURN(
+            xmlDomainReference, entity.categoryType.name, getXmlURN(
                 entity
             ), getTabs(depth)
         )

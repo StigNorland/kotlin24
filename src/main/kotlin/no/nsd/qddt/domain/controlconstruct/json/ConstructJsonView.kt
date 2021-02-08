@@ -49,7 +49,7 @@ open class ConstructJsonView(construct: ControlConstruct?) {
     // /**
     //  * @return the agency
     //  */
-    // public Agency getAgency() {
+    // public Agency agency {
     //     return agency;
     // }
     override fun equals(o: Any?): Boolean {
@@ -82,6 +82,6 @@ open class ConstructJsonView(construct: ControlConstruct?) {
         version = construct.version
         classKind = construct.classKind
         modifiedBy = construct.modifiedBy
-        // agency = new Agency(construct.getAgency());
+        // agency = new Agency(construct.agency);
     }
 }

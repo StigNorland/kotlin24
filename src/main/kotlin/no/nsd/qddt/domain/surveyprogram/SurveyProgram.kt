@@ -106,7 +106,7 @@ public class SurveyProgram extends AbstractEntityAudit implements IAuthor, IArch
         this.studies.add( study );
         study.setSurveyProgram(this);
         setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION);
-        setChangeComment("Study ["+ study.getName() +"] added");
+        setChangeComment("Study ["+ study.name +"] added");
         return study;
     }
 
@@ -168,9 +168,9 @@ public class SurveyProgram extends AbstractEntityAudit implements IAuthor, IArch
         pdfReport.addHeader(this,"Survey");
         pdfReport.addParagraph( this.description );
 
-        if(getComments().size()>0)
+        if(comments.size()>0)
             pdfReport.addheader2("Comments");
-        pdfReport.addComments(getComments());
+        pdfReport.addComments(comments);
 
         pdfReport.addPadding();
 
