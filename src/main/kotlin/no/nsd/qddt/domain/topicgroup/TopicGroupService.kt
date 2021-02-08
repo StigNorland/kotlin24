@@ -1,25 +1,25 @@
-package no.nsd.qddt.domain.topicgroup;
+// package no.nsd.qddt.domain.topicgroup;
 
-import no.nsd.qddt.domain.classes.interfaces.BaseArchivedService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+// import no.nsd.qddt.domain.classes.interfaces.BaseArchivedService;
+// import org.springframework.data.domain.Page;
+// import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.UUID;
+// import java.util.List;
+// import java.util.UUID;
 
-/**
- * @author Stig Norland
- */
-public interface TopicGroupService extends BaseArchivedService<TopicGroup> {
+// /**
+//  * @author Stig Norland
+//  */
+// public interface TopicGroupService extends BaseArchivedService<TopicGroup> {
 
-    List<TopicGroup> findByStudyId(UUID id);
+//     List<TopicGroup> findByStudyId(UUID id);
 
-    Page<TopicGroup> findAllPageable(Pageable pageable);
+//     Page<TopicGroup> findAllPageable(Pageable pageable);
 
-    Page<TopicGroup> findByNameAndDescriptionPageable(String name, String description, Pageable pageable);
+//     Page<TopicGroup> findByNameAndDescriptionPageable(String name, String description, Pageable pageable);
 
-    List<TopicGroup> findByQuestionItem(UUID id, Integer rev);
+//     List<TopicGroup> findByQuestionItem(UUID id, Integer rev);
 
-    TopicGroup copy(UUID id, Integer rev, UUID parentId);
+//     TopicGroup copy(UUID id, Integer rev, UUID parentId);
 
-}
+// }

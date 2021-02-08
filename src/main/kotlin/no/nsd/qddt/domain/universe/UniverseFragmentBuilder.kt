@@ -17,12 +17,12 @@ class UniverseFragmentBuilder(entity:Universe):XmlDDIFragmentBuilder<Universe>(e
     "\t\t\t</r:Description>\n" +
     "\t\t</c:Universe>\n")
   
-  val xmlFragment:String
+  override val xmlFragment:String
   get() {
     return String.format(xmlUniverse,
                          getXmlHeader(entity),
-                         entity.getName(),
-                         entity.getDescription(),
-                         entity.getXmlLang())
+                         entity.name,
+                         entity.description,
+                         entity.xmlLang)
   }
 }

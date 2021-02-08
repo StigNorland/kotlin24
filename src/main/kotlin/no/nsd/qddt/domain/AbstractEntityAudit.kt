@@ -1,24 +1,26 @@
 package no.nsd.qddt.domain
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.domain.agency.Agency
+import no.nsd.qddt.domain.classes.interfaces.Version as EmbeddedVersion
 import no.nsd.qddt.domain.classes.elementref.ElementKind
 import no.nsd.qddt.domain.classes.exception.StackTraceFilter
 import no.nsd.qddt.domain.classes.interfaces.IArchived
 import no.nsd.qddt.domain.classes.interfaces.IDomainObject
 import no.nsd.qddt.domain.classes.pdf.PdfReport
+import no.nsd.qddt.domain.agency.Agency
 import no.nsd.qddt.domain.user.User
+import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
+
+import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+
+import org.springframework.security.core.context.SecurityContextHolder
 import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
-import org.springframework.security.core.context.SecurityContextHolder
-import utils.StringTool
 import java.io.ByteArrayOutputStream
 import java.util.*
 import java.util.stream.Collectors
 import javax.persistence.*
-import no.nsd.qddt.domain.classes.interfaces.Version as EmbeddedVersion
 
 /**
  * @author Dag Østgulen Heradstveit
@@ -28,24 +30,21 @@ import no.nsd.qddt.domain.classes.interfaces.Version as EmbeddedVersion
 @MappedSuperclass
 abstract class AbstractEntityAudit(
 
-    override var name: String? = null,
-
     @JsonBackReference(value = "agentRef")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agency_id")
     override var agency : Agency? = null,
 
-    @Column(name = "based_on_object", updatable = false)
-    var basedOnObject: UUID? = null,
+    @Column(updatable = false)
+    val basedOnObject: UUID? = null,
 
-    @Column(name = "based_on_revision", updatable = false)
-    var basedOnRevision: Int? = null,
+    @Column( updatable = false)
+    val basedOnRevision: Int? = null,
 
     @Embedded
-    override var version: EmbeddedVersion? = null,
+    override var version: EmbeddedVersion= EmbeddedVersion()
 
-    @Column(name = "xml_lang", nullable = false)
-    var xmlLang: String? = null
+    var xmlLang: String? = "en-GB"
 
 ) : AbstractEntity(), IDomainObject {
     /**
@@ -80,15 +79,6 @@ abstract class AbstractEntityAudit(
         override fun toString(): String {
             return """{ "ChangeKind": ${"\"" + label + "\""}}"""
         }
-
-//        companion object {
-//            fun getEnum(name: String?): ChangeKind {
-//                requireNotNull(name)
-//                for (v in values()) if (name.equals(v.name, ignoreCase = true)) return v
-//                throw IllegalArgumentException()
-//            }
-//        }
-
     }
 
     /**
@@ -123,14 +113,12 @@ abstract class AbstractEntityAudit(
     @JsonSerialize
     @JsonDeserialize
     @Transient
-    override var classKind: String? =
-        try {
-            ElementKind.getEnum(this.javaClass.simpleName).toString()
-        } catch (e: Exception) {
-            this.javaClass.simpleName
-        }
+    override var classKind: String = 
+        try { ElementKind.getEnum(this.javaClass.simpleName).toString() } 
+        catch (e: Exception) {this.javaClass.simpleName}
 
 
+// TODO : moce these to PrePersist class
 
     @PrePersist
     private fun onInsert() {
@@ -153,7 +141,7 @@ abstract class AbstractEntityAudit(
                 change = ChangeKind.IN_DEVELOPMENT
                 changeKind = change
             }
-            if (StringTool.IsNullOrTrimEmpty(changeComment)) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
+            if (IsNullOrTrimEmpty(changeComment)) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
                 changeComment = change.description
             when (change) {
                 ChangeKind.CREATED
@@ -209,9 +197,9 @@ abstract class AbstractEntityAudit(
         return pdfOutputStream
     }
 
-    abstract fun fillDoc(pdfReport: PdfReport?, counter: String?)
+    abstract fun fillDoc(pdfReport: PdfReport, counter: String)
 
-    protected abstract fun beforeUpdate()
+    protected abstract fun beforeUpdate() 
     protected abstract fun beforeInsert()
 
 }

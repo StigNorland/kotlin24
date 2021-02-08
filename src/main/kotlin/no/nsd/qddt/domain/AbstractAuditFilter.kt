@@ -13,7 +13,9 @@ import java.util.stream.Stream
  * @author Stig Norland
  */
 abstract class AbstractAuditFilter<N, T : AbstractEntityAudit?> where N : Number?, N : Comparable<N>? {
+
     protected abstract fun postLoadProcessing(instance: Revision<N, T>?): Revision<N, T>?
+
     protected fun getPageIncLatest(
         revisions: Revisions<N, T>,
         filter: Collection<ChangeKind?>,
@@ -21,7 +23,7 @@ abstract class AbstractAuditFilter<N, T : AbstractEntityAudit?> where N : Number
     ): Page<Revision<N, T>> {
         val skip = pageable.offset
         val limit = pageable.pageSize
-        val totalsize =
+        val totalSize =
             revisions.content.stream().filter { c: Revision<N, T> -> !filter.contains(c.entity!!.changeKind) }
                 .count()
         return PageImpl(
@@ -38,7 +40,7 @@ abstract class AbstractAuditFilter<N, T : AbstractEntityAudit?> where N : Number
                 .distinct()
                 .limit(limit.toLong())
                 .map { instance: Revision<N, T>? -> postLoadProcessing(instance) }
-                .collect(Collectors.toList()), pageable, totalsize + 1)
+                .collect(Collectors.toList()), pageable, totalSize + 1)
     }
 
     protected fun getPage(
@@ -46,7 +48,7 @@ abstract class AbstractAuditFilter<N, T : AbstractEntityAudit?> where N : Number
         filter: Collection<ChangeKind?>,
         pageable: Pageable
     ): Page<Revision<N, T>> {
-        val totalsize =
+        val totalSize =
             revisions.content.stream().filter { f: Revision<N, T> -> !filter.contains(f.entity!!.changeKind) }
                 .count()
         return PageImpl(
@@ -55,6 +57,6 @@ abstract class AbstractAuditFilter<N, T : AbstractEntityAudit?> where N : Number
                 .skip(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .map { instance: Revision<N, T>? -> postLoadProcessing(instance) }
-                .collect(Collectors.toList()), pageable, totalsize)
+                .collect(Collectors.toList()), pageable, totalSize)
     }
 }

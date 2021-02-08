@@ -1,4 +1,4 @@
-package utils
+package no.nsd.qddt.utils
 
 import java.util.*
 

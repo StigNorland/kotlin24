@@ -19,21 +19,20 @@ import javax.persistence.*
 @MappedSuperclass
 abstract class AbstractEntity(
     @Id  @GeneratedValue
-    val id: UUID? = null,
+    val id: UUID = UUID.randomUUID(),
 
     @Version
-    var  modified: Timestamp? = null,
+    val modified: Timestamp? = null,
 
     @LastModifiedBy
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    var modifiedBy: User? = null
+    val modifiedBy: User? = null
 
 ) {
     @Transient
     @JsonIgnore
     protected val LOG = LoggerFactory.getLogger(this.javaClass)
 
-    @get:JsonIgnore
     abstract val xmlBuilder: AbstractXmlBuilder?
 }

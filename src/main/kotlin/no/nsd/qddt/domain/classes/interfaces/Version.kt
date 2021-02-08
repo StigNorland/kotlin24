@@ -32,7 +32,10 @@ class Version : Comparable<Version> {
 
     var versionLabel: String = ""
 
+    private val VERSION_FORMAT = "%1\$s.%2\$s%3\$s"
 
+
+    constructor()
 
     constructor(major: Int, minor: Int, revision: Int, versionLabel: String) {
         this.major = major
@@ -41,8 +44,6 @@ class Version : Comparable<Version> {
         this.versionLabel = versionLabel
         isModified = false
     }
-
-    constructor()
 
 
     override fun compareTo(other: Version): Int {
@@ -63,10 +64,6 @@ class Version : Comparable<Version> {
             "{\"Version\":{\"major\":\"%d\", \"minor\":\"%d\", \"versionLabel\":\"%s\"%s}}",
             major, minor, versionLabel, if (revision != 0) ", \"revision\":\"$revision\"" else ""
         )
-    }
-
-    companion object {
-        private const val VERSION_FORMAT = "%1\$s.%2\$s%3\$s"
     }
 }
 

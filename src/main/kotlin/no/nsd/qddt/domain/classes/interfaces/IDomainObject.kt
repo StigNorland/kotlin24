@@ -8,8 +8,12 @@ import java.sql.Timestamp
  * @author Stig Norland
  */
 interface IDomainObject : IWebMenuPreview, IXmlBuilder {
-    var modifiedBy: User?
+    // val id: UUID
+    // var name: String
+    // var version: Version
     var modified: Timestamp?
+    var modifiedBy: User?
     var agency: Agency?
-    var classKind: String?
+    var classKind: String
+    // val xmlBuilder: AbstractXmlBuilder?
 }

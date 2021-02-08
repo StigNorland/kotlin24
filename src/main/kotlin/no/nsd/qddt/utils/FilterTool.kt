@@ -1,40 +1,48 @@
-package utils
+package no.nsd.qddt.utils
 
-import org.springframework.data.domain.PageRequest
-import utils.FilterTool
-import java.util.stream.Collectors
-import utils.StringTool
-import org.hibernate.usertype.UserType
 import kotlin.Throws
+import org.hibernate.usertype.UserType
 import org.hibernate.HibernateException
-import java.sql.SQLException
-import java.sql.ResultSet
 import org.hibernate.engine.spi.SharedSessionContractImplementor
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import java.sql.PreparedStatement
-import java.util.*
+import java.util.stream.Collectors
 import java.util.function.Consumer
+import java.util.*
+import java.sql.SQLException
+import java.sql.ResultSet
 
 /**
  * @author Stig Norland
  */
 object FilterTool {
-    fun defaultSort(pageable: Pageable?, vararg args: String?): PageRequest {
-        assert(pageable != null)
-        val sort: Sort
-        sort = if (pageable!!.sort == null) defaultSort(*args) else {
-            filterSort(pageable.sort, "responseDomain.name")
-        }
+
+    fun defaultSort(pageable: Pageable, vararg args: String): PageRequest {
         return PageRequest.of(
-            pageable.pageNumber, pageable.pageSize, sort
+            pageable.pageNumber,
+            pageable.pageSize,
+            filterSort(pageable.sort, "responseDomain.name") ?:
+            defaultSort(*args)
         )
     }
 
-    private fun filterSort(source: Sort, vararg args: String): Sort {
-        val filterwords = Arrays.asList(*args)
+    fun defaultOrModifiedSort(pageable: Pageable, vararg args: String): PageRequest {
+        return PageRequest.of(
+            pageable.pageNumber,
+            pageable.pageSize,
+            modifiedSort(pageable.sort) ?: 
+            defaultSort(*args)
+        )
+    }
+
+    private fun filterSort(source: Sort?, vararg args: String): Sort? {
+        if (source == null) return null
+        val filterWords = Arrays.asList(*args)
         val orders: MutableList<Sort.Order> = ArrayList(0)
-        source.iterator().forEachRemaining { o: Sort.Order -> if (!filterwords.contains(o.property)) orders.add(o) }
+        source.iterator().forEachRemaining { 
+            o: Sort.Order -> if (!filterWords.contains(o.property)) orders.add(o) }
         return Sort.by(orders)
     }
 
@@ -51,10 +59,9 @@ object FilterTool {
         )
     }
 
-    fun referencedSort(pageable: Pageable?): PageRequest {
-        assert(pageable != null)
+    fun referencedSort(pageable: Pageable): PageRequest {
         val orders: MutableList<Sort.Order> = LinkedList()
-        pageable!!.sort.forEach(Consumer { o: Sort.Order ->
+        pageable.sort.forEach(Consumer { o: Sort.Order ->
             if (o.property != "modified") {
                 orders.add(o)
             }
@@ -64,16 +71,9 @@ object FilterTool {
         return PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.by(orders))
     }
 
-    fun defaultOrModifiedSort(pageable: Pageable?, vararg args: String?): PageRequest {
-        assert(pageable != null)
-        val sort: Sort
-        sort = if (pageable!!.sort == null) defaultSort(*args) else modifiedSort(
-            pageable.sort
-        )
-        return PageRequest.of(pageable.pageNumber, pageable.pageSize, sort)
-    }
 
-    private fun modifiedSort(sort: Sort): Sort {
+    private fun modifiedSort(sort: Sort?): Sort? {
+        if (sort == null) return null
         val orders: MutableList<Sort.Order> = LinkedList()
         sort.forEach(Consumer { o: Sort.Order ->
             if (o.property == "modified") {

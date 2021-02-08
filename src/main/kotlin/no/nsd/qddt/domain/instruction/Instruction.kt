@@ -22,11 +22,13 @@ import static no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty;
 @Table(name = "INSTRUCTION", uniqueConstraints = {@UniqueConstraint(columnNames = {"name","description","agency_id"},name = "UNQ_INSTRUCTION_NAME")})
 class Instruction(
     @Column(name = "description", length = 2000,nullable = false)
-    var description: String
+    var description: String = ""
         set(value) {
-            if (IsNullOrTrimEmpty(name) {
-            var max25 = description.length()>25?25:description.length
-            name = description.toUpperCase().replace(' ','_').substring(0,max25)
+            field = value
+            if (IsNullOrTrimEmpty(super.name)) {
+                var max25 = minOf(value.length,25)
+                super.name = value.substring(0,max25).toUpperCase().replace(' ','_')
+            }
         }
 
 ): AbstractEntityAudit() {

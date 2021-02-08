@@ -19,18 +19,17 @@ import java.util.UUID
 */
 @Audited
 @Embeddable
-class OtherMaterial:Cloneable {
-  @Type(type = "pg-uuid")
-  @Column(name = "original_owner")
-  val originalOwner:UUID
+class OtherMaterial(
 
-  @Column(name = "original_name", updatable = false, nullable = false)
-  var originalName:String
-  set(originalName) {
-    field = originalName
-    this.fileName = originalName.toUpperCase().replace(' ', '_').replace('.', '_') + "00"
+
+):Cloneable {
+
+  var originalOwner: UUID
+  var originalName: String
+  set(value) {
+    field = value
+    this.fileName = value.toUpperCase().replace(' ', '_').replace('.', '_') + "00"
   }
-
   var fileName:String
   var fileType:String
   var size:Long = 0
@@ -40,7 +39,6 @@ class OtherMaterial:Cloneable {
     originalName = file.getOriginalFilename()
     fileType = file.getContentType()
     size = file.getSize()
-    setDescription(null!!)
   }
   constructor(originalName:String, fileType:String, size:Long, description:String) {
     originalName = originalName
@@ -58,20 +56,10 @@ class OtherMaterial:Cloneable {
  **/
   fun setOriginalOwner(originalOwner:UUID):OtherMaterial {
     // we want to keep reference to the first path for all descendants of the root...
-    if (this.originalOwner == null)
     this.originalOwner = originalOwner
     return this
   }
   
-  
-  public override fun toString():String {
-    return ("OtherMaterial{" +
-            ", description='" + description + '\''.toString() +
-            ", fileType='" + fileType + '\''.toString() +
-            ", originalName='" + this.originalName + '\''.toString() +
-            ", size=" + size +
-            "} ")
-  }
   
   
   public override fun clone():OtherMaterial {
@@ -80,14 +68,14 @@ class OtherMaterial:Cloneable {
 
   fun toDDIXml(entity:AbstractEntityAudit, tabs:String):String {
     return String.format(OM_REF_FORMAT, tabs,
-                         "",
-                         "<r:URN type=\"URN\" typeOfIdentifier=\"Canonical\">urn:ddi:" + getUrnId(entity) + "</r:URN>",
-                         ElementKind.getEnum(entity.getClassKind()).getClassName(),
-                         entity.getId() + ":" + entity.getVersion().toDDIXml(),
-                         description,
-                         entity.getId().toString() + '/'.toString() + this.fileName,
-                         fileType
-                        )
+      "",
+      "<r:URN type=\"URN\" typeOfIdentifier=\"Canonical\">urn:ddi:" + getUrnId(entity) + "</r:URN>",
+      ElementKind.getEnum(entity.classKind).className,
+      entity.id + ":" + entity.version.toDDIXml(),
+      description,
+      entity.getId().toString() + '/'.toString() + this.fileName,
+      fileType
+    )
   }
 
   fun getUrnId(entity:AbstractEntityAudit):String {

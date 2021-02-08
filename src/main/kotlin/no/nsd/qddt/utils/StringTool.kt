@@ -1,4 +1,4 @@
-package utils
+package no.nsd.qddt.utils
 
 import kotlin.reflect.KProperty
 
@@ -16,7 +16,7 @@ object StringTool {
     }
 
     fun IsNullOrTrimEmpty(input: String?): Boolean {
-        return input == null || input.trim { it <= ' ' }.isEmpty()
+        return input == null || input.trim().isEmpty()
     }
 
     fun SafeString(input: String?): String {
@@ -24,13 +24,13 @@ object StringTool {
     }
 
     fun likeify(value: String): String {
-        var value = value
         if (IsNullOrTrimEmpty(value)) return ""
-        value = value.replace("*", "%")
-        if (!value.startsWith("%")) value = "%$value"
-        if (!value.endsWith("%")) value = "$value%"
-        value = value.replace("%%", "%")
+
         return value
+            .let { it.replace("*", "%") }
+            .let { "%$it"}
+            .let { "$it%"}
+            .let { it.replace("%%", "%")} 
     }
 
 }

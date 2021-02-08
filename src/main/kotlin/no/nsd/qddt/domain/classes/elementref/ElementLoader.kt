@@ -11,23 +11,31 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-class ElementLoader<T : IWebMenuPreview?>(protected var serviceAudit: BaseServiceAudit<*, *, *>) {
+class ElementLoader<T : IWebMenuPreview>(protected var serviceAudit: BaseServiceAudit<T, UUID, Int>) {
     protected val LOG = LoggerFactory.getLogger(this.javaClass)
+
     fun fill(element: IElementRef<T>): IElementRef<T> {
-        val revision: Revision<Int, T> = get(element.elementId, element.elementRevision)
         try {
-            element.setElement(revision.entity)
-            element.elementRevision = revision.revisionNumber.get()
+            get(element.elementId, element.elementRevision).also {  
+                element.setElement(it!!.entity)
+                element.elementRevision = it.revisionNumber.get()
+            }
+            return element
         } catch (e: Exception) {
-            LOG.error("ElementLoader setElement, reference has wrong signature")
+            LOG.error("ElementLoader setElement, reference has wrong signature", e)
+            throw e
         }
-        return element
     }
 
     // uses rev Object to facilitate by rev by reference
-    private operator fun get(id: UUID?, rev: Number?): Revision<*, *> {
+    private operator fun get(id: UUID, rev: Int?): Revision<Int, T>? {
         return try {
-            if (rev == null || rev.toInt() == 0) serviceAudit.findLastChange(id) else serviceAudit.findRevision(id, rev)
+            rev?.let {  
+                serviceAudit.findRevision(id, it) 
+            }
+            
+            else 
+             serviceAudit.findLastChange(id) 
         } catch (e: RevisionDoesNotExistException) {
             if (rev == null) throw e // if we get an RevisionDoesNotExistException with rev == null, we have already tried to get last change, exiting function
             LOG.warn("ElementLoader - RevisionDoesNotExist fallback, fetching latest -> $id")

@@ -1,4 +1,4 @@
-package utils
+package no.nsd.qddt.utils
 //
 //import org.hibernate.HibernateException
 //import org.hibernate.engine.spi.SharedSessionContractImplementor

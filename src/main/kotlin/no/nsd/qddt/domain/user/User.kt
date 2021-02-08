@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 import javax.persistence.*
+import java.sql.Timestamp
 
 /**
  * @author Stig Norland
@@ -16,21 +17,27 @@ import javax.persistence.*
 class User (
     @Id  @GeneratedValue
     val id: UUID,
+
     var email : String,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference(value = "agentRef")
     @JoinColumn(name = "agency_id")
     var agency : Agency,
+
     @ManyToMany(fetch = FetchType.EAGER)
     val authority: Set<Authority>,
-    @Version
-    val modified : Date,
 
-    private var username : String,
+    @Version
+    val modified: Timestamp? = null,
+
+    var username : String,
+
     @JsonIgnore
-    private val password : String,
-    private var isEnabled : Boolean
+    val password : String,
+
+    var isEnabled : Boolean
+
     ): UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         TODO("Not yet implemented")
