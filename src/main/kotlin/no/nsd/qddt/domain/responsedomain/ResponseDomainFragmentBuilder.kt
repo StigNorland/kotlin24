@@ -1,9 +1,9 @@
 package no.nsd.qddt.domain.responsedomain
 import no.nsd.qddt.domain.AbstractEntityAudit
 import no.nsd.qddt.domain.category.Category
-import no.nsd.qddt.domain.classes.elementref.ElementKind
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.classes.elementref.ElementKind
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 import java.util.stream.Collectors
 /**
 * @author Stig Norland

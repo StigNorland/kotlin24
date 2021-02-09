@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.questionitem.web;
 
-import no.nsd.qddt.domain.classes.exception.StackTraceFilter;
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentAssembler;
+import no.nsd.qddt.classes.exception.StackTraceFilter;
+import no.nsd.qddt.classes.xml.XmlDDIFragmentAssembler;
 import no.nsd.qddt.domain.questionitem.QuestionItem;
 import no.nsd.qddt.domain.questionitem.QuestionItemService;
 import no.nsd.qddt.domain.questionitem.json.QuestionItemJsonEdit;

@@ -1,5 +1,7 @@
 package no.nsd.qddt.domain.topicgroup
 
+
+import no.nsd.qddt.classes.IEntityFactory
 import no.nsd.qddt.domain.concept.ConceptFactory
 import java.util.function.Consumer
 import java.util.function.Function
@@ -7,7 +9,7 @@ import java.util.function.Function
 /**
  * @author Stig Norland
  */
-internal class TopicGroupFactory : IEntityFactory<TopicGroup?> {
+internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
     override fun create(): TopicGroup {
         return TopicGroup()
     }

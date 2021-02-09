@@ -1,6 +1,6 @@
 package no.nsd.qddt.domain.questionitem
-import no.nsd.qddt.domain.classes.elementref.ElementKind
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.classes.elementref.ElementKind
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.domain.responsedomain.ResponseDomain
 import java.util.stream.Collectors
 /**
@@ -45,7 +45,7 @@ class QuestionItemFragmentBuilder(questionItem:QuestionItem):XmlDDIFragmentBuild
     .collect(Collectors.joining())
   }
   init{
-    responseBuilder = questionItem.getResponseDomainRef().getElement().getXmlBuilder()
+    responseBuilder = questionItem.getResponseDomainRef().element.getXmlBuilder()
   }
   fun addXmlFragments(fragments:Map<ElementKind, Map<String, String>>) {
     super.addXmlFragments(fragments)

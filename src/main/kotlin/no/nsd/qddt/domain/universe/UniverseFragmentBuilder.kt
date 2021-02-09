@@ -1,6 +1,6 @@
 package no.nsd.qddt.domain.universe;
 
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder;
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder;
 
 /**
  * @author Stig Norland
@@ -19,10 +19,11 @@ class UniverseFragmentBuilder(entity:Universe):XmlDDIFragmentBuilder<Universe>(e
   
   override val xmlFragment:String
   get() {
-    return String.format(xmlUniverse,
-                         getXmlHeader(entity),
-                         entity.name,
-                         entity.description,
-                         entity.xmlLang)
+    return String.format(
+      xmlUniverse,
+      getXmlHeader(entity),
+      entity.name,
+      entity.description,
+      entity.xmlLang)
   }
 }

@@ -23,28 +23,28 @@ import java.util.UUID
 internal class OtherMaterialServiceImpl @Autowired
 constructor():OtherMaterialService {
   @Value("\${api.fileroot}")
-  private val fileRoot:String
+  private lateinit var fileRoot:String
 
   protected val LOG = LoggerFactory.getLogger(this.javaClass)
 
   @Transactional
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
   @Throws(IOException::class)
-  fun saveFile(multipartFile:MultipartFile, ownerId:UUID):OtherMaterial {
+  override fun saveFile(multipartFile:MultipartFile, ownerId:UUID):OtherMaterial {
     LOG.info(ownerId.toString())
     val om = OtherMaterial(multipartFile).setOriginalOwner(ownerId)
-    val filePath = Paths.get(getFolder(ownerId.toString()), om.getFileName())
+    var filePath = Paths.get(getFolder(ownerId.toString()), om.fileName)
     if (Files.exists(filePath))
     {
-      om.setFileName(getNextFileName(filePath))
-      filePath = Paths.get(getFolder(ownerId.toString()), om.getFileName())
+      om.fileName = getNextFileName(filePath)
+      filePath = Paths.get(getFolder(ownerId.toString()), om.fileName)
     }
     Files.copy(multipartFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING)
     return om
   }
 
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
-  fun getFile(root:UUID, fileName:String):File {
+  override fun getFile(root:UUID, fileName:String):File {
     val filePath = Paths.get(getFolder(root.toString()), fileName).toString()
     return File(filePath)
   }

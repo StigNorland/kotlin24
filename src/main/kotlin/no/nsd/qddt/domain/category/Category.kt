@@ -4,15 +4,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import java.util.*
 import java.util.function.Consumer
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.persistence.*
-import org.joda.time.DateTime
 import org.hibernate.envers.Audited
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
-import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.classes.AbstractEntityAudit
+import no.nsd.qddt.classes.pdf.PdfReport
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.domain.ResponseCardinality
-import no.nsd.qddt.domain.classes.pdf.PdfReport
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.domain.responsedomain.Code
 import no.nsd.qddt.utils.StringTool
 import java.util.stream.Collectors
@@ -190,7 +191,7 @@ class Category(
         }
 
     override fun compareTo(other: Category): Int {
-        var i = this.agency!!.compareTo(other.agency!!)
+        var i = this.agency.compareTo(other.agency)
         if (i != 0) return i
         i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i
@@ -202,8 +203,8 @@ class Category(
         if (i != 0) return i
         i = description!!.compareTo(other.description!!)
         if (i != 0) return i
-        i = this.id.compareTo(other.id)
-        return if (i != 0) i else modified?.compareTo(other.modified)!!
+        i = this.id!!.compareTo(other.id)
+        return if (i != 0) i else modified.compareTo(other.modified)
     }
 
     override fun beforeUpdate() {
@@ -218,7 +219,7 @@ class Category(
             CategoryType.MISSING_GROUP, CategoryType.LIST, CategoryType.SCALE, CategoryType.MIXED ->
                 HierarchyLevel.GROUP_ENTITY
         }
-        name = name.trim { it <= ' ' }
+        name = name.trim()
     }
 
     // /used to keep track of current item in the recursive call populateCatCodes
@@ -236,7 +237,7 @@ class Category(
         }
 
     private fun harvestCatCodes(current: Category?): List<Code> {
-        val tmplist: MutableList<Code> = ArrayList(0)
+        val tmplist: MutableList<Code> = mutableListOf()
         if (current == null) return tmplist
         if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
             tmplist.add((current.code))
@@ -255,7 +256,7 @@ class Category(
                 current.code = Code()
             } catch (ex: Exception) {
                 LOG.error(
-                    DateTime.now().toDateTimeISO().toString() +
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).toString() +
                             " populateCatCodes (catch & continue) " + ex.message + " - " +
                             current
                 )

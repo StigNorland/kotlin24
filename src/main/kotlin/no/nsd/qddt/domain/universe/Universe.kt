@@ -5,9 +5,9 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Table
 import javax.persistence.UniqueConstraint
-import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.classes.pdf.PdfReport
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.classes.AbstractEntityAudit
+import no.nsd.qddt.classes.pdf.PdfReport
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
 /**
 * @author Stig Norland
@@ -21,7 +21,7 @@ import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
         name = "UNQ_universe_name"
     )]                                                      //https://github.com/DASISH/qddt-client/issues/606
 )
-class Universe(override var name: String = "?"):AbstractEntityAudit() {
+class Universe(override var name: String = ""):AbstractEntityAudit() {
 
     @Column(length = 2000)
     var description: String = ""

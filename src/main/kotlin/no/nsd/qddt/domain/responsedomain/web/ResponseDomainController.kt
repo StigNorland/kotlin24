@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.responsedomain.web
 import no.nsd.qddt.domain.AbstractController
-import no.nsd.qddt.domain.classes.exception.RequestAbortedException
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentAssembler
+import no.nsd.qddt.classes.exception.RequestAbortedException
+import no.nsd.qddt.classes.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.domain.responsedomain.ResponseDomain
 import no.nsd.qddt.domain.responsedomain.ResponseDomainService
 import no.nsd.qddt.domain.responsedomain.ResponseKind

@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.instruction;
 //package no.nsd.qddt.domain.instruction;
 //
-//import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder;
+//import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder;
 //
 //import java.util.Collections;
 //

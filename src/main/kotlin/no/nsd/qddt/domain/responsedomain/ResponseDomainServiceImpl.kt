@@ -1,6 +1,6 @@
 package no.nsd.qddt.domain.responsedomain
 import no.nsd.qddt.domain.category.CategoryService
-import no.nsd.qddt.domain.classes.exception.ResourceNotFoundException
+import no.nsd.qddt.classes.exception.ResourceNotFoundException
 import no.nsd.qddt.domain.responsedomain.audit.ResponseDomainAuditService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

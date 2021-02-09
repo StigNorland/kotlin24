@@ -1,6 +1,6 @@
 package no.nsd.qddt.domain.author
 
-import no.nsd.qddt.domain.classes.interfaces.BaseRepository
+import no.nsd.qddt.classes.interfaces.BaseRepository
 import no.nsd.qddt.domain.universe.Universe
 import no.nsd.qddt.domain.universe.UniverseListe
 import org.springframework.data.domain.Page

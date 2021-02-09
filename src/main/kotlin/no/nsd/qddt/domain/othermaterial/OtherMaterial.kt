@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.othermaterial
 
 import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.classes.elementref.ElementKind
+import no.nsd.qddt.classes.elementref.ElementKind
 import org.hibernate.annotations.Type
 import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
@@ -71,9 +71,9 @@ class OtherMaterial(
       "",
       "<r:URN type=\"URN\" typeOfIdentifier=\"Canonical\">urn:ddi:" + getUrnId(entity) + "</r:URN>",
       ElementKind.getEnum(entity.classKind).className,
-      entity.id + ":" + entity.version.toDDIXml(),
+      entity.id.toString() + ":" + entity.version.toDDIXml(),
       description,
-      entity.getId().toString() + '/'.toString() + this.fileName,
+      entity.id.toString() + '/'.toString() + this.fileName,
       fileType
     )
   }

@@ -1,9 +1,9 @@
 package no.nsd.qddt.domain.concept
 
-import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.classes.elementref.ElementKind
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.classes.AbstractEntityAudit
+import no.nsd.qddt.classes.elementref.ElementKind
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 import java.util.stream.Collectors
 
 /**
@@ -28,7 +28,7 @@ class ConceptFragmentBuilder(concept: Concept) : XmlDDIFragmentBuilder<Concept>(
         .map { it.element!!.xmlBuilder }
         .collect(Collectors.toList())
 
-    override fun <S : AbstractEntityAudit?> getXmlHeader(instance: S): String {
+    override fun <S : AbstractEntityAudit> getXmlHeader(instance: S): String {
         val prefix: String = ElementKind.getEnum(instance!!::class.simpleName).ddiPreFix
         val child = if ((instance as Concept).children.isEmpty()) "" else " isCharacteristic =\"true\""
         return String.format(
@@ -40,7 +40,7 @@ class ConceptFragmentBuilder(concept: Concept) : XmlDDIFragmentBuilder<Concept>(
         )
     }
 
-    override fun addXmlFragments(fragments: Map<ElementKind?, MutableMap<String?, String>>) {
+    override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
         super.addXmlFragments(fragments)
         for (question in questions) {
             question.addXmlFragments(fragments)

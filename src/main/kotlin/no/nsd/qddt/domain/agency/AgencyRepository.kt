@@ -9,4 +9,4 @@ import java.util.*
  */
 
 @RepositoryRestResource(path = "agencies", collectionResourceRel = "agency", itemResourceRel = "agency", excerptProjection = AgencyListe::class)
-open interface AgencyRepository : JpaRepository<Agency?, UUID?>
+interface AgencyRepository : JpaRepository<Agency, UUID>

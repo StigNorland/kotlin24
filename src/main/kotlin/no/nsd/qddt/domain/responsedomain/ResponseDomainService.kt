@@ -1,5 +1,5 @@
 package no.nsd.qddt.domain.responsedomain
-import no.nsd.qddt.domain.classes.interfaces.BaseService
+import no.nsd.qddt.classes.interfaces.BaseService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import java.util.UUID

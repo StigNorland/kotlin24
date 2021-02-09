@@ -1,8 +1,8 @@
 package no.nsd.qddt.domain.questionitem
-import no.nsd.qddt.domain.classes.elementref.ElementLoader
-import no.nsd.qddt.domain.classes.elementref.ParentRef
-import no.nsd.qddt.domain.classes.exception.ResourceNotFoundException
-import no.nsd.qddt.domain.classes.exception.StackTraceFilter
+import no.nsd.qddt.classes.elementref.ElementLoader
+import no.nsd.qddt.classes.elementref.ParentRef
+import no.nsd.qddt.classes.exception.ResourceNotFoundException
+import no.nsd.qddt.classes.exception.StackTraceFilter
 import no.nsd.qddt.domain.concept.Concept
 import no.nsd.qddt.domain.concept.ConceptService
 import no.nsd.qddt.domain.questionitem.audit.QuestionItemAuditService
@@ -136,7 +136,7 @@ constructor(questionItemRepository:QuestionItemRepository,
     // LOG.info( "POST LOAD" );
     try
     {
-      if (instance.getResponseDomainRef().getElementId() != null && instance.getResponseDomainRef().getElement() == null)
+      if (instance.getResponseDomainRef().getElementId() != null && instance.getResponseDomainRef().element == null)
       {
         rdLoader.fill(instance.getResponseDomainRef())
       }

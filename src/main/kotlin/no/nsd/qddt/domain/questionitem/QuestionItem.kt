@@ -1,11 +1,12 @@
 package no.nsd.qddt.domain.questionitem
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.layout.element.Paragraph
-import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.classes.elementref.ElementRefResponseDomain
-import no.nsd.qddt.domain.classes.elementref.ParentRef
-import no.nsd.qddt.domain.classes.pdf.PdfReport
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.classes.AbstractEntityAudit
+import no.nsd.qddt.classes.elementref.ElementRefResponseDomain
+import no.nsd.qddt.classes.elementref.ParentRef
+import no.nsd.qddt.classes.pdf.PdfReport
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -23,61 +24,50 @@ import java.util.ArrayList
 @Audited
 @Entity
 @Table(name = "QUESTION_ITEM")
-class QuestionItem:AbstractEntityAudit() {
+class QuestionItem(override var name: String=""):AbstractEntityAudit() {
+
+  @Column(length = 2000)
+  var question:String=""
+
+  @Column(length = 3000)
+  var intent:String=""
 
   @Embedded
   var responseDomainRef:ElementRefResponseDomain = ElementRefResponseDomain()
 
-  @Column(length = 2000)
-  var question:String
-
-  @Column(length = 3000)
-  var intent:String
 
   @Transient
   @JsonSerialize
   var parentRefs:List<ParentRef<*>> = ArrayList<ParentRef<*>>(0)
 
-  val xmlBuilder:AbstractXmlBuilder
-  get() {
-    return QuestionItemFragmentBuilder(this)
-  }
+  override val xmlBuilder:AbstractXmlBuilder
+    get() =  QuestionItemFragmentBuilder(this)
+  
 
   fun updateStatusQI() {
-    this.setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION)
-    this.setChangeComment("Concept reference removed")
+    this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+    this.changeComment = "Concept reference removed"
   }
 
-
-
-
-  fun toString():String {
-    return ("{" +
-            "\"id\":" + (if (getId() == null) "null" else "\"" + getId() + "\"") + ", " +
-            "\"name\":" + (if (name == null) "null" else "\"" + name + "\"") + ", " +
-            "\"intent\":" + (if (intent == null) "null" else "\"" + intent + "\"") + ", " +
-            "\"question\":" + (if (question == null) "null" else "\"" + question + "\"") + ", " +
-            "\"responseDomainName\":" + (if (field.name == null) "null" else "\"" + field.name + "\"") + ", " +
-            "\"modified\":" + (if (getModified() == null) "null" else "\"" + getModified() + "\"") + " , " +
-            "\"modifiedBy\":" + (if (getModifiedBy() == null) "null" else getModifiedBy()) +
-            "}")
-  }
-  
-  fun fillDoc(pdfReport:PdfReport, counter:String) {
+  override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "QuestionItem")
     pdfReport.addParagraph(this.question)
-    if (!StringTool.IsNullOrTrimEmpty(intent))
-    {
-      pdfReport.addheader2("Intent")
-      .add(Paragraph(this.intent))
+    if (intent.isNotBlank()) {
+      pdfReport.addHeader2("Intent").add(Paragraph(this.intent))
     }
-    if (responseDomainRef.getElement() != null)
-    {
-      this.responseDomainRef.getElement().fillDoc(pdfReport, "")
+      
+    responseDomainRef.element.apply {  
+      fillDoc(pdfReport, "")
     }
-    if (comments.size() > 0)
-    pdfReport.addheader2("Comments")
-    pdfReport.addComments(comments)
+
+    if (comments.size > 0) {
+      pdfReport.addHeader2("Comments")
+      pdfReport.addComments(comments)
+    }
   }
+
+  override  fun beforeUpdate() {}
+  override  fun beforeInsert() {}
+  
 ¨
 }

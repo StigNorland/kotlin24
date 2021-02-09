@@ -1,7 +1,7 @@
 package no.nsd.qddt.domain.category
 
 import no.nsd.qddt.domain.category.CategoryType
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 
 /**
  * @author Stig Norland

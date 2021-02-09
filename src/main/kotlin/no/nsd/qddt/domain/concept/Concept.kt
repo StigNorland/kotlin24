@@ -1,13 +1,13 @@
 package no.nsd.qddt.domain.concept
 
 import com.fasterxml.jackson.annotation.JsonBackReference
-import no.nsd.qddt.domain.AbstractEntityAudit
-import no.nsd.qddt.domain.classes.elementref.ElementRefEmbedded
-import no.nsd.qddt.domain.classes.interfaces.IArchived
-import no.nsd.qddt.domain.classes.interfaces.IDomainObjectParentRef
-import no.nsd.qddt.domain.classes.interfaces.IParentRef
-import no.nsd.qddt.domain.classes.pdf.PdfReport
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.classes.AbstractEntityAudit
+import no.nsd.qddt.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.classes.interfaces.IArchived
+import no.nsd.qddt.classes.interfaces.IDomainObjectParentRef
+import no.nsd.qddt.classes.interfaces.IParentRef
+import no.nsd.qddt.classes.pdf.PdfReport
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.domain.questionitem.QuestionItem
 import no.nsd.qddt.domain.topicgroup.TopicGroup
 import org.hibernate.envers.AuditMappedBy
@@ -33,27 +33,26 @@ import javax.persistence.*
 @Table(name = "CONCEPT")
 class Concept(
 
-    var label: String,
+    var label: String="",
+
+    override var name: String = "",
 
     @Column(length = 20000)
-    var description: String,
-
-    override var isArchived: Boolean,
-
+    var description: String="",
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "topicGroupRef")
     @JoinColumn(name="topicgroup_id", nullable = false,updatable = false)
-    val topicGroup: TopicGroup?,
+    var topicGroup: TopicGroup?=null,
 
     @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name="concept_id")
     @JsonBackReference(value = "conceptParentRef")
-    var parent: Concept?,
+    var parent: Concept?=null,
 
     // in the @OrderColumn annotation on the referencing entity.
     @Column( name = "concept_idx", insertable = false, updatable = false)
-    private var conceptIdx: Long,
+    private var conceptIdx: Long =0,
 
 
     @OrderColumn(name="concept_idx")
@@ -68,11 +67,13 @@ class Concept(
     @CollectionTable(name = "CONCEPT_QUESTION_ITEM", joinColumns = [JoinColumn(name = "concept_id", referencedColumnName = "id")])
     var conceptQuestionItems: MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf(),
 
-    @Transient override var parentRef: IParentRef?,
-    override var name: String,
+    @Transient override var parentRef: IParentRef? = null
+    // override var name: String,
 
 
 ): AbstractEntityAudit(), IArchived, IDomainObjectParentRef {
+
+    override var isArchived: Boolean = false
 
     fun removeQuestionItem(id: UUID, rev: Int) {
         conceptQuestionItems.removeIf { it.elementId == id && it.elementRevision == rev }.also {
@@ -127,43 +128,43 @@ class Concept(
     }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
-            try {
-                pdfReport.addHeader(this, "Concept $counter")
-                pdfReport.addParagraph(this.description)
+        try {
+            pdfReport.addHeader(this, "Concept $counter")
+            pdfReport.addParagraph(this.description)
 
-                if (comments.size > 0) {
-                    pdfReport.addheader2("Comments")
-                    pdfReport.addComments(comments)
+            if (comments.size > 0) {
+                pdfReport.addHeader2("Comments")
+                pdfReport.addComments(comments)
+            }
+
+            if (conceptQuestionItems.size > 0) {
+                pdfReport.addHeader2("QuestionItem(s)")
+                conceptQuestionItems.stream().map {
+                    it.element
                 }
-
-                if (conceptQuestionItems.size > 0) {
-                    pdfReport.addheader2("QuestionItem(s)")
-                    conceptQuestionItems.stream().map {
-                        it.element
-                    }
-                        .forEach {
-                            if (it != null) {
-                                pdfReport.addheader2(it.name, String.format("Version %s", it.version))
-                                pdfReport.addParagraph(it.question)
-                                it.responseDomainRef.element?.fillDoc(pdfReport, "")
-                            }
+                    .forEach {
+                        if (it != null) {
+                            pdfReport.addHeader2(it.name, String.format("Version %s", it.version))
+                            pdfReport.addParagraph(it.question)
+                            it.responseDomainRef.element?.fillDoc(pdfReport, "")
                         }
-                }
+                    }
+            }
+            pdfReport.addPadding()
+
+            var i = 0
+            children.forEach {
+                it.fillDoc(pdfReport, counter + "." + ++i)
+            }
+
+            if (children.size == 0)
                 pdfReport.addPadding()
 
-                var i = 0
-                children.forEach {
-                    it.fillDoc(pdfReport, counter + "." + ++i)
-                }
-
-                if (children.size == 0)
-                    pdfReport.addPadding()
-
-            } catch (ex:Exception) {
-                LOG.error(ex.message)
-                throw ex
-            }
+        } catch (ex:Exception) {
+            LOG.error(ex.message)
+            throw ex
         }
+    }
 
     override fun beforeUpdate() {
         TODO("Not yet implemented")
@@ -173,7 +174,7 @@ class Concept(
         TODO("Not yet implemented")
     }
 
-    override val xmlBuilder: AbstractXmlBuilder?
+    override val xmlBuilder: AbstractXmlBuilder
         get() = ConceptFragmentBuilder(this)
 
 }

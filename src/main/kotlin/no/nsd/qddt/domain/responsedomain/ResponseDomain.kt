@@ -11,9 +11,9 @@ import no.nsd.qddt.domain.ResponseCardinality
 import no.nsd.qddt.domain.category.Category
 import no.nsd.qddt.domain.category.CategoryType
 import no.nsd.qddt.domain.category.HierarchyLevel
-import no.nsd.qddt.domain.classes.interfaces.IWebMenuPreview
-import no.nsd.qddt.domain.classes.pdf.PdfReport
-import no.nsd.qddt.domain.classes.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.classes.interfaces.IWebMenuPreview
+import no.nsd.qddt.classes.pdf.PdfReport
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.Audited
 import javax.persistence.*

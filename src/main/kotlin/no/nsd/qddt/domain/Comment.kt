@@ -1,7 +1,8 @@
 package no.nsd.qddt.domain
 
-import no.nsd.qddt.domain.classes.xml.AbstractXmlBuilder
-import no.nsd.qddt.domain.classes.xml.XmlDDICommentsBuilder
+import no.nsd.qddt.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.classes.xml.XmlDDICommentsBuilder
+import no.nsd.qddt.classes.AbstractEntity
 import java.util.*
 import javax.persistence.*
 
