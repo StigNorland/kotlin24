@@ -6,11 +6,11 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.property.TextAlignment
 import com.itextpdf.layout.property.UnitValue
-import no.nsd.qddt.domain.AbstractEntityAudit
 import no.nsd.qddt.domain.ResponseCardinality
 import no.nsd.qddt.domain.category.Category
 import no.nsd.qddt.domain.category.CategoryType
 import no.nsd.qddt.domain.category.HierarchyLevel
+import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.interfaces.IWebMenuPreview
 import no.nsd.qddt.classes.pdf.PdfReport
 import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
@@ -61,7 +61,11 @@ import no.nsd.qddt.utils.StringTool.IsNullOrEmpty
 */
 @Audited
 @Entity
-@Table(name = "RESPONSEDOMAIN", uniqueConstraints = {@UniqueConstraint(columnNames = {"name","category_id","based_on_object"},name = "UNQ_RESPONSEDOMAIN_NAME")}) //also -> based_on_object?
+@Table(name = "RESPONSEDOMAIN", 
+      uniqueConstraints = [UniqueConstraint(
+          name = "UNQ_RESPONSEDOMAIN_NAME",
+          columnNames = ["name","category_id","based_on_object"])]
+)
 class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
   /**
  * Can't have two responsedomain with the same template and the same name, unless they are based on
@@ -153,21 +157,21 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
   protected fun beforeInsert() {}
   protected fun beforeUpdate() {
     if (field == null)
-    responseCardinality = managedRepresentation.getInputLimit()
-    if (managedRepresentation.getCategoryType() === CategoryType.MIXED)
+    responseCardinality = managedRepresentation.inputLimit
+    if (managedRepresentation.categoryType === CategoryType.MIXED)
     {
-      setName(String.format("Mixed [%s]", managedRepresentation.getChildren().stream().map(???({ Category.getLabel() })).collect(Collectors.joining(" + "))))
+      setName(String.format("Mixed [%s]", managedRepresentation.getChildren().stream().map(???({ Category.label })).collect(Collectors.joining(" + "))))
     }
-    if (StringTool.IsNullOrTrimEmpty(managedRepresentation.getLabel()))
+    if (StringTool.IsNullOrTrimEmpty(managedRepresentation.label))
     managedRepresentation.setLabel(name)
-    managedRepresentation.setName(managedRepresentation.getCategoryType().name + "[" + (if ((getId() != null)) getId().toString() else name) + "]")
+    managedRepresentation.setName(managedRepresentation.categoryType.name + "[" + (if ((getId() != null)) getId().toString() else name) + "]")
     if (managedRepresentation.getHierarchyLevel() === HierarchyLevel.GROUP_ENTITY)
-    managedRepresentation.setDescription(managedRepresentation.getCategoryType().getDescription())
+    managedRepresentation.setDescription(managedRepresentation.categoryType.description)
     else
     managedRepresentation.setDescription(description)
     managedRepresentation.setChangeComment(getChangeComment())
     managedRepresentation.setChangeKind(getChangeKind())
-    managedRepresentation.setXmlLang(getXmlLang())
+    managedRepresentation.setXmlLang(xmlLang)
     if (!version.isModified())
     {
       LOG.debug("onUpdate not run yet ♣♣♣ ")
@@ -198,23 +202,23 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
              .setTextAlignment(TextAlignment.RIGHT)
              .add(Paragraph(String.format("Version %s", version))))
     for (cat in getFlatManagedRepresentation(getManagedRepresentation()))
-    if (cat.getCategoryType() === CategoryType.CATEGORY)
+    if (cat.categoryType === CategoryType.CATEGORY)
     {
       table.addCell(Cell()
                     .setBorder(DottedBorder(ColorConstants.GRAY, 1)))
-      table.addCell(Cell().add(Paragraph(cat.getLabel()))
+      table.addCell(Cell().add(Paragraph(cat.label))
                     .setBorder(DottedBorder(ColorConstants.GRAY, 1)))
       table.addCell(Cell()
                     .setTextAlignment(TextAlignment.CENTER)
-                    .add(Paragraph(if (cat.getCode() != null) cat.getCode().getValue() else cat.getCategoryType().name()))
+                    .add(Paragraph(if (cat.getCode() != null) cat.getCode().getValue() else cat.categoryType.name()))
                     .setBorder(DottedBorder(ColorConstants.GRAY, 1)))
     }
     else
     {
-      table.addCell(Cell().add(Paragraph(cat.getCategoryType().name()))
+      table.addCell(Cell().add(Paragraph(cat.categoryType.name()))
                     .setBorder(DottedBorder(ColorConstants.GRAY, 1))
                    )
-      table.addCell(Cell(1, 2).add(Paragraph(cat.getLabel()))
+      table.addCell(Cell(1, 2).add(Paragraph(cat.label))
                     .setBorder(DottedBorder(ColorConstants.GRAY, 1)))
     }
     pdfReport.getTheDocument().add(table)

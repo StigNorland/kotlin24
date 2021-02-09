@@ -45,8 +45,8 @@
 //                 return String.format( xmlInstruction,
 //                     getXmlHeader(entity),
 //                     entity.name,
-//                     entity.getDescription(),
-//                     entity.getXmlLang());
+//                     entity.description,
+//                     entity.xmlLang);
 //             }
 
 //             @Override

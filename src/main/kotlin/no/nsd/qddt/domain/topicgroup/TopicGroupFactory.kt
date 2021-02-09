@@ -1,35 +1,41 @@
 package no.nsd.qddt.domain.topicgroup
 
 
-import no.nsd.qddt.classes.IEntityFactory
 import no.nsd.qddt.domain.concept.ConceptFactory
-import java.util.function.Consumer
-import java.util.function.Function
+import no.nsd.qddt.classes.IEntityFactory
+import no.nsd.qddt.classes.elementref.ElementRefEmbedded
+import java.util.stream.Collectors
+import java.util.UUID
 
 /**
  * @author Stig Norland
  */
 internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
     override fun create(): TopicGroup {
-        return TopicGroup()
+        return TopicGroup(null,null)
     }
 
     override fun copyBody(source: TopicGroup, dest: TopicGroup): TopicGroup {
-        dest.description = source.description
-        dest.name = source.name
-        dest.otherMaterials = source.otherMaterials.stream()
-            .map(Function<OtherMaterial, OtherMaterial> { m: OtherMaterial -> m.clone() })
+        return dest.apply {  
+            name = source.name
+            description = source.description
+            // label = source.label
+            otherMaterials = source.otherMaterials.stream()
+            .map{ it.clone() }
             .collect(Collectors.toList())
-        val cf = ConceptFactory()
-        dest.setConcepts(
-            source.getConcepts().stream()
-                .map(Function<Concept, Any> { mapper: Concept? -> cf.copy(mapper, dest.basedOnRevision) })
+
+            // concepts = source.concepts.stream()
+            // .map{ copy(it, dest.basedOnRevision) })
+            // .collect(Collectors.toList())
+            // val cf = ConceptFactory().copy(source, revision)
+            // concepts.forEach(Consumer<Concept> { concept: Concept -> concept.setTopicGroup(dest) })
+
+            topicQuestionItems = source.topicQuestionItems.stream()
+                .map{ it.clone() }
                 .collect(Collectors.toList())
-        )
-        dest.getConcepts().forEach(Consumer<Concept> { concept: Concept -> concept.setTopicGroup(dest) })
-        dest.topicQuestionItems = source.topicQuestionItems.stream()
-            .map(Function<ElementRefEmbedded<QuestionItem?>, ElementRefEmbedded<QuestionItem>> { obj: ElementRefEmbedded<QuestionItem?> -> obj.clone() })
-            .collect(Collectors.toList())
-        return dest
+                
+            // dest.getChildren().forEach(action -> action.setParentC(dest));
+          }
+
     }
 }

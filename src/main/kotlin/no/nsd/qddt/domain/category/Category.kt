@@ -71,7 +71,7 @@ class Category(
 //        }
 //        get {
 //            if StringTool.IsNullOrEmpty(field)
-//                field = getCategoryType().name
+//                field = categoryType.name
 //            return field
 //        },
 
