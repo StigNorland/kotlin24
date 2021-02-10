@@ -1,7 +1,13 @@
 package no.nsd.qddt.classes.elementref
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.domain.controlconstruct.pojo.ConditionConstruct
+import no.nsd.qddt.classes.AbstractEntityAudit
+import org.hibernate.annotations.GenericGenerator
+import org.hibernate.envers.AuditMappedBy
+import org.hibernate.envers.Audited
+import java.util.*
+//import no.nsd.qddt.domain.controlconstruct.pojo.ConditionConstruct
 import java.util.function.Consumer
 import javax.persistence.*
 
@@ -12,7 +18,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "ELEMENT_REF_NODE")
 @AttributeOverride(name = "name", column = Column(name = "element_name", length = 1500))
-class ElementRefNode<T : AbstractEntityAudit?> : AbstractElementRef<T>, Iterable<ElementRefNode<T>?> {
+class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<ElementRefNode<T>?> {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -25,7 +31,7 @@ class ElementRefNode<T : AbstractEntityAudit?> : AbstractElementRef<T>, Iterable
 
     // in the @OrderColumn annotation on the referencing entity.
     @Column(name = "parent_idx", insertable = false, updatable = false)
-    private val parentIdx = 0
+    private var parentIdx = 0
 
     @OrderColumn(name = "parent_idx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
@@ -42,16 +48,14 @@ class ElementRefNode<T : AbstractEntityAudit?> : AbstractElementRef<T>, Iterable
     @Transient
     private var elementsIndex: MutableList<ElementRefNode<T>>? = null
 
-    constructor() {}
-    constructor(data: T) {
+    constructor() : super(null)
+    constructor(data: T) : super(data) {
         element = data
         children = LinkedList<ElementRefNode<T>>()
         elementsIndex = LinkedList<ElementRefNode<T>>()
         elementsIndex!!.add(this)
     }
 
-    override var name: String?
-        get() = super.name
     val isRoot: Boolean
         get() = parent == null
 
@@ -61,13 +65,8 @@ class ElementRefNode<T : AbstractEntityAudit?> : AbstractElementRef<T>, Iterable
     val level: Int
         get() = if (isRoot) 0 else parent!!.level + 1
 
-    fun getId(): UUID? {
-        return id
-    }
 
-    fun getChildren(): List<ElementRefNode<T>>? {
-        return children
-    }
+
 
     fun addChild(child: T): ElementRefNode<T> {
         val childNode = ElementRefNode(child)
@@ -86,47 +85,30 @@ class ElementRefNode<T : AbstractEntityAudit?> : AbstractElementRef<T>, Iterable
 
     private fun registerChildForSearch(node: ElementRefNode<T>) {
         elementsIndex!!.add(node)
-        if (parent != null) parent.registerChildForSearch(node)
+        parent?.registerChildForSearch(node)
     }
 
     fun findTreeNode(cmp: Comparable<T>): ElementRefNode<T>? {
         for (element in elementsIndex!!) {
             val elData = element.element
-            if (cmp.compareTo(elData) == 0) return element
+            if (elData?.let { cmp.compareTo(it) } == 0) return element
         }
         return null
     }
 
-    override fun iterator(): MutableIterator<ElementRefNode<T>> {
-        return ElementRefNodeIter<T>(this)
+    override fun iterator(): ElementRefNodeIter<T> {
+        return ElementRefNodeIter(this)
     }
 
     override fun setValues(): AbstractElementRef<T> {
-        if (getElement() == null) return this else if (element is StatementItem) name =
-            getElement().name + " ➫ " + (element as StatementItem).getStatement() else if (element is ConditionConstruct) {
-            println("ignorerer set value")
-        } else if (element is QuestionConstruct) {
-            //
-        } else setVersion(getElement().version)
-        if (elementKind == null) elementKind = ElementKind.Companion.getEnum(element.class.simpleName)
+        if (element == null)
+            return this
+//        else if (element is StatementItem)
+//            name = element!!.name + " ➫ " + (element as StatementItem).getStatement() else if (element is ConditionConstruct) {
+//            println("ignorerer set value")
+//        } else if (element is QuestionConstruct) { }
+    else version = element!!.version
         return this
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        if (!super.equals(o)) return false
-        val that = o as ElementRefNode<*>
-        return id == that.id
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + id.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return if (element != null) element.toString() else "[data null]"
-    }
 }

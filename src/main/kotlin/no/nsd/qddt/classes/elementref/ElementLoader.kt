@@ -30,12 +30,10 @@ class ElementLoader<T : IWebMenuPreview>(protected var serviceAudit: BaseService
     // uses rev Object to facilitate by rev by reference
     private operator fun get(id: UUID, rev: Int?): Revision<Int, T>? {
         return try {
-            rev?.let {  
-                serviceAudit.findRevision(id, it) 
+            rev?.let {
+                return serviceAudit.findRevision(id, it)
             }
-            
-            else 
-             serviceAudit.findLastChange(id) 
+            return serviceAudit.findLastChange(id)
         } catch (e: RevisionDoesNotExistException) {
             if (rev == null) throw e // if we get an RevisionDoesNotExistException with rev == null, we have already tried to get last change, exiting function
             LOG.warn("ElementLoader - RevisionDoesNotExist fallback, fetching latest -> $id")

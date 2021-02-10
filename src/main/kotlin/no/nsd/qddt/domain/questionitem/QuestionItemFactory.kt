@@ -5,14 +5,16 @@ import no.nsd.qddt.classes.IEntityFactory
 * @author Stig Norland
 **/
 class QuestionItemFactory:IEntityFactory<QuestionItem> {
-  fun create():QuestionItem {
+  override fun create():QuestionItem {
     return QuestionItem()
   }
-  fun copyBody(source:QuestionItem, dest:QuestionItem):QuestionItem {
-    dest.setName(source.name)
-    dest.setResponseDomainRef(source.getResponseDomainRef())
-    dest.setQuestion(source.getQuestion())
-    dest.setIntent(source.getIntent())
+  override fun copyBody(source:QuestionItem, dest:QuestionItem):QuestionItem {
+    with(dest) {
+      name = source.name
+      responseDomainRef = source.responseDomainRef
+      question = source.question
+      intent = source.intent
+    }
     return dest
   }
 }

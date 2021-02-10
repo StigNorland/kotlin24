@@ -11,7 +11,7 @@ import java.util.UUID
 */
 @Repository
 interface QuestionItemRepository:BaseRepository<QuestionItem, UUID> {
-  fun findAll(pageable:Pageable):Page<QuestionItem>
+
   @Query(
     value = ("SELECT qi.* FROM QUESTION_ITEM qi " +
                   "LEFT JOIN audit.responsedomain_aud r on qi.responsedomain_id = r.id and qi.responsedomain_revision = r.rev " +

@@ -1,6 +1,6 @@
 package no.nsd.qddt.classes.interfaces
 
-import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.classes.AbstractEntityAudit
 import java.util.*
 
 /**

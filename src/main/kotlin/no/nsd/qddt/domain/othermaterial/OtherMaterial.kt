@@ -1,11 +1,9 @@
 package no.nsd.qddt.domain.othermaterial
 
-import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.elementref.ElementKind
-import org.hibernate.annotations.Type
 import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
-import javax.persistence.Column
 import javax.persistence.Embeddable
 import java.util.UUID
 
@@ -20,53 +18,41 @@ import java.util.UUID
 @Audited
 @Embeddable
 class OtherMaterial(
-
-
+  originalName1: String = ""
 ):Cloneable {
 
-  var originalOwner: UUID
-  var originalName: String
-  set(value) {
-    field = value
-    this.fileName = value.toUpperCase().replace(' ', '_').replace('.', '_') + "00"
-  }
-  var fileName:String
-  var fileType:String
   var size:Long = 0
-  val description:String
+  lateinit var originalOwner: UUID
+  lateinit var fileName:String
+  lateinit var fileType:String
+  lateinit var description:String
 
-  constructor(file:MultipartFile) {
-    originalName = file.getOriginalFilename()
-    fileType = file.getContentType()
-    size = file.getSize()
+  var originalName: String = originalName1
+    set(value) {
+      field = value
+      this.fileName = value.toUpperCase().replace(' ', '_').replace('.', '_') + "00"
+    }
+
+
+  constructor(file:MultipartFile) : this() {
+    this.originalName = file.originalFilename.toString()
+    this.fileType = file.contentType.toString()
+    this.size = file.size
   }
-  constructor(originalName:String, fileType:String, size:Long, description:String) {
-    originalName = originalName
-    fileType = fileType
-    size = size
-    setDescription(description)
+  constructor(originalName:String, fileType:String, size:Long, description:String) : this() {
+    this@OtherMaterial.originalName = originalName
+    this@OtherMaterial.fileType = fileType
+    this@OtherMaterial.size = size
+    this@OtherMaterial.description = description
   }
-  private fun setDescription(description:String):OtherMaterial {
-    this.description = description
-    return this
-  }
-  /**
- * This function is safe to activate, nothing will be overwritten.
- *
- **/
-  fun setOriginalOwner(originalOwner:UUID):OtherMaterial {
-    // we want to keep reference to the first path for all descendants of the root...
-    this.originalOwner = originalOwner
-    return this
-  }
-  
+
   
   
   public override fun clone():OtherMaterial {
-    return OtherMaterial(this.originalName, fileType, size, description).setOriginalOwner(this.originalOwner)
+    return OtherMaterial(this.originalName, fileType, size, description).apply { originalOwner = this.originalOwner}
   }
 
-  fun toDDIXml(entity:AbstractEntityAudit, tabs:String):String {
+  fun toDDIXml(entity: AbstractEntityAudit, tabs:String):String {
     return String.format(OM_REF_FORMAT, tabs,
       "",
       "<r:URN type=\"URN\" typeOfIdentifier=\"Canonical\">urn:ddi:" + getUrnId(entity) + "</r:URN>",
@@ -79,7 +65,7 @@ class OtherMaterial(
   }
 
   fun getUrnId(entity:AbstractEntityAudit):String {
-    return String.format("%1\$s:%2\$s:%3\$s", entity.agency.name, entity.getId(), this.fileName)
+    return String.format("%1\$s:%2\$s:%3\$s", entity.agency.name, entity.id, this.fileName)
   }
   
   companion object {

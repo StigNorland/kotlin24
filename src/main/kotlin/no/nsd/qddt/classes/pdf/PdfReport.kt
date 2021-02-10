@@ -23,9 +23,11 @@ import com.itextpdf.layout.layout.LayoutContext
 import com.itextpdf.layout.layout.LayoutResult
 import com.itextpdf.layout.property.*
 import com.itextpdf.layout.renderer.ParagraphRenderer
-import no.nsd.qddt.domain.AbstractEntityAudit
+import javassist.tools.reflect.Loader
+import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.domain.Comment
 import no.nsd.qddt.classes.exception.StackTraceFilter
+import no.nsd.qddt.utils.StringTool
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.net.URL
@@ -33,6 +35,7 @@ import java.util.*
 import java.util.AbstractMap.SimpleEntry
 import java.util.stream.Collectors
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.collections.ArrayList
 
 //import javassist.Loader
@@ -95,7 +98,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             )
             .add(
                 Paragraph()
-                    .add("Generated " + LocalDateTime.now().toString("EEEE d MMMM YYYY HH:mm:SS"))
+                    .add("Generated " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE d MMMM YYYY HH:mm:SS")))
                     .setTextAlignment(TextAlignment.CENTER)
             )
         document!!.add(AreaBreak())

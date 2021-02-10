@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.classes.interfaces.IElementRef
 import no.nsd.qddt.classes.interfaces.Version
 import no.nsd.qddt.domain.responsedomain.ResponseDomain
-import org.hibernate.annotations.Type
 import org.springframework.data.history.Revision
 import java.util.*
 import javax.persistence.Column
@@ -22,7 +21,7 @@ class ElementRefResponseDomain : IElementRef<ResponseDomain> {
     override var version: Version = Version(1,0,0,"")
 
     @Column(name = "responsedomain_id")
-    override var elementId: UUID? = null
+    override lateinit var elementId: UUID
 
     @Column(name = "responsedomain_revision")
     override var elementRevision: Int? = null
@@ -31,23 +30,23 @@ class ElementRefResponseDomain : IElementRef<ResponseDomain> {
     @Transient
     override var elementKind: ElementKind = ElementKind.RESPONSEDOMAIN
 
+    @Transient
+    @JsonSerialize
     override var element: ResponseDomain? = null
         set(value) {
             field = value
-            if (value != null) {
-                elementId  = value.id
-                name = value.name
-                version = value.version
-                version.revision = elementRevision?:0
-            } else {
-                name = null
-                elementRevision = null
-                elementId = null
+            value?.let {
+                elementId = it.id!!
+                name = it.name
+                version = it.version
             }
-    
+            if (value == null) {
+                name = ""
+                elementRevision = null
+            }
         }
 
-    constructor(){}
+    constructor()
 
     constructor(responseDomain: ResponseDomain) {
         element = responseDomain

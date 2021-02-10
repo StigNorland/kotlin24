@@ -133,7 +133,7 @@ class Category(
     @Transient
     @JsonSerialize
     @JsonDeserialize
-    var code: Code = Code()
+    var code: Code = Code("")
 
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "category_idx")
@@ -228,7 +228,7 @@ class Category(
 
     //codes.clear();
     // this is useful for populating codes before saving to DB (used in the service)
-    var codes: List<Code>
+    var codes: MutableList<Code>
         get() = harvestCatCodes(this)
         set(codes) {
             _Index = 0
@@ -236,7 +236,7 @@ class Category(
             //codes.clear();
         }
 
-    private fun harvestCatCodes(current: Category?): List<Code> {
+    private fun harvestCatCodes(current: Category?): MutableList<Code> {
         val tmplist: MutableList<Code> = mutableListOf()
         if (current == null) return tmplist
         if (current.hierarchyLevel == HierarchyLevel.ENTITY) {

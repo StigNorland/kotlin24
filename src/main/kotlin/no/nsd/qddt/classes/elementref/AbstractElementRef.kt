@@ -18,11 +18,18 @@ import java.util.*
 import javax.persistence.*
 
 @MappedSuperclass
-abstract class AbstractElementRef<T : IWebMenuPreview?>  (
-     elementKind: ElementKind,
-     elementId: UUID,
-     elementRevision: Int?
-) : IElementRef<T> {
+abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
+    constructor(entity: T?) {
+        entity?.let{
+            element = it
+        }
+    }
+    constructor(elementKind: ElementKind, elementId: UUID, elementRevision: Int?) {
+        this.elementKind = elementKind
+        this.elementId = elementId
+        this.elementRevision = elementRevision
+    }
+
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
 
@@ -62,11 +69,10 @@ abstract class AbstractElementRef<T : IWebMenuPreview?>  (
         setValues()
     }
 
-    private fun setValues(): AbstractElementRef<T> {
+    protected fun setValues(): AbstractElementRef<T> {
         if (StringTool.IsNullOrEmpty(name)) {
             when (element) {
-                is QuestionItem -> name =
-                    element!!.name + " ➫ " + (element as QuestionItem?)!!.question
+                is QuestionItem -> (element!!.name + " ➫ " + (element as QuestionItem?)!!.question).also { name = it }
                 // is StatementItem -> name =
                 //     element!!.name + " ➫ " + (element as StatementItem?)!!.statement
                 // is ConditionConstruct -> {
@@ -86,7 +92,11 @@ abstract class AbstractElementRef<T : IWebMenuPreview?>  (
             }
             name = element!!.name
         }
-        version = element!!.version
+        element?.also {
+            version = it.version
+            name = it.name
+            elementId = it.id!!
+        }
         return this
     }
 

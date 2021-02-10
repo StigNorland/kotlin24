@@ -1,12 +1,14 @@
 package no.nsd.qddt.classes.elementref
 
-import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.classes.AbstractEntityAudit
+
 
 /**
  * @author Stig Norland
  */
-class ElementRefNodeIter<T : AbstractEntityAudit?>(private val treeNode: ElementRefNode<T>) :
-    MutableIterator<ElementRefNode<T>?> {
+class ElementRefNodeIter<T : AbstractEntityAudit>
+    (private val treeNode: ElementRefNode<T>) :  MutableIterator<ElementRefNode<T>?> {
+
     internal enum class ProcessStages {
         ProcessParent, ProcessChildCurNode, ProcessChildSubNode
     }
@@ -14,7 +16,8 @@ class ElementRefNodeIter<T : AbstractEntityAudit?>(private val treeNode: Element
     private var doNext: ProcessStages?
     private var next: ElementRefNode<T>? = null
     private val childrenCurNodeIter: Iterator<ElementRefNode<T>>
-    private var childrenSubNodeIter: Iterator<ElementRefNode<T?>?>? = null
+    private var childrenSubNodeIter: Iterator<ElementRefNode<T>>? = null
+
     override fun hasNext(): Boolean {
         if (doNext == ProcessStages.ProcessParent) {
             next = treeNode
@@ -24,7 +27,7 @@ class ElementRefNodeIter<T : AbstractEntityAudit?>(private val treeNode: Element
         if (doNext == ProcessStages.ProcessChildCurNode) {
             return if (childrenCurNodeIter.hasNext()) {
                 val childDirect = childrenCurNodeIter.next()
-                childrenSubNodeIter = childDirect.iterator()
+                childrenSubNodeIter = childDirect.children?.iterator()
                 doNext = ProcessStages.ProcessChildSubNode
                 hasNext()
             } else {
@@ -33,8 +36,8 @@ class ElementRefNodeIter<T : AbstractEntityAudit?>(private val treeNode: Element
             }
         }
         return if (doNext == ProcessStages.ProcessChildSubNode) {
-            if (childrenSubNodeIter!!.hasNext()) {
-                next = childrenSubNodeIter!!.next()
+            if (childrenSubNodeIter?.hasNext() == true) {
+                next = childrenSubNodeIter?.next()
                 true
             } else {
                 next = null

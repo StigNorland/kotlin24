@@ -1,5 +1,4 @@
 package no.nsd.qddt.domain.othermaterial
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -18,7 +17,7 @@ import java.util.UUID
 /**
 * @author Stig Norland
 */
-@PropertySource(value = {"classpath:application.properties"})
+@PropertySource(value = ["classpath:application.properties"])
 @Service("otherMaterialService")
 internal class OtherMaterialServiceImpl @Autowired
 constructor():OtherMaterialService {
@@ -32,14 +31,16 @@ constructor():OtherMaterialService {
   @Throws(IOException::class)
   override fun saveFile(multipartFile:MultipartFile, ownerId:UUID):OtherMaterial {
     LOG.info(ownerId.toString())
-    val om = OtherMaterial(multipartFile).setOriginalOwner(ownerId)
+    val om = OtherMaterial(multipartFile).apply {
+      originalOwner = ownerId
+    }
     var filePath = Paths.get(getFolder(ownerId.toString()), om.fileName)
     if (Files.exists(filePath))
     {
       om.fileName = getNextFileName(filePath)
       filePath = Paths.get(getFolder(ownerId.toString()), om.fileName)
     }
-    Files.copy(multipartFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING)
+    Files.copy(multipartFile.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
     return om
   }
 
@@ -57,13 +58,13 @@ constructor():OtherMaterialService {
     {
       directory.mkdirs()
     }
-    return directory.getAbsolutePath()
+    return directory.absolutePath
   }
  
   private fun getNextFileName(filePath:Path):String {
-    val matcher = filePath.getFileName().toString().substring(0, filePath.getFileName().toString().length - 2)
-    val matchingFiles = filePath.getParent().toFile().listFiles({ dir, name-> name.startsWith(matcher) })
+    val matcher = filePath.fileName.toString().substring(0, filePath.fileName.toString().length - 2)
+    val matchingFiles = filePath.parent.toFile().listFiles { _, name -> name.startsWith(matcher) }
     val fileIndex = if ((matchingFiles != null)) (matchingFiles.size).toString() else ""
-    return matcher + ("00" + fileIndex).substring(fileIndex.length)
+    return matcher + ("00$fileIndex").substring(fileIndex.length)
   }
 }

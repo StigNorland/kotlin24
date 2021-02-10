@@ -1,6 +1,6 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.domain.AbstractEntity
+import no.nsd.qddt.classes.AbstractEntity
 import no.nsd.qddt.domain.agency.Agency
 import no.nsd.qddt.classes.interfaces.IDomainObject
 import no.nsd.qddt.domain.user.User

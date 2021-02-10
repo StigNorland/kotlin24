@@ -1,6 +1,5 @@
 package no.nsd.qddt.domain.category
 
-import no.nsd.qddt.domain.category.CategoryType
 import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 
 /**
@@ -40,7 +39,7 @@ open class CategoryFragmentBuilder(category: Category?) : XmlDDIFragmentBuilder<
             getXmlFooter(entity)
         )
 
-    override fun getXmlEntityRef(depth: Int): String? {
+    override fun getXmlEntityRef(depth: Int): String {
         return if (entity!!.categoryType == CategoryType.CATEGORY) super.getXmlEntityRef(depth) else if (entity.categoryType == CategoryType.LIST) String.format(
             xmlCodeDomain, getXmlURN(
                 entity

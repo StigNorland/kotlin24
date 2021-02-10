@@ -69,21 +69,21 @@ class TopicGroup(
   @OrderColumn(name = "concept_idx")
   @AuditMappedBy(mappedBy = "topicGroup", positionMappedBy = "conceptIdx")
   @OneToMany(mappedBy = "topicGroup", fetch = FetchType.LAZY, targetEntity = Concept::class, orphanRemoval = true, 
-    cascade = {CascadeType.REMOVE,CascadeType.PERSIST})
+    cascade = [CascadeType.REMOVE,CascadeType.PERSIST])
   var concepts: MutableList<Concept> = mutableListOf()
 
   @OrderColumn(name = "topicgroup_idx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "TOPIC_GROUP_QUESTION_ITEM", joinColumns = JoinColumn(name = "topicgroup_id", referencedColumnName = "id"))
+  @CollectionTable(name = "TOPIC_GROUP_QUESTION_ITEM", joinColumns = [JoinColumn(name = "topicgroup_id",referencedColumnName = "id")] )
   var topicQuestionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH})
-  @JoinTable(name = "TOPIC_GROUP_AUTHORS", joinColumns = {@JoinColumn(name ="topicgroup_id")}, inverseJoinColumns = {@JoinColumn(name = "author_id")})
+  @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
+  @JoinTable(name = "TOPIC_GROUP_AUTHORS", joinColumns = [JoinColumn(name = "topicgroup_id")], inverseJoinColumns = [JoinColumn(name = "author_id")])
   override var authors:MutableSet<Author> = mutableSetOf()
 
   @OrderColumn(name = "owner_idx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = {@JoinColumn(name = "owner_id", referencedColumnName = "id")})
+  @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id", referencedColumnName = "id")])
   var otherMaterials:MutableList<OtherMaterial> = mutableListOf()
 
 

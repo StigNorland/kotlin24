@@ -6,10 +6,8 @@ import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.elementref.ElementKind
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.stream.Collectors
-import java.util.UUID
 
 /**
 * @author Stig Norland
@@ -78,22 +76,22 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
 
   private val children:List<AbstractXmlBuilder>
 
-  private val degreeSlopeFromHorizontal:String
+  private val degreeSlopeFromHorizontal:String = degreeSlopeFromHorizontal
 
   override val xmlFragment:String
   get() {
-    if (entity.categoryType === CategoryType.LIST)
-    return getXmlCodeList()
+    return if (entity.categoryType === CategoryType.LIST)
+      getXmlCodeList()
     else
-    return String.format(
-      xmlManaged,
-      entity.categoryType.name,
-      getXmlHeader<AbstractEntityAudit>(entity),
-      entity.xmlLang,
-      entity.name,
-      entity.description,
-      entity.label,
-      this.xmlRefs)
+      String.format(
+        xmlManaged,
+        entity.categoryType.name,
+        getXmlHeader<AbstractEntityAudit>(entity),
+        entity.xmlLang,
+        entity.name,
+        entity.description,
+        entity.label,
+        this.xmlRefs)
   }
   private val xmlRefs:String
   get() {
@@ -121,13 +119,12 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
   }
 
   init{
-    this.degreeSlopeFromHorizontal = degreeSlopeFromHorizontal
-    children = entity.children.stream()
-    .map { this.getBuilder(it) }
-    .collect(Collectors.toList<T>())
+    children = entity.children?.stream()
+        ?.map { this.getBuilder(it) }
+        ?.collect(Collectors.toList()) ?: mutableListOf()
   }
 
-  override protected fun <S : AbstractEntityAudit> getXmlHeader(instance:S):String {
+  override fun <S : AbstractEntityAudit> getXmlHeader(instance:S):String {
     val ref = instance as Category
     val attr = if ((entity.categoryType === CategoryType.NUMERIC))
       String.format(xmlNumeric, ref.format, ref.inputLimit.stepUnit)
@@ -163,7 +160,7 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     super.addXmlFragments(fragments)
     if (entity.categoryType === CategoryType.MISSING_GROUP)
     (fragments.get(ElementKind.CATEGORY))!!.putIfAbsent(missingCodeURN, getXmlMissingCodeListFragment())
-    children.forEach({ c-> c.addXmlFragments(fragments) })
+    children.forEach { c -> c.addXmlFragments(fragments) }
   }
 
   private fun getXmlCodeList():String {
@@ -179,13 +176,13 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
                          .collect(Collectors.joining()))
   }
   private fun getBuilder(category:Category):AbstractXmlBuilder {
-    when (entity.categoryType) {
-      CategoryType.SCALE -> return FragmentBuilderAnchor(category)
-      CategoryType.MISSING_GROUP, 
-      CategoryType.LIST -> return FragmentBuilderCode(category)
+    return when (entity.categoryType) {
+      CategoryType.SCALE -> FragmentBuilderAnchor(category)
+      CategoryType.MISSING_GROUP,
+      CategoryType.LIST -> FragmentBuilderCode(category)
       else -> {
         LOG.info("getbuilder get default")
-        return category.xmlBuilder
+        category.xmlBuilder
       }
     }
   }

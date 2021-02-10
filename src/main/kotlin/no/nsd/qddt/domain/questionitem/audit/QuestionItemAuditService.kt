@@ -1,23 +1,22 @@
-package no.nsd.qddt.domain.questionitem.audit;
+package no.nsd.qddt.domain.questionitem.audit
 
-import no.nsd.qddt.domain.AbstractEntityAudit;
-import no.nsd.qddt.classes.interfaces.BaseServiceAudit;
-import no.nsd.qddt.domain.questionitem.QuestionItem;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.history.Revision;
-
-import java.util.Collection;
-import java.util.UUID;
-
+import no.nsd.qddt.domain.questionitem.QuestionItem
+import java.util.UUID
+import no.nsd.qddt.classes.AbstractEntityAudit
+import no.nsd.qddt.classes.interfaces.BaseServiceAudit
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.history.Revision
 
 /**
  * @author Dag Østgulen Heradstveit
  */
-public interface QuestionItemAuditService extends BaseServiceAudit<QuestionItem, UUID, Integer> {
+internal interface QuestionItemAuditService : BaseServiceAudit<QuestionItem, UUID, Int> {
+    fun findRevisionByIdAndChangeKindNotIn(
+        id: UUID,
+        changeKinds: Collection<AbstractEntityAudit.ChangeKind>,
+        pageable: Pageable
+    ): Page<Revision<Int, QuestionItem>>
 
-    Page<Revision<Integer, QuestionItem>> findRevisionByIdAndChangeKindNotIn(UUID id, Collection<AbstractEntityAudit.ChangeKind> changeKinds, Pageable pageable);
-
-    Revision<Integer, QuestionItem> getQuestionItemLastOrRevision(UUID id, Integer revision);
-
+    fun getQuestionItemLastOrRevision(id: UUID, revision: Int): Revision<Int, QuestionItem>
 }

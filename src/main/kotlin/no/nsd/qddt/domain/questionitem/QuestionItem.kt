@@ -7,7 +7,6 @@ import no.nsd.qddt.classes.elementref.ElementRefResponseDomain
 import no.nsd.qddt.classes.elementref.ParentRef
 import no.nsd.qddt.classes.pdf.PdfReport
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
-import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.Audited
 import javax.persistence.*
 import java.util.ArrayList
@@ -68,6 +67,5 @@ class QuestionItem(override var name: String=""):AbstractEntityAudit() {
 
   override  fun beforeUpdate() {}
   override  fun beforeInsert() {}
-  
-¨
+
 }

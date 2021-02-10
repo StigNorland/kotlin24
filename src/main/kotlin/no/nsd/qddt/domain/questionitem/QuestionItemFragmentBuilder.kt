@@ -1,13 +1,13 @@
 package no.nsd.qddt.domain.questionitem
+
 import no.nsd.qddt.classes.elementref.ElementKind
 import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.domain.responsedomain.ResponseDomain
 import java.util.stream.Collectors
 /**
 * @author Stig Norland
 */
 class QuestionItemFragmentBuilder(questionItem:QuestionItem):XmlDDIFragmentBuilder<QuestionItem>(questionItem) {
-  private val xmlQuestionItem = (
+    private val xmlQuestionItem = (
     "%1\$s" +
     "\t\t\t<d:QuestionItemName>\n" +
     "\t\t\t\t<r:String>%2\$s</r:String>\n" +
@@ -22,34 +22,36 @@ class QuestionItemFragmentBuilder(questionItem:QuestionItem):XmlDDIFragmentBuild
     "\t\t\t</d:QuestionIntent>\n" +
     "%6\$s" +
     "%7\$s")
-  // r:ConceptReference/r:URN"/>
-  // r:ConceptReference/r:TypeOfObject" defaultValue="Concept" fixedValue="true"/>
-  private val responseBuilder:XmlDDIFragmentBuilder<ResponseDomain>
-  val xmlFragment:String
-  get() {
-    return String.format(xmlQuestionItem,
-                         getXmlHeader(entity),
-                         entity.name,
-                         getXmlLang(entity),
-                         entity.getIntent(),
-                         entity.getQuestion(),
-                         responseBuilder.getXmlEntityRef(3) + conceptRef,
-                         getXmlFooter(entity))
-  }
-  protected val conceptRef:String
-  get() {
-    return entity.getParentRefs().stream()
-    .map({ cr->
-          val urn = String.format(xmlURN, cr.agency, cr.getId(), cr.version.toDDIXml())
-          String.format(xmlRef, "Concept", urn, "\t\t\t") })
-    .collect(Collectors.joining())
-  }
-  init{
-    responseBuilder = questionItem.getResponseDomainRef().element.getXmlBuilder()
-  }
-  fun addXmlFragments(fragments:Map<ElementKind, Map<String, String>>) {
-    super.addXmlFragments(fragments)
-    entity.getParentRefs().stream().forEach({ c-> c.getEntity().getXmlBuilder().addXmlFragments(fragments) })
-    responseBuilder.addXmlFragments(fragments)
-  }
+      // r:ConceptReference/r:URN"/>
+      // r:ConceptReference/r:TypeOfObject" defaultValue="Concept" fixedValue="true"/>
+    private val responseBuilder = questionItem.responseDomainRef.element?.xmlBuilder
+
+    override val xmlFragment:String
+        get() {
+            return String.format(
+                xmlQuestionItem,
+                 getXmlHeader(entity),
+                 entity.name,
+                 getXmlLang(entity),
+                 entity.intent,
+                 entity.question,
+                 (responseBuilder?.getXmlEntityRef(3) ?: "<empty>") + conceptRef,
+                 getXmlFooter(entity))
+        }
+
+    protected val conceptRef:String
+        get() {
+            return entity.parentRefs.stream()
+            .map { cr ->
+                val urn = String.format(xmlURN, cr.agency, cr.id, cr.version?.toDDIXml())
+                String.format(xmlRef, "Concept", urn, "\t\t\t")
+            }.collect(Collectors.joining())
+        }
+
+    override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
+        super.addXmlFragments(fragments)
+        entity.parentRefs.stream().forEach{ it.entity?.xmlBuilder?.addXmlFragments(fragments) }
+        responseBuilder?.addXmlFragments(fragments)
+    }
+
 }

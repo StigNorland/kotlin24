@@ -13,18 +13,18 @@ import javax.persistence.Embeddable
 @Embeddable
 class Code(
   @Column(name = "code_value")
-  var value:String
+  var value:String=""
 ):Comparable<Code> {
   
-  public override fun compareTo(other:Code):Int {
-    try
+  override fun compareTo(other:Code):Int {
+    return try
     {
       val a = Integer.parseInt(value)
       val b = Integer.parseInt(other.value)
-      return a.compareTo(b)
+      a.compareTo(b)
     }
     catch (nfe:NumberFormatException) {
-      return value.compareTo(other.value)
+      value.compareTo(other.value)
     }
   }
 }
