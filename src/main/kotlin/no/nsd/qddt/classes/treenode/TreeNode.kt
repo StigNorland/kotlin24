@@ -15,11 +15,11 @@ import javax.persistence.*
  */
 @Audited
 @Entity
-class TreeNode<T : IDomainObject?> : AbstractElementRef<T>, Iterable<TreeNode<T>?> {
+class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>> {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column( updatable = false, nullable = false)
     var id: UUID? = null
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = TreeNode::class)
@@ -38,7 +38,7 @@ class TreeNode<T : IDomainObject?> : AbstractElementRef<T>, Iterable<TreeNode<T>
     @Transient
     private var elementsIndex: MutableList<TreeNode<T>>? = null
 
-    constructor() {}
+    constructor() : super()
     constructor(data: T) {
         element = data
         children = LinkedList()
@@ -72,7 +72,7 @@ class TreeNode<T : IDomainObject?> : AbstractElementRef<T>, Iterable<TreeNode<T>
 
     private fun registerChildForSearch(node: TreeNode<T>) {
         elementsIndex!!.add(node)
-        if (parent != null) parent.registerChildForSearch(node)
+        parent?.registerChildForSearch(node)
     }
 
     fun findTreeNode(cmp: Comparable<T>): TreeNode<T>? {

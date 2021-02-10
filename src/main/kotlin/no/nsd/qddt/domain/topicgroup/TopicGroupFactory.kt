@@ -12,12 +12,13 @@ import java.util.UUID
  */
 internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
     override fun create(): TopicGroup {
-        return TopicGroup(null,null)
+        return TopicGroup(null,"")
     }
 
     override fun copyBody(source: TopicGroup, dest: TopicGroup): TopicGroup {
         return dest.apply {  
             name = source.name
+
             description = source.description
             // label = source.label
             otherMaterials = source.otherMaterials.stream()
