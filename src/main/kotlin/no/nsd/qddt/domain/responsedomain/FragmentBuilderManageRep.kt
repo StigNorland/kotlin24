@@ -16,6 +16,7 @@ import java.util.UUID
 */
 class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String):XmlDDIFragmentBuilder<Category>(entity) {
   protected val LOG = LoggerFactory.getLogger(this.javaClass)
+
   private val xmlScaleMan = (
     "\t\t\t<r:ScaleDimension dimensionNumber=\"1\" degreeSlopeFromHorizontal=\"%1\$s\">\n" +
     "\t\t\t\t<r:Range>\n" +
@@ -25,14 +26,16 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     "\t\t\t\t</r:Range>\n" +
     "%5\$s" +
     "\t\t\t</r:ScaleDimension>\n")
-  private val xmlMissingMan = (
+
+    private val xmlMissingMan = (
     "%1\$s<r:MissingCodeRepresentation blankIsMissingValue =\"false\">\n" +
     "%1\$s\t<r:CodeListReference>\n" +
     "%1\$s\t\t%2\$s" +
     "%1\$s\t\t<r:TypeOfObject>CodeList</r:TypeOfObject>\n" +
     "%1\$s\t</r:CodeListReference>\n" +
     "%1\$s</r:MissingCodeRepresentation>\n")
-  private val xmlManaged = (
+
+    private val xmlManaged = (
     "%2\$s" +
     "\t\t\t<r:Managed%1\$sRepresentationName>\n" +
     "\t\t\t\t<r:String xml:lang=\"%3\$s\">%4\$s</r:String>\n" +
@@ -46,6 +49,7 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     "%7\$s" +
     "\t\t</r:Managed%1\$sRepresentation>\n")
   // d:CodeDomain/r:CodeListReference
+
   private val xmlCodeList = (
     "%2\$s" +
     "\t\t\t<l:CodeListName>\n" +
@@ -59,15 +63,21 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     "\t\t\t</r:Description>\n" +
     "%7\$s" +
     "\t\t</l:CodeList>\n")
+
   private val xmlMissingCodeListFragment = (
     "%1\$s<l:CodeList isUniversallyUnique=\"false\" scopeOfUniqueness=\"Maintainable\">\n" +
     "%1\$s\t%2\$s" +
     "%3\$s" +
     "%1\$s</l:CodeList>\n")
+
   protected val xmlHeaderMR = ("\t\t<%1\$s isUniversallyUnique=\"true\" versionDate=\"%2\$s\" isMaintainable=\"true\" %3\$s>\n" + "%4\$s")
+
   private val xmlNumeric = " format=\"%1\$s\" scale=1 interval=%2\$s classificationLevel=\"Continuous\" "
+
   private val xmlText = " maxLength=%1\$s minLength=%2\$s classificationLevel=\"Nominal\" "
+
   private val children:List<AbstractXmlBuilder>
+
   private val degreeSlopeFromHorizontal:String
 
   override val xmlFragment:String
@@ -75,33 +85,34 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
     if (entity.categoryType === CategoryType.LIST)
     return getXmlCodeList()
     else
-    return String.format(xmlManaged,
-                         entity.categoryType.name,
-                         getXmlHeader<AbstractEntityAudit>(entity),
-                         entity.xmlLang,
-                         entity.name,
-                         entity.description,
-                         entity.label,
-                         this.xmlRefs)
+    return String.format(
+      xmlManaged,
+      entity.categoryType.name,
+      getXmlHeader<AbstractEntityAudit>(entity),
+      entity.xmlLang,
+      entity.name,
+      entity.description,
+      entity.label,
+      this.xmlRefs)
   }
   private val xmlRefs:String
   get() {
     if (entity.categoryType.equals(CategoryType.SCALE))
-    return String.format(xmlScaleMan,
-                         degreeSlopeFromHorizontal,
-                         entity.inputLimit.stepUnit,
-                         entity.inputLimit.minimum,
-                         entity.inputLimit.maximum,
-                         children.stream()
-                         .map{ q-> q.getXmlEntityRef(4) }
-                         .collect(Collectors.joining())
-                        )
+    return String.format(
+      xmlScaleMan,
+      degreeSlopeFromHorizontal,
+      entity.inputLimit.stepUnit,
+      entity.inputLimit.minimum,
+      entity.inputLimit.maximum,
+      children.stream()
+      .map{ q-> q.getXmlEntityRef(4) }
+      .collect(Collectors.joining()))
     else if (entity.categoryType.equals(CategoryType.MISSING_GROUP))
-    return String.format(xmlMissingMan, getTabs(3), missingCodeURN, getMissingXmlEntityRef(4))
+      return String.format(xmlMissingMan, getTabs(3), missingCodeURN, getMissingXmlEntityRef(4))
     else
-    return children.stream()
-    .map { q-> q.getXmlEntityRef(3) }
-    .collect(Collectors.joining())
+      return children.stream()
+        .map { q-> q.getXmlEntityRef(3) }
+        .collect(Collectors.joining())
   }
 
   private val missingCodeURN:String
@@ -119,23 +130,39 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
   override protected fun <S : AbstractEntityAudit> getXmlHeader(instance:S):String {
     val ref = instance as Category
     val attr = if ((entity.categoryType === CategoryType.NUMERIC))
-    String.format(xmlNumeric, ref.format, ref.inputLimit.stepUnit)
+      String.format(xmlNumeric, ref.format, ref.inputLimit.stepUnit)
     else if ((entity.categoryType === CategoryType.TEXT))
-    String.format(xmlText, ref.inputLimit.maximum, ref.inputLimit.minimum)
+      String.format(xmlText, ref.inputLimit.maximum, ref.inputLimit.minimum)
     else
-    ""
+      ""
     if (entity.categoryType.equals(CategoryType.LIST))
-    {
-      return String.format(xmlHeaderMR, "l:" + entity.categoryType.name, getInstanceDate(instance), "", "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance))
-    }
+      return String.format(
+        xmlHeaderMR, "l:" + entity.categoryType.name,
+        getInstanceDate(instance),
+        "",
+        "\t\t\t" 
+         + getXmlURN(instance)
+         + getXmlUserId(instance) 
+         + getXmlRationale(instance)
+         + getXmlBasedOn(instance))
     else
-    return String.format(xmlHeaderMR, "r:Managed" + entity.categoryType.name + "Representation", getInstanceDate(instance), attr, "\t\t\t" + getXmlURN(instance) + getXmlUserId(instance) + getXmlRationale(instance) + getXmlBasedOn(instance))
+      return String.format(
+        xmlHeaderMR, "r:Managed" 
+          + entity.categoryType.name 
+          + "Representation",
+          getInstanceDate(instance),
+          attr,
+          "\t\t\t" 
+            + getXmlURN(instance) 
+            + getXmlUserId(instance) 
+            + getXmlRationale(instance) 
+            + getXmlBasedOn(instance))
   }
 
   override fun addXmlFragments(fragments:Map<ElementKind, MutableMap<String, String>>) {
     super.addXmlFragments(fragments)
     if (entity.categoryType === CategoryType.MISSING_GROUP)
-    (fragments.get(ElementKind.CATEGORY) as java.util.Map<String, String>).putIfAbsent(missingCodeURN, getXmlMissingCodeListFragment())
+    (fragments.get(ElementKind.CATEGORY))!!.putIfAbsent(missingCodeURN, getXmlMissingCodeListFragment())
     children.forEach({ c-> c.addXmlFragments(fragments) })
   }
 
@@ -164,12 +191,13 @@ class FragmentBuilderManageRep(entity:Category, degreeSlopeFromHorizontal:String
   }
 
   private fun getXmlMissingCodeListFragment():String {
-    return String.format(xmlMissingCodeListFragment,
-                         getTabs(2),
-                         missingCodeURN,
-                         children.stream()
-                         .map{ q-> q.getXmlEntityRef(3) }
-                         .collect(Collectors.joining()))
+    return String.format(
+      xmlMissingCodeListFragment,
+      getTabs(2),
+      missingCodeURN,
+      children.stream()
+      .map{ q-> q.getXmlEntityRef(3) }
+      .collect(Collectors.joining()))
   }
 
   private fun getMissingXmlEntityRef(depth:Int):String {

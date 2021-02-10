@@ -20,7 +20,7 @@ enum class ResponseKind private constructor(ddiName:String, ddiRepresentation:St
   DATETIME("DateTimeDomain", "ManagedDateTimeRepresentation"),
   TEXT("TextDomain", "ManagedTextRepresentation"),
   NUMERIC("NumericDomain", "ManagedNumericRepresentation"),
-  LIST("CodeDomain", "Codelist"),
+  LIST("CodeDomain", "CodeList"),
   SCALE("ScaleDomain", "ManagedScaleRepresentation"),
   MIXED("ResponseDomainInMixed", "");
   val ddiName:String

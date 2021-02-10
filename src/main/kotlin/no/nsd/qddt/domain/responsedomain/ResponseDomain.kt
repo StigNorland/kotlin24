@@ -61,9 +61,8 @@ import no.nsd.qddt.utils.StringTool.IsNullOrEmpty
 */
 @Audited
 @Entity
-@Table(name = "RESPONSEDOMAIN", 
-      uniqueConstraints = [UniqueConstraint(
-          name = "UNQ_RESPONSEDOMAIN_NAME",
+@Table(name = "RESPONSEDOMAIN", uniqueConstraints =
+        [UniqueConstraint(name = "UNQ_RESPONSEDOMAIN_NAME",
           columnNames = ["name","category_id","based_on_object"])]
 )
 class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
@@ -74,55 +73,47 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
   @OrderColumn(name = "responsedomain_idx")
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "CODE", joinColumns = JoinColumn(name = "responsedomain_id", referencedColumnName = "id"))
-  private val codes = ArrayList<Code>()
-  // @JsonView(View.Edit.class)
-  @Column(name = "description", length = 2000, nullable = false)
-  var description:String
-  get() {
-    if (IsNullOrEmpty(field))
-    this.description = ""
-    return field
-  }
+  val codes = ArrayList<Code>()
+
+  @Column(length = 2000, nullable = false)
+  var description:String?
+  get() = field?:""
+
   /**
- * a link to a category root/group (template)
- * the managed representation is never reused (as was intended),
- * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
- */
-  // @JsonView(View.Edit.class)
-  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+   * a link to a category root/group (template)
+   * the managed representation is never reused (as was intended),
+   * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
+  **/
+  @ManyToOne(fetch = [FetchType.EAGER], cascade = [CascadeType.REMOVE])
   @JoinColumn(name = "category_id")
-  private val managedRepresentation:Category
-  // @JsonView(View.Edit.class)
+  var managedRepresentation:Category?=null
+
   /**
- * Vocabulary for Display layout would suffice with 'Horizontal' (default) vs. Vertical'.
- * @return DisplayLayout
- */
-  var displayLayout:String
-  // @JsonView(View.Edit.class)
+   * Vocabulary for Display layout would suffice with 'Horizontal' (default) vs. Vertical'.
+   * @return DisplayLayout
+   */
+  var displayLayout:String=""
+
   @Enumerated(EnumType.STRING)
-  var responseKind:ResponseKind
+  var responseKind:ResponseKind = ResponseKind.SCALE
+
   /**
- * Allows the designation of the minimum and maximum number of responses allowed for this response domain.
- */
-  // @JsonView(View.Edit.class)
+  * Allows the designation of the minimum and maximum number of responses allowed for this response domain.
+  **/
   @Embedded
-  var responseCardinality:ResponseCardinality
-  get() {
-    if (field == null)
-    return ResponseCardinality()
-    return field
-  }
+  var responseCardinality:ResponseCardinality = ResponseCardinality()
   protected set
-  val name:String
-  @Column(nullable = false)
-  get() {
-    return CapString(super.name)
-  }
-  val managedRepresentationFlatten:List<Category>
+  
+  
+  vav name:String
+  get() =  CapString(field)
+  
   @JsonIgnore
+  var managedRepresentationFlatten:List<Category>
   get() {
     return getFlatManagedRepresentation(getManagedRepresentation())
   }
+
   val xmlBuilder:XmlDDIFragmentBuilder<ResponseDomain>
   get() {
     return ResponseDomainFragmentBuilder(this)
