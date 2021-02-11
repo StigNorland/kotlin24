@@ -5,6 +5,7 @@ import com.itextpdf.layout.element.Paragraph
 import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.elementref.ElementRefResponseDomain
 import no.nsd.qddt.classes.elementref.ParentRef
+import no.nsd.qddt.classes.interfaces.IDomainObjectParentRef
 import no.nsd.qddt.classes.pdf.PdfReport
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import org.hibernate.envers.Audited
@@ -31,13 +32,19 @@ class QuestionItem(override var name: String=""):AbstractEntityAudit() {
   @Column(length = 3000)
   var intent:String=""
 
+  @AttributeOverrides(
+    AttributeOverride(name = "name",column = Column(name = "responsedomain_name")),
+    AttributeOverride(name = "elementId",column = Column(name = "responsedomain_id")),
+    AttributeOverride(name = "elementRevision",column = Column(name = "responsedomain_revision")
+    )
+  )
   @Embedded
   var responseDomainRef:ElementRefResponseDomain = ElementRefResponseDomain()
 
 
   @Transient
   @JsonSerialize
-  var parentRefs:List<ParentRef<*>> = ArrayList<ParentRef<*>>(0)
+  lateinit var parentRefs:List<ParentRef<IDomainObjectParentRef>>
 
   override val xmlBuilder:AbstractXmlBuilder
     get() =  QuestionItemFragmentBuilder(this)

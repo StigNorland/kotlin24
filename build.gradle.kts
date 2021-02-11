@@ -3,10 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.4.2"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	kotlin("jvm") version "1.4.21"
-	kotlin("plugin.spring") version "1.4.21"
-	// kotlin("plugin.allopen") version "1.4.21"
-	kotlin("plugin.jpa") version "1.4.21"
+	kotlin("jvm") version "1.4.30"
+	kotlin("plugin.spring") version "1.4.30"
+	kotlin("plugin.jpa") version "1.4.30"
+	kotlin("plugin.serialization") version "1.4.30"
 }
 
 group = "no.nsd"
@@ -34,6 +34,7 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0-RC")
 
 	implementation("net.logstash.logback:logstash-logback-encoder:6.5")
 

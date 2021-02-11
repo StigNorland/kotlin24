@@ -29,16 +29,16 @@ constructor():OtherMaterialService {
   @Transactional
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
   @Throws(IOException::class)
-  override fun saveFile(multipartFile:MultipartFile, ownerId:UUID):OtherMaterial {
-    LOG.info(ownerId.toString())
+  override fun saveFile(multipartFile:MultipartFile, uuid:UUID):OtherMaterial {
+    LOG.info(uuid.toString())
     val om = OtherMaterial(multipartFile).apply {
-      originalOwner = ownerId
+      originalOwner = uuid
     }
-    var filePath = Paths.get(getFolder(ownerId.toString()), om.fileName)
+    var filePath = Paths.get(getFolder(uuid.toString()), om.fileName)
     if (Files.exists(filePath))
     {
       om.fileName = getNextFileName(filePath)
-      filePath = Paths.get(getFolder(ownerId.toString()), om.fileName)
+      filePath = Paths.get(getFolder(uuid.toString()), om.fileName)
     }
     Files.copy(multipartFile.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
     return om

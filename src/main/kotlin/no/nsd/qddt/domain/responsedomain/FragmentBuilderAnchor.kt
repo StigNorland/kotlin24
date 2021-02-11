@@ -11,7 +11,12 @@ class FragmentBuilderAnchor(entity:Category):CategoryFragmentBuilder(entity) {
     "%2\$s" +
     "%3\$s</r:Anchor>\n")
 
-    override fun getXmlEntityRef(depth:Int):String {
-    return String.format(xmlAnchor, entity!!.code.value, super.getXmlEntityRef(depth + 1), Collections.nCopies<String>(depth, "\t").joinToString(""))
+  override fun getXmlEntityRef(depth:Int):String {
+    return String.format(
+      xmlAnchor,
+      entity.code.value,
+      super.getXmlEntityRef(depth + 1),
+      Collections.nCopies(depth, "\t").joinToString("")
+    )
   }
 }

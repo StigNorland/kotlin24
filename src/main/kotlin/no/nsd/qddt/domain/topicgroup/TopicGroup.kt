@@ -1,24 +1,22 @@
 package no.nsd.qddt.domain.topicgroup
 
 import no.nsd.qddt.domain.author.Author
-import no.nsd.qddt.domain.author.IAuthor
+import no.nsd.qddt.domain.author.IAuthorSet
 import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.elementref.ElementKind
 import no.nsd.qddt.classes.elementref.ElementRefEmbedded
-import no.nsd.qddt.classes.elementref.ParentRef
 import no.nsd.qddt.classes.interfaces.IParentRef
 import no.nsd.qddt.classes.interfaces.IArchived
 import no.nsd.qddt.classes.interfaces.IDomainObjectParentRef
 import no.nsd.qddt.classes.pdf.PdfReport
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
 import no.nsd.qddt.domain.concept.Concept
+import no.nsd.qddt.domain.othermaterial.IOtherMaterialList
 import no.nsd.qddt.domain.othermaterial.OtherMaterial
 import no.nsd.qddt.domain.questionitem.QuestionItem
-import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
-import java.util.stream.Collectors
 import javax.persistence.*
 
 /**
@@ -60,7 +58,7 @@ class TopicGroup(
   @Transient override var parentRef: IParentRef?,
   override var name: String
 
-):AbstractEntityAudit(), IAuthor, IArchived, IDomainObjectParentRef {
+):AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived, IDomainObjectParentRef {
 
   @Column(name = "study_idx", insertable = false, updatable = false)
   private var studyIdx:Int?=null
@@ -84,14 +82,14 @@ class TopicGroup(
   @OrderColumn(name = "owner_idx")
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id", referencedColumnName = "id")])
-  var otherMaterials:MutableList<OtherMaterial> = mutableListOf()
+  override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
 
 
   override var isArchived:Boolean = false
   set(value) {
     field = value
     if (value){
-      LOG.info(name + " isArchived(" + concepts.size + ")")
+      logger.info(name + " isArchived(" + concepts.size + ")")
       changeKind = ChangeKind.ARCHIVED
       this.concepts.forEach { 
         if (!it.isArchived)
@@ -111,18 +109,16 @@ class TopicGroup(
     changeComment = "Concept [" + concept.name + "] added"
     return concept
   }
-  
-  fun addOtherMaterial(otherMaterial:OtherMaterial) {
-    if (this.otherMaterials.stream().noneMatch({ cqi-> cqi.equals(otherMaterial) }))
-    {
-      otherMaterials.add(otherMaterial)
-      this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-      if (changeComment.isNullOrBlank())
-        this.changeComment ="Other material added"
+
+  override fun addOtherMaterial(otherMaterial: OtherMaterial): OtherMaterial {
+    return super.addOtherMaterial(otherMaterial).apply {
+      changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+      if (changeComment.isBlank())
+        changeComment ="Other material added"
+
     }
-    else
-    LOG.debug("OtherMaterial not inserted, match found")
   }
+
   // no update for QI when removing (it is bound to a revision anyway...).
   fun removeQuestionItem(questionItemId:UUID, rev:Int) {
     val toDelete = ElementRefEmbedded<QuestionItem>(ElementKind.QUESTION_ITEM, questionItemId, rev)
@@ -143,7 +139,7 @@ class TopicGroup(
       this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
       this.changeComment = "QuestionItem association added"
     } else
-    LOG.debug("ConceptQuestionItem not inserted, match found")
+    logger.debug("ConceptQuestionItem not inserted, match found")
   }
   
   
@@ -176,7 +172,7 @@ class TopicGroup(
   
   @PreRemove
   fun preRemove() {
-    LOG.debug("Topic pre remove")
+    logger.debug("Topic pre remove")
     authors.clear()
     otherMaterials.clear()
   }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.classes.AbstractEntity
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
+import no.nsd.qddt.domain.concept.Concept
 // import no.nsd.qddt.domain.study.Study
 // import no.nsd.qddt.domain.surveyprogram.SurveyProgram
 import no.nsd.qddt.domain.topicgroup.TopicGroup
@@ -52,7 +53,7 @@ class Author : AbstractEntity() {
 
     @JsonBackReference(value = "topicRef")
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
-    var topicGroups: Set<TopicGroup> = HashSet()
+    var topicGroups: MutableSet<TopicGroup> = mutableSetOf()
 
     
     //    @PrePersist

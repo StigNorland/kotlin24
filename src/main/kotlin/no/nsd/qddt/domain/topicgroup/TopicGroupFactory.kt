@@ -1,24 +1,22 @@
 package no.nsd.qddt.domain.topicgroup
 
 
-import no.nsd.qddt.domain.concept.ConceptFactory
+//import no.nsd.qddt.domain.concept.ConceptFactory
 import no.nsd.qddt.classes.IEntityFactory
-import no.nsd.qddt.classes.elementref.ElementRefEmbedded
+//import no.nsd.qddt.classes.elementref.ElementRefEmbedded
 import java.util.stream.Collectors
-import java.util.UUID
 
 /**
  * @author Stig Norland
  */
 internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
     override fun create(): TopicGroup {
-        return TopicGroup(null,"")
+        return TopicGroup(null,"",null,"?")
     }
 
     override fun copyBody(source: TopicGroup, dest: TopicGroup): TopicGroup {
         return dest.apply {  
             name = source.name
-
             description = source.description
             // label = source.label
             otherMaterials = source.otherMaterials.stream()

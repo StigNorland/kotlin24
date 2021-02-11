@@ -43,7 +43,7 @@ class QuestionItemFragmentBuilder(questionItem:QuestionItem):XmlDDIFragmentBuild
         get() {
             return entity.parentRefs.stream()
             .map { cr ->
-                val urn = String.format(xmlURN, cr.agency, cr.id, cr.version?.toDDIXml())
+                val urn = String.format(xmlURN, cr.entity?.agency?.name, cr.id, cr.version.toDDIXml())
                 String.format(xmlRef, "Concept", urn, "\t\t\t")
             }.collect(Collectors.joining())
         }

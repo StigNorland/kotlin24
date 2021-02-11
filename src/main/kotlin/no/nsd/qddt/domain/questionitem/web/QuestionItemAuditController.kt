@@ -1,36 +1,33 @@
 package no.nsd.qddt.domain.questionitem.web
 
 import no.nsd.qddt.classes.AbstractEntityAudit
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.PathVariable
-import java.util.UUID
-import org.springframework.data.history.Revision
 import no.nsd.qddt.domain.questionitem.QuestionItem
-import no.nsd.qddt.domain.questionitem.audit.QuestionItemAuditService
-import org.springframework.web.bind.annotation.RequestParam
+import no.nsd.qddt.domain.questionitem.audit.QuestionItemAuditRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.history.Revision
 import org.springframework.data.web.PagedResourcesAssembler
-import org.springframework.hateoas.PagedModel
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.PagedModel
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 /**
  * @author Stig Norland
  */
 @RestController
 @RequestMapping(value = ["/audit/questionitem"],  produces = [MediaType.APPLICATION_JSON_VALUE])
-internal class QuestionItemAuditController @Autowired constructor(service: QuestionItemAuditService) {
-    private val auditService: QuestionItemAuditService
+internal class QuestionItemAuditController {
+
+    @Autowired
+    private lateinit var auditRepository: QuestionItemAuditRepository
 
     // @JsonView(View.Audit.class)
     @RequestMapping(value = ["/{id}"], method = [RequestMethod.GET])
-    fun getLastRevision(@PathVariable("id") id: UUID): Revision<Int, QuestionItem>? {
-        return auditService.findLastChange(id)
+    fun getLastRevision(@PathVariable("id") id: UUID): Optional<Revision<Int, QuestionItem>> {
+        return auditRepository.findLastChangeRevision(id)
     }
 
     // @JsonView(View.Audit.class)
@@ -38,8 +35,8 @@ internal class QuestionItemAuditController @Autowired constructor(service: Quest
     fun getByRevision(
         @PathVariable("id") id: UUID,
         @PathVariable("revision") revision: Int
-    ): Revision<Int, QuestionItem>? {
-        return auditService.findRevision(id, revision)
+    ): Optional<Revision<Int, QuestionItem>> {
+        return auditRepository.findRevision(id, revision)
     }
 
     @RequestMapping(value = ["/{id}/all"], method = [RequestMethod.GET])
@@ -50,20 +47,20 @@ internal class QuestionItemAuditController @Autowired constructor(service: Quest
         pageable: Pageable, assembler: PagedResourcesAssembler<Revision<Int, QuestionItem>>
     ): PagedModel<EntityModel<Revision<Int, QuestionItem>>> {
         val entities: Page<Revision<Int, QuestionItem>> =
-            auditService.findRevisionByIdAndChangeKindNotIn(id, changekinds, pageable)
+            auditRepository.findRevisionsByIdAndChangeKindNotIn(id, changekinds, pageable)
         return assembler.toModel(entities)
     }
 
     @ResponseBody
     @RequestMapping(value = ["/pdf/{id}/{revision}"], method = [RequestMethod.GET], produces = ["application/pdf"])
     fun getPdf(@PathVariable("id") id: UUID, @PathVariable("revision") revision: Int): ByteArray {
-        auditService.findRevision(id, revision)?.let {
-            return it.entity.makePdf().toByteArray()
+        auditRepository.findRevision(id, revision).also {
+            return if(it.isPresent)
+                it.get().entity.makePdf().toByteArray()
+            else
+                ByteArray(0)
         }
-        return ByteArray(0)
     }
 
-    init {
-        auditService = service
-    }
+
 }

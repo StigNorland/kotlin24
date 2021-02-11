@@ -3,7 +3,7 @@ package no.nsd.qddt.domain.author
 /**
  * @author Stig Norland
  */
-interface IAuthor {
+interface IAuthorSet {
     var authors: MutableSet<Author>
     /**
      * Add a [Author] to a [Set] of authors.
@@ -11,7 +11,7 @@ interface IAuthor {
      */
     fun addAuthor(author: Author):Author {
         this.authors.add(author)
-        if (this.authors.stream().noneMatch({ cqi-> cqi.equals(authors) }))
+        if (this.authors.stream().noneMatch { it.equals(authors) })
         {
            authors.add(author)
         }        

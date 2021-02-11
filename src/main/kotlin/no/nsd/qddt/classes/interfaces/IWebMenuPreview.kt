@@ -8,7 +8,7 @@ import java.util.*
  * @author Stig Norland
  */
 interface IWebMenuPreview {
-    val id: UUID?
+    var id: UUID
     var name: String
     var version: EmbeddedVersion
 }

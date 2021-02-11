@@ -8,7 +8,7 @@ import java.util.*
 /**
  * @author Dag Østgulen Heradstveit
  */
-interface CategoryService : BaseService<Category?, UUID?> {
+interface CategoryService : BaseService<Category, UUID> {
     fun findBy(
         hierarchyLevel: String,
         categoryType: String,
@@ -16,5 +16,5 @@ interface CategoryService : BaseService<Category?, UUID?> {
         description: String?,
         xmlLang: String?,
         pageable: Pageable?
-    ): Page<Category?>?
+    ): Page<Category>?
 }

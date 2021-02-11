@@ -5,7 +5,7 @@ import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 /**
  * @author Stig Norland
  */
-open class CategoryFragmentBuilder(category: Category?) : XmlDDIFragmentBuilder<Category?>(category) {
+open class CategoryFragmentBuilder(category: Category) : XmlDDIFragmentBuilder<Category>(category) {
     private val xmlCategory = """%1${"$"}s			<l:CategoryName>
 				<r:String %2${"$"}s>%3${"$"}s</r:String>
 			</l:CategoryName>
@@ -32,7 +32,7 @@ open class CategoryFragmentBuilder(category: Category?) : XmlDDIFragmentBuilder<
     override val xmlFragment: String
         get() = String.format(
             xmlCategory,
-            getXmlHeader(entity!!),
+            getXmlHeader(entity),
             getXmlLang(entity),
             entity.name,
             entity.label,
@@ -40,12 +40,12 @@ open class CategoryFragmentBuilder(category: Category?) : XmlDDIFragmentBuilder<
         )
 
     override fun getXmlEntityRef(depth: Int): String {
-        return if (entity!!.categoryType == CategoryType.CATEGORY) super.getXmlEntityRef(depth) else if (entity.categoryType == CategoryType.LIST) String.format(
+        return if (entity.categoryKind == CategoryType.CATEGORY) super.getXmlEntityRef(depth) else if (entity.categoryKind == CategoryType.LIST) String.format(
             xmlCodeDomain, getXmlURN(
                 entity
             ), getTabs(depth)
         ) else String.format(
-            xmlDomainReference, entity.categoryType.name, getXmlURN(
+            xmlDomainReference, entity.categoryKind.name, getXmlURN(
                 entity
             ), getTabs(depth)
         )

@@ -4,7 +4,6 @@ import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.elementref.ElementKind
 import no.nsd.qddt.domain.topicgroup.TopicGroup
 import java.util.*
-import java.util.function.Consumer
 import java.util.stream.Collectors
 import kotlin.collections.HashMap
 
@@ -27,7 +26,7 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
 	xsi:schemaLocation="ddi:instance:3_2  https://ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/instance.xsd">
 """
     private val builder: AbstractXmlBuilder = rootElement.xmlBuilder!!
-    private val orderedFragments: MutableMap<ElementKind?, MutableMap<String?, String>> = HashMap()
+    private val orderedFragments: MutableMap<ElementKind, MutableMap<String, String>> = HashMap()
 
     protected fun getTopLevelReference(typeOfObject: String): String {
         return """	<ddi:TopLevelReference isExternal="false" externalReferenceDefaultURI="false" isReference="true" lateBound="false" objectLanguage="en-GB">
@@ -52,8 +51,8 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
             .append(orderedFragments.entries.stream()
                 .sorted()
                 .filter { it.value.isNotEmpty() }
-                .map { f: Map.Entry<ElementKind?, Map<String?, String>> ->
-                    f.value.values.stream()
+                .map {
+                    it.value.values.stream()
                         .sorted(Comparator.comparing { s: String -> s.substring(0, 16) })
                         .collect(
                             Collectors.joining(
@@ -69,8 +68,9 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
     }
 
     init {
-        Arrays.asList(*ElementKind.values())
-            .forEach(Consumer { kind: ElementKind? -> orderedFragments[kind] = HashMap() })
+        listOf(*ElementKind.values()).forEach {
+                kind: ElementKind -> orderedFragments[kind] = HashMap()
+        }
         builder.addXmlFragments(orderedFragments)
     }
 }

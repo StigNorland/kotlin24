@@ -17,10 +17,13 @@ import javax.persistence.*
  */
 @Audited
 @MappedSuperclass
-abstract class AbstractEntity (
+abstract class AbstractEntity {
+    @Transient
+    @JsonIgnore
+    protected val logger = LoggerFactory.getLogger(this.javaClass)
+
     @Id  @GeneratedValue
-    val id: UUID? = null
-) {
+    lateinit var id: UUID
 
     @ManyToOne
     @LastModifiedBy
@@ -30,9 +33,6 @@ abstract class AbstractEntity (
     @Version
     lateinit var modified: Timestamp
 
-    @Transient
-    @JsonIgnore
-    protected val LOG = LoggerFactory.getLogger(this.javaClass)
 
     abstract val xmlBuilder: AbstractXmlBuilder?
 }

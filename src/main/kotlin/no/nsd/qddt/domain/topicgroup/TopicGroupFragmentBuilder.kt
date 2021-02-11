@@ -1,15 +1,9 @@
 package no.nsd.qddt.domain.topicgroup
 
 import no.nsd.qddt.classes.elementref.ElementKind
-import no.nsd.qddt.classes.elementref.ElementRefEmbedded
-import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
-import no.nsd.qddt.domain.concept.ConceptFragmentBuilder
-import no.nsd.qddt.domain.questionitem.QuestionItem
-import no.nsd.qddt.domain.questionitem.QuestionItemFragmentBuilder
+import no.nsd.qddt.classes.xml.XmlDDIFragmentBuilder
 import java.util.*
-import java.util.function.Function
-import java.util.function.Predicate
 import java.util.stream.Collectors
 
 /**
@@ -51,10 +45,10 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
     }
 
     override fun getXmlEntityRef(depth: Int): String {
-        return kotlin.String.format(
+        return String.format(
             xmlRef,
             "ConceptGroup",
-            getXmlURN<TopicGroup>(entity),
+            getXmlURN(entity),
             java.lang.String.join("", Collections.nCopies(depth, "\t"))
         )
     }
@@ -63,9 +57,9 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
         get() {
             return String.format(
                 xmlTopic,
-                getXmlURN<TopicGroup>(entity),
-                getXmlRationale<TopicGroup>(entity),
-                getXmlBasedOn<TopicGroup>(entity),
+                getXmlURN(entity),
+                getXmlRationale(entity),
+                getXmlBasedOn(entity),
                 entity.name,
                 entity.description,
                 entity.xmlLang,

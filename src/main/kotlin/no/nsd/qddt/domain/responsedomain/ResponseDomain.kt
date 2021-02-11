@@ -7,7 +7,6 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.property.TextAlignment
 import com.itextpdf.layout.property.UnitValue
-import no.nsd.qddt.domain.ResponseCardinality
 import no.nsd.qddt.domain.category.Category
 import no.nsd.qddt.domain.category.CategoryType
 import no.nsd.qddt.classes.AbstractEntityAudit
@@ -50,8 +49,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
    * Allows the designation of the minimum and maximum number of responses allowed for this response domain.
    **/
   @Embedded
-  var responseCardinality:ResponseCardinality = ResponseCardinality()
-    protected set
+  var responseCardinality: ResponseCardinality = ResponseCardinality()
 
   @JsonIgnore
   @OrderColumn(name = "responsedomain_idx")
@@ -66,7 +64,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
   @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE])
-//  @JoinColumn(name = "category_id")
+  @JoinColumn(name = "category_id")
   var managedRepresentation:Category = Category(hierarchyLevel = HierarchyLevel.GROUP_ENTITY)
     get() {
       if (codes.size > 0)
@@ -78,9 +76,6 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
     codes = value.codes
 
   }
-
-  val managedRepresentationFlatten:List<Category>
-    get() = getFlatManagedRepresentation(managedRepresentation)
 
   override fun fillDoc(pdfReport: PdfReport, counter: String) {
     val table = com.itextpdf.layout.element.Table(UnitValue.createPercentArray(floatArrayOf(15.0f, 70.0f, 15.0f)))
@@ -96,7 +91,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
         .setTextAlignment(TextAlignment.RIGHT)
         .add(Paragraph(String.format("Version %s", version))))
     for (cat in getFlatManagedRepresentation(managedRepresentation))
-      if (cat.categoryType === CategoryType.CATEGORY)
+      if (cat.categoryKind === CategoryType.CATEGORY)
       {
         table.addCell(Cell()
           .setBorder(DottedBorder(ColorConstants.GRAY, 1F)))
@@ -109,7 +104,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
       }
       else
       {
-        table.addCell(Cell().add(Paragraph(cat.categoryType.name))
+        table.addCell(Cell().add(Paragraph(cat.categoryKind.name))
           .setBorder(DottedBorder(ColorConstants.GRAY, 1F))
         )
         table.addCell(Cell(1, 2).add(Paragraph(cat.label))
@@ -118,7 +113,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
     pdfReport.theDocument?.add(table)
   }
 
-  override fun beforeUpdate() {
+  public override fun beforeUpdate() {
     TODO("Not yet implemented")
   }
 
@@ -126,6 +121,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
     TODO("Not yet implemented")
   }
 
+  val managedRepresentationFlatten get() = getFlatManagedRepresentation(managedRepresentation)
 
   override val xmlBuilder:XmlDDIFragmentBuilder<ResponseDomain>
   get() = ResponseDomainFragmentBuilder(this)
@@ -139,12 +135,16 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
   }
   
 
-  protected fun getFlatManagedRepresentation(current:Category):List<Category> {
-    val retval = ArrayList<Category>()
-    if (current == null) return retval
-    retval.add(current)
-    current.children?.forEach { c -> retval.addAll(getFlatManagedRepresentation(c)) }
-    return retval
+  protected fun getFlatManagedRepresentation(current:Category?):List<Category> {
+    var retval = mutableListOf<Category>()
+    return when (current) {
+        null -> retval
+        else -> {
+          retval.add(current)
+          current.children?.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
+          retval
+        }
+    }
   }
 
 }

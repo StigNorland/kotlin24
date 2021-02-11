@@ -1,25 +1,21 @@
 package no.nsd.qddt.domain.responsedomain
-import java.util.Collections
-import java.util.HashMap
+
 import no.nsd.qddt.domain.responsedomain.ResponseKind.*
 /**
 * @author Stig Norland
 */
 class ResponseDomainFragmentCollector {
-  fun get(responseKind:ResponseKind):Map<String, String> {
-    return myMap.get(responseKind)
+  fun get(responseKind:ResponseKind):MutableMap<String, String> {
+    return myMap.getOrElse(responseKind, defaultValue = { mutableMapOf()})
   }
   companion object {
-    private val myMap:Map<ResponseKind, Map<String, String>>
-    init{
-      val aMap = HashMap<ResponseKind, Map<String, String>>(6)
-      aMap.put(DATETIME, HashMap<String, String>())
-      aMap.put(TEXT, HashMap<String, String>())
-      aMap.put(NUMERIC, HashMap<String, String>())
-      aMap.put(LIST, HashMap<String, String>())
-      aMap.put(SCALE, HashMap<String, String>())
-      aMap.put(MIXED, HashMap<String, String>())
-      myMap = Collections.unmodifiableMap(aMap)
-    }
+    private val myMap:Map<ResponseKind, MutableMap<String, String>> =  mapOf(
+      DATETIME to mutableMapOf(),
+      TEXT to mutableMapOf(),
+      NUMERIC  to mutableMapOf(),
+      LIST to mutableMapOf(),
+      SCALE to mutableMapOf(),
+      MIXED to mutableMapOf()
+    )
   }
 }

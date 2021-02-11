@@ -1,9 +1,8 @@
 package no.nsd.qddt.domain.concept
 
 import no.nsd.qddt.classes.IEntityFactory
-import no.nsd.qddt.classes.elementref.ElementRefEmbedded
 import java.util.stream.Collectors
-import java.util.UUID
+
 /**
 * @author Stig Norland
 **/

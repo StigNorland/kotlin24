@@ -29,7 +29,7 @@ class ConceptFragmentBuilder(concept: Concept) : XmlDDIFragmentBuilder<Concept>(
         .collect(Collectors.toList())
 
     override fun <S : AbstractEntityAudit> getXmlHeader(instance: S): String {
-        val prefix: String = ElementKind.getEnum(instance!!::class.simpleName).ddiPreFix
+        val prefix: String = ElementKind.getEnum(instance::class.simpleName).ddiPreFix
         val child = if ((instance as Concept).children.isEmpty()) "" else " isCharacteristic =\"true\""
         return String.format(
             xmlHeader, prefix,

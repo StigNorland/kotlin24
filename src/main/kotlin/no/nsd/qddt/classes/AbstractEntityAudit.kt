@@ -1,27 +1,26 @@
 package no.nsd.qddt.classes
 
-import no.nsd.qddt.classes.interfaces.Version as EmbeddedVersion
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.classes.elementref.ElementKind
 import no.nsd.qddt.classes.exception.StackTraceFilter
 import no.nsd.qddt.classes.interfaces.IArchived
-import no.nsd.qddt.classes.interfaces.IDomainObject
+import no.nsd.qddt.classes.interfaces.IBasedOn
 import no.nsd.qddt.classes.pdf.PdfReport
+import no.nsd.qddt.domain.Comment
 import no.nsd.qddt.domain.agency.Agency
 import no.nsd.qddt.domain.user.User
-import no.nsd.qddt.domain.Comment
 import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
-
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-
-import org.springframework.security.core.context.SecurityContextHolder
 import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
+import org.hibernate.envers.RelationTargetAuditMode
+import org.springframework.security.core.context.SecurityContextHolder
 import java.io.ByteArrayOutputStream
+import java.io.Serializable
 import java.util.*
 import java.util.stream.Collectors
 import javax.persistence.*
+import no.nsd.qddt.classes.interfaces.Version as EmbeddedVersion
 
 /**
  * @author Dag Østgulen Heradstveit
@@ -31,18 +30,21 @@ import javax.persistence.*
 @MappedSuperclass
 abstract class AbstractEntityAudit(
 
-    @Column(updatable = false)
-    var basedOnObject: UUID? = null,
+    @Column(name="based_on_object",updatable = false)
+    override var basedOnObject: UUID? = null,
 
-    @Column( updatable = false)
-    var basedOnRevision: Int? = null,
+    @Column(name="based_on_revision", updatable = false)
+    override var basedOnRevision: Int? = null,
 
+    @AttributeOverrides(
+        AttributeOverride(name = "revision",column = Column(name = "rev"))
+    )
     @Embedded
     override var version: EmbeddedVersion= EmbeddedVersion(),
 
     var xmlLang: String = "en-GB"
 
-) : AbstractEntity(), IDomainObject {
+) : AbstractEntity(), IBasedOn, Serializable {
     /**
      * ChangeKinds are the different ways an entity can be modified by the system/user.
      * First entry will always be CREATED.
@@ -86,11 +88,12 @@ abstract class AbstractEntityAudit(
     // @JsonBackReference(value = "agentRef")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agency_id")
+    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     override lateinit var agency : Agency
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var changeKind: ChangeKind = ChangeKind.CREATED
+    override var changeKind: ChangeKind = ChangeKind.CREATED
         set(value) {
             if (field == ChangeKind.IN_DEVELOPMENT &&
                 (value == ChangeKind.UPDATED_HIERARCHY_RELATION ||
@@ -104,12 +107,7 @@ abstract class AbstractEntityAudit(
         }
 
     @Column(name = "change_comment", nullable = false)
-    var changeComment: String = ChangeKind.CREATED.description
-
-    @NotAudited
-    @OrderColumn(name = "owner_idx")
-    @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
-    var comments: MutableList<Comment> = mutableListOf()
+    override var changeComment: String = ChangeKind.CREATED.description
 
     @JsonSerialize
     @JsonDeserialize
@@ -119,15 +117,18 @@ abstract class AbstractEntityAudit(
         catch (e: Exception) {this.javaClass.simpleName}
 
 
+    @NotAudited
+    @OrderColumn(name = "owner_idx")
+    @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
+    var comments: MutableList<Comment> = mutableListOf()
+
 // TODO : moce these to PrePersist class
 
     @PrePersist
     private fun onInsert() {
         val user = SecurityContextHolder.getContext().authentication.details as User
         agency = user.agency
-        when (this.xmlLang) {
-            null -> xmlLang = user.agency.xmlLang
-        }
+        if (this.xmlLang == "") user.agency.xmlLang.also { xmlLang = it }
         beforeInsert()
     }
 
@@ -146,7 +147,7 @@ abstract class AbstractEntityAudit(
                 changeComment = change.description
             when (change) {
                 ChangeKind.CREATED
-                    -> if (changeComment == null) changeComment = change.description
+                    -> if (changeComment == "") changeComment = change.description
                 ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED
                     -> ver = EmbeddedVersion()
                 ChangeKind.REFERENCED, ChangeKind.TO_BE_DELETED
@@ -170,14 +171,9 @@ abstract class AbstractEntityAudit(
             version = ver
             beforeUpdate()
         } catch (ex: Exception) {
-            LOG.error("AbstractEntityAudit::onUpdate", ex)
+            logger.error("AbstractEntityAudit::onUpdate", ex)
         }
     }
-
-
-    val isBasedOn get() = changeKind == ChangeKind.BASED_ON || changeKind == ChangeKind.NEW_COPY || changeKind == ChangeKind.TRANSLATED || changeKind == ChangeKind.REFERENCED
-
-    val isNewCopy get() = (changeKind == ChangeKind.NEW_COPY || id == null && changeKind != ChangeKind.CREATED)
 
     fun makePdf(): ByteArrayOutputStream {
         val pdfOutputStream = ByteArrayOutputStream()
@@ -187,7 +183,7 @@ abstract class AbstractEntityAudit(
                 pdf.createToc()
             }
         } catch (ex: Exception) {
-            with(LOG) {
+            with(logger) {
                 error("makePDF", ex)
                 debug(
                     StackTraceFilter.filter(ex.stackTrace).stream().map { it?.methodName }
@@ -199,7 +195,6 @@ abstract class AbstractEntityAudit(
     }
 
     abstract fun fillDoc(pdfReport: PdfReport, counter: String)
-
     protected abstract fun beforeUpdate() 
     protected abstract fun beforeInsert()
 

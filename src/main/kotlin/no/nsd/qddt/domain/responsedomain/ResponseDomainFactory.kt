@@ -1,21 +1,22 @@
 package no.nsd.qddt.domain.responsedomain
-import no.nsd.qddt.domain.IEntityFactory
-/**
-* @author Stig Norland
-*/
-class ResponseDomainFactory:IEntityFactory<ResponseDomain> {
-  fun create():ResponseDomain {
+
+import no.nsd.qddt.classes.IEntityFactory
+
+class ResponseDomainFactory: IEntityFactory<ResponseDomain> {
+  override fun create():ResponseDomain {
     return ResponseDomain()
   }
-  fun copyBody(source:ResponseDomain, dest:ResponseDomain):ResponseDomain {
-    dest.setName(source.name)
-    dest.setDescription(source.description)
-    dest.setDisplayLayout(source.getDisplayLayout())
-    // List<Code> codes = source.getCodes();
-    dest.setCodes(source.getCodes())
-    dest.setManagedRepresentation(source.getManagedRepresentation().clone())
-    dest.setResponseKind(source.getResponseKind())
-    dest.setResponseCardinality(source.getResponseCardinality())
+  override fun copyBody(source:ResponseDomain, dest:ResponseDomain):ResponseDomain {
+    with(dest) {
+      name = source.name
+      description = source.description
+      displayLayout = source.displayLayout
+      // List<Code> codes = source.getCodes();
+      codes = source.codes.toCollection(codes)
+      managedRepresentation = source.managedRepresentation.clone()
+      responseKind = source.responseKind
+      responseCardinality = source.responseCardinality
+    }
     return dest
   }
 }

@@ -60,7 +60,7 @@ class AuthenticationController {
     @Throws(AuthenticationException::class)
     fun getAuthenticationToken(@RequestBody userForm: UserForm): ResponseEntity<*>? {
         val userDetails: User =
-            with(userService) { loadUserByUsername(userForm.email!!) }
+            with(userService) { loadUserByUsername(userForm.email!!) } as User
 
         SecurityContextHolder.getContext().authentication  = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(

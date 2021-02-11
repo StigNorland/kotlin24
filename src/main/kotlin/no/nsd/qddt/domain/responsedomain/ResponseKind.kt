@@ -16,7 +16,7 @@ package no.nsd.qddt.domain.responsedomain
 * @author Stig Norland
 * @author Dag Østgulen Heradstveit
 */
-enum class ResponseKind private constructor(ddiName:String, ddiRepresentation:String) {
+enum class ResponseKind(ddiName:String, ddiRepresentation:String) {
   DATETIME("DateTimeDomain", "ManagedDateTimeRepresentation"),
   TEXT("TextDomain", "ManagedTextRepresentation"),
   NUMERIC("NumericDomain", "ManagedNumericRepresentation"),

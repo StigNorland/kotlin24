@@ -9,7 +9,7 @@ import no.nsd.qddt.classes.elementref.ElementKind
 class XmlDDICommentsBuilder(protected val comment: Comment) : AbstractXmlBuilder() {
     
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
-//        add nothing  ATM
+        //        add nothing  ATM
 //        fragments.get(ElementKind.getEnum( entity.getClassKind())).putIfAbsent( getUrnId(), getXmlFragment() );
     }
 

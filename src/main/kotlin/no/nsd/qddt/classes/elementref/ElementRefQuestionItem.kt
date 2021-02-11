@@ -17,16 +17,16 @@ class ElementRefQuestionItem : IElementRef<QuestionItem> {
      * but should never be persisted.
      */
 
-    @Column(name = "questionitem_id")
+//    @field:Column(name = "questionitem_id")
     override lateinit var elementId: UUID
 
     @Embedded
     override lateinit var version: Version
 
-    @Column(name = "questionitem_revision")
+//    @Column(name = "questionitem_revision")
     override var elementRevision: Int? = null
 
-    @Column(name = "question_name", length = 25)
+//    @Column(name = "question_name", length = 25)
     override var name: String? = null
         set(value) {
             field = value
@@ -36,7 +36,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem> {
             }
         }
 
-    @Column(name = "question_text", length = 500)
+//    @Column(name = "question_text", length = 500)
     var text: String? = null
         set(value) {
             field = value
@@ -60,7 +60,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem> {
         set(value) {
             field = value
             value?.let {
-                elementId = it.id!!
+                elementId = it.id
                 name = it.name
                 text = it.question
                 version = it.version

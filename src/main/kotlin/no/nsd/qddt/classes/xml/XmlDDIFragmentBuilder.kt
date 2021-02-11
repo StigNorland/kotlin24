@@ -1,6 +1,6 @@
 package no.nsd.qddt.classes.xml
 
-import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.elementref.*
 import java.util.*
 
@@ -16,7 +16,7 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit>(protected val enti
          """.trimIndent()
 
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
-        var kind: ElementKind = 
+        val kind: ElementKind =
         try {
             ElementKind.getEnum(entity.classKind)
         } catch (ex: Exception) {
@@ -31,14 +31,14 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit>(protected val enti
             xmlRef,
             entity::class.simpleName,
             getXmlURN(entity),
-            java.lang.String.join("", Collections.nCopies(depth, "\t"))
+            Collections.nCopies(depth, "\t").joinToString { "" }
         )
     }
 
-    val urnId: String
-        get() = java.lang.String.format(
+    private val urnId: String
+        get() = String.format(
             "%1\$s:%2\$s:%3\$s",
-            entity.agency!!.name,
+            entity.agency.name,
             entity.id,
             entity.version.toDDIXml()
         )

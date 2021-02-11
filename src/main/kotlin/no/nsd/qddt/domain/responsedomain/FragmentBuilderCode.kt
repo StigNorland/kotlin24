@@ -13,14 +13,12 @@ class FragmentBuilderCode(entity:Category):CategoryFragmentBuilder(entity) {
     "%4\$s</l:Code>\n")
 
   override val xmlFragment:String
-  get() {
-    return super.xmlFragment
-  }
+  get() = super.xmlFragment
+
   private val codeURN:String
-  get() {
-    return String.format(xmlURN, entity!!.agency.name, entity.id, entity.code.value)
-  }
+  get() = String.format(xmlURN, entity.agency.name, entity.id, entity.code.value)
+
   override fun getXmlEntityRef(depth:Int):String {
-    return String.format(xmlCode, codeURN, super.getXmlEntityRef(depth + 1), entity!!.code.value.trim(), getTabs(depth))
+    return String.format(xmlCode, codeURN, super.getXmlEntityRef(depth + 1), entity.code.value.trim(), getTabs(depth))
   }
 }

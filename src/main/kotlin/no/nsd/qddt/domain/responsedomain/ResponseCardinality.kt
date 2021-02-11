@@ -1,4 +1,4 @@
-package no.nsd.qddt.domain
+package no.nsd.qddt.domain.responsedomain
 
 import javax.persistence.Embeddable
 
@@ -8,11 +8,12 @@ import javax.persistence.Embeddable
  * @author Stig Norland
  */
 @Embeddable
-class ResponseCardinality @JvmOverloads constructor(
+class ResponseCardinality(
     var minimum: Int = 0,
     var maximum: Int = 1,
     var stepUnit: Int = 1
 ) {
-
-    fun isValid() = minimum <= maximum && stepUnit >= -10 && stepUnit <= 10
+    fun valid(): Boolean {
+        return  minimum <= maximum && stepUnit >= -10 && stepUnit <= 10
+    }
 }

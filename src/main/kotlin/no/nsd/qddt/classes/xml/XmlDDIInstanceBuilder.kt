@@ -6,8 +6,9 @@ import no.nsd.qddt.classes.elementref.ElementKind
 /**
  * @author Stig Norland
  */
-class XmlDDIInstanceBuilder<T : AbstractEntityAudit>(protected val instance: T) : AbstractXmlBuilder() {
-    private val ddiXmlRoot = """
+open class XmlDDIInstanceBuilder<T : AbstractEntityAudit>(protected val instance: T) : AbstractXmlBuilder() {
+    private val ddiXmlRoot =
+"""
 <DDIInstance 
     xmlns:g="ddi:group:3_2" 
     xmlns:d="ddi:datacollection:3_2"
@@ -24,6 +25,7 @@ class XmlDDIInstanceBuilder<T : AbstractEntityAudit>(protected val instance: T) 
         protected get() = "null"
 
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {}
+
     override fun getXmlEntityRef(depth: Int): String {
         return "null"
     }

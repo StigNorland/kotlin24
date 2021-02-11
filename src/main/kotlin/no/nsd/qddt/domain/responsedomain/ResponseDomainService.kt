@@ -9,5 +9,6 @@ import java.util.UUID
 */
 interface ResponseDomainService:BaseService<ResponseDomain, UUID> {
   fun findBy(responseKind:ResponseKind, name:String, description:String, question:String, anchor:String, xmlLang:String, pageable:Pageable):Page<ResponseDomain>
-  // ResponseDomain createMixed(UUID rdId, UUID missingId);
+
+
 }

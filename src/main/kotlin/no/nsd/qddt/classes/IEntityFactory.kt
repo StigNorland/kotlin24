@@ -1,7 +1,6 @@
 package no.nsd.qddt.classes
 
 import no.nsd.qddt.classes.interfaces.IArchived
-import java.util.UUID
 
 
 /**
@@ -18,7 +17,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
         return copyBody(source,makeNewCopy(source, rev))
     }
 
-    fun makeNewCopy(source: T, revision: Int?): T { 
+    fun makeNewCopy(source: T, revision: Int?): T {
         
         return if (revision != null) {
             create().apply {

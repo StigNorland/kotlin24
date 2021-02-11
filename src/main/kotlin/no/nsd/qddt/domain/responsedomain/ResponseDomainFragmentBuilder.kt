@@ -1,5 +1,6 @@
 package no.nsd.qddt.domain.responsedomain
-import no.nsd.qddt.domain.AbstractEntityAudit
+
+import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.domain.category.Category
 import no.nsd.qddt.classes.elementref.ElementKind
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
@@ -40,55 +41,50 @@ class ResponseDomainFragmentBuilder(responseDomain:ResponseDomain):XmlDDIFragmen
   // d:StructuredMixedResponseDomain/d:ResponseDomainInMixed/d:DateTimeDomainReference/r:TypeOfObject" defaultValue="ManagedDateTimeRepresentation" fixedValue="true"/>
   // d:StructuredMixedResponseDomain/d:ResponseDomainInMixed/d:MissingValueDomainReference/r:TypeOfObject" defaultValue="MissingCodeRepresentation" fixedValue="true"/>
   private val manRep:List<AbstractXmlBuilder>
-  val xmlFragment:String
-  get() {
-    return ""
-  }
+  override val xmlFragment:String
+  get() = ""
+  
   init{
-    val children:List<Category>
-    if (entity.getResponseKind().equals(ResponseKind.MIXED))
-    {
-      children = responseDomain.getManagedRepresentation().getChildren()
+    val children:List<Category> = if (entity.responseKind == ResponseKind.MIXED)  {
+      responseDomain.managedRepresentation.children!!
+    } else{
+      mutableListOf<Category>().also {
+        it.add(responseDomain.managedRepresentation)
+      }
     }
-    else
-    {
-      val categories = java.util.ArrayList<Category>()
-      categories.add(responseDomain.getManagedRepresentation())
-      children = categories
-    }
-    manRep = children.stream()
-    .map<Any>({ item-> FragmentBuilderManageRep(item, this.entity.getDisplayLayout()) })
-    .collect<List<AbstractXmlBuilder>, Any>(Collectors.toList<Any>())
+    manRep = children.stream().map {
+        FragmentBuilderManageRep(it, this.entity.displayLayout)
+      }.collect(Collectors.toList())
   }
-  fun addXmlFragments(fragments:Map<ElementKind, Map<String, String>>) {
-    manRep.forEach({ c-> c.addXmlFragments(fragments) })
+  override fun addXmlFragments(fragments:Map<ElementKind, MutableMap<String, String>>) {
+    manRep.forEach { it.addXmlFragments(fragments) }
   }
-  fun getXmlEntityRef(depth:Int):String {
-    if (entity.getResponseKind() === ResponseKind.MIXED)
+  override fun getXmlEntityRef(depth:Int):String {
+    if (entity.responseKind === ResponseKind.MIXED)
     return String.format(xmlMixedRef, getInMixedRef(depth))
-    else if (entity.getResponseKind() === ResponseKind.LIST)
+    else if (entity.responseKind === ResponseKind.LIST)
     return String.format(xmlCodeDomRef, getTabs(depth),
-                         entity.getManagedRepresentation().getClassificationLevel().name(),
+      entity.managedRepresentation.classificationLevel?.name,
                          getResponseCardinality(depth),
-                         String.format(xmlRef, entity.getResponseKind().getDdiRepresentation(), getXmlURN(entity), getTabs(depth + 1)))
+                         String.format(xmlRef, entity.responseKind.ddiRepresentation, getXmlURN(entity), getTabs(depth + 1)))
     else
-    return String.format(xmlRef, entity.getResponseKind().getDDIName(), getXmlURN(entity), getTabs(depth))
+    return String.format(xmlRef, entity.responseKind.ddiName, getXmlURN(entity), getTabs(depth))
   }
   private fun getResponseCardinality(depth:Int):String {
     return String.format("%3\$s<r:ResponseCardinality minimumResponses = %1\$s maximumResponses = %2\$s />\n",
-                         entity.getResponseCardinality().getMinimum(),
-                         entity.getResponseCardinality().getMaximum(),
+                         entity.responseCardinality.minimum,
+                         entity.responseCardinality.maximum,
                          getTabs(depth))
   }
-  protected fun <S : AbstractEntityAudit> getXmlHeader(instance:S):String {
-    return String.format(xmlHeader, entity.getResponseKind().getDDIName(), entity.getModified(), getXmlURN(entity) + getXmlUserId(entity) + getXmlRationale(entity) + getXmlBasedOn(entity))
+  override fun <S : AbstractEntityAudit> getXmlHeader(instance:S):String {
+    return String.format(xmlHeader, entity.responseKind.ddiName, entity.modified, getXmlURN(entity) + getXmlUserId(entity) + getXmlRationale(entity) + getXmlBasedOn(entity))
   }
-  protected fun <S : AbstractEntityAudit> getXmlFooter(instance:S):String {
-    return String.format(xmlFooter, instance.getClass().getSimpleName())
-  }
+//  override fun <S : AbstractEntityAudit> getXmlFooter(instance:S):String {
+//    return String.format(xmlFooter, instance.getClass().getSimpleName())
+//  }
   private fun getInMixedRef(depth:Int):String {
-    return entity.getManagedRepresentation().getChildren().stream()
-    .map({ ref-> String.format(xmlInMixed, ref.getXmlBuilder().getXmlEntityRef(depth + 2)) })
-    .collect(Collectors.joining())
+    return entity.managedRepresentation.children!!.stream().map {
+        ref -> String.format(xmlInMixed, ref.xmlBuilder.getXmlEntityRef(depth + 2))
+      }.collect(Collectors.joining())
   }
 }

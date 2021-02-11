@@ -12,6 +12,6 @@ interface UserListe {
     val id: UUID
     var username : String
     var email : String
-    var updated : Timestamp
+    var modified : Timestamp
 }
 

@@ -13,7 +13,7 @@ import com.itextpdf.layout.element.Paragraph
 import no.nsd.qddt.classes.AbstractEntityAudit
 import no.nsd.qddt.classes.pdf.PdfReport
 import no.nsd.qddt.classes.xml.AbstractXmlBuilder
-import no.nsd.qddt.domain.ResponseCardinality
+import no.nsd.qddt.domain.responsedomain.ResponseCardinality
 import no.nsd.qddt.domain.responsedomain.Code
 import no.nsd.qddt.utils.StringTool
 import java.util.stream.Collectors
@@ -107,8 +107,9 @@ class Category(
             return field
         }
 
+    @Column(name = "category_kind")
     @Enumerated(EnumType.STRING)
-    var categoryType: CategoryType = CategoryType.CATEGORY
+    var categoryKind: CategoryType = CategoryType.CATEGORY
         set(value) {
             field = value
             when (value) {
@@ -139,8 +140,8 @@ class Category(
     @OrderColumn(name = "category_idx")
     var children: MutableList<Category>? =  mutableListOf()
     get() {
-        return if (categoryType == CategoryType.SCALE) {
-            if (field == null || field!!.isEmpty()) LOG.error("getChildren() is 0/NULL")
+        return if (categoryKind == CategoryType.SCALE) {
+            if (field == null || field!!.isEmpty()) logger.error("getChildren() is 0/NULL")
             field!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }
                 .sorted(Comparator.comparing { obj: Category -> obj.code })
                 .collect(Collectors.toList())
@@ -149,7 +150,7 @@ class Category(
         }
     set(value) {
         field =
-        when (categoryType) {
+        when (categoryKind) {
             CategoryType.SCALE -> value!!.stream().sorted(Comparator.comparing { obj: Category -> obj.code }).collect(Collectors.toList())
             else -> value
         }
@@ -157,10 +158,10 @@ class Category(
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         val document: Document = pdfReport.theDocument!!
-        when (categoryType) {
+        when (categoryKind) {
             CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN, CategoryType.CATEGORY -> {
                 document.add(Paragraph("Category $label"))
-                document.add(Paragraph("Type ${categoryType.name}"))
+                document.add(Paragraph("Type ${categoryKind.name}"))
             }
             CategoryType.MISSING_GROUP -> {
             }
@@ -178,14 +179,14 @@ class Category(
     preRec for valid Categories
      */
     val isValid: Boolean
-        get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryType) {
-            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children!!.size == 0 && inputLimit.isValid()
+        get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
+            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children!!.size == 0 && inputLimit.valid()
             CategoryType.CATEGORY -> children!!.size == 0 && label != null && label!!.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
                 .isNotEmpty()
             else -> false
-        } else when (categoryType) {
-            CategoryType.MISSING_GROUP, CategoryType.LIST -> children!!.size > 0 && inputLimit.isValid() && classificationLevel != null
-            CategoryType.SCALE -> children!!.size >= 2 && inputLimit.isValid() && classificationLevel != null
+        } else when (categoryKind) {
+            CategoryType.MISSING_GROUP, CategoryType.LIST -> children!!.size > 0 && inputLimit.valid() && classificationLevel != null
+            CategoryType.SCALE -> children!!.size >= 2 && inputLimit.valid() && classificationLevel != null
             CategoryType.MIXED -> children!!.size >= 2 && classificationLevel != null
             else -> false
         }
@@ -195,7 +196,7 @@ class Category(
         if (i != 0) return i
         i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i
-        i = categoryType.compareTo(other.categoryType)
+        i = categoryKind.compareTo(other.categoryKind)
         if (i != 0) return i
         i = name.compareTo(other.name)
         if (i != 0) return i
@@ -203,7 +204,7 @@ class Category(
         if (i != 0) return i
         i = description!!.compareTo(other.description!!)
         if (i != 0) return i
-        i = this.id!!.compareTo(other.id)
+        i = this.id.compareTo(other.id)
         return if (i != 0) i else modified.compareTo(other.modified)
     }
 
@@ -212,8 +213,8 @@ class Category(
     }
 
     override fun beforeInsert() {
-        LOG.debug("Category beforeInsert $name")
-        hierarchyLevel = when (categoryType) {
+        logger.debug("Category beforeInsert $name")
+        hierarchyLevel = when (categoryKind) {
             CategoryType.DATETIME, CategoryType.BOOLEAN, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.CATEGORY ->
                  HierarchyLevel.ENTITY
             CategoryType.MISSING_GROUP, CategoryType.LIST, CategoryType.SCALE, CategoryType.MIXED ->
@@ -255,7 +256,7 @@ class Category(
             } catch (iob: IndexOutOfBoundsException) {
                 current.code = Code()
             } catch (ex: Exception) {
-                LOG.error(
+                logger.error(
                     LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).toString() +
                             " populateCatCodes (catch & continue) " + ex.message + " - " +
                             current
@@ -268,7 +269,7 @@ class Category(
 
     public override fun clone(): Category {
         return Category(name, label,inputLimit,classificationLevel,format,hierarchyLevel).apply {
-            categoryType = categoryType
+            categoryKind = categoryKind
             children = children
             code = code
             description = description

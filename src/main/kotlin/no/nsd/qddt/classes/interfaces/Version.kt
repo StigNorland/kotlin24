@@ -1,8 +1,7 @@
 package no.nsd.qddt.classes.interfaces
 
-// import javax.persistence.Embeddable
-// import javax.persistence.Transient
-import javax.persistence.*
+ import javax.persistence.Embeddable
+ import javax.persistence.Transient
 
 /**
  * @author Stig Norland
@@ -10,11 +9,10 @@ import javax.persistence.*
 @Embeddable
 class Version : Comparable<Version> {
 
-
     @Transient
-    final var isModified = false
-        get
-        private set
+    final var isModified: Boolean = false
+        get() = field
+        private set(value) { field = value}
 
 
     var major = 1
@@ -30,11 +28,12 @@ class Version : Comparable<Version> {
         }
 
     @Transient
-    @Column(name = "rev")
+//    @Column(name = "rev")
     var revision: Int = 0
 
     var versionLabel: String = ""
 
+    @Transient
     private val VERSION_FORMAT = "%1\$s.%2\$s%3\$s"
 
 

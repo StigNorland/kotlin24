@@ -6,15 +6,15 @@ import no.nsd.qddt.classes.interfaces.IDomainObject
  * @author Stig Norland
  * https://github.com/gt4dev/yet-another-tree-structure/blob/master/java/src/com/tree/TreeNodeIter.java
  */
-class TreeNodeIter<T : IDomainObject?>(private val treeNode: TreeNode<T>) : MutableIterator<TreeNode<T>?> {
+class TreeNodeIter<T : IDomainObject>(private val treeNode: TreeNode<T>) : MutableIterator<TreeNode<T>> {
     internal enum class ProcessStages {
         ProcessParent, ProcessChildCurNode, ProcessChildSubNode
     }
 
     private var doNext: ProcessStages?
-    private var next: TreeNode<T>? = null
-    private val childrenCurNodeIter: Iterator<TreeNode<T>?>
-    private var childrenSubNodeIter: Iterator<TreeNode<T?>?>? = null
+    private lateinit var next: TreeNode<T>
+    private val childrenCurNodeIter: Iterator<TreeNode<T>>
+    private var childrenSubNodeIter: Iterator<TreeNode<T>>? = null
     override fun hasNext(): Boolean {
         if (doNext == ProcessStages.ProcessParent) {
             next = treeNode
@@ -24,7 +24,7 @@ class TreeNodeIter<T : IDomainObject?>(private val treeNode: TreeNode<T>) : Muta
         if (doNext == ProcessStages.ProcessChildCurNode) {
             return if (childrenCurNodeIter.hasNext()) {
                 val childDirect = childrenCurNodeIter.next()
-                childrenSubNodeIter = childDirect!!.iterator()
+                childrenSubNodeIter = childDirect.iterator()
                 doNext = ProcessStages.ProcessChildSubNode
                 hasNext()
             } else {
@@ -37,14 +37,13 @@ class TreeNodeIter<T : IDomainObject?>(private val treeNode: TreeNode<T>) : Muta
                 next = childrenSubNodeIter!!.next()
                 true
             } else {
-                next = null
                 doNext = ProcessStages.ProcessChildCurNode
                 hasNext()
             }
         } else false
     }
 
-    override fun next(): TreeNode<T>? {
+    override fun next(): TreeNode<T> {
         return next
     }
 

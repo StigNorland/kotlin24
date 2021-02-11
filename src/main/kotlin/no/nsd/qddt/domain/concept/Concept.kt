@@ -161,7 +161,7 @@ class Concept(
                 pdfReport.addPadding()
 
         } catch (ex:Exception) {
-            LOG.error(ex.message)
+            logger.error(ex.message)
             throw ex
         }
     }
