@@ -17,6 +17,7 @@ import no.nsd.qddt.model.User
 @RestController
 class AuthenticationController {
 
+//    https://proandroiddev.com/how-to-create-a-rest-api-for-your-app-with-spring-boot-kotlin-gradle-part-2-security-with-32f944918fe1
     @Autowired
     private lateinit var authenticationManager: AuthenticationManager
 
