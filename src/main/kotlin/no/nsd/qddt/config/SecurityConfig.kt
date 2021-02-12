@@ -13,14 +13,28 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+
+
+
+
+
 /**
  * @author Stig Norland
  */
 @Configuration
 @EnableWebSecurity
 class SecurityConfig : WebSecurityConfigurerAdapter() {
+    @Value("\${api.origin}")
+    lateinit var origin: String
 
     @Autowired
     private lateinit var jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint
@@ -81,6 +95,23 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun authenticationManagerBean(): AuthenticationManager? {
         return super.authenticationManagerBean()
+    }
+
+//    @Bean
+//    fun corsConfigurationSource(): CorsConfigurationSource? {
+//        val source = UrlBasedCorsConfigurationSource()
+//        source.registerCorsConfiguration("/**", CorsConfiguration().applyPermitDefaultValues())
+//        return source
+//    }
+
+    @Bean
+    fun corsConfigurer(): WebMvcConfigurer? {
+        return object : WebMvcConfigurer {
+            override fun addCorsMappings(registry: CorsRegistry) {
+                registry.addMapping("/api/**")
+                    .allowedOrigins(origin.split(",").toString())
+            }
+        }
     }
 
 //    @Throws(Exception::class)

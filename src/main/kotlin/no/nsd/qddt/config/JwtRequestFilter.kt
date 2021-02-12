@@ -26,7 +26,7 @@ class JwtRequestFilter : OncePerRequestFilter() {
     @Autowired
     private lateinit var jwtTokenUtil: JwtTokenUtil
 
-    @Value("\${auth.header}")
+    @Value("\${jwt-security.header}")
     private lateinit var  tokenHeader: String
 
     /**

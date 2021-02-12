@@ -1,7 +1,6 @@
 package  no.nsd.qddt.config
 
-import no.nsd.qddt.domain.agency.Agency
-import no.nsd.qddt.domain.user.User
+import no.nsd.qddt.model.*
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer
@@ -17,8 +16,18 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
 
         cors.addMapping("/**").allowedOrigins("*")
 
-        config.exposeIdsFor(User::class.java)
         config.exposeIdsFor(Agency::class.java)
+
+        config.exposeIdsFor(Author::class.java)
+        config.exposeIdsFor(Category::class.java)
+        config.exposeIdsFor(Comment::class.java)
+        config.exposeIdsFor(Concept::class.java)
+        config.exposeIdsFor(OtherMaterial::class.java)
+        config.exposeIdsFor(QuestionItem::class.java)
+        config.exposeIdsFor(ResponseDomain::class.java)
+        config.exposeIdsFor(TopicGroup::class.java)
+        config.exposeIdsFor(Universe::class.java)
+        config.exposeIdsFor(User::class.java)
 
         config.repositoryDetectionStrategy = RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED
     }

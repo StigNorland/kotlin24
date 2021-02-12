@@ -1,9 +1,6 @@
-## JWT Auth
-#  auth.expires=86400
-#  auth.header=Authorization
-#auth.secret=some-random-secret
-
 spring:
+  profiles:
+    active: development
   # security:
   #   oauth2:
   #     resourceserver:
@@ -20,9 +17,9 @@ spring:
     hibernate:
       ddl-auto: validate
       use-new-id-generator-mappings: false
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+#      naming:
+#        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+#        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     properties:
       org:
         hibernate:
@@ -31,6 +28,9 @@ spring:
             default_schema: audit
             store_data_at_delete: true
             do_not_audit_optimistic_locking_field: false
+            audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+#          ejb:
+#            naming_strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
   datasource:
     driver-class-name: org.postgresql.Driver
     initialization-mode: embedded
@@ -62,12 +62,34 @@ server:
 jwt-security:
   secret: some-random-secret
   expiration-time: 86400
+  header: Authorization
 
+api:
+  origin: https://*.nsd.no, https://*.nsd.no/api/, http://localhost:5001
+  rooturl: http://localhost:5001/
+  fileroot: c:\\Projects\\qddt\\uploads\\
+
+
+
+#  management:
+#    endpoints:
+#      web:
+#        exposure:
+#          include: health,prometheus
+#        path-mapping:
+#          health: health
+#          prometheus: metrics
+#      cors:
+#        allowed-headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization
+#        allowed-origins: https://*.nsd.no, https://*.nsd.no/api/, http://localhost:5001
 #  header: Authorization
 #  expires: 86400
 #  secret: some-random-secret
 #  expiration-time: 86400
-
+## JWT Auth
+#  auth.expires=86400
+#  auth.header=Authorization
+#auth.secret=some-random-secret
 
 ---
 spring:
@@ -93,6 +115,7 @@ spring:
       ddl-auto: update
   datasource:
     continue-on-error: false
+
 ---
 spring:
   config:

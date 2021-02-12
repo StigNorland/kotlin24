@@ -16,17 +16,17 @@ import java.util.function.Function
 @Component
 class JwtTokenUtil  {
 
-    @Value("\${auth.secret}")
+    @Value("\${jwt-security.secret}")
     private lateinit var  secret: String
 
     private val JWT_TOKEN_VALIDITY = (5 * 60 * 60).toLong()
 
     fun getUsernameFromToken(token: String): String {
-        return getClaimFromToken(token, Function { it.subject })
+        return getClaimFromToken(token) { it.subject }
     }
 
     fun getExpirationDateFromToken(token: String): Date {
-        return getClaimFromToken(token, Function { it.expiration })
+        return getClaimFromToken(token) { it.expiration }
     }
 
     fun <T> getClaimFromToken(token: String, claimsResolver: Function<Claims, T>): T {
