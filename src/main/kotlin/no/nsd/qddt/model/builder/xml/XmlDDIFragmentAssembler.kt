@@ -26,23 +26,23 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
 	xsi:schemaLocation="ddi:instance:3_2  https://ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/instance.xsd">
 """
     private val builder: AbstractXmlBuilder = rootElement.xmlBuilder!!
-    private val orderedFragments: MutableMap<ElementKind, MutableMap<String, String>> = HashMap()
+    private val orderedFragments: MutableMap<ElementKind, MutableMap<String, String>> = EnumMap(ElementKind::class.java)
 
-    protected fun getTopLevelReference(typeOfObject: String): String {
+    private fun getTopLevelReference(typeOfObject: String): String {
         return """	<ddi:TopLevelReference isExternal="false" externalReferenceDefaultURI="false" isReference="true" lateBound="false" objectLanguage="en-GB">
 		${builder.getXmlURN(rootElement)}		<r:TypeOfObject>$typeOfObject</r:TypeOfObject>
 	</ddi:TopLevelReference>
 """
     }
 
-    protected val footer: String
+    private val footer: String
         get() = "</ddi:FragmentInstance>\n"
 
     fun compileToXml(): String {
         // rootElement.getClass().getSimpleName().equals( "TopicGroup" )
         val typeofObject = when (rootElement) {
             is TopicGroup -> "ConceptGroup"
-            else -> rootElement!!::class.simpleName?:"WTF"
+            else -> rootElement::class.simpleName?:"WTF"
         }
         val sb = StringBuilder()
         return sb.append(XMLDEF)

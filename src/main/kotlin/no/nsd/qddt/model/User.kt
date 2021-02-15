@@ -14,10 +14,14 @@ import java.sql.Timestamp
 @Entity
 @Table(name="user_account")
 class User (
-    @Id  @GeneratedValue
-    val id: UUID,
-
     var email : String,
+
+    @Id  @GeneratedValue
+    @Column(updatable = false, nullable = false)
+    var id: UUID?=null,
+
+    @Version
+    val modified: Timestamp? = null,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference(value = "agentRef")
@@ -25,13 +29,14 @@ class User (
     var agency : Agency,
 
     @ManyToMany(fetch = FetchType.EAGER)
-    val authority: MutableCollection<Authority>,
+    var authority: MutableCollection<Authority>,
 
-    @Version
-    val modified: Timestamp? = null,
+    @JsonIgnore
+    private var password : String,
 
-    @JsonIgnore private val password : String,
+    private  var username : String,
 
+    private  var isEnabled: Boolean=false
 
     ): UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -43,7 +48,6 @@ class User (
     override fun getPassword(): String {
         return password
     }
-
 
     override fun getUsername(): String {
         return username
@@ -63,6 +67,10 @@ class User (
 
     override fun isEnabled(): Boolean {
         return isEnabled
+    }
+
+    override fun toString(): String {
+        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.map{ it.authority }.joinToString(" + ")}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
     }
 
 

@@ -5,6 +5,7 @@ import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.*
 import org.slf4j.LoggerFactory
 import java.util.*
+import javax.persistence.Column
 import javax.persistence.Transient
 
 /**
@@ -16,11 +17,12 @@ class ParentRef<T : IDomainObjectParentRef>//            agency = entity.agency.
     @Transient
     var entity: T? = null
     override var parentRef: IParentRef? = null
+    @Column(updatable = false, nullable = false)
     override lateinit var id: UUID
     override lateinit var name: String
     override lateinit var version: Version
 
-    protected val LOG = LoggerFactory.getLogger(this.javaClass)
+    private val logger = LoggerFactory.getLogger(this.javaClass)
 
 
     override fun toString(): String {
@@ -36,12 +38,12 @@ class ParentRef<T : IDomainObjectParentRef>//            agency = entity.agency.
             parentRef = entity.parentRef
             this.entity = entity
         } catch (npe: NullPointerException) {
-            LOG.error(StackTraceFilter.filter(npe.stackTrace).stream().map { a: StackTraceElement? -> a.toString() }
+            logger.error(StackTraceFilter.filter(npe.stackTrace).stream().map { a: StackTraceElement? -> a.toString() }
                 .findFirst().get())
         } catch (ex: Exception) {
-            LOG.error(ex.message)
+            logger.error(ex.message)
             StackTraceFilter.filter(ex.stackTrace).stream().map { a: StackTraceElement? -> a.toString() }
-                .forEach { msg: String? -> LOG.info(msg) }
+                .forEach { msg: String? -> logger.info(msg) }
         }
     }
 

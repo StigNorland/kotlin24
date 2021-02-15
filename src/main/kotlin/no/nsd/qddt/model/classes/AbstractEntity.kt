@@ -26,6 +26,7 @@ abstract class AbstractEntity {
 
     @Id
     @GeneratedValue
+    @Column(updatable = false, nullable = false)
     lateinit var id: UUID
 
     @ManyToOne

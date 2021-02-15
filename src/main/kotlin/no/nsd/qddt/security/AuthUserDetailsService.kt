@@ -1,8 +1,8 @@
-package no.nsd.qddt.config
+package no.nsd.qddt.security
 
 //import no.nsd.qddt.repository.UserRepository
+import no.nsd.qddt.model.User
 import no.nsd.qddt.repository.UserRepository
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
@@ -12,13 +12,15 @@ import org.springframework.stereotype.Service
  * @author Stig Norland
  */
 @Service
-class JwtUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
-//    @Autowired
-//    private lateinit var userRepository: UserRepository
+class AuthUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
 
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(name: String): UserDetails {
-        return userRepository.findByEmailIgnoreCase(name.toLowerCase().trim()) as UserDetails
+    override fun loadUserByUsername(name: String): User? {
+        return userRepository.findByEmailIgnoreCase(name.toLowerCase().trim()).also {
+            if(it!= null) {
+                print(it)
+            }
+        }
     }
 }
 

@@ -1,19 +1,16 @@
 package no.nsd.qddt.security
 
-import no.nsd.qddt.config.JwtTokenUtil
-import no.nsd.qddt.config.JwtUserDetailsService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletRequest
-import no.nsd.qddt.model.User
 
 
+@CrossOrigin(origins = arrayOf("*"), maxAge = 3600)
 @RestController
 class AuthenticationController {
 
@@ -22,68 +19,24 @@ class AuthenticationController {
     private lateinit var authenticationManager: AuthenticationManager
 
     @Autowired
-    private lateinit var jwtUtil: JwtTokenUtil
+    private lateinit var jwtUtil: JwtUtils
 
-    @Autowired
-    private lateinit var userService: JwtUserDetailsService
-
-//    @RequestMapping(value = [SIGNIN_URL], method = arrayOf(RequestMethod.POST))
-//    @Throws(AuthenticationException::class)
-//    fun register(@RequestBody loginUser: UserForm): ResponseEntity<*> {
-//
-//        val authentication = authenticationManager!!.authenticate(
-//            UsernamePasswordAuthenticationToken(
-//                loginUser.username,
-//                loginUser.password
-//            )
-//        )
-//
-//        SecurityContextHolder.getContext().authentication = authentication
-//        val user = userService?.loadUserByUsername(loginUser.username!!)
-//        val token = user?.let { jwtTokenUtil!!.generateToken(it) }
-//        return ResponseEntity.ok(token!!)
-//    }
 
     companion object {
         private const val SIGNIN_URL = "auth/signin"
-        private const val REFRESH_TOKEN_URL = "auth/token/refresh"
+        private val logger: Logger = LoggerFactory.getLogger(AuthenticationController::class.java)
+//        private const val REFRESH_TOKEN_URL = "auth/token/refresh"
     }
 
-    /**
-     * Returns authentication token for given user
-     * @param authenticationRequest with username and password
-     * @return generated JWT
-     * @throws AuthenticationException if token is invalid
-     */
     @RequestMapping(value = [SIGNIN_URL], method = [RequestMethod.POST])
-    @Throws(AuthenticationException::class)
-    fun getAuthenticationToken(@RequestBody userForm: UserForm): ResponseEntity<*>? {
-        val userDetails: User =
-            with(userService) { loadUserByUsername(userForm.email!!) } as User
+    fun authenticateUser(@RequestBody userForm: UserForm): ResponseEntity<*>? {
+        with (authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userForm.email,userForm.password))) {
+            SecurityContextHolder.getContext().authentication = this
+                logger.info(this.toString())
 
-        SecurityContextHolder.getContext().authentication  = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                userForm.username,
-                userForm.password
-            )
-        )
-
-        val token = jwtUtil.generateToken(userDetails)
-        return ResponseEntity.ok(token)
+            return ResponseEntity.ok(jwtUtil.generateJwtToken(this))
+        }
     }
 
-    /**
-     * Refreshes token
-     * @param request with old JWT
-     * @return Refreshed JWT
-     */
-    @RequestMapping(REFRESH_TOKEN_URL)
-    fun refreshAuthenticationToken(request: HttpServletRequest?): ResponseEntity<*>? {
-//        String token = request.getHeader(tokenHeader);
-//        LOG.info("refreshAuthenticationToken");
-        val refreshedToken: String =
-            jwtUtil.generateToken(SecurityContextHolder.getContext().authentication.details as UserDetails)
-        return ResponseEntity.ok<Any>(refreshedToken)
-    }
 
 }

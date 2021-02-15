@@ -23,19 +23,19 @@ import com.itextpdf.layout.layout.LayoutContext
 import com.itextpdf.layout.layout.LayoutResult
 import com.itextpdf.layout.property.*
 import com.itextpdf.layout.renderer.ParagraphRenderer
-import javassist.tools.reflect.Loader
-import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.Comment
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.utils.StringTool
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.net.URL
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.AbstractMap.SimpleEntry
 import java.util.stream.Collectors
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.collections.ArrayList
 
 //import javassist.Loader
@@ -47,7 +47,7 @@ import kotlin.collections.ArrayList
  * @author Stig Norland
  */
 class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(outputStream).setSmartMode(true)) {
-    protected val LOG = LoggerFactory.getLogger(this.javaClass)
+    private val logger = LoggerFactory.getLogger(this.javaClass)
     
     private val toc: MutableList<SimpleEntry<String, SimpleEntry<String, Int>>> = ArrayList()
     var width100 = 0f
@@ -123,7 +123,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                 movePage(getLastPage(), 1)
             }
         } catch (ex: Exception) {
-            LOG.error("createToc", ex)
+            logger.error("createToc", ex)
         }
         //        LOG.info( String.join( ", ", getPageLabels() ) );
         getPage(1).setPageLabel(PageLabelNumberingStyle.LOWERCASE_ROMAN_NUMERALS, null, 1)
@@ -191,8 +191,6 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
     }
 
     fun addHeader2(header: String?, rev: String?): Document {
-        var rev = rev
-        rev = rev ?: ""
         return document!!.add(
             Paragraph(header)
                 .setMaxWidth(width100 * 0.8f)
@@ -200,28 +198,27 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                 .setFontSize(sizeHeader2)
                 .addTabStops(TabStop(width100 * 0.80f, TabAlignment.RIGHT))
                 .add(Tab())
-                .add(rev)
+                .add(rev ?: "")
                 .setKeepWithNext(true)
         )
     }
 
     fun addParagraph(value: String): Document? {
-        var value = value
         try {
             val para: Paragraph = Paragraph().setWidth(width100 * 0.8f).setKeepTogether(false)
-            value = Arrays.stream(value.split("\n").toTypedArray())
+            Arrays.stream(value.split("\n").toTypedArray())
                 .map {
                     when {
                         it.matches(Regex(HTML_PATTERN)) -> it
                         else -> "$it</br>"
                     }
                 }
-                .collect(Collectors.joining(" "))
-            val elements: List<IElement> = HtmlConverter.convertToElements(value)
-            for (element in elements) {
-                para.add(element as IBlockElement)
-            }
-            document!!.add(para)
+                .collect(Collectors.joining(" ")).also {
+                    HtmlConverter.convertToElements(it).forEach {
+                        element -> para.add(element as IBlockElement )
+                    }
+                    document!!.add(para)
+                }
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -262,9 +259,9 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                         )
                     )
             )
-        for (subcomment in comment.comments.stream().filter(Comment::isPublic)
+        for (subComment in comment.comments.stream().filter(Comment::isPublic)
             .collect(Collectors.toList())) {
-            addCommentRow(table, subcomment, level + 1)
+            addCommentRow(table, subComment, level + 1)
         }
     }
 
@@ -283,41 +280,35 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
          }
     }
 
-    private inner class UpdatePageRenderer(
-        modelElement: Paragraph?,
-        protected var entry: SimpleEntry<String, Int>
-    ) : ParagraphRenderer(modelElement) {
+    private inner class UpdatePageRenderer(modelElement: Paragraph?,private var entry: SimpleEntry<String, Int>) : ParagraphRenderer(modelElement) {
         override fun layout(layoutContext: LayoutContext): LayoutResult {
-            val result: LayoutResult = super.layout(layoutContext)
-            entry.setValue(layoutContext.area.pageNumber)
-            return result
+            return super.layout(layoutContext).also {
+                entry.setValue(layoutContext.area.pageNumber)
+            }
         }
     }
 
     private fun getResource(resource: String): URL {
-        var url: URL
-
-        //Try with the Thread Context Loader.
-        var classLoader = Thread.currentThread().contextClassLoader
-        if (classLoader != null) {
-            url = classLoader.getResource(resource)
-            if (url != null) {
-                return url
-            }
-        }
-
-        //Let's now try with the classloader that loaded this class.
-        classLoader = Loader::class.java.classLoader
-        if (classLoader != null) {
-            url = classLoader.getResource(resource)
-            if (url != null) {
-                return url
-            }
-        }
-        LOG.info("getResource failing soon...")
-
-        //Last ditch attempt. Get the resource from the classpath.
-        return ClassLoader.getSystemResource(resource)
+        return  ClassLoader.getSystemResource(resource) ?: URL(resource)
+//        var url = URL(resource)
+//        //Try with the Thread Context Loader.
+//        var classLoader = Thread.currentThread().contextClassLoader
+//        if (classLoader != null) {
+//            return classLoader.getResource(resource)
+//        }
+//
+//        //Let's now try with the classloader that loaded this class.
+//        classLoader = Loader::class.java.classLoader
+//        if (classLoader != null) {
+//            url = classLoader.getResource(resource)
+//            if (url != null) {
+//                return url
+//            }
+//        }
+//        LOG.info("getResource failing soon...")
+//
+//        //Last ditch attempt. Get the resource from the classpath.
+//        return ClassLoader.getSystemResource(resource)
     }
 
     companion object {
@@ -336,17 +327,17 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             initializeOutlines()
             getCatalog().pageMode = PdfName.UseOutlines
             document = Document(this, PageSize.A4)
-            width100 = PageSize.A4.width - document!!.getLeftMargin() - document!!.getRightMargin()
+            width100 = PageSize.A4.width - document!!.leftMargin - document!!.rightMargin
             document!!.setTextAlignment(TextAlignment.JUSTIFIED)
                 .setHyphenation(HyphenationConfig("en", "uk", 3, 3))
                 .setFont(font)
                 .setFontSize(sizeNormal)
             addEventHandler(PdfDocumentEvent.START_PAGE, TextFooterEventHandler(document!!))
         } catch (ex: Exception) {
-            LOG.error("PdfReport()", ex)
+            logger.error("PdfReport()", ex)
             StackTraceFilter.filter(ex.stackTrace).stream()
                 .map { it.toString() }
-                .forEach { msg: String? -> LOG.info(msg) }
+                .forEach { msg: String? -> logger.info(msg) }
         }
     }
 }

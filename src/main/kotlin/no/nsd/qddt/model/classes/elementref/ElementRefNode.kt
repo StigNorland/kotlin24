@@ -20,10 +20,9 @@ import javax.persistence.*
 @AttributeOverride(name = "name", column = Column(name = "element_name", length = 1500))
 class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<ElementRefNode<T>?> {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    var id: UUID? = null
+    @GeneratedValue
+    @Column(updatable = false, nullable = false)
+    lateinit var id: UUID
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ElementRefNode::class)
     @JsonBackReference(value = "parentRef")

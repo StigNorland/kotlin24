@@ -33,7 +33,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
 
-    @Type(type = "pg-uuid")
+
     override lateinit var elementId: UUID
 
     @Column(name = "element_revision")

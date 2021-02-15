@@ -20,7 +20,7 @@ import java.util.UUID
 @PropertySource(value = ["classpath:application.properties"])
 @Service
 internal class OtherMaterialServiceImpl : OtherMaterialService {
-  @Value("\${api.fileroot}")
+  @Value("\${qddt.api.fileroot}")
   private lateinit var fileRoot:String
 
   protected val LOG = LoggerFactory.getLogger(this.javaClass)

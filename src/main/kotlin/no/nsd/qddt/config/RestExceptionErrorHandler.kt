@@ -1,5 +1,7 @@
 package  no.nsd.qddt.config
 
+import no.nsd.qddt.model.exception.ApiError
+import no.nsd.qddt.model.exception.StackTraceFilter
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -21,7 +23,12 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(Exception::class)
     fun handleAll(ex: Exception, request: WebRequest?): ResponseEntity<Any?>? {
         log.error(ex.message, ex.cause)
-        val apiError = ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.localizedMessage, "error occurred")
+        val qddtStack =  StackTraceFilter.filter(ex.stackTrace)
+        if (qddtStack.isNotEmpty())
+            qddtStack.forEach {
+                log.debug(it.toString())
+            }
+        val apiError = ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.localizedMessage, qddtStack.map { it.toString() })
         return ResponseEntity(apiError, HttpHeaders(), apiError.status)
     }
 }

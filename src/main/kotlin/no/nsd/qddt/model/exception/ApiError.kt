@@ -1,4 +1,4 @@
-package  no.nsd.qddt.config
+package  no.nsd.qddt.model.exception
 
 import org.springframework.http.HttpStatus
 import java.util.*

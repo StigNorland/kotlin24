@@ -18,10 +18,9 @@ import javax.persistence.*
 @Entity
 class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>> {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column( updatable = false, nullable = false)
-    var id: UUID? = null
+    @GeneratedValue
+    @Column(updatable = false, nullable = false)
+    lateinit var id: UUID
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = TreeNode::class)
     @JsonBackReference(value = "parentRef")
@@ -41,7 +40,7 @@ class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>>
 
     constructor() : super(null)
     constructor(data: T) : super(data) {
-        elementsIndex.add(this)
+        elementsIndex.add(element = this)
     }
 
     val isRoot: Boolean
