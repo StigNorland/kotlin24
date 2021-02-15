@@ -34,7 +34,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
     override lateinit var elementKind: ElementKind
 
     @Type(type = "pg-uuid")
-    final override lateinit var elementId: UUID
+    override lateinit var elementId: UUID
 
     @Column(name = "element_revision")
     override var elementRevision: Int? = 0
