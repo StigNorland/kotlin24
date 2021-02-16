@@ -1,9 +1,5 @@
 package no.nsd.qddt.model.classes
 
-import no.nsd.qddt.model.classes.AbstractEntityAudit.agency
-import no.nsd.qddt.model.Agency.name
-import no.nsd.qddt.model.classes.AbstractEntityAudit.version
-import no.nsd.qddt.model.classes.Version.toDDIXml
 import org.hibernate.envers.Audited
 import javax.persistence.Embeddable
 import java.util.UUID
@@ -15,23 +11,25 @@ import javax.persistence.Column
  */
 @Audited
 @Embeddable
-class Parameter : Comparable<Parameter> {
-    @Column(name = "id", updatable = false, nullable = false)
-    var id: UUID? = null
-    var name: String? = null
-    var referencedId: UUID? = null
+class Parameter(
+    @Column( updatable = false, nullable = false)
+    var id: UUID? = null,
+    var name: String? = null,
+    var referencedId: UUID? = null,
     var parameterKind: String? = null
+) : Comparable<Parameter> {
 
-    constructor() {}
-    constructor(name: String?) {
-        this.name = name
-    }
 
-    constructor(name: String?, parameterKind: String?) {
-        id = UUID.randomUUID()
-        this.name = name
-        this.parameterKind = parameterKind
-    }
+    // constructor() {}
+    // constructor(name: String?) {
+    //     this.name = name
+    // }
+
+    // constructor(name: String?, parameterKind: String?) {
+    //     id = UUID.randomUUID()
+    //     this.name = name
+    //     this.parameterKind = parameterKind
+    // }
 
 
     fun toDDIXml(entity: AbstractEntityAudit, tabs: String?): String {

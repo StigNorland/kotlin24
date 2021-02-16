@@ -35,9 +35,9 @@
 //    public String getXmlFragment() {
 //        return String.format( xmlInstruction,
 //            getXmlHeader(entity),
-//            entity.getName(),
-//            entity.getDescription(),
-//            entity.getXmlLang());
+//            entity.name,
+//            entity.description,
+//            entity.xmlLang);
 //    }
 //
 //    @Override

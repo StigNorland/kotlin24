@@ -4,7 +4,7 @@ import java.lang.IllegalArgumentException
 /**
  * @author Stig Norland
  */
-enum class SequenceKind(override val name: String, val description: String) {
+enum class SequenceKind( name: String, val description: String) {
     NA(
         "N/A",
         "Not Applicable"

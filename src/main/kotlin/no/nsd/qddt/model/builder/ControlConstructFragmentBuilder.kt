@@ -33,7 +33,7 @@ class ControlConstructFragmentBuilder<T : ControlConstruct?>(entity: T) : XmlDDI
             xmlConstruct,
             getXmlHeader(entity),
             getXmlLang(entity),
-            entity.getName(),
+            entity.name,
             entity.getLabel(),
             entity.getOtherMaterials().stream().map { o -> o.toDDIXml(entity, "\t\t\t") }.collect(Collectors.joining()),
             children.stream().map(Function<AbstractXmlBuilder, Any> { c: AbstractXmlBuilder -> c.getXmlEntityRef(3) })

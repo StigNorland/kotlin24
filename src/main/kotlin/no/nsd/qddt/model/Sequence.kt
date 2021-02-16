@@ -78,7 +78,7 @@ class Sequence : ControlConstruct() {
             .flatMap(Function<ElementRefEmbedded<ControlConstruct?>, Stream<*>> { s: ElementRefEmbedded<ControlConstruct?> ->
                 s.getElement().getParameterIn().stream()
             }).collect(Collectors.toSet<Any>())
-        tmp.add(Parameter<Any?>(this.getName(), "IN"))
+        tmp.add(Parameter<Any?>(this.name, "IN"))
         return tmp
     }
 
@@ -96,7 +96,7 @@ class Sequence : ControlConstruct() {
         pdfReport.addParagraph(description)
         if (universe.size > 0) pdfReport.addheader2("Universe")
         for (uni in universe) {
-            pdfReport.addParagraph(uni.getDescription())
+            pdfReport.addParagraph(uni.description)
         }
         getSequence().forEach(Consumer<ElementRefEmbedded<ControlConstruct?>> { entity: ElementRefEmbedded<ControlConstruct?> ->
             entity.getElement().fillDoc(pdfReport, counter)

@@ -5,7 +5,7 @@ import java.lang.IllegalArgumentException
 /**
  * @author Stig Norland
  */
-enum class ConditionKind(override val name: String, val description: String) {
+enum class ConditionKind( name: String, val description: String) {
     COMPUTATION_ITEM("ComputationItem","JavaScript"),
     IF_THEN_ELSE("IfThenElse","If Then Else" ),
     LOOP("ForEach", "For each SOURCES do SEQUENCE"),

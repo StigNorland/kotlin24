@@ -31,7 +31,7 @@ class InstrumentFragmentBuilder(entity: Instrument?) : XmlDDIFragmentBuilder<Ins
                 xmlInstrument,
                 getXmlHeader(entity),
                 getXmlLang(entity),
-                entity.getName(),
+                entity.name,
                 entity.getLabel(),
                 children.stream()
                     .map(Function<AbstractXmlBuilder, Any> { c: AbstractXmlBuilder -> c.getXmlEntityRef(3) })

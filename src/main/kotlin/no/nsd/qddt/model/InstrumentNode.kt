@@ -72,7 +72,7 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
 
     fun addParameter(parameter: no.nsd.qddt.domain.instrument.pojo.Parameter) {
         if (parameters.stream()
-                .noneMatch(Predicate<no.nsd.qddt.domain.instrument.pojo.Parameter> { p: no.nsd.qddt.domain.instrument.pojo.Parameter -> p.getName() == parameter.getName() && p.getParameterKind() == parameter.getParameterKind() })
+                .noneMatch(Predicate<no.nsd.qddt.domain.instrument.pojo.Parameter> { p: no.nsd.qddt.domain.instrument.pojo.Parameter -> p.name == parameter.name && p.getParameterKind() == parameter.getParameterKind() })
         ) parameters.add(parameter)
     }
 
@@ -148,7 +148,7 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
 
     protected fun setValues(): AbstractElementRef<T> {
         if (getElement() == null) return this else if (element is StatementItem) setName(
-            getElement().getName().toString() + " ➫ " + (element as StatementItem).getStatement()
+            getElement().name.toString() + " ➫ " + (element as StatementItem).getStatement()
         ) else if (element is ConditionConstruct) {
             println("ignorerer set value")
         } else if (element is QuestionConstruct) {

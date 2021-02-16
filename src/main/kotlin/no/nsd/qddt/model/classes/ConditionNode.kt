@@ -13,11 +13,11 @@ class ConditionNode(override var id: UUID, override var name: String, override v
 
 
     constructor(instance: IConditionNode) {
-        id =instance.
-        name = instance.getName()
-        classKind = instance.getClassKind()
-        setConditionKind(instance.getConditionKind())
-        condition = instance.getCondition()
+        id =instance.id
+        name = instance.name
+        classKind = instance.classKind
+        conditionKind instance.conditionKind
+        condition = instance.condition
     }
 
 

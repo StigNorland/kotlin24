@@ -32,7 +32,7 @@ class Instrument : AbstractEntityAudit() {
     @Enumerated(EnumType.STRING)
     private var instrumentKind: InstrumentKind? = null
     fun setLabel(label: String) {
-        if (getName() == null) setName(label.toUpperCase())
+        if (name == null) setName(label.toUpperCase())
         this.label = label
     }
 

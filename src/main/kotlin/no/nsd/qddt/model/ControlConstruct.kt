@@ -37,27 +37,22 @@ open class ControlConstruct : AbstractEntityAudit() {
         name = "CONTROL_CONSTRUCT_OTHER_MATERIAL",
         joinColumns = [JoinColumn(name = "owner_id", referencedColumnName = "id")]
     )
-    private var otherMaterials: List<OtherMaterial>? = ArrayList<OtherMaterial>()
+    private var otherMaterials: List<OtherMaterial>? = mutableListOf()
 
     @Transient
     @JsonSerialize
-    private var parameterIn: Set<Parameter<*>> = HashSet(0)
+    private var parameterIn: Set<Parameter> = mutableSetOf()
 
     @Transient
     @JsonSerialize
-    private var parameterOut: Set<Parameter<*>> = HashSet(0)
+    private var parameterOut: Set<Parameter> = mutableListOf()
+
     @PostLoad
     private fun setDefault() {
         setClassKind(controlConstructKind)
     }
 
-    fun getOtherMaterials(): List<OtherMaterial>? {
-        return otherMaterials
-    }
-
-    fun setOtherMaterials(otherMaterials: List<OtherMaterial>?) {
-        this.otherMaterials = otherMaterials
-    }
+ 
 
     open fun getParameterIn(): Set<Parameter<*>>? {
         return parameterIn

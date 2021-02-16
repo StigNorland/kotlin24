@@ -28,11 +28,9 @@ import javax.persistence.*
 class Instruction : AbstractEntityAudit() {
     @get:Column(name = "description", length = 2000, nullable = false)
     var description: String? = null
-        private set
-
-    fun setDescription(description: String) {
-        this.description = description
-        if (IsNullOrTrimEmpty(getName())) {
+        private set(value) {
+        field = value
+        if (IsNullOrTrimEmpty(name)) {
             val max25 = if (description.length > 25) 25 else description.length
             setName(description.toUpperCase().replace(' ', '_').substring(0, max25))
         }
@@ -52,14 +50,14 @@ class Instruction : AbstractEntityAudit() {
 
 
     override val xmlBuilder: AbstractXmlBuilder
-        get() = object : XmlDDIFragmentBuilder<Instruction?>(this) {
+        get() = XmlDDIFragmentBuilder<Instruction>(this) {
             val xmlFragment: String
                 get() = java.lang.String.format(
                     xmlInstruction,
                     getXmlHeader(entity),
-                    entity.getName(),
-                    entity.getDescription(),
-                    entity.getXmlLang()
+                    entity.name,
+                    entity.description,
+                    entity.xmlLang
                 )
 
             fun getXmlEntityRef(depth: Int): String {

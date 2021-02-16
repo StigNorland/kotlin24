@@ -16,19 +16,13 @@ package no.nsd.qddt.model.classes
 * @author Stig Norland
 * @author Dag Østgulen Heradstveit
 */
-enum class ResponseKind(ddiName:String, ddiRepresentation:String) {
+enum class ResponseKind(val ddiName:String, val ddiRepresentation:String) {
   DATETIME("DateTimeDomain", "ManagedDateTimeRepresentation"),
   TEXT("TextDomain", "ManagedTextRepresentation"),
   NUMERIC("NumericDomain", "ManagedNumericRepresentation"),
   LIST("CodeDomain", "CodeList"),
   SCALE("ScaleDomain", "ManagedScaleRepresentation"),
-  MIXED("ResponseDomainInMixed", "");
-  val ddiName:String
-  val ddiRepresentation:String
-  init{
-    this.ddiName = ddiName
-    this.ddiRepresentation = ddiRepresentation
-  }
+  MIXED("ResponseDomainInMixed", "");  
 }
 //"MissingCodeRepresentation",
 //"MissingTextRepresentation",

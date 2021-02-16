@@ -5,7 +5,7 @@ import java.lang.IllegalArgumentException
 /**
  * @author Stig Norland
  */
-enum class InstrumentKind(override val name: String, val description: String) {
+enum class InstrumentKind( name: String, val description: String) {
     QUESTIONNAIRE(
         "Questionnaire",
         "Set of pre-determined questions presented to study participants."

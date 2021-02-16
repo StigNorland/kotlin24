@@ -12,9 +12,9 @@ class InstrumentFactory : IEntityFactory<Instrument?> {
     }
 
     fun copyBody(source: Instrument, dest: Instrument): Instrument {
-        dest.setDescription(source.getDescription())
+        dest.setDescription(source.description)
         dest.setLabel(source.getLabel())
-        dest.setName(source.getName())
+        dest.setName(source.name)
         dest.setExternalInstrumentLocation(source.getExternalInstrumentLocation())
         dest.setInstrumentKind(source.getInstrumentKind())
         //        dest.setSequence( source.getSequence().stream()

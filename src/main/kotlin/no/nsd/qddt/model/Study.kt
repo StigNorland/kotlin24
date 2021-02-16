@@ -31,11 +31,6 @@ import kotlin.collections.HashSet
  *  * Every QuestionItem will have a ResponseDomain.
  *
  *
- *
- *
- *
- *
- *
  * <br></br>
  * A publication structure for a specific study. Structures identification information, full
  * bibliographic and discovery information, administrative information, all of the reusable
@@ -109,7 +104,7 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
         topicGroups.add(topicGroup)
         topicGroup.st (this)
         setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION)
-        setChangeComment("TopicGroup [" + topicGroup.getName().toString() + "] added")
+        setChangeComment("TopicGroup [" + topicGroup.name.toString() + "] added")
         return topicGroup
     }
 
@@ -135,7 +130,7 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
     fun remove() {
         LOG.debug(" Study pre remove")
         if (getSurveyProgram() != null) {
-            LOG.debug(getSurveyProgram().getName())
+            LOG.debug(getSurveyProgram().name)
             getSurveyProgram().getStudies().removeIf(Predicate { p: Study -> p.getId() === this.getId() })
         }
         getAuthors()!!.clear()

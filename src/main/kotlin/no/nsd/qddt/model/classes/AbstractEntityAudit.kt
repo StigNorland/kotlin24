@@ -51,7 +51,7 @@ abstract class AbstractEntityAudit(
      * TYPO, can be used modify without breaking a release.
      * Every other version is a IN_DEVELOPMENT change.
      */
-    enum class ChangeKind(val label: String, val description: String) {
+    enum class ChangeKind(name: String, val description: String) {
         CREATED("Created", "New element status"),
          BASED_ON("Based on", "Based on copy"),
          NEW_COPY("New Copy","Copy new"),
@@ -75,7 +75,7 @@ abstract class AbstractEntityAudit(
             "This has been marked for deletion, but we need to see it a tiny bit longer.");
 
         override fun toString(): String {
-            return """{ "ChangeKind": ${"\"" + label + "\""}}"""
+            return """{ "ChangeKind": ${"\"" + name + "\""}}"""
         }
     }
 

@@ -3,7 +3,7 @@ package no.nsd.qddt.model.classes.elementref
 /**
  * @author Stig Norland
  */
-enum class ElementKind(val description: String, val className: String, val ddiPreFix: String) {
+enum class ElementKind( name: String, val className: String, val ddiPreFix: String) {
     SURVEY_PROGRAM("Survey", "SurveyProgram", ""),
     STUDY("Study", "Study", ""),
     TOPIC_GROUP("Module","TopicGroup","c"),

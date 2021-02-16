@@ -76,7 +76,7 @@ class QuestionConstruct : ControlConstruct() {
     override fun toString(): String {
         return "{ " +
                 "\"id\":" + (if (getId() == null) "null" else getId()) + ", " +
-                "\"name\":" + (if (getName() == null) "null" else "\"" + getName().toString() + "\"") + ", " +
+                "\"name\":" + (if (name == null) "null" else "\"" + name.toString() + "\"") + ", " +
                 "\"description\":" + (if (description == null) "null" else "\"" + description + "\"") + ", " +
                 "\"questionItemRef\":" + (if (elementRefQuestionItem == null) "null" else elementRefQuestionItem) + ", " +
                 "\"modified\":" + (if (getModified() == null) "null" else getModified()) +
@@ -118,18 +118,18 @@ class QuestionConstruct : ControlConstruct() {
         pdfReport.addParagraph(description)
         if (universe.size > 0) pdfReport.addheader2("Universe")
         for (uni in universe) {
-            pdfReport.addParagraph(uni.getDescription())
+            pdfReport.addParagraph(uni.description)
         }
         if (preInstructions.size > 0) pdfReport.addheader2("Pre Instructions")
         for (pre in preInstructions) {
-            pdfReport.addParagraph(pre.getDescription())
+            pdfReport.addParagraph(pre.description)
         }
         pdfReport.addheader2("Question Item")
         pdfReport.addParagraph(questionItemRef.getElement().getQuestion())
         questionItemRef.getElement().getResponseDomainRef().getElement().fillDoc(pdfReport, "")
         if (postInstructions.size > 0) pdfReport.addheader2("Post Instructions")
         for (post in postInstructions) {
-            pdfReport.addParagraph(post.getDescription())
+            pdfReport.addParagraph(post.description)
         }
         if (getComments().size() > 0) pdfReport.addheader2("Comments")
         pdfReport.addComments(getComments())
