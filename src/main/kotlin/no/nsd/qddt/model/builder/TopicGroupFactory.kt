@@ -4,7 +4,7 @@ package no.nsd.qddt.model.builder
 //import no.nsd.qddt.model.builder.ConceptFactory
 import no.nsd.qddt.model.interfaces.IEntityFactory
 import no.nsd.qddt.model.TopicGroup
-//import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
+//import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import java.util.stream.Collectors
 
 /**

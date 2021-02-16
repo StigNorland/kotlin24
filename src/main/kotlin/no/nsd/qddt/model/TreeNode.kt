@@ -2,10 +2,9 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.model.classes.elementref.AbstractElementRef
+import no.nsd.qddt.model.classes.AbstractElementRef
 import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.classes.TreeNodeIter
-import org.hibernate.annotations.GenericGenerator
 import org.hibernate.envers.Audited
 import java.util.*
 import java.util.function.Consumer

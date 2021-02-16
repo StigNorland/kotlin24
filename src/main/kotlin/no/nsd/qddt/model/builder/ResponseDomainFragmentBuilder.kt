@@ -2,11 +2,11 @@ package no.nsd.qddt.model.builder
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.ResponseDomain
-import no.nsd.qddt.model.classes.ResponseKind
+import no.nsd.qddt.model.enums.ResponseKind
 import java.util.stream.Collectors
 /**
 * @author Stig Norland

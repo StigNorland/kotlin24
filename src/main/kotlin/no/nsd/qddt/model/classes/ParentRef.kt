@@ -1,6 +1,6 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.model.classes
 
-import no.nsd.qddt.model.classes.Version
+import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.*
 import org.slf4j.LoggerFactory

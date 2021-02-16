@@ -1,6 +1,4 @@
-package no.nsd.qddt.model.classes.elementref
-
-import no.nsd.qddt.model.classes.AbstractEntityAudit
+package no.nsd.qddt.model.classes
 
 
 /**

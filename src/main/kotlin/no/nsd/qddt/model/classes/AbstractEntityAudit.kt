@@ -2,7 +2,7 @@ package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
@@ -11,7 +11,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.User
-import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
+import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
@@ -21,7 +21,8 @@ import java.io.Serializable
 import java.util.*
 import java.util.stream.Collectors
 import javax.persistence.*
-import no.nsd.qddt.model.classes.Version as EmbeddedVersion
+import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
+
 
 /**
  * @author Dag Østgulen Heradstveit
@@ -45,7 +46,7 @@ abstract class AbstractEntityAudit(
 
     var xmlLang: String = "en-GB"
 
-) : AbstractEntity(), IBasedOn, Serializable {
+) : AbstractEntity(), IBasedOn, IWebMenuPreview, Serializable {
 
     /**
      * I am the beginning of the end, and the end of time and space.
@@ -81,7 +82,7 @@ abstract class AbstractEntityAudit(
     @JsonDeserialize
     @Transient
     override var classKind: String = 
-        try { ElementKind.getEnum(this.javaClass.simpleName).toString() } 
+        try { ElementKind.getEnum(this.javaClass.simpleName).toString() }
         catch (e: Exception) {this.javaClass.simpleName}
 
 
@@ -111,7 +112,7 @@ abstract class AbstractEntityAudit(
                 change = ChangeKind.IN_DEVELOPMENT
                 changeKind = change
             }
-            if (IsNullOrTrimEmpty(changeComment)) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
+            if (changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
                 changeComment = change.description
             when (change) {
                 ChangeKind.CREATED

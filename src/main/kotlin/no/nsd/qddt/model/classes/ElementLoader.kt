@@ -1,9 +1,10 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.model.classes
 
 import no.nsd.qddt.model.interfaces.BaseServiceAudit
 import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import org.hibernate.envers.exception.RevisionDoesNotExistException
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.history.Revision
 import java.util.*
@@ -12,7 +13,7 @@ import java.util.*
  * @author Stig Norland
  */
 class ElementLoader<T : IWebMenuPreview>(protected var serviceAudit: BaseServiceAudit<T, UUID, Int>) {
-    protected val LOG = LoggerFactory.getLogger(this.javaClass)
+    protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     fun fill(element: IElementRef<T>): IElementRef<T> {
         try {
@@ -22,7 +23,7 @@ class ElementLoader<T : IWebMenuPreview>(protected var serviceAudit: BaseService
             }
             return element
         } catch (e: Exception) {
-            LOG.error("ElementLoader setElement, reference has wrong signature", e)
+            logger.error("ElementLoader setElement, reference has wrong signature", e)
             throw e
         }
     }
@@ -36,10 +37,10 @@ class ElementLoader<T : IWebMenuPreview>(protected var serviceAudit: BaseService
             return serviceAudit.findLastChange(id)
         } catch (e: RevisionDoesNotExistException) {
             if (rev == null) throw e // if we get an RevisionDoesNotExistException with rev == null, we have already tried to get last change, exiting function
-            LOG.warn("ElementLoader - RevisionDoesNotExist fallback, fetching latest -> $id")
+            logger.warn("ElementLoader - RevisionDoesNotExist fallback, fetching latest -> $id")
             get(id, null)
         } catch (ex: Exception) {
-            LOG.error("ElementLoader - fill", ex)
+            logger.error("ElementLoader - fill", ex)
             throw ex
         }
     }

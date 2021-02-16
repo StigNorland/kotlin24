@@ -3,13 +3,11 @@ package no.nsd.qddt.model
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.SequenceKind
-import no.nsd.qddt.model.classes.Version
-import no.nsd.qddt.model.classes.elementref.ElementKind
-import no.nsd.qddt.model.classes.elementref.ElementRefCondition
-import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.model.enums.SequenceKind
+import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.embedded.ElementRefCondition
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 /**

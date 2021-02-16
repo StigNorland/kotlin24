@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.classes
+package no.nsd.qddt.model.embedded
 import org.hibernate.envers.Audited
 import javax.persistence.Column
 import javax.persistence.Embeddable

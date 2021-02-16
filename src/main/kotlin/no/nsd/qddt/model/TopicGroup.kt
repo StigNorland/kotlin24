@@ -2,8 +2,8 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.ElementKind
-import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IParentRef
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
@@ -139,7 +139,7 @@ class TopicGroup(
     addQuestionItem(ElementRefEmbedded(ElementKind.QUESTION_ITEM, questionItemId, rev))
   }
  
-   fun addQuestionItem(qef:ElementRefEmbedded<QuestionItem>) {
+   fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {
     if (this.topicQuestionItems.stream().noneMatch { cqi -> cqi.equals(qef) }) {
       topicQuestionItems.add(qef)
       this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION

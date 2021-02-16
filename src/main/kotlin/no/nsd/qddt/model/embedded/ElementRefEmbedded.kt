@@ -1,5 +1,7 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.model.embedded
 
+import no.nsd.qddt.model.classes.AbstractElementRef
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import java.io.Serializable
 import java.util.*

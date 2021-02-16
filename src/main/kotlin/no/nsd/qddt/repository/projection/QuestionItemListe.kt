@@ -1,6 +1,6 @@
 package no.nsd.qddt.repository.projection
 
-import no.nsd.qddt.model.classes.elementref.ElementRefResponseDomain
+import no.nsd.qddt.model.embedded.ElementRefResponseDomain
 import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.QuestionItem
 import org.springframework.data.rest.core.config.Projection

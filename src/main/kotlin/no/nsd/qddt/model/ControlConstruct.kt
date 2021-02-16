@@ -6,7 +6,7 @@ import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.Parameter
+import no.nsd.qddt.model.embedded.Parameter
 import org.hibernate.envers.Audited
 import javax.persistence.*
 

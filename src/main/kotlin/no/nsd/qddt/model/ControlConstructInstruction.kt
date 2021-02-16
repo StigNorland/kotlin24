@@ -1,6 +1,6 @@
 package no.nsd.qddt.model
 
-import no.nsd.qddt.model.classes.ControlConstructInstructionRank
+import no.nsd.qddt.model.enums.ControlConstructInstructionRank
 import org.hibernate.envers.Audited
 import java.io.Serializable
 import javax.persistence.*

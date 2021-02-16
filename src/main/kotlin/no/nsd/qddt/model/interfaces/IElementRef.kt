@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
-import no.nsd.qddt.model.classes.Version
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.embedded.Version
+import no.nsd.qddt.model.enums.ElementKind
 import java.io.Serializable
 import java.util.*
 

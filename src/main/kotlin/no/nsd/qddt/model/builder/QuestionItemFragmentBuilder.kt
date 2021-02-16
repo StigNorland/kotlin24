@@ -1,6 +1,6 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.QuestionItem
 import java.util.stream.Collectors

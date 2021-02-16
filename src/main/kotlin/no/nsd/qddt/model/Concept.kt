@@ -5,7 +5,7 @@ import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef

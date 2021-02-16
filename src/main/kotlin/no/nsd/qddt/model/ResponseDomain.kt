@@ -7,15 +7,14 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.property.TextAlignment
 import com.itextpdf.layout.property.UnitValue
-import no.nsd.qddt.model.classes.CategoryType
+import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.classes.HierarchyLevel
-import no.nsd.qddt.model.classes.Code
-import no.nsd.qddt.model.classes.ResponseCardinality
-import no.nsd.qddt.model.classes.ResponseKind
+import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.ResponseCardinality
+import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.model.builder.ResponseDomainFragmentBuilder
 import no.nsd.qddt.utils.StringTool.CapString
 import org.hibernate.envers.Audited
@@ -27,7 +26,7 @@ import javax.persistence.*
         [UniqueConstraint(name = "UNQ_RESPONSEDOMAIN_NAME",
           columnNames = ["name","category_id","based_on_object"])]
 )
-class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
+class ResponseDomain:AbstractEntityAudit() {
   /**
  * Can't have two responsedomain with the same template and the same name, unless they are based on
  */

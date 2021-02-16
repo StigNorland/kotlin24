@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.classes
+package no.nsd.qddt.model.embedded
 
 import javax.persistence.Embeddable
 

@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.classes
+package no.nsd.qddt.model.enums
 
 import java.lang.IllegalArgumentException
 

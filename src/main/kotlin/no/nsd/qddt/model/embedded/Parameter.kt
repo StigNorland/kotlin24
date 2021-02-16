@@ -1,5 +1,6 @@
-package no.nsd.qddt.model.classes
+package no.nsd.qddt.model.embedded
 
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.Column

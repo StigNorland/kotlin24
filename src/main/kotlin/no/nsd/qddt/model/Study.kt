@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.ParentRef
 import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
@@ -15,7 +14,6 @@ import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import javax.persistence.*
-import kotlin.math.log
 
 /**
  *

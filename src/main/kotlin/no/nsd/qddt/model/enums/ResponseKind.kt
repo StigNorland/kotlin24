@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.classes
+package no.nsd.qddt.model.enums
 /**
 * A ResponseKind define what kind of ResponseDomain (answer) this is,
 * this will also define the way the Question is formatted.

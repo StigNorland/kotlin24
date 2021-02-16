@@ -1,12 +1,12 @@
 package no.nsd.qddt.model
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.enums.ElementKind
 import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
+import java.io.Serializable
 import javax.persistence.Embeddable
 import java.util.UUID
-import javax.persistence.Id
 
 /**
 * This class is just a placeholder for functionality not implemented.
@@ -18,21 +18,19 @@ import javax.persistence.Id
 */
 @Audited
 @Embeddable
-class OtherMaterial(
-  originalName1: String = ""
-):Cloneable {
+class OtherMaterial():Cloneable, Serializable {
 
   lateinit var originalOwner: UUID
   lateinit var fileName:String
   lateinit var fileType:String
   lateinit var description:String
-  var size:Long = 0
-
-  var originalName: String = originalName1
+  var originalName: String =""
     set(value) {
       field = value
       this.fileName = value.toUpperCase().replace(' ', '_').replace('.', '_') + "00"
     }
+
+  var size:Long = 0
 
 
   constructor(file:MultipartFile) : this() {

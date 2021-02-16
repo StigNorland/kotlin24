@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder.xml
 
 import no.nsd.qddt.model.Comment
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.enums.ElementKind
 
 /**
  * @author Stig Norland

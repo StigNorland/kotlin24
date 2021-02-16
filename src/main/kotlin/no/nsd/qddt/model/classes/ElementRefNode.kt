@@ -1,9 +1,7 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import org.hibernate.annotations.GenericGenerator
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*

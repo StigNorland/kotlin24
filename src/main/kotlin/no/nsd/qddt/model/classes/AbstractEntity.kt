@@ -1,17 +1,17 @@
 package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.model.User
-import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import org.hibernate.envers.Audited
-import org.hibernate.envers.RelationTargetAuditMode
-import org.slf4j.LoggerFactory
-import org.springframework.data.annotation.LastModifiedBy
 import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*
 import javax.persistence.Version
-import kotlin.jvm.Transient
+import no.nsd.qddt.model.User
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import org.hibernate.envers.Audited
+import org.hibernate.envers.RelationTargetAuditMode
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.data.annotation.LastModifiedBy
 
 /**
  * @author Stig Norland
@@ -22,7 +22,7 @@ import kotlin.jvm.Transient
 abstract class AbstractEntity {
     @Transient
     @JsonIgnore
-    protected val logger = LoggerFactory.getLogger(this.javaClass)
+    protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Id
     @GeneratedValue

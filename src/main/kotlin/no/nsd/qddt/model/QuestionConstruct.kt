@@ -1,12 +1,11 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.ControlConstructInstructionRank
-import no.nsd.qddt.model.classes.elementref.ElementKind
-import no.nsd.qddt.model.classes.elementref.ElementRefQuestionItem
+import no.nsd.qddt.model.enums.ControlConstructInstructionRank
+import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import org.hibernate.envers.Audited
 import javax.persistence.*
 import kotlin.streams.toList

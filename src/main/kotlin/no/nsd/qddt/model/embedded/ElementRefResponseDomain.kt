@@ -1,9 +1,9 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.interfaces.IElementRef
-import no.nsd.qddt.model.classes.Version
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.enums.ElementKind
 import org.springframework.data.history.Revision
 import java.util.*
 import javax.persistence.Embeddable

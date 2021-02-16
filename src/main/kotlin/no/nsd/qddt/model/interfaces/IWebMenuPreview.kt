@@ -1,6 +1,6 @@
 package no.nsd.qddt.model.interfaces
 
-import no.nsd.qddt.model.classes.Version as EmbeddedVersion
+import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
 
 import java.util.*
 

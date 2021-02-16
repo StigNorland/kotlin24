@@ -2,8 +2,8 @@ package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.ConditionKind
-import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.model.enums.ConditionKind
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IConditionNode
 import org.hibernate.envers.Audited
 import javax.persistence.*

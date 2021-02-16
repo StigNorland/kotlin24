@@ -1,9 +1,9 @@
 package no.nsd.qddt.model.builder
 
 import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.classes.CategoryType
+import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import org.slf4j.LoggerFactory

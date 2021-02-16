@@ -3,22 +3,21 @@ package no.nsd.qddt.model
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import java.util.*
-import java.util.function.Consumer
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.persistence.*
 import org.hibernate.envers.Audited
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
-import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.CategoryFragmentBuilder
-import no.nsd.qddt.model.classes.CategoryRelationCodeType
-import no.nsd.qddt.model.classes.CategoryType
-import no.nsd.qddt.model.classes.HierarchyLevel
-import no.nsd.qddt.model.classes.ResponseCardinality
-import no.nsd.qddt.model.classes.Code
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.enums.CategoryRelationCodeType
+import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.model.embedded.ResponseCardinality
+import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.utils.StringTool
 import java.util.stream.Collectors
@@ -56,14 +55,13 @@ import kotlin.streams.toList
     uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "category_kind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
 class Category(
-    /*
-     *   A display label for the category.
-     *   May be expressed in multiple languages.
+    /**
+     *   A display label for the category. May be expressed in multiple languages.
      *   Repeat for labels with different content, for example,
      *   labels with differing length limitations or of different types or applications.
      */
     var label: String? = null,
-//        get() = SafeString(field?:""),
+
 
     /*
      *   A description of the content and purpose of the category.
@@ -86,23 +84,21 @@ class Category(
      *  like numeric range / text length /
      */
     @Embedded
-    var inputLimit: ResponseCardinality = ResponseCardinality(0, 1, 1),
+    var inputLimit: ResponseCardinality = ResponseCardinality(),
 
     @Column(name = "classification_level")
     @Enumerated(EnumType.STRING)
     var classificationLevel: CategoryRelationCodeType? = null,
-//        private set,
 
     /**
      *  format is used by datetime, and other kinds if needed.
      */
     var format: String = "",
 
-    // @Column(name = "Hierarchy_level", nullable = false)
+    @Column(name = "Hierarchy_level", nullable = false)
     @Enumerated(EnumType.STRING)
     var hierarchyLevel: HierarchyLevel
 
-    // @Column(name = "category_kind", nullable = false)
 
 ) : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
@@ -272,7 +268,7 @@ class Category(
                 current.code = Code()
             }
         }
-        current.children.forEach(Consumer { c: Category? -> populateCatCodes(c, codes) })
+        current.children.forEach { populateCatCodes(it, codes) }
     }
 
     public override fun clone(): Category {

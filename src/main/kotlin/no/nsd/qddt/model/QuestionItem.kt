@@ -6,8 +6,8 @@ import no.nsd.qddt.model.builder.QuestionItemFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.ElementRefResponseDomain
-import no.nsd.qddt.model.classes.elementref.ParentRef
+import no.nsd.qddt.model.embedded.ElementRefResponseDomain
+import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
 import org.hibernate.envers.Audited
@@ -26,7 +26,9 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "QUESTION_ITEM")
-class QuestionItem(override var name: String=""):AbstractEntityAudit() {
+class QuestionItem :AbstractEntityAudit() {
+
+  override var name: String=""
 
   @Column(length = 2000)
   var question:String=""
@@ -41,7 +43,7 @@ class QuestionItem(override var name: String=""):AbstractEntityAudit() {
     )
   )
   @Embedded
-  var responseDomainRef:ElementRefResponseDomain = ElementRefResponseDomain()
+  var responseDomainRef: ElementRefResponseDomain = ElementRefResponseDomain()
 
 
   @Transient

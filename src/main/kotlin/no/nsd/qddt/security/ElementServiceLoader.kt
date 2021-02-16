@@ -1,6 +1,7 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.security
 
 //import no.nsd.qddt.domain.concept.audit.ConceptAuditService
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.BaseServiceAudit
 //import no.nsd.qddt.domain.questionitem.audit.QuestionItemAuditService
 import org.slf4j.LoggerFactory

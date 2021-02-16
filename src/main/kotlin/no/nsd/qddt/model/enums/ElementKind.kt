@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.classes.elementref
+package no.nsd.qddt.model.enums
 
 /**
  * @author Stig Norland

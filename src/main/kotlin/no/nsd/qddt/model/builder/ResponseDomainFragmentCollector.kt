@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.classes.ResponseKind
-import no.nsd.qddt.model.classes.ResponseKind.*
+import no.nsd.qddt.model.enums.ResponseKind
+import no.nsd.qddt.model.enums.ResponseKind.*
 /**
 * @author Stig Norland
 */

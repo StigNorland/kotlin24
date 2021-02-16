@@ -5,8 +5,8 @@ import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.InstrumentKind
-import no.nsd.qddt.model.classes.elementref.ParentRef
+import no.nsd.qddt.model.enums.InstrumentKind
+import no.nsd.qddt.model.classes.ParentRef
 import org.hibernate.envers.Audited
 import javax.persistence.*
 import javax.persistence.FetchType

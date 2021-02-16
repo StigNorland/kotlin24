@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder
 
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.classes.CategoryType
+import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.Category
 
 /**

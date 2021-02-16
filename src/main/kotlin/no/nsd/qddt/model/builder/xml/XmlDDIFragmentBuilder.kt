@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder.xml
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.elementref.*
+import no.nsd.qddt.model.enums.ElementKind
 import java.util.*
 
 /**
