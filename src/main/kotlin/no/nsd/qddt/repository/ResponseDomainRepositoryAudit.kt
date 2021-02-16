@@ -10,4 +10,4 @@
   * @author Dag Østgulen Heradstveit
   */
  @RepositoryRestResource(path = "responsedomain", collectionResourceRel = "responseDomain", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
- interface ResponseDomainAuditRepository : RevisionRepository<ResponseDomain, UUID, Int>
+ interface ResponseDomainRepositoryAudit : RevisionRepository<ResponseDomain, UUID, Int>

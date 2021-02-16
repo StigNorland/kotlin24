@@ -2,14 +2,11 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.nsd.qddt.domain.AbstractEntityAudit
+import no.nsd.qddt.model.builder.InstructionFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -26,13 +23,16 @@ import javax.persistence.*
     )]
 )
 class Instruction : AbstractEntityAudit() {
-    @get:Column(name = "description", length = 2000, nullable = false)
+
+    override lateinit var name: String
+
+    @Column(length = 2000, nullable = false)
     var description: String? = null
-        private set(value) {
+        set(value) {
         field = value
-        if (IsNullOrTrimEmpty(name)) {
-            val max25 = if (description.length > 25) 25 else description.length
-            setName(description.toUpperCase().replace(' ', '_').substring(0, max25))
+        if (name.isBlank() && value.isNullOrBlank()) {
+            val max25 = if (value!!.length > 25) 25 else value.length
+            name = value.toUpperCase().replace(' ', '_').substring(0, max25)
         }
     }
 
@@ -48,30 +48,54 @@ class Instruction : AbstractEntityAudit() {
         TODO("Not yet implemented")
     }
 
-
     override val xmlBuilder: AbstractXmlBuilder
-        get() = XmlDDIFragmentBuilder<Instruction>(this) {
-            val xmlFragment: String
-                get() = java.lang.String.format(
-                    xmlInstruction,
-                    getXmlHeader(entity),
-                    entity.name,
-                    entity.description,
-                    entity.xmlLang
-                )
+        get() = InstructionFragmentBuilder(this)
+//        {
+//            override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
+//                super.addXmlFragments(fragments)
+//                if (children.size == 0)
+//                    addChildren()
+//                children.stream()
+//                    .forEach { it.addXmlFragments(fragments) }
+//            }
+//
+//            override val xmlFragment: String
+//                get() {
+//                    if (children.size == 0) addChildren()
+//                    return super.xmlFragment
+//                }
+//
+//            private fun addChildren() {
+//                children.addAll(
+//                    sequence
+//                        .filter { it.element != null }
+//                        .map { it.element!!.xmlBuilder }.toList()
+//                )
+//            }
+//        }
 
-            fun getXmlEntityRef(depth: Int): String {
-                return java.lang.String.format(
-                    xmlInsRef,
-                    "PRE",
-                    getXmlURN(entity),
-                    java.lang.String.join("", Collections.nCopies(depth, "\t"))
-                )
-            }
-        }
-    override var name: String
-        get() = TODO("Not yet implemented")
-        set(value) {}
+
+//    override val xmlBuilder: AbstractXmlBuilder
+//        get() = XmlDDIFragmentBuilder<Instruction>(this) {
+//            val xmlFragment: String
+//                get() = String.format(
+//                    xmlInstruction,
+//                    getXmlHeader(entity),
+//                    entity.name,
+//                    entity.description,
+//                    entity.xmlLang
+//                )
+//
+//            fun getXmlEntityRef(depth: Int): String {
+//                return java.lang.String.format(
+//                    xmlInsRef,
+//                    "PRE",
+//                    getXmlURN(entity),
+//                    java.lang.String.join("", Collections.nCopies(depth, "\t"))
+//                )
+//            }
+//        }
+
 
     @JsonIgnore
     @Transient

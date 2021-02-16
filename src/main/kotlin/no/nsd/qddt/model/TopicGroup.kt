@@ -1,10 +1,12 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.elementref.ElementKind
 import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IParentRef
 import no.nsd.qddt.model.interfaces.IArchived
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -47,15 +49,19 @@ import javax.persistence.*
 class TopicGroup(
 
   @Column(name = "study_id", insertable = false, updatable = false)
-  protected var studyId:UUID?=null,
+  protected val studyId:UUID?=null,
 
   @Column(name = "description", length = 20000)
   var description:String?=null,
 
-  @Transient override var parentRef: IParentRef?,
   override var name: String
 
 ):AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived, IDomainObjectParentRef {
+
+  @ManyToOne
+  @JsonBackReference(value = "studyRef")
+  @JoinColumn(name = "study_id", updatable = false)
+  var study: Study? = null
 
   @Column(name = "study_idx", insertable = false, updatable = false)
   private var studyIdx:Int?=null
@@ -80,6 +86,9 @@ class TopicGroup(
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id", referencedColumnName = "id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
+
+  @Transient
+  override var parentRef: IParentRef? = null
 
 
   override var isArchived:Boolean = false
@@ -119,7 +128,7 @@ class TopicGroup(
   // no update for QI when removing (it is bound to a revision anyway...).
   fun removeQuestionItem(questionItemId:UUID, rev:Int) {
     val toDelete = ElementRefEmbedded<QuestionItem>(ElementKind.QUESTION_ITEM, questionItemId, rev)
-    if (topicQuestionItems.removeIf({ q-> q.equals(toDelete) }))
+    if (topicQuestionItems.removeIf { q -> q == toDelete })
     {
       this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
       this.changeComment = "QuestionItem association removed"
@@ -131,7 +140,7 @@ class TopicGroup(
   }
  
    fun addQuestionItem(qef:ElementRefEmbedded<QuestionItem>) {
-    if (this.topicQuestionItems.stream().noneMatch({ cqi-> cqi.equals(qef) })) {
+    if (this.topicQuestionItems.stream().noneMatch { cqi -> cqi.equals(qef) }) {
       topicQuestionItems.add(qef)
       this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
       this.changeComment = "QuestionItem association added"

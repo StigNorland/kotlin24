@@ -12,7 +12,7 @@ import java.util.stream.Collectors
  */
 internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
     override fun create(): TopicGroup {
-        return TopicGroup(null,"",null,"?")
+        return TopicGroup(null,"??","?")
     }
 
     override fun copyBody(source: TopicGroup, dest: TopicGroup): TopicGroup {

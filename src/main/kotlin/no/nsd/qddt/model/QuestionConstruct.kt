@@ -1,13 +1,15 @@
 package no.nsd.qddt.model
 
-import no.nsd.qddt.domain.classes.elementref.ElementKind
+import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.ControlConstructInstructionRank
-import java.util.ArrayList
-import java.util.function.Consumer
-import java.util.function.Function
-import javax.persistence.Column
-import javax.persistence.Embedded
-import javax.persistence.Entity
+import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.classes.elementref.ElementRefQuestionItem
+import org.hibernate.envers.Audited
+import javax.persistence.*
+import kotlin.streams.toList
 
 /**
  * @author Stig Norland
@@ -19,14 +21,20 @@ class QuestionConstruct : ControlConstruct() {
     @Column(name = "description", length = 1500)
     var description: String? = null
 
+    @AttributeOverrides(
+        AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
+        AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
+        AttributeOverride(name = "elementId",column = Column(name = "questionitem_id")),
+        AttributeOverride(name = "elementRevision",column = Column(name = "questionitem_revision")),
+        AttributeOverride(name = "version.revision",column = Column(name = "questionitem_revision"))
+    )
     @Embedded
-    private var elementRefQuestionItem: ElementRefQuestionItem? = null
+    var questionItemRef: ElementRefQuestionItem? = null
 
-    //------------- Begin QuestionItem revision early bind "hack" ---------------
-    //------------- End QuestionItem revision early bind "hack"------------------
+    
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "universe_idx")
-    var universe: List<Universe> = ArrayList<Universe>(0)
+    var universe: MutableList<Universe> = mutableListOf()
 
     @OrderColumn(name = "instruction_idx")
     @ElementCollection(fetch = FetchType.EAGER)
@@ -34,106 +42,81 @@ class QuestionConstruct : ControlConstruct() {
         name = "CONTROL_CONSTRUCT_INSTRUCTION",
         joinColumns = [JoinColumn(name = "control_construct_id", referencedColumnName = "id")]
     )
-    var controlConstructInstructions: List<ControlConstructInstruction> = ArrayList()
-    var questionItemRef: ElementRefQuestionItem?
-        get() = elementRefQuestionItem
-        set(elementRefQuestionItem) {
-            this.elementRefQuestionItem = elementRefQuestionItem
-        }
+    var controlConstructInstructions: MutableList<ControlConstructInstruction> = mutableListOf()
 
-    @get:JsonIgnore
-    val preInstructions: List<Any>
+    val preInstructions
         get() = controlConstructInstructions.stream()
-            .filter { i: ControlConstructInstruction -> i.getInstructionRank() == ControlConstructInstructionRank.PRE }
-            .map(Function<ControlConstructInstruction, R?> { obj: ControlConstructInstruction -> obj.getInstruction() })
-            .collect<List<Instruction>, Any>(Collectors.toList<Any>())
-
-    @get:JsonIgnore
-    val postInstructions: List<Any>
+            .filter { it.instructionRank == ControlConstructInstructionRank.PRE }
+            .map {it.instruction }
+            .toList()
+    
+    val postInstructions
         get() = controlConstructInstructions.stream()
-            .filter { i: ControlConstructInstruction -> i.getInstructionRank() == ControlConstructInstructionRank.POST }
-            .map(Function<ControlConstructInstruction, R?> { obj: ControlConstructInstruction -> obj.getInstruction() })
-            .collect<List<Instruction>, Any>(Collectors.toList<Any>())
+            .filter { it.instructionRank == ControlConstructInstructionRank.POST }
+            .map { it.instruction}
+            .toList()
 
     override fun beforeUpdate() {}
     override fun beforeInsert() {}
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        if (!super.equals(o)) return false
-        val that = o as QuestionConstruct
-        if (if (description != null) description != that.description else that.description != null) return false
-        return if (elementRefQuestionItem != null) elementRefQuestionItem.equals(that.elementRefQuestionItem) else that.elementRefQuestionItem == null
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + if (description != null) description.hashCode() else 0
-        result = 31 * result + if (elementRefQuestionItem != null) elementRefQuestionItem.hashCode() else 0
-        return result
-    }
-
-    override fun toString(): String {
-        return "{ " +
-                "\"id\":" + (if (getId() == null) "null" else getId()) + ", " +
-                "\"name\":" + (if (name == null) "null" else "\"" + name.toString() + "\"") + ", " +
-                "\"description\":" + (if (description == null) "null" else "\"" + description + "\"") + ", " +
-                "\"questionItemRef\":" + (if (elementRefQuestionItem == null) "null" else elementRefQuestionItem) + ", " +
-                "\"modified\":" + (if (getModified() == null) "null" else getModified()) +
-                "}"
-    }
+    
 
     override val xmlBuilder: AbstractXmlBuilder
-        get() = object : ControlConstructFragmentBuilder<QuestionConstruct?>(this) {
-            override fun addXmlFragments(fragments: Map<ElementKind?, Map<String?, String?>?>?) {
+        get() = object : ControlConstructFragmentBuilder<QuestionConstruct>(this) {
+            override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
                 super.addXmlFragments(fragments)
                 if (children.size == 0) addChildren()
                 children.stream()
-                    .forEach(Consumer<AbstractXmlBuilder> { c: AbstractXmlBuilder -> c.addXmlFragments(fragments) })
+                    .forEach { it.addXmlFragments(fragments) }
             }
 
-            val xmlFragment: String
+            override val xmlFragment: String
                 get() {
                     if (children.size == 0) addChildren()
-                    return super.getXmlFragment()
+                    return super.xmlFragment
                 }
 
             private fun addChildren() {
-                children.add(questionItemRef.getElement().getXmlBuilder())
-                children.addAll(
-                    universe.stream().map(Function<Universe, Any> { u: Universe -> u.getXmlBuilder() })
-                        .collect(Collectors.toList<Any>())
+                questionItemRef?.element?.let { children.add(it.xmlBuilder) }
+                children.addAll(universe.stream()
+                    .map { it.xmlBuilder }.toList()
                 )
-                children.addAll(
-                    controlConstructInstructions.stream()
-                        .map(Function<ControlConstructInstruction, Any> { u: ControlConstructInstruction ->
-                            u.getInstruction().getXmlBuilder()
-                        }).collect(Collectors.toList<Any>())
+                
+                children.addAll(controlConstructInstructions.stream()
+                    .map { it .instruction.xmlBuilder }.toList()
                 )
             }
         }
 
-    fun fillDoc(pdfReport: PdfReport, counter: String) {
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "ControlConstruct $counter")
-        pdfReport.addParagraph(description)
-        if (universe.size > 0) pdfReport.addheader2("Universe")
+        description?.let { pdfReport.addParagraph(it) }
+
+        if (universe.size > 0)
+            pdfReport.addHeader2("Universe")
         for (uni in universe) {
             pdfReport.addParagraph(uni.description)
         }
-        if (preInstructions.size > 0) pdfReport.addheader2("Pre Instructions")
-        for (pre in preInstructions) {
-            pdfReport.addParagraph(pre.description)
-        }
-        pdfReport.addheader2("Question Item")
-        pdfReport.addParagraph(questionItemRef.getElement().getQuestion())
-        questionItemRef.getElement().getResponseDomainRef().getElement().fillDoc(pdfReport, "")
-        if (postInstructions.size > 0) pdfReport.addheader2("Post Instructions")
-        for (post in postInstructions) {
-            pdfReport.addParagraph(post.description)
-        }
-        if (getComments().size() > 0) pdfReport.addheader2("Comments")
-        pdfReport.addComments(getComments())
 
-        // pdfReport.addPadding();
+        if (preInstructions.isNotEmpty())
+            pdfReport.addHeader2("Pre Instructions")
+
+        for (pre in preInstructions) {
+            pre.description?.let { pdfReport.addParagraph(it) }
+        }
+
+        pdfReport.addHeader2("Question Item")
+        questionItemRef?.name?.let { pdfReport.addParagraph(it) }
+        questionItemRef?.element?.responseDomainRef?.element?.fillDoc(pdfReport, "")
+
+        if (postInstructions.isNotEmpty())
+            pdfReport.addHeader2("Post Instructions")
+
+        for (post in postInstructions) {
+            post.description?.let { pdfReport.addParagraph(it) }
+        }
+        if (comments.size > 0)
+            pdfReport.addHeader2("Comments")
+
+        pdfReport.addComments(comments)
     }
 }

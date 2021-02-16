@@ -6,6 +6,7 @@ import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
 import javax.persistence.Embeddable
 import java.util.UUID
+import javax.persistence.Id
 
 /**
 * This class is just a placeholder for functionality not implemented.
@@ -21,11 +22,11 @@ class OtherMaterial(
   originalName1: String = ""
 ):Cloneable {
 
-  var size:Long = 0
   lateinit var originalOwner: UUID
   lateinit var fileName:String
   lateinit var fileType:String
   lateinit var description:String
+  var size:Long = 0
 
   var originalName: String = originalName1
     set(value) {

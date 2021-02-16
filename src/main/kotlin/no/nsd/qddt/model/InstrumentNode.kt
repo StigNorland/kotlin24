@@ -1,11 +1,17 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.domain.classes.elementref.AbstractElementRef
 import no.nsd.qddt.model.classes.ConditionNode
-import java.util.ArrayList
+import no.nsd.qddt.model.classes.Parameter
+import no.nsd.qddt.model.classes.elementref.AbstractElementRef
+import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.interfaces.IConditionNode
+import org.hibernate.envers.AuditMappedBy
+import org.hibernate.envers.Audited
+import java.lang.reflect.InvocationTargetException
+import java.util.*
 import java.util.function.Consumer
-import java.util.function.Predicate
 import javax.persistence.*
 
 /**
@@ -15,12 +21,11 @@ import javax.persistence.*
 @Entity
 @Table(name = "INSTRUMENT_NODE")
 @AttributeOverride(name = "name", column = Column(name = "element_name", length = 1500))
-class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<InstrumentNode<T>?> {
+class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<InstrumentNode<T>> {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    var id: UUID? = null
+    @GeneratedValue
+    @Column(updatable = false, nullable = false)
+    lateinit var id: UUID
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstrumentNode::class)
     @JsonBackReference(value = "parentRef")
@@ -28,7 +33,7 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
 
     // in the @OrderColumn annotation on the referencing entity.
     @Column(name = "parent_idx", insertable = false, updatable = false)
-    private val parentIdx = 0
+    private var parentIdx: Int = -1
 
     @OrderColumn(name = "parent_idx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
@@ -39,11 +44,11 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
         orphanRemoval = true,
         cascade = [CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE]
     )
-    var children: MutableList<InstrumentNode<T>> = ArrayList(0)
+    var children: MutableList<InstrumentNode<T>> = mutableListOf()
 
     @JsonIgnore
     @Transient
-    private var elementsIndex: MutableList<InstrumentNode<T>>? = null
+    private var elementsIndex: MutableList<InstrumentNode<T>> = mutableListOf()
 
     @OrderColumn(name = "node_idx")
     @ElementCollection(fetch = FetchType.EAGER)
@@ -51,33 +56,20 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
         name = "INSTRUMENT_PARAMETER",
         joinColumns = [JoinColumn(name = "node_id", referencedColumnName = "id")]
     )
-    private var parameters: MutableList<no.nsd.qddt.domain.instrument.pojo.Parameter> =
-        ArrayList<no.nsd.qddt.domain.instrument.pojo.Parameter>()
+    private var parameters: MutableList<Parameter> = mutableListOf()
 
-    constructor() {}
-    constructor(data: T) {
-        this.element = data
-        children = LinkedList<InstrumentNode<T>>()
-        elementsIndex = LinkedList<InstrumentNode<T>>()
-        elementsIndex!!.add(this)
+    constructor(data: T) : super(data) {
+        elementsIndex.add(this)
     }
 
-    fun getParameters(): List<no.nsd.qddt.domain.instrument.pojo.Parameter> {
-        return parameters
-    }
-
-    fun setParameters(parameters: MutableList<no.nsd.qddt.domain.instrument.pojo.Parameter>) {
-        this.parameters = parameters
-    }
-
-    fun addParameter(parameter: no.nsd.qddt.domain.instrument.pojo.Parameter) {
+    fun addParameter(parameter: Parameter) {
         if (parameters.stream()
-                .noneMatch(Predicate<no.nsd.qddt.domain.instrument.pojo.Parameter> { p: no.nsd.qddt.domain.instrument.pojo.Parameter -> p.name == parameter.name && p.getParameterKind() == parameter.getParameterKind() })
+                .noneMatch { p: Parameter -> p.name == parameter.name && p.parameterKind == parameter.parameterKind }
         ) parameters.add(parameter)
     }
 
     fun clearInParameters() {
-        parameters.removeIf(Predicate<no.nsd.qddt.domain.instrument.pojo.Parameter> { p: no.nsd.qddt.domain.instrument.pojo.Parameter -> p.getParameterKind() == "IN" })
+        parameters.removeIf { p: Parameter -> p.parameterKind == "IN" }
     }
 
     val isRoot: Boolean
@@ -89,13 +81,6 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
     val level: Int
         get() = if (isRoot) 0 else parent!!.level + 1
 
-    fun getId(): UUID? {
-        return id
-    }
-
-    fun getChildren(): List<InstrumentNode<T>> {
-        return children
-    }
 
     fun addChild(child: T): InstrumentNode<T> {
         val childNode = InstrumentNode(child)
@@ -126,53 +111,33 @@ class InstrumentNode<T : ControlConstruct?> : AbstractElementRef<T>, Iterable<In
     }
 
     private fun registerChildForSearch(node: InstrumentNode<T>) {
-        elementsIndex!!.add(node)
-        if (parent != null) parent.registerChildForSearch(node)
+        elementsIndex.add(node)
+        parent?.registerChildForSearch(node)
     }
 
     fun findTreeNode(cmp: Comparable<T>): InstrumentNode<T>? {
-        for (element in elementsIndex!!) {
-            val elData: T = element.element
+        for (element in elementsIndex) {
+            val elData: T = element.element!!
             if (cmp.compareTo(elData) == 0) return element
         }
         return null
     }
 
-    fun setName(name: String) {
-        name = name
-    }
 
     override fun iterator(): Iterator<InstrumentNode<T>> {
-        return InstrumentNodeIter<T>(this)
+        return InstrumentNodeIter(this).iterator()
     }
 
-    protected fun setValues(): AbstractElementRef<T> {
-        if (getElement() == null) return this else if (element is StatementItem) setName(
-            getElement().name.toString() + " ➫ " + (element as StatementItem).getStatement()
-        ) else if (element is ConditionConstruct) {
-            println("ignorerer set value")
-        } else if (element is QuestionConstruct) {
-            //
-        } else setVersion(getElement().getVersion())
-        if (this.getElementKind() == null) setElementKind(ElementKind.getEnum(element.getClass().getSimpleName()))
+    protected fun setValues(element: T): AbstractElementRef<T> {
+        when (element) {
+            is StatementItem -> name = element.name + " ➫ " + (element as StatementItem).statement
+            is ConditionConstruct -> println("ignorerer set value")
+            is QuestionConstruct -> println("ignorerer set value")
+            is ControlConstruct -> {
+                elementKind = ElementKind.getEnum(element.classKind)
+                version = element.version
+            }
+        }
         return this
-    }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        if (!super.equals(o)) return false
-        val that = o as InstrumentNode<*>
-        return id == that.id
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + id.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return if (element != null) element.toString() else "[data null]"
     }
 }

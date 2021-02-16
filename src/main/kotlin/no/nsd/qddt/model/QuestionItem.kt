@@ -2,13 +2,14 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.layout.element.Paragraph
+import no.nsd.qddt.model.builder.QuestionItemFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.elementref.ElementRefResponseDomain
 import no.nsd.qddt.model.classes.elementref.ParentRef
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
-import no.nsd.qddt.model.builder.pdf.PdfReport
-import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.builder.QuestionItemFragmentBuilder
 import org.hibernate.envers.Audited
 import javax.persistence.*
 

@@ -10,4 +10,4 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "categories", collectionResourceRel = "category", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
-interface CategoryAuditRepository  : RevisionRepository<Category, UUID, Int>
+interface CategoryRepositoryAudit  : RevisionRepository<Category, UUID, Int>

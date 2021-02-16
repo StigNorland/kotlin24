@@ -8,7 +8,7 @@ import java.util.*
  * @author Stig Norland
  */
 abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit>(protected val entity: T) : AbstractXmlBuilder() {
-    protected val xmlRef = """
+    protected open val xmlRef = """
          %3${"$"}s<r:%1${"$"}sReference>
          %3${"$"}s	%2${"$"}s%3${"$"}s	<r:TypeOfObject>%1${"$"}s</r:TypeOfObject>
          %3${"$"}s</r:%1${"$"}sReference>

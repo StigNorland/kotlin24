@@ -6,8 +6,7 @@ package no.nsd.qddt.model
  * @author Stig Norland
  * https://github.com/gt4dev/yet-another-tree-structure/blob/master/java/src/com/tree/TreeNodeIter.java
  */
-class InstrumentNodeIter<T : ControlConstruct?>(private val treeNode: InstrumentNode<T>) :
-    MutableIterator<InstrumentNode<T>?> {
+class InstrumentNodeIter<T : ControlConstruct>(private val treeNode: InstrumentNode<T>) : MutableIterator<InstrumentNode<T>> {
     internal enum class ProcessStages {
         ProcessParent, ProcessChildCurNode, ProcessChildSubNode
     }

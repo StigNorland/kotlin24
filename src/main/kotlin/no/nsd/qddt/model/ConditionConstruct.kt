@@ -1,11 +1,12 @@
 package no.nsd.qddt.model
 
-import no.nsd.qddt.domain.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.ConditionKind
-import java.util.ArrayList
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
+import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
+import no.nsd.qddt.model.interfaces.IConditionNode
+import org.hibernate.envers.Audited
+import javax.persistence.*
 
 /**
  * @author Stig Norland
@@ -15,11 +16,11 @@ import javax.persistence.EnumType
 @DiscriminatorValue("CONDITION_CONSTRUCT")
 class ConditionConstruct : ControlConstruct(), IConditionNode {
     @Column(name = "description")
-    var condition: String? = null
+    override var condition: String? = null
 
     @Enumerated(EnumType.STRING)
     @Column(name = "CONTROL_CONSTRUCT_SUPER_KIND")
-    var conditionKind: ConditionKind? = null
+    override lateinit var conditionKind: ConditionKind
 
     @OrderColumn(name = "sequence_idx")
     @ElementCollection(fetch = FetchType.EAGER)
@@ -27,9 +28,9 @@ class ConditionConstruct : ControlConstruct(), IConditionNode {
         name = "CONTROL_CONSTRUCT_SEQUENCE",
         joinColumns = [JoinColumn(name = "sequence_id", referencedColumnName = "id")]
     )
-    var sequence: List<ElementRefEmbedded<ControlConstruct>> = mutableListOf()
+    var sequence: MutableList<ElementRefEmbedded<ControlConstruct>> = mutableListOf()
 
 
-    val xmlBuilder: AbstractXmlBuilder
+    override val xmlBuilder: AbstractXmlBuilder
         get() = ControlConstructFragmentBuilder(this)
 }

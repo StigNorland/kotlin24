@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.classes
 
+import no.nsd.qddt.model.interfaces.IConditionNode
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import java.util.*
 
@@ -12,11 +13,9 @@ class ConditionNode(override var id: UUID, override var name: String, override v
     var condition: String? = null
 
 
-    constructor(instance: IConditionNode) {
-        id =instance.id
-        name = instance.name
+    constructor(instance: IConditionNode):this(instance.id,instance.name,instance.version)  {
         classKind = instance.classKind
-        conditionKind instance.conditionKind
+        conditionKind = instance.conditionKind
         condition = instance.condition
     }
 

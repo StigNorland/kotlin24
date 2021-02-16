@@ -5,6 +5,7 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
+import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -36,7 +37,7 @@ import javax.persistence.*
 @Table(name = "SURVEY_PROGRAM")
 class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArchived {
 
-    @Column(length = 20000)
+    @Column(length = 20000, nullable = false)
     var description: String? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "surveyProgram", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
@@ -53,8 +54,8 @@ class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorS
 
     fun addStudy(study: Study): Study {
         studies.add(study)
-        study.s(this)
-        changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+        study.surveyProgram = this
+        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
         changeComment = "Study [" + study.name + "] added"
         return study
     }
@@ -65,8 +66,9 @@ class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorS
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "Survey")
-        pdfReport.addParagraph(description)
-        if (comments.size > 0) pdfReport.addHeader2("Comments")
+        description?.let { pdfReport.addParagraph(it) }
+        if (comments.size > 0)
+            pdfReport.addHeader2("Comments")
         pdfReport.addComments(comments)
         pdfReport.addPadding()
         var i = 0
@@ -83,9 +85,8 @@ class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorS
         TODO("Not yet implemented")
     }
 
-    override var isArchived: Boolean
-        get() = TODO("Not yet implemented")
-        set(value) {}
+    override var isArchived: Boolean = false
+
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     override var authors: MutableSet<Author> = mutableSetOf()

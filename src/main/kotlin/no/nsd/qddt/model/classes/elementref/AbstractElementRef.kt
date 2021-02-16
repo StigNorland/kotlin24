@@ -5,15 +5,14 @@ package no.nsd.qddt.model.classes.elementref
  */
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import no.nsd.qddt.model.ConditionConstruct
+import no.nsd.qddt.model.QuestionConstruct
+import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.StatementItem
+import no.nsd.qddt.model.classes.Version
 import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
-import no.nsd.qddt.model.classes.Version
-// import no.nsd.qddt.domain.controlconstruct.pojo.ConditionConstruct
-// import no.nsd.qddt.domain.controlconstruct.pojo.QuestionConstruct
-// import no.nsd.qddt.domain.controlconstruct.pojo.StatementItem
-import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.utils.StringTool
-import org.hibernate.annotations.Type
 import java.util.*
 import javax.persistence.*
 
@@ -73,21 +72,21 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
         if (StringTool.IsNullOrEmpty(name)) {
             when (element) {
                 is QuestionItem -> (element!!.name + " ➫ " + (element as QuestionItem?)!!.question).also { name = it }
-                // is StatementItem -> name =
-                //     element!!.name + " ➫ " + (element as StatementItem?)!!.statement
-                // is ConditionConstruct -> {
-                //     name = element!!.name + " ➫ " + (element as ConditionConstruct?)!!.condition
-                //     println(
-                //         ElementKind.getEnum(element!!::class.simpleName)
-                //             .toString() + " - ConditionConstruct- name set"
-                //     )
-                // }
-                // is QuestionConstruct -> {
-                //     println(
-                //         ElementKind.getEnum(element!!::class.simpleName)
-                //             .toString() + " - QuestionConstruct name not set"
-                //     )
-                // }
+                 is StatementItem -> name =
+                     element!!.name + " ➫ " + (element as StatementItem?)!!.statement
+                 is ConditionConstruct -> {
+                     name = element!!.name + " ➫ " + (element as ConditionConstruct?)!!.condition
+                     println(
+                         ElementKind.getEnum(element!!::class.simpleName)
+                             .toString() + " - ConditionConstruct- name set"
+                     )
+                 }
+                 is QuestionConstruct -> {
+                     println(
+                         ElementKind.getEnum(element!!::class.simpleName)
+                             .toString() + " - QuestionConstruct name not set"
+                     )
+                 }
                 else -> println(ElementKind.getEnum(element!!::class.simpleName).toString() + " - set name")
             }
             name = element!!.name

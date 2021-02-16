@@ -1,10 +1,11 @@
 package no.nsd.qddt.model.classes
 
 import org.hibernate.envers.Audited
-import javax.persistence.Embeddable
-import java.util.UUID
-import no.nsd.qddt.model.classes.AbstractEntityAudit
+import java.util.*
 import javax.persistence.Column
+import javax.persistence.Embeddable
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
 
 /**
  * @author Stig Norland
@@ -12,6 +13,8 @@ import javax.persistence.Column
 @Audited
 @Embeddable
 class Parameter(
+    @Id
+    @GeneratedValue
     @Column( updatable = false, nullable = false)
     var id: UUID? = null,
     var name: String? = null,
@@ -36,9 +39,9 @@ class Parameter(
         return String.format(PARAM_FORMAT, entity.agency.name + ":" + entity.version.toDDIXml(), name, tabs)
     }
 
-    override fun compareTo(parameter: Parameter): Int {
-        val i = parameterKind!!.compareTo(parameter.parameterKind!!)
-        return if (i != 0) i else name!!.compareTo(parameter.name!!)
+    override fun compareTo(other: Parameter): Int {
+        val i = parameterKind!!.compareTo(other.parameterKind!!)
+        return if (i != 0) i else name!!.compareTo(other.name!!)
     }
 
     companion object {

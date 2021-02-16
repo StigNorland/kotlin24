@@ -1,6 +1,8 @@
 package no.nsd.qddt.model.interfaces
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
+
 
 
 /**
@@ -23,7 +25,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
             create().apply {
             basedOnObject = source.id
             basedOnRevision = revision
-            changeKind = AbstractEntityAudit.ChangeKind.BASED_ON
+            changeKind = ChangeKind.BASED_ON
             changeComment = when (source.changeComment) {
                     "" -> "based on " + source.name
                     else -> source.changeComment
@@ -31,7 +33,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
             }
         } else {
             create().apply {
-                changeKind = AbstractEntityAudit.ChangeKind.NEW_COPY
+                changeKind = ChangeKind.NEW_COPY
                 changeComment = "copy of " + (source.name)
             }
         }.apply { 

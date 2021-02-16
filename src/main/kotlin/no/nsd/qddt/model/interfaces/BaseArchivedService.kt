@@ -1,6 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import java.util.*
 
 /**
@@ -10,8 +11,8 @@ interface BaseArchivedService<T : AbstractEntityAudit> : BaseService<T, UUID> {
     fun doArchive(instance: T): T {
 //        var instance: T = instance
         return try {
-            if (instance.changeKind === AbstractEntityAudit.ChangeKind.ARCHIVED) {
-                findOne<T>(instance.id!!).apply {
+            if (instance.changeKind === ChangeKind.ARCHIVED) {
+                findOne<T>(instance.id).apply {
                     (this as IArchived).isArchived = true
                     changeComment = instance.changeComment
                 }

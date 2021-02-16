@@ -1,14 +1,15 @@
 package no.nsd.qddt.model
 
+import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.SequenceKind
+import no.nsd.qddt.model.classes.Version
+import no.nsd.qddt.model.classes.elementref.ElementKind
+import no.nsd.qddt.model.classes.elementref.ElementRefCondition
 import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
 import org.hibernate.envers.Audited
-import java.util.ArrayList
-import java.util.function.Consumer
-import java.util.function.Function
-import java.util.function.Predicate
-import java.util.stream.Stream
+import java.util.*
 import javax.persistence.*
 
 /**
@@ -18,8 +19,24 @@ import javax.persistence.*
 @Audited
 @DiscriminatorValue("SEQUENCE_CONSTRUCT")
 class Sequence : ControlConstruct() {
+
     @Column(length = 3000)
     var description: String? = null
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "CONTROL_CONSTRUCT_SUPER_KIND")
+    var sequenceKind: SequenceKind = SequenceKind.SECTION
+
+    @AttributeOverrides(
+        AttributeOverride(name = "elementId",column = Column(name = "questionitem_id")),
+        AttributeOverride(name = "elementRevision",column = Column(name = "questionitem_revision")),
+        AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
+        AttributeOverride(name = "condition",column = Column(name = "question_text", length = 1500)),
+        AttributeOverride(name = "version.revision",column = Column(name = "questionitem_revision"))
+    )
+    @Embedded
+    var condition: ElementRefCondition? = null
+
 
     @OrderColumn(name = "sequence_idx")
     @ElementCollection(fetch = FetchType.EAGER)
@@ -27,8 +44,7 @@ class Sequence : ControlConstruct() {
         name = "CONTROL_CONSTRUCT_SEQUENCE",
         joinColumns = [JoinColumn(name = "sequence_id", referencedColumnName = "id")]
     )
-    private var sequence: List<ElementRefEmbedded<ControlConstruct>>? =
-        ArrayList<ElementRefEmbedded<ControlConstruct>>(0)
+    var sequence: MutableList<ElementRefEmbedded<ControlConstruct>> = mutableListOf()
 
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "universe_idx")
@@ -37,102 +53,74 @@ class Sequence : ControlConstruct() {
         joinColumns = [JoinColumn(name = "question_construct_id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "universe_id", referencedColumnName = "id")]
     )
-    var universe: List<Universe> = ArrayList<Universe>(0)
+    var universe: MutableList<Universe> = mutableListOf()
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "CONTROL_CONSTRUCT_SUPER_KIND")
-    private var sequenceKind: SequenceKind? = null
 
-    @Embedded
-    var condition: ElementRefCondition? = null
-    @PrePersist
-    @PreUpdate
-    private fun setDefaults() {
-        if (sequenceKind == null) sequenceKind = SequenceKind.SECTION
-    }
 
-    fun getSequence(): List<ElementRefEmbedded<ControlConstruct>>? {
-        if (sequence == null) {
-            LOG.info("sequnece is null")
-        } else if (condition != null && !sequence!![0].equals(condition)) {
-//            sequence.add( 0,getCondition() );
-        }
-        return sequence
-    }
 
-    fun setSequence(sequence: List<ElementRefEmbedded<ControlConstruct?>?>) {
-        this.sequence = sequence
-    }
+//
+//    override fun getParameterIn(): Set<Parameter<*>> {
+//        val tmp: MutableSet<Parameter<*>> = getSequence()!!.stream()
+//            .filter(Predicate<ElementRefEmbedded<ControlConstruct?>> { p: ElementRefEmbedded<ControlConstruct?> -> p.getElement() != null })
+//            .flatMap(Function<ElementRefEmbedded<ControlConstruct?>, Stream<*>> { s: ElementRefEmbedded<ControlConstruct?> ->
+//                s.getElement().getParameterIn().stream()
+//            }).collect(Collectors.toSet<Any>())
+//        tmp.add(Parameter<Any?>(this.name, "IN"))
+//        return tmp
+//    }
+//
+//    override fun getParameterOut(): Set<Parameter<*>> {
+//        return getSequence()!!.stream()
+//            .filter(Predicate<ElementRefEmbedded<ControlConstruct?>> { p: ElementRefEmbedded<ControlConstruct?> -> p.getElement() != null })
+//            .flatMap(Function<ElementRefEmbedded<ControlConstruct?>, Stream<*>> { s: ElementRefEmbedded<ControlConstruct?> ->
+//                s.getElement().getParameterOut().stream()
+//            })
+//            .collect(Collectors.toSet<Any>())
+//    }
 
-    fun getSequenceKind(): SequenceKind? {
-        return sequenceKind
-    }
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
 
-    fun setSequenceKind(sequenceKind: SequenceKind?) {
-        this.sequenceKind = sequenceKind
-    }
-
-    override fun getParameterIn(): Set<Parameter<*>> {
-        val tmp: MutableSet<Parameter<*>> = getSequence()!!.stream()
-            .filter(Predicate<ElementRefEmbedded<ControlConstruct?>> { p: ElementRefEmbedded<ControlConstruct?> -> p.getElement() != null })
-            .flatMap(Function<ElementRefEmbedded<ControlConstruct?>, Stream<*>> { s: ElementRefEmbedded<ControlConstruct?> ->
-                s.getElement().getParameterIn().stream()
-            }).collect(Collectors.toSet<Any>())
-        tmp.add(Parameter<Any?>(this.name, "IN"))
-        return tmp
-    }
-
-    override fun getParameterOut(): Set<Parameter<*>> {
-        return getSequence()!!.stream()
-            .filter(Predicate<ElementRefEmbedded<ControlConstruct?>> { p: ElementRefEmbedded<ControlConstruct?> -> p.getElement() != null })
-            .flatMap(Function<ElementRefEmbedded<ControlConstruct?>, Stream<*>> { s: ElementRefEmbedded<ControlConstruct?> ->
-                s.getElement().getParameterOut().stream()
-            })
-            .collect(Collectors.toSet<Any>())
-    }
-
-    fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "Sequence $counter")
-        pdfReport.addParagraph(description)
-        if (universe.size > 0) pdfReport.addheader2("Universe")
+
+        description?.let { pdfReport.addParagraph(it) }
+
+        if (universe.isNotEmpty())
+            pdfReport.addHeader2("Universe")
         for (uni in universe) {
             pdfReport.addParagraph(uni.description)
         }
-        getSequence().forEach(Consumer<ElementRefEmbedded<ControlConstruct?>> { entity: ElementRefEmbedded<ControlConstruct?> ->
-            entity.getElement().fillDoc(pdfReport, counter)
-        })
-        if (getComments().size() > 0) pdfReport.addheader2("Comments")
-        pdfReport.addComments(getComments())
 
-        // pdfReport.addPadding();
+        sequence.forEach { it.element?.fillDoc(pdfReport, counter) }
+
+        if (comments.size > 0)
+            pdfReport.addHeader2("Comments")
+
+        pdfReport.addComments(comments)
+
     }
 
     override val xmlBuilder: AbstractXmlBuilder
-        get() = object : ControlConstructFragmentBuilder<Sequence?>(this) {
-            override fun addXmlFragments(fragments: Map<ElementKind?, Map<String?, String?>?>?) {
+        get() = object : ControlConstructFragmentBuilder<Sequence>(this) {
+            override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
                 super.addXmlFragments(fragments)
                 if (children.size == 0) addChildren()
                 children.stream()
-                    .forEach(Consumer<AbstractXmlBuilder> { c: AbstractXmlBuilder -> c.addXmlFragments(fragments) })
+                    .forEach { it.addXmlFragments(fragments) }
             }
 
-            val xmlFragment: String
+            override val xmlFragment: String
                 get() {
                     if (children.size == 0) addChildren()
-                    return super.getXmlFragment()
+                    return super.xmlFragment
                 }
 
             private fun addChildren() {
                 children.addAll(
-                    getSequence()!!.stream()
-                        .map(Function<ElementRefEmbedded<ControlConstruct?>, Any> { seq: ElementRefEmbedded<ControlConstruct?> ->
-                            seq.getElement().getXmlBuilder()
-                        }).collect(Collectors.toList<Any>())
+                    sequence
+                        .filter { it.element != null }
+                        .map { it.element!!.xmlBuilder }.toList()
                 )
             }
         }
 
-    init {
-        setName("root")
-    }
 }

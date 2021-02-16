@@ -1,9 +1,9 @@
-package no.nsd.qddt.security
+package no.nsd.qddt.config
 
-import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.Agency
-import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.User
+import no.nsd.qddt.model.classes.AbstractEntity
+import no.nsd.qddt.model.interfaces.IDomainObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.PermissionEvaluator
@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.io.Serializable
+
 
 /**
  * @author Stig Norland

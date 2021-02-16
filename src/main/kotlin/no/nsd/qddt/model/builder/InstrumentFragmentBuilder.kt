@@ -4,15 +4,13 @@ import no.nsd.qddt.model.Instrument
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.classes.elementref.ElementKind
-import java.util.*
-import java.util.function.Consumer
-import java.util.function.Function
 import java.util.stream.Collectors
+
 
 /**
  * @author Stig Norland
  */
-class InstrumentFragmentBuilder(entity: Instrument?) : XmlDDIFragmentBuilder<Instrument?>(entity) {
+class InstrumentFragmentBuilder(entity: Instrument) : XmlDDIFragmentBuilder<Instrument>(entity) {
     private val xmlInstrument = """%1${"$"}s			<d:ConstructName>
 				<r:String>%3${"$"}s</r:String>
 			</d:ConstructName>
@@ -23,39 +21,41 @@ class InstrumentFragmentBuilder(entity: Instrument?) : XmlDDIFragmentBuilder<Ins
 
     //    r:ConceptReference/r:URN"/>
     //    r:ConceptReference/r:TypeOfObject" defaultValue="Concept" fixedValue="true"/>
-    protected var children: List<AbstractXmlBuilder>
-    val xmlFragment: String
+    protected var children: MutableList<AbstractXmlBuilder> = mutableListOf()
+
+    override val xmlFragment: String
         get() {
             if (children.size == 0) addChildren()
-            return java.lang.String.format(
+            return String.format(
                 xmlInstrument,
                 getXmlHeader(entity),
                 getXmlLang(entity),
                 entity.name,
-                entity.getLabel(),
+                entity.label,
                 children.stream()
-                    .map(Function<AbstractXmlBuilder, Any> { c: AbstractXmlBuilder -> c.getXmlEntityRef(3) })
+                    .map{ it.getXmlEntityRef(3) }
                     .collect(Collectors.joining()),
                 getXmlFooter(entity)
             )
         }
 
-    fun addXmlFragments(fragments: Map<ElementKind?, Map<String?, String?>?>?) {
-        super.addXmlFragments(fragments)
-        if (children.size == 0) addChildren()
-        children.stream()
-            .forEach(Consumer<AbstractXmlBuilder> { c: AbstractXmlBuilder -> c.addXmlFragments(fragments) })
-    }
-
     private fun addChildren() {
-//        List<AbstractXmlBuilder> collect = entity.getRoot().getChildren().stream()
-//        .map( seq -> seq.getElement().getXmlBuilder())
-//        .collect( Collectors.toList());
-//
-//        children.addAll(collect);
+        entity.root?.children?. let{ mutableList -> mutableList
+            .filter { it.element != null }
+            .map { it.element!!.xmlBuilder }
+            .let { children.addAll(it.toList()) }
+        }
     }
 
-    init {
-        children = LinkedList<AbstractXmlBuilder>()
+
+    override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
+        super.addXmlFragments(fragments)
+        if (children.size == 0)
+            addChildren()
+        children.stream()
+            .forEach { it.addXmlFragments(fragments) }
     }
+
+
+
 }

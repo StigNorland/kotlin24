@@ -5,17 +5,17 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.elementref.ParentRef
+import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
+import no.nsd.qddt.model.interfaces.IParentRef
+import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import java.lang.Exception
-import java.util.*
-import java.util.function.Predicate
 import javax.persistence.*
-import javax.sound.midi.Instrument
-import kotlin.collections.HashSet
+import kotlin.math.log
 
 /**
  *
@@ -41,6 +41,7 @@ import kotlin.collections.HashSet
  * @author Stig Norland
  * @author Dag Østgulen Heradstveit
  */
+@Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
 @Audited
 @Entity
 @Table(name = "STUDY")
@@ -51,8 +52,8 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
     @JoinColumn(name = "survey_id", updatable = false)
     var surveyProgram: SurveyProgram? = null
 
-    @Column(name = "survey_id", insertable = false, updatable = false)
-    protected var surveyId: UUID? = null
+//    @Column(name = "survey_id", insertable = false, updatable = false)
+//    protected var surveyId: UUID? = null
 
     @Column(name = "survey_idx", insertable = false, updatable = false)
     private var surveyIdx: Int? = null
@@ -61,100 +62,102 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
     var description: String? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "study", cascade = [CascadeType.MERGE, CascadeType.DETACH])
-     var instruments: MutableSet<Instrument> = mutableSetOf()
+    var instruments: MutableSet<Instrument> = mutableSetOf()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "study", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     @OrderColumn(name = "study_idx", nullable = false)
     @AuditMappedBy(mappedBy = "study", positionMappedBy = "studyIdx")
-    private var topicGroups: MutableList<TopicGroup> = ArrayList<TopicGroup>()
+    private var topicGroups: MutableList<TopicGroup> = mutableListOf()
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
-    @JoinTable(
-        name = "STUDY_AUTHORS",
-        joinColumns = [JoinColumn(name = "study_id")],
-        inverseJoinColumns = [JoinColumn(name = "author_id")]
-    )
+//    @JoinTable(
+//        name = "STUDY_AUTHORS",
+//        joinColumns = [JoinColumn(name = "study_id")],
+//        inverseJoinColumns = [JoinColumn(name = "author_id")]
+//    )
     override var authors: MutableSet<Author> = mutableSetOf()
 
+    override var parentRef: IParentRef? = null
+
+
     @Column(name = "is_archived")
-    var isArchived = false
+    override var isArchived = false
         set(archived) {
             try {
                 field = archived
                 if (archived) {
-                    setChangeKind(ChangeKind.ARCHIVED)
-                    if (Hibernate.isInitialized(getTopicGroups())) LOG.debug("getTopicGroups isInitialized. ") else Hibernate.initialize(
-                        getTopicGroups()
-                    )
-                    for (topicGroup in getTopicGroups()) {
-                        if (!topicGroup.isArchived()) topicGroup.setArchived(archived)
+                    changeKind = ChangeKind.ARCHIVED
+                    if (Hibernate.isInitialized(topicGroups))
+                        logger.debug("getTopicGroups isInitialized. ")
+                    else
+                        Hibernate.initialize(topicGroups)
+
+                    for (topicGroup in topicGroups) {
+                        if (!topicGroup.isArchived) topicGroup.isArchived = archived
                     }
                 }
             } catch (ex: Exception) {
-                LOG.error("setArchived", ex)
+                logger.error("setArchived", ex)
                 StackTraceFilter.filter(ex.stackTrace).stream()
                     .map { a -> a.toString() }
-                    .forEach(LOG::info)
+                    .forEach(logger::info)
             }
         }
 
 
-
     fun addTopicGroup(topicGroup: TopicGroup): TopicGroup {
         topicGroups.add(topicGroup)
-        topicGroup.st (this)
-        setChangeKind(ChangeKind.UPDATED_HIERARCHY_RELATION)
-        setChangeComment("TopicGroup [" + topicGroup.name.toString() + "] added")
+        topicGroup.study = this
+        changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment = "TopicGroup [" + topicGroup.name + "] added"
         return topicGroup
     }
 
 
-    val xmlBuilder: AbstractXmlBuilder?
+    override val xmlBuilder: AbstractXmlBuilder?
         get() = null
 
-    fun fillDoc(pdfReport: PdfReport, counter: String) {
-        var counter = counter
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+
         pdfReport.addHeader(this, "Study $counter")
-        pdfReport.addParagraph(description)
-        if (getComments().size() > 0) pdfReport.addheader2("Comments")
-        pdfReport.addComments(getComments())
+        description?.let { pdfReport.addParagraph(it) }
+
+        if (comments.size > 0)
+            pdfReport.addHeader2("Comments")
+
+        pdfReport.addComments(comments)
+
         pdfReport.addPadding()
-        if (counter.length > 0) counter = "$counter."
-        var i = 0
-        for (topic in getTopicGroups()) {
-            topic.fillDoc(pdfReport, counter + ++i)
+        var teller = if (counter.isNotEmpty()) "$counter." else counter
+        for ((i, topic) in topicGroups.withIndex()) {
+            topic.fillDoc(pdfReport, teller + (i + 1))
         }
     }
 
     @PreRemove
     fun remove() {
-        LOG.debug(" Study pre remove")
-        if (getSurveyProgram() != null) {
-            LOG.debug(getSurveyProgram().name)
-            getSurveyProgram().getStudies().removeIf(Predicate { p: Study -> p.getId() === this.getId() })
-        }
-        getAuthors()!!.clear()
-        getInstruments()!!.clear()
+        logger.debug(" Study pre remove " + surveyProgram?.name)
+        surveyProgram?.studies?.removeIf { it.id == this.id }
+        authors.clear()
+        instruments.clear()
     }
 
-    protected fun beforeUpdate() {
-        LOG.info("Study beforeUpdate")
+    override fun beforeUpdate() {
+        logger.info("Study beforeUpdate")
         if (surveyIdx == null) {
-            LOG.info("Setting surveyIdx")
-            surveyIdx = getSurveyProgram().getStudies().indexOf(this)
+            logger.info("Setting surveyIdx")
+            surveyIdx = surveyProgram?.studies?.indexOf(this)
         }
     }
 
-    protected fun beforeInsert() {
-        LOG.info("Study beforeInsert")
-        if (getSurveyProgram() != null && surveyIdx == null) {
-            LOG.info("Setting surveyIdx")
-            surveyIdx = getSurveyProgram().getStudies().indexOf(this)
+    override fun beforeInsert() {
+        logger.info("Study beforeInsert")
+        if (surveyProgram != null && surveyIdx == null) {
+            logger.info("Setting surveyIdx")
+            surveyIdx = surveyProgram!!.studies.indexOf(this)
         } else {
-            LOG.debug("no survey reference, cannot add..")
+            logger.debug("no survey reference, cannot add..")
         }
     }
 
-    val parentRef: ParentRef?
-        get() = null
 }

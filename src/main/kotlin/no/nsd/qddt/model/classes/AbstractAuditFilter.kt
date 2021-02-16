@@ -1,6 +1,6 @@
 package no.nsd.qddt.model.classes
 
-import no.nsd.qddt.model.classes.AbstractEntityAudit.ChangeKind
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -8,6 +8,7 @@ import org.springframework.data.history.Revision
 import org.springframework.data.history.Revisions
 import java.util.stream.Collectors
 import java.util.stream.Stream
+
 
 /**
  * @author Stig Norland

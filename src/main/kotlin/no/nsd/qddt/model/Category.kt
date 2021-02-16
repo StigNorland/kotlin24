@@ -19,8 +19,10 @@ import no.nsd.qddt.model.classes.CategoryType
 import no.nsd.qddt.model.classes.HierarchyLevel
 import no.nsd.qddt.model.classes.ResponseCardinality
 import no.nsd.qddt.model.classes.Code
+import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.utils.StringTool
 import java.util.stream.Collectors
+import kotlin.streams.toList
 
 /**
  *
@@ -142,20 +144,22 @@ class Category(
 
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "category_idx")
-    var children: MutableList<Category>? =  mutableListOf()
+    var children: MutableList<Category> =  mutableListOf()
     get() {
         return if (categoryKind == CategoryType.SCALE) {
-            if (field == null || field!!.isEmpty()) logger.error("getChildren() is 0/NULL")
-            field!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }
+            if (field.isEmpty()) logger.error("getChildren() is 0/NULL")
+            field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
                 .sorted(Comparator.comparing { obj: Category -> obj.code })
-                .collect(Collectors.toList())
+                .toList() as MutableList<Category>
         } else
-            field!!.stream().filter { obj: Category? -> Objects.nonNull(obj) }.collect(Collectors.toList())
+            field.stream()
+                .filter { obj: Category? -> Objects.nonNull(obj) }
+                .toList() as MutableList<Category>
         }
     set(value) {
         field =
         when (categoryKind) {
-            CategoryType.SCALE -> value!!.stream().sorted(Comparator.comparing { obj: Category -> obj.code }).collect(Collectors.toList())
+            CategoryType.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code }).collect(Collectors.toList())
             else -> value
         }
     }
@@ -184,14 +188,14 @@ class Category(
      */
     val isValid: Boolean
         get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
-            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children!!.size == 0 && inputLimit.valid()
-            CategoryType.CATEGORY -> children!!.size == 0 && label != null && label!!.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
+            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children.size == 0 && inputLimit.valid()
+            CategoryType.CATEGORY -> children.size == 0 && label != null && label!!.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
                 .isNotEmpty()
             else -> false
         } else when (categoryKind) {
-            CategoryType.MISSING_GROUP, CategoryType.LIST -> children!!.size > 0 && inputLimit.valid() && classificationLevel != null
-            CategoryType.SCALE -> children!!.size >= 2 && inputLimit.valid() && classificationLevel != null
-            CategoryType.MIXED -> children!!.size >= 2 && classificationLevel != null
+            CategoryType.MISSING_GROUP, CategoryType.LIST -> children.size > 0 && inputLimit.valid() && classificationLevel != null
+            CategoryType.SCALE -> children.size >= 2 && inputLimit.valid() && classificationLevel != null
+            CategoryType.MIXED -> children.size >= 2 && classificationLevel != null
             else -> false
         }
 
@@ -247,7 +251,7 @@ class Category(
         if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
             tmplist.add((current.code))
         }
-        current.children?.forEach(Consumer { c: Category? -> tmplist.addAll(harvestCatCodes(c)) })
+        current.children.forEach {  tmplist.addAll(harvestCatCodes(it)) }
         return tmplist
     }
 
@@ -268,7 +272,7 @@ class Category(
                 current.code = Code()
             }
         }
-        current.children!!.forEach(Consumer { c: Category? -> populateCatCodes(c, codes) })
+        current.children.forEach(Consumer { c: Category? -> populateCatCodes(c, codes) })
     }
 
     public override fun clone(): Category {
@@ -278,7 +282,7 @@ class Category(
             code = code
             description = description
             basedOnObject = id
-            changeKind = ChangeKind.NEW_COPY
+            changeKind = IBasedOn.ChangeKind.NEW_COPY
             changeComment = "Copy of [$name]"
         }
     }

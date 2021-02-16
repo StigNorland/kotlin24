@@ -24,7 +24,6 @@ class Version : Comparable<Version>, Serializable {
     var versionLabel: String = ""
 
     @Transient
-//    @Column(name = "rev")
     var revision: Int = 0
 
     @Transient

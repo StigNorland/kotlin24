@@ -1,9 +1,18 @@
 package no.nsd.qddt.model
-import no.nsd.qddt.domain.AbstractEntityAudit
+
+import com.fasterxml.jackson.annotation.JsonBackReference
+import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.InstrumentKind
-import java.lang.Exception
+import no.nsd.qddt.model.classes.elementref.ParentRef
+import org.hibernate.envers.Audited
 import javax.persistence.*
-import kotlin.jvm.Transient
+import javax.persistence.FetchType
+
+
+
 
 /**
  * You change your meaning by emphasizing different words in your sentence. ex:
@@ -16,49 +25,36 @@ import kotlin.jvm.Transient
 @Entity
 @Table(name = "INSTRUMENT")
 class Instrument : AbstractEntityAudit() {
-    @JsonBackReference(value = "studyRef")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "study_id", updatable = false)
-    private var study: Study? = null
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE])
-    var root: InstrumentNode<*>? = null
+    override lateinit var name: String
+
+    var label: String = ""
+        protected set(value) {
+            field = value
+            if (name.isBlank()) {
+                name = value.toUpperCase()
+            }
+        }
+
     var description: String? = null
-    var label: String? = null
-        private set
+
     var externalInstrumentLocation: String? = null
 
     @Column(name = "instrument_kind")
     @Enumerated(EnumType.STRING)
-    private var instrumentKind: InstrumentKind? = null
-    fun setLabel(label: String) {
-        if (name == null) setName(label.toUpperCase())
-        this.label = label
-    }
+    var instrumentKind = InstrumentKind.QUESTIONNAIRE_SEMISTRUCTURED
 
-    fun getInstrumentKind(): InstrumentKind? {
-        return instrumentKind
-    }
+    @JsonBackReference(value = "studyRef")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id", updatable = false)
+    var study: Study? = null
 
-    fun setInstrumentKind(instrumentKind: InstrumentKind?) {
-        this.instrumentKind = instrumentKind
-    }
 
-    fun getStudy(): Study? {
-        return study
-    }
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE])
+    var root: InstrumentNode<*>? = null
 
-    fun setStudy(study: Study?) {
-        this.study = study
-    }
-
-    @get:Transient
     val parentRef: ParentRef<Study>?
-        get() = try {
-            ParentRef(getStudy())
-        } catch (ex: Exception) {
-            null
-        }
+        get() = study?.let { ParentRef(it) }
 
     ////    TODO implement outparams....
     //    @Transient
@@ -70,41 +66,15 @@ class Instrument : AbstractEntityAudit() {
     //            .values()
     //            .collect( TreeMap::new, TreeMap::putAll, (map1, map2) -> { map1.putAll(map2); return map1; });
     //    }
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is Instrument) return false
-        if (!super.equals(o)) return false
-        val that = o
-        if (if (study != null) !study.equals(that.study) else that.study != null) return false
-        //        if (sequence != null ? !sequence.equals( that.sequence ) : that.sequence != null) return false;
-        if (if (description != null) description != that.description else that.description != null) return false
-        if (if (label != null) label != that.label else that.label != null) return false
-        return if (if (externalInstrumentLocation != null) externalInstrumentLocation != that.externalInstrumentLocation else that.externalInstrumentLocation != null) false else instrumentKind == that.instrumentKind
-    }
 
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + if (description != null) description.hashCode() else 0
-        result = 31 * result + if (label != null) label.hashCode() else 0
-        result = 31 * result + if (externalInstrumentLocation != null) externalInstrumentLocation.hashCode() else 0
-        result = 31 * result + if (instrumentKind != null) instrumentKind.hashCode() else 0
-        return result
-    }
 
-    override fun toString(): String {
-        return ("{\"Instrument\":"
-                + super.toString()
-                ) + ", \"study\":" + study
-            .toString() + ", \"description\":\"" + description.toString() + "\"" + ", \"label\":\"" + label.toString() + "\"" + ", \"externalInstrumentLocation\":\"" + externalInstrumentLocation.toString() + "\"" + ", \"instrumentKind\":\"" + instrumentKind.toString() + "\"" + "}"
-    }
-
-    val xmlBuilder: AbstractXmlBuilder
+    override val xmlBuilder: AbstractXmlBuilder
         get() = InstrumentFragmentBuilder(this)
 
-    fun fillDoc(pdfReport: PdfReport, counter: String?) {
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addParagraph("Instrument...")
     }
 
-    protected fun beforeUpdate() {}
-    protected fun beforeInsert() {}
+    override fun beforeUpdate() {}
+    override fun beforeInsert() {}
 }

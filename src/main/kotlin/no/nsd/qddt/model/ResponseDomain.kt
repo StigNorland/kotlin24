@@ -143,7 +143,7 @@ class ResponseDomain:AbstractEntityAudit(), IWebMenuPreview {
         null -> retval
         else -> {
           retval.add(current)
-          current.children?.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
+          current.children.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
           retval
         }
     }

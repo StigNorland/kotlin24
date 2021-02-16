@@ -48,7 +48,7 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
   
   init{
     val children:List<Category> = if (entity.responseKind == ResponseKind.MIXED)  {
-      responseDomain.managedRepresentation.children!!
+      responseDomain.managedRepresentation.children
     } else{
       mutableListOf<Category>().also {
         it.add(responseDomain.managedRepresentation)
@@ -62,15 +62,14 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
     manRep.forEach { it.addXmlFragments(fragments) }
   }
   override fun getXmlEntityRef(depth:Int):String {
-    if (entity.responseKind === ResponseKind.MIXED)
-    return String.format(xmlMixedRef, getInMixedRef(depth))
-    else if (entity.responseKind === ResponseKind.LIST)
-    return String.format(xmlCodeDomRef, getTabs(depth),
-      entity.managedRepresentation.classificationLevel?.name,
-                         getResponseCardinality(depth),
-                         String.format(xmlRef, entity.responseKind.ddiRepresentation, getXmlURN(entity), getTabs(depth + 1)))
-    else
-    return String.format(xmlRef, entity.responseKind.ddiName, getXmlURN(entity), getTabs(depth))
+    return when {
+        entity.responseKind === ResponseKind.MIXED -> String.format(xmlMixedRef, getInMixedRef(depth))
+        entity.responseKind === ResponseKind.LIST -> String.format(xmlCodeDomRef, getTabs(depth),
+          entity.managedRepresentation.classificationLevel?.name,
+          getResponseCardinality(depth),
+          String.format(xmlRef, entity.responseKind.ddiRepresentation, getXmlURN(entity), getTabs(depth + 1)))
+        else -> String.format(xmlRef, entity.responseKind.ddiName, getXmlURN(entity), getTabs(depth))
+    }
   }
   private fun getResponseCardinality(depth:Int):String {
     return String.format("%3\$s<r:ResponseCardinality minimumResponses = %1\$s maximumResponses = %2\$s />\n",
@@ -85,7 +84,7 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
 //    return String.format(xmlFooter, instance.getClass().getSimpleName())
 //  }
   private fun getInMixedRef(depth:Int):String {
-    return entity.managedRepresentation.children!!.stream().map {
+    return entity.managedRepresentation.children.stream().map {
         ref -> String.format(xmlInMixed, ref.xmlBuilder.getXmlEntityRef(depth + 2))
       }.collect(Collectors.joining())
   }

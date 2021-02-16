@@ -1,5 +1,6 @@
 package no.nsd.qddt.config
 
+import no.nsd.qddt.security.AuthEntryPointJwt
 import no.nsd.qddt.security.AuthTokenFilter
 import no.nsd.qddt.security.AuthUserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,15 +27,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
-    // securedEnabled = true,
-    // jsr250Enabled = true,
+    securedEnabled = true,
+    jsr250Enabled = true,
     prePostEnabled = true)
 class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Value("\${qddt.api.origin}")
     lateinit var origin: String
 
     @Autowired
-    var userDetailsService: AuthUserDetailsService? = null
+    lateinit var userDetailsService: AuthUserDetailsService
 
     @Autowired
     private val unauthorizedHandler: AuthEntryPointJwt? = null
@@ -49,7 +50,6 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         authenticationManagerBuilder
             .userDetailsService<UserDetailsService>(userDetailsService)
             .passwordEncoder(passwordEncoder())
-
     }
 
     @Bean
@@ -70,8 +70,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests().antMatchers("/auth/**").permitAll()
-            .antMatchers("/health").permitAll()
-            .antMatchers("/api/test/**").permitAll()
+            .antMatchers("/actuator/**").permitAll()
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
             .antMatchers(HttpMethod.GET, "/**").hasAnyAuthority()

@@ -121,8 +121,8 @@ class FragmentBuilderManageRep(entity: Category, degreeSlopeFromHorizontal:Strin
   }
 
   init{
-    children = entity.children?.stream()
-        ?.map { this.getBuilder(it) }
+    children = entity.children.stream()
+        .map { this.getBuilder(it) }
         ?.collect(Collectors.toList()) ?: mutableListOf()
   }
 

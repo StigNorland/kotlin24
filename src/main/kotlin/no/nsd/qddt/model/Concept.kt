@@ -1,14 +1,15 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
+import no.nsd.qddt.model.builder.ConceptFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.elementref.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IArchived
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
 import no.nsd.qddt.model.interfaces.IParentRef
-import no.nsd.qddt.model.builder.pdf.PdfReport
-import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
@@ -75,8 +76,8 @@ class Concept(
     override var isArchived: Boolean = false
 
     fun removeQuestionItem(id: UUID, rev: Int) {
-        conceptQuestionItems.removeIf { it.elementId == id && it.elementRevision == rev }.also {
-            if (it) {
+        conceptQuestionItems.removeIf { it.elementId == id && it.elementRevision == rev }.also { doIt ->
+            if (doIt) {
                 this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
                 this.changeComment = "QuestionItem assosiation removed"
                 this.getParents().forEach{
