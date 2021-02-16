@@ -9,8 +9,8 @@ import java.util.*
 @Projection(name = "authorListe", types = [Author::class])
 interface AuthorListe {
     val id: UUID
-    var updated : Timestamp
     var name: String
+    var modified : Timestamp
     var email: String?
     var homepage: URL?
 }
