@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -67,7 +68,9 @@ class Concept(
     @CollectionTable(name = "CONCEPT_QUESTION_ITEM", joinColumns = [JoinColumn(name = "concept_id", referencedColumnName = "id")])
     var conceptQuestionItems: MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf(),
 
-    @Transient override var parentRef: IParentRef? = null
+    @Transient
+    @JsonSerialize
+    override var parentRef: IParentRef? = null
     // override var name: String,
 
 

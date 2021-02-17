@@ -2,6 +2,7 @@ package no.nsd.qddt.security
 
 import io.jsonwebtoken.*
 import no.nsd.qddt.model.User
+import no.nsd.qddt.utils.StringTool
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
@@ -25,15 +26,16 @@ class JwtUtils {
     fun generateJwtToken(authentication: Authentication): String {
         val userDetails = authentication.principal as User
         val claims = Jwts.claims()
-            .setId(userDetails.id.toString())
-            .setSubject(userDetails.email)
+            .setId(UUID.randomUUID().toString())
+            .setSubject(StringTool.CapString(userDetails.username))
             .setIssuedAt(Date())
             .setExpiration(Date(Date().time + jwtExpirationMs.get()))
 
-        claims["role"] = userDetails.authorities.joinToString(", ","[ ", " ]") { it.authority }
+        claims["role"] = userDetails.authorities
         claims["modified"] = userDetails.modified?.time
-        claims["name"] = userDetails.username
-        claims["agency"] = userDetails.agency.let { """ "{" "id": "${it.id}", "name": "${it.name}" "}" """ }
+        claims["id"] = userDetails.id.toString()
+        claims["email"] = userDetails.email
+        claims["agency"] = userDetails.agency.let {  it.name }
 
         return  AuthResponse(Jwts.builder()
             .setClaims(claims)

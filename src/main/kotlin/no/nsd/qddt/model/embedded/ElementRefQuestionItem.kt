@@ -20,6 +20,8 @@ class ElementRefQuestionItem : IElementRef<QuestionItem> {
     override lateinit var elementId: UUID
 
     @Embedded
+    @Transient
+    @JsonSerialize
     override lateinit var version: Version
 
     override var elementRevision: Int? = null

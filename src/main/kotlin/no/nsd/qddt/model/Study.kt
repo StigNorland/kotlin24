@@ -75,6 +75,7 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
 //    )
     override var authors: MutableSet<Author> = mutableSetOf()
 
+    @Transient
     override var parentRef: IParentRef? = null
 
 

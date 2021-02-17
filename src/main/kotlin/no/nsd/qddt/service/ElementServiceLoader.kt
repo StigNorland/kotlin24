@@ -1,9 +1,8 @@
-package no.nsd.qddt.security
+package no.nsd.qddt.service
 
-//import no.nsd.qddt.domain.concept.audit.ConceptAuditService
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.BaseServiceAudit
-//import no.nsd.qddt.domain.questionitem.audit.QuestionItemAuditService
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service
 /**
  * @author Stig Norland
  */
-@Service("elementServiceLoader123")
+@Service("elementServiceLoader")
 class ElementServiceLoader @Autowired constructor(
 //    conceptService: ConceptAuditService,
 //    controlConstructService: ControlConstructAuditService,
@@ -23,7 +22,7 @@ class ElementServiceLoader @Autowired constructor(
 //    surveyProgramService: SurveyProgramAuditService,
 //    topicGroupService: TopicGroupAuditService
 ) {
-    protected val LOG = LoggerFactory.getLogger(this.javaClass)
+    protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 //    private val conceptService: ConceptAuditService
 //    private val controlConstructService: ControlConstructAuditService
 //    private val instrumentService: InstrumentAuditService
@@ -35,7 +34,7 @@ class ElementServiceLoader @Autowired constructor(
 //    private val topicGroupService: TopicGroupAuditService
 
     fun getService(elementKind: ElementKind): BaseServiceAudit<*, *, *>? {
-        LOG.info("get Service -> $elementKind")
+        logger.info("get Service -> $elementKind")
         return when (elementKind) {
 //            ElementKind.CONCEPT -> conceptService
 //            ElementKind.CONTROL_CONSTRUCT, ElementKind.QUESTION_CONSTRUCT, ElementKind.STATEMENT_CONSTRUCT, ElementKind.SEQUENCE_CONSTRUCT, ElementKind.CONDITION_CONSTRUCT -> controlConstructService
@@ -47,14 +46,14 @@ class ElementServiceLoader @Autowired constructor(
 //            ElementKind.TOPIC_GROUP -> topicGroupService
 //            ElementKind.PUBLICATION -> publicationService
             else -> {
-                LOG.error("ElementKind :" + elementKind.className + " not defined.")
+                logger.error("ElementKind :" + elementKind.className + " not defined.")
                 null
             }
         }
     }
 
     init {
-        LOG.info("ElementServiceLoader -> ")
+        logger.info("ElementServiceLoader -> ")
 //        this.controlConstructService = controlConstructService
 //        this.instrumentService = instrumentService
 //        this.publicationService = publicationService

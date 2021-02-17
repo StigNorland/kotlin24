@@ -16,6 +16,8 @@ class ElementRefCondition : IElementRef<ControlConstruct> {
 
     override lateinit var elementId: UUID
     override var elementRevision: Int? = -1
+    @Transient
+    @JsonSerialize
     override var version: Version = Version()
     override var name: String? =""
 
@@ -41,8 +43,11 @@ class ElementRefCondition : IElementRef<ControlConstruct> {
         set(value) {
             field = value?.also {
                 elementId = it.id
-                name = it.name
+                name = it.label?:it.name
                 version.revision = elementRevision?:0
+                version = it.version
+                if (version.revision == 0)
+                    version.revision = elementRevision?:0
             }
             if (value == null) {
                 name = null

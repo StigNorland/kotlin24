@@ -14,10 +14,7 @@ import javax.persistence.Id
 @Audited
 @Embeddable
 class Parameter(
-    @Id
-    @GeneratedValue
-    @Column( updatable = false, nullable = false)
-    var id: UUID? = null,
+    var id: UUID = UUID.randomUUID(),
     var name: String? = null,
     var referencedId: UUID? = null,
     var parameterKind: String? = null

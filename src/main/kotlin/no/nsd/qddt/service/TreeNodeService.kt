@@ -7,4 +7,4 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-interface TreeNodeService : BaseService<TreeNode<*>?, UUID?>
+interface TreeNodeService : BaseService<TreeNode<*>, UUID?>
