@@ -17,8 +17,7 @@ import javax.persistence.*
 @Table(name = "ELEMENT_REF_NODE")
 @AttributeOverride(name = "name", column = Column(name = "element_name", length = 1500))
 class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<ElementRefNode<T>?> {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(updatable = false, nullable = false)
     lateinit var id: UUID
 

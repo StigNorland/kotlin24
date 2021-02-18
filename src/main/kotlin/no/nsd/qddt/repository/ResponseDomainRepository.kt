@@ -1,18 +1,18 @@
 package no.nsd.qddt.repository
-import no.nsd.qddt.model.interfaces.BaseRepository
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.interfaces.BaseRepository
 import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
-import java.util.UUID
+import java.util.*
 /**
 * @author Dag Østgulen Heradstveit
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "responsedomain", collectionResourceRel = "responseDomain", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
+@RepositoryRestResource(path = "responsedomains", collectionResourceRel = "ResponseDomains", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
 internal interface ResponseDomainRepository:BaseRepository<ResponseDomain, UUID> {
   // Page<ResponseDomain> findByResponseKindAndNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(ResponseKind responseKind, String name, String description, Pageable pageable);
   // TODO fix query --->

@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.embedded
 import org.hibernate.envers.Audited
+import java.io.Serializable
 import javax.persistence.Column
 import javax.persistence.Embeddable
 /**
@@ -12,7 +13,7 @@ import javax.persistence.Embeddable
 class Code(
   @Column(name = "code_value")
   var value:String=""
-):Comparable<Code> {
+):Comparable<Code> , Serializable {
   
   override fun compareTo(other: Code):Int {
     return try

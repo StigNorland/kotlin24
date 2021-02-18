@@ -1,9 +1,10 @@
 package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.IElementRef
+import java.io.Serializable
 import java.util.*
 import javax.persistence.*
 
@@ -11,7 +12,7 @@ import javax.persistence.*
  * @author Stig Norland
  */
 @Embeddable
-class ElementRefQuestionItem : IElementRef<QuestionItem> {
+class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
     /**
      * This field will be populated with the correct version of a QI,
      * but should never be persisted.

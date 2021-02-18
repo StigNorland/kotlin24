@@ -1,18 +1,18 @@
 package no.nsd.qddt.repository
 
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.model.Concept
-import no.nsd.qddt.repository.projection.TopicGroupListe
+import no.nsd.qddt.model.interfaces.BaseArchivedRepository
+import no.nsd.qddt.repository.projection.ConceptListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
-import java.util.UUID
+import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "concepts", collectionResourceRel = "concept", itemResourceRel = "Concept", excerptProjection = TopicGroupListe::class)
+@RepositoryRestResource(path = "concepts", collectionResourceRel = "Concepts", itemResourceRel = "Concept", excerptProjection = ConceptListe::class)
 interface ConceptRepository:BaseArchivedRepository<Concept, UUID> {
 
     fun findByTopicGroupIdAndNameIsNotNull(id:UUID, pageable:Pageable):Page<Concept>

@@ -1,6 +1,7 @@
 package  no.nsd.qddt.config
 
 import no.nsd.qddt.model.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer
@@ -13,9 +14,12 @@ import kotlin.sequences.Sequence
  */
 @Component
 class RepositoryRestConfig : RepositoryRestConfigurer {
+    @Value(value = "\${qddt.api.origin}")
+    lateinit var origin: String
+
     override fun configureRepositoryRestConfiguration(config:RepositoryRestConfiguration,  cors: CorsRegistry) {
 
-        cors.addMapping("/**").allowedOrigins("*")
+        cors.addMapping("/**").allowedOrigins(origin)
 
         config.exposeIdsFor(Agency::class.java)
         config.exposeIdsFor(Author::class.java)

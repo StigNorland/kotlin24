@@ -11,26 +11,7 @@ spring:
     name: qddt-service
   data:
     rest:
-      base-path: /
-  jpa:
-    open-in-view: true
-    hibernate:
-      ddl-auto: validate
-      use-new-id-generator-mappings: false
-#      naming:
-#        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-#        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    properties:
-      org:
-        hibernate:
-          envers:
-            audit_table_suffix: _aud
-            default_schema: audit
-            store_data_at_delete: true
-            do_not_audit_optimistic_locking_field: false
-            audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
-#          ejb:
-#            naming_strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
+      base-path: /rest
   datasource:
     driver-class-name: org.postgresql.Driver
     initialization-mode: embedded
@@ -42,18 +23,64 @@ spring:
     url: jdbc:postgresql://${QDDT_DB_HOST:localhost}:${QDDT_DB_PORT:5432}/${QDDT_DB_NAME:qddt-dev}
   jmx:
     enabled: false
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+#      use-new-id-generator-mappings: false
+    #      naming:
+    #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    #        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    properties:
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _aud
+            default_schema: audit
+            store_data_at_delete: true
+            do_not_audit_optimistic_locking_field: false
+            audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+  #          ejb:
+  #            naming_strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+  management:
+    endpoints:
+      web:
+        base-path: /actuator
+        exposure:
+          include: health,prometheus,metrics
+        path-mapping:
+          health: health
+        cors:
+          allowed-headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers
+    endpoint:
+      metrics:
+        enabled: true
+      prometheus:
+        enabled: true
+    metrics:
+      export:
+        prometheus:
+          enabled: true
+
+
+security:
+  jwt:
+    token:
+      secret: some-random-secret
+      expiration-time: 28800000  # 8 timer
+      header: Authorization
 
 server:
   forward-headers-strategy: framework
   port:  ${QDDT_PORT:5001}
   http2:
     enabled: true
-  # servlet:
-    # context-path: /api
+  servlet:
+    context-path: /api
   compression:
     enabled: true
     min-response-size: 1024
@@ -64,12 +91,11 @@ qddt:
     origin: https://*.nsd.no/*, https://*.nsd.no/api/*, http://localhost/*
     rooturl: http://localhost:5001/
     fileroot: c:\\Projects\\qddt\\uploads\\
-  security:
-    secret: some-random-secret
-    expiration-time: 28800000  # 8 timer
-    header: Authorization
 
 
+logging:
+  level:
+    web: DEBUG
 
 
 #  management:

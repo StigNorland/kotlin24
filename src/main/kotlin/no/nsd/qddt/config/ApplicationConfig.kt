@@ -26,7 +26,7 @@ class ApplicationConfig {
     }
 
     @Bean
-    fun cacheControlFilter(): FilterRegistrationBean<*> {
+    fun cacheControlFilter(): FilterRegistrationBean<OncePerRequestFilter> {
         val registration = FilterRegistrationBean<OncePerRequestFilter>(CacheControlFilter())
         registration.addUrlPatterns("/*")
         return registration

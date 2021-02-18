@@ -1,19 +1,19 @@
 package no.nsd.qddt.repository
 
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.TopicGroupListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
-import java.util.UUID
+import java.util.*
 
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "topicgroups", collectionResourceRel = "topicgroup", itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
+@RepositoryRestResource(path = "topicgroups", collectionResourceRel = "Topicgroups", itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
 interface TopicGroupRepository : BaseArchivedRepository<TopicGroup, UUID> {
 
     fun findByStudyId(id: UUID): List<TopicGroup>?

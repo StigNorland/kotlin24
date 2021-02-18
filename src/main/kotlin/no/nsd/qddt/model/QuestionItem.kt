@@ -6,8 +6,8 @@ import no.nsd.qddt.model.builder.QuestionItemFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.embedded.ElementRefResponseDomain
 import no.nsd.qddt.model.classes.ParentRef
+import no.nsd.qddt.model.embedded.ElementRefResponseDomain
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
 import org.hibernate.envers.Audited
@@ -48,7 +48,7 @@ class QuestionItem :AbstractEntityAudit() {
 
   @Transient
   @JsonSerialize
-  lateinit var parentRefs:List<ParentRef<IDomainObjectParentRef>>
+  var parentRefs: MutableList<ParentRef<IDomainObjectParentRef>> = mutableListOf()
 
   override val xmlBuilder:AbstractXmlBuilder
     get() =  QuestionItemFragmentBuilder(this)
