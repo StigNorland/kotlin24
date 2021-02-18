@@ -1,10 +1,11 @@
 package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.IElementRef
 import org.springframework.data.history.Revision
+import java.io.Serializable
 import java.util.*
 import javax.persistence.Embeddable
 
@@ -12,14 +13,14 @@ import javax.persistence.Embeddable
  * @author Stig Norland
  */
 @Embeddable
-class ElementRefResponseDomain() : IElementRef<ResponseDomain> {
+class ElementRefResponseDomain() : IElementRef<ResponseDomain> , Serializable {
 
     override lateinit var elementId: UUID
     override var elementRevision: Int? = null
     override var name: String? = null
 
     @javax.persistence.Transient
-    override var version: Version = Version(1,0,0,"")
+    override var version: Version = Version()
 
     @javax.persistence.Transient
     override var elementKind: ElementKind = ElementKind.RESPONSEDOMAIN

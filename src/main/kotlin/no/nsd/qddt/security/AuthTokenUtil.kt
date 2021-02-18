@@ -2,6 +2,7 @@ package no.nsd.qddt.security
 
 import io.jsonwebtoken.*
 import no.nsd.qddt.model.User
+import no.nsd.qddt.repository.projection.AgencyListe
 import no.nsd.qddt.utils.StringTool
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -15,11 +16,11 @@ import java.util.*
 
 
 @Component
-class JwtUtils {
-    @Value("\${qddt.security.secret}")
+class AuthTokenUtil {
+    @Value("\${security.jwt.token.secret}")
     private lateinit var jwtSecret: String
 
-    @Value("\${qddt.security.expiration-time}")
+    @Value("\${security.jwt.token.expiration-time}")
     private lateinit var jwtExpirationMs: Optional<Long>
 
 
@@ -32,10 +33,15 @@ class JwtUtils {
             .setExpiration(Date(Date().time + jwtExpirationMs.get()))
 
         claims["role"] = userDetails.authorities
-        claims["modified"] = userDetails.modified?.time
+        claims["modified"] = userDetails.modified?.toLocalDateTime()
         claims["id"] = userDetails.id.toString()
         claims["email"] = userDetails.email
-        claims["agency"] = userDetails.agency.let {  it.name }
+        claims["agency"] = userDetails.agency.let {
+             object {
+                 var name =it.name
+                 var id = it.id
+            } as  AgencyListe
+        }
 
         return  AuthResponse(Jwts.builder()
             .setClaims(claims)
@@ -67,6 +73,6 @@ class JwtUtils {
 
 
     companion object {
-        private val logger = LoggerFactory.getLogger(JwtUtils::class.java)
+        private val logger = LoggerFactory.getLogger(AuthTokenUtil::class.java)
     }
 }

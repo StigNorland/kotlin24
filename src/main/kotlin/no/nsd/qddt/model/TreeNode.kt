@@ -16,8 +16,7 @@ import javax.persistence.*
 @Audited
 @Entity
 class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>> {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(updatable = false, nullable = false)
     lateinit var id: UUID
 

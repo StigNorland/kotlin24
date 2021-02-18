@@ -2,13 +2,17 @@ package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ControlConstruct
-import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.IElementRef
+import java.io.Serializable
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Embeddable
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.Transient
 
 @Embeddable
-class ElementRefCondition : IElementRef<ControlConstruct> {
+class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
     /**
      * This field will be populated with the correct version of a QI,
      * but should never be persisted.

@@ -1,18 +1,14 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
-import no.nsd.qddt.model.interfaces.IParentRef
-import no.nsd.qddt.model.interfaces.IArchived
-import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
-import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
+import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
-import no.nsd.qddt.model.interfaces.IAuthorSet
-import no.nsd.qddt.model.interfaces.IOtherMaterialList
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.*
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
@@ -47,16 +43,16 @@ import javax.persistence.*
 @Entity
 @Table(name = "TOPIC_GROUP")
 class TopicGroup(
-
-  @Column(name = "study_id", insertable = false, updatable = false)
-  protected val studyId:UUID?=null,
-
   @Column(name = "description", length = 20000)
   var description:String?=null,
 
-  override var name: String
 
 ):AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived, IDomainObjectParentRef {
+
+  override lateinit var name: String
+
+  @Column(name = "study_id", insertable = false, updatable = false)
+  protected val studyId:UUID?=null
 
   @ManyToOne
   @JsonBackReference(value = "studyRef")

@@ -2,9 +2,9 @@ package no.nsd.qddt.model.builder
 
 
 //import no.nsd.qddt.model.builder.ConceptFactory
-import no.nsd.qddt.model.interfaces.IEntityFactory
-import no.nsd.qddt.model.TopicGroup
 //import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.interfaces.IEntityFactory
 import java.util.stream.Collectors
 
 /**
@@ -12,14 +12,14 @@ import java.util.stream.Collectors
  */
 internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
     override fun create(): TopicGroup {
-        return TopicGroup(null,"??","?")
+        return TopicGroup()
     }
 
     override fun copyBody(source: TopicGroup, dest: TopicGroup): TopicGroup {
         return dest.apply {  
             name = source.name
             description = source.description
-            // label = source.label
+//             label = source.label
             otherMaterials = source.otherMaterials.stream()
             .map{ it.clone() }
             .collect(Collectors.toList())

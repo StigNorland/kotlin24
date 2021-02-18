@@ -2,11 +2,9 @@ package no.nsd.qddt.model.embedded
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import org.hibernate.envers.Audited
+import java.io.Serializable
 import java.util.*
-import javax.persistence.Column
 import javax.persistence.Embeddable
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
 
 /**
  * @author Stig Norland
@@ -18,7 +16,7 @@ class Parameter(
     var name: String? = null,
     var referencedId: UUID? = null,
     var parameterKind: String? = null
-) : Comparable<Parameter> {
+) : Comparable<Parameter>, Serializable {
 
 
     // constructor() {}

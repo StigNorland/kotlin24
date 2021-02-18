@@ -62,7 +62,6 @@ class Category(
      */
     var label: String? = null,
 
-
     /*
      *   A description of the content and purpose of the category.
      *   May be expressed in multiple languages and supports the use of structured content.
