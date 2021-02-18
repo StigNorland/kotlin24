@@ -70,6 +70,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
             .authorizeRequests().antMatchers("/auth/**").permitAll()
+            .antMatchers("/api/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
@@ -78,7 +79,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
             .antMatchers(HttpMethod.GET, "/user/page/search/*").hasRole("ADMIN")
             .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
-            .anyRequest().authenticated()
+            // .anyRequest()
 
         http
             .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)

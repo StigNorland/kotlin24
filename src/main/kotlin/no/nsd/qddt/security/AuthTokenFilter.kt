@@ -52,7 +52,7 @@ class AuthTokenFilter : OncePerRequestFilter() {
         return if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
             headerAuth.substring(7, headerAuth.length)
         } else {
-            logger.info("Missing Authorization or Bearer. " + request.headerNames.toList().joinToString { " - " })
+            logger.error("Missing Authorization or Bearer. " + request.toString())
             null
         }
     }

@@ -23,6 +23,9 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(Exception::class)
     fun handleAll(ex: Exception, request: WebRequest?): ResponseEntity<Any?>? {
         log.error(ex.message, ex.cause)
+        request?.let {
+            log.info(it.toString())
+        }
         val qddtStack =  StackTraceFilter.filter(ex.stackTrace)
         if (qddtStack.isNotEmpty())
             qddtStack.forEach {
