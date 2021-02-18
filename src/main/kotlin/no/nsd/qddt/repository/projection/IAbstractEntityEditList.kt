@@ -9,11 +9,12 @@ import java.util.*
  */
 interface IAbstractEntityEditList {
     var id: UUID
+
     var name: String
 
     var modified: Timestamp
 
-    @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency  }")
+    @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency.name  }")
     fun getModifiedBy(): String?
 
     @Value(value = "#{target.version.toString() }")

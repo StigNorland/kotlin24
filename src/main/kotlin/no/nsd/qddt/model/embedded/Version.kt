@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.embedded
 
+ import com.fasterxml.jackson.annotation.JsonIgnore
  import java.io.Serializable
  import javax.persistence.Embeddable
  import javax.persistence.Transient
@@ -27,6 +28,7 @@ class Version : Comparable<Version>, Serializable {
     var revision: Int = 0
 
     @Transient
+    @JsonIgnore
     final var isModified: Boolean = false
         get() = field
         private set(value) { field = value}
