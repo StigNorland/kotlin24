@@ -19,9 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-
-
-
+import org.springframework.beans.factory.annotation.Value
 
 
 /**
@@ -34,6 +32,8 @@ import javax.servlet.http.HttpServletResponse
     prePostEnabled = true
 )
 class SecurityConfig1 : WebSecurityConfigurerAdapter() {
+    @Value(value = "\${qddt.api.origin}")
+    lateinit var origin: String
 
     @Bean
     fun authenticationTokenFilterBean(): AuthTokenFilter {
@@ -72,10 +72,12 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
 
         // Set permissions on endpoints
         http.authorizeRequests() // Our public endpoints
-            .antMatchers("/auth/**").permitAll()
+            .antMatchers("/").permitAll()
+            .antMatchers("/login/**").permitAll()
+            .antMatchers("/actuator/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/**").permitAll()
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
-            .antMatchers(HttpMethod.GET, "/**").permitAll()
             .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
             .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
             .antMatchers(HttpMethod.GET, "/user/page/search/*").hasRole("ADMIN")
@@ -100,7 +102,7 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
         config.allowCredentials = true
-        config.addAllowedOrigin("*")
+        config.addAllowedOrigin(origin)
         config.addAllowedHeader("*")
         config.addAllowedMethod("*")
         source.registerCorsConfiguration("/**", config)

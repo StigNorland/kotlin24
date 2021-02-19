@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping(path = ["auth"])
+@RequestMapping(path = ["/login"])
 class AuthenticationController {
 
 //    https://proandroiddev.com/how-to-create-a-rest-api-for-your-app-with-spring-boot-kotlin-gradle-part-2-security-with-32f944918fe1
@@ -34,7 +34,7 @@ class AuthenticationController {
 //        private val logger: Logger = LoggerFactory.getLogger(AuthenticationController::class.java)
 //    }
 
-    @PostMapping("signin")
+    @PostMapping("/")
     fun authenticateUser(@RequestBody userForm: UserForm): ResponseEntity<*> {
         return try {
 

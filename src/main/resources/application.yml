@@ -11,7 +11,7 @@ spring:
     name: qddt-service
   data:
     rest:
-      base-path: /rest
+      base-path: /
   datasource:
     driver-class-name: org.postgresql.Driver
     initialization-mode: embedded
@@ -88,7 +88,7 @@ server:
 
 qddt:
   api:
-    origin: https://*.nsd.no/*, https://*.nsd.no/api/*, http://localhost/*
+    origin: https://*.nsd.no/, http://localhost:4200/
     rooturl: http://localhost:5001/
     fileroot: c:\\Projects\\qddt\\uploads\\
 

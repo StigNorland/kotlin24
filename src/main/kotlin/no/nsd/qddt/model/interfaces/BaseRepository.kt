@@ -2,6 +2,7 @@ package no.nsd.qddt.model.interfaces
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.NoRepositoryBean
 import java.io.Serializable
 import java.util.*
@@ -13,6 +14,5 @@ import java.util.*
  * @author Stig Norland
  */
 @NoRepositoryBean
-interface BaseRepository<T, ID : Serializable?> : JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
-    override fun findById(id: ID): Optional<T>
-}
+interface BaseRepository<T, ID : Serializable> : JpaRepository<T, ID>, 
+    JpaSpecificationExecutor<T>, RevisionRepository<T, ID, Int>
