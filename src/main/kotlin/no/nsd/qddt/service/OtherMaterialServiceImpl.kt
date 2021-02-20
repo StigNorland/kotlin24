@@ -13,11 +13,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.util.UUID
+import java.util.*
 /**
 * @author Stig Norland
 */
-@PropertySource(value = ["classpath:application.properties"])
+@PropertySource(value = ["classpath:application.yml"])
 @Service
 internal class OtherMaterialServiceImpl : OtherMaterialService {
   @Value("\${qddt.api.fileroot}")

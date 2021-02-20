@@ -2,10 +2,7 @@ package no.nsd.qddt.model
 
 import java.sql.Timestamp
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Version
+import javax.persistence.*
 
 @Entity
 class Agency (
@@ -16,6 +13,11 @@ class Agency (
     val modified : Timestamp,
     var xmlLang:String
     ): Comparable<Agency> {
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
+
+
     override fun compareTo(other: Agency): Int {
         val i = this.id.compareTo(other.id)
         return when {

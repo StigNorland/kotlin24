@@ -5,8 +5,8 @@ import no.nsd.qddt.model.enums.ElementKind
 import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
 import java.io.Serializable
+import java.util.*
 import javax.persistence.Embeddable
-import java.util.UUID
 
 /**
 * This class is just a placeholder for functionality not implemented.
@@ -23,7 +23,7 @@ class OtherMaterial():Cloneable, Serializable {
   lateinit var originalOwner: UUID
   lateinit var fileName:String
   lateinit var fileType:String
-  lateinit var description:String
+   var description:String? = ""
   var originalName: String =""
     set(value) {
       field = value
@@ -38,7 +38,7 @@ class OtherMaterial():Cloneable, Serializable {
     this.fileType = file.contentType.toString()
     this.size = file.size
   }
-  constructor(originalName:String, fileType:String, size:Long, description:String) : this() {
+  constructor(originalName:String, fileType:String, size:Long, description:String?) : this() {
     this@OtherMaterial.originalName = originalName
     this@OtherMaterial.fileType = fileType
     this@OtherMaterial.size = size

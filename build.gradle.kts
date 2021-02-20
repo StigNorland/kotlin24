@@ -41,11 +41,16 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("com.itextpdf:itext7-core:7.1.1")
     implementation("com.itextpdf:html2pdf:2.0.2")
-	
-	runtimeOnly("org.postgresql:postgresql")
 
+
+	compile( "org.springframework.data:spring-data-rest-hal-browser")
+
+
+
+	runtimeOnly("org.postgresql:postgresql")
+//	runtimeOnly("org.springframework.data:spring-data-rest-hal-browser")
 //	runtimeOnly("com.h2database:h2")
-	runtimeOnly("org.springframework.boot:spring-boot-devtools")
+//	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 
 	// kapt("org.springframework.boot:spring-boot-configuration-processor")
 

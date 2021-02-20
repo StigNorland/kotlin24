@@ -113,8 +113,6 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
     }
 
 
-    override val xmlBuilder: AbstractXmlBuilder?
-        get() = null
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
 
@@ -158,5 +156,8 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
             logger.debug("no survey reference, cannot add..")
         }
     }
+
+    override val xmlBuilder: AbstractXmlBuilder?
+        get() = null
 
 }

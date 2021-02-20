@@ -8,10 +8,10 @@ import org.springframework.data.rest.core.config.Projection
 interface CategoryListe: IAbstractEntityEditList {
 
 
-    @Value(value = "#{target.classificationLevel.toString() }")
-    fun getClassificationLevel(): String
+    @Value(value = "#{target.categoryKind?.toString() }")
+    fun getCategoryKind(): String?
 
-    @Value(value = "#{target.hierarchyLevel.toString() }")
-    fun  getHierarchyLevel(): String
+    @Value(value = "#{target.hierarchyLevel?.toString() }")
+    fun  getHierarchyLevel(): String?
 
 }

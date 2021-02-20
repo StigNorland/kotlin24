@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.query.Param
 import java.io.Serializable
+import java.util.*
 
 /**
  * @author Stig Norland
@@ -16,4 +17,10 @@ interface BaseArchivedRepository<T, ID : Serializable> : BaseRepository<T, ID> {
         nativeQuery = true
     )
     fun hasArchive(@Param("entityId") entityId: String): Long
+
+    override fun findById(id: ID): Optional<T> {
+
+        return findLastChangeRevision(id).map { it.entity }
+    }
+
 }

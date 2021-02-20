@@ -37,10 +37,10 @@ class AuthTokenUtil {
         claims["id"] = userDetails.id.toString()
         claims["email"] = userDetails.email
         claims["agency"] = userDetails.agency.let {
-             object {
-                 var name =it.name
-                 var id = it.id
-            } as  AgencyListe
+             object: AgencyListe {
+                 override var id = it.id
+                 override var name =it.name
+            }
         }
 
         return  AuthResponse(Jwts.builder()

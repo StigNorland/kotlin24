@@ -13,7 +13,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "controlconstructs", collectionResourceRel = "controlconstruct", itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
+@RepositoryRestResource(path = "controlconstruct", collectionResourceRel = "ControlConstructs", itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
 interface ControlConstructRepository:BaseRepository<ControlConstruct, UUID> {
 
 

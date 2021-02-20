@@ -6,6 +6,7 @@ import no.nsd.qddt.repository.projection.StudyListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import java.util.*
@@ -13,8 +14,8 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "studies", collectionResourceRel = "study", itemResourceRel = "Study", excerptProjection = StudyListe::class)
-interface StudyRepository:BaseArchivedRepository<Study, UUID> {
+@RepositoryRestResource(path = "study", collectionResourceRel = "Studies", itemResourceRel = "Study", excerptProjection = StudyListe::class)
+interface StudyRepository:BaseArchivedRepository<Study, UUID> , RevisionRepository<Study, UUID, Int> {
 
     @Query(value = ("SELECT c.* FROM study c " +
                   "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) "

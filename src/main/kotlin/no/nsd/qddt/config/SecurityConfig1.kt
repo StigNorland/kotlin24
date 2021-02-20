@@ -1,12 +1,14 @@
 package no.nsd.qddt.config
 
 import no.nsd.qddt.security.AuthTokenFilter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -19,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import org.springframework.beans.factory.annotation.Value
 
 
 /**
@@ -32,8 +33,14 @@ import org.springframework.beans.factory.annotation.Value
     prePostEnabled = true
 )
 class SecurityConfig1 : WebSecurityConfigurerAdapter() {
+
+    protected val logger: Logger = LoggerFactory.getLogger(PermissionEvaluatorImpl::class.java)
+
     @Value(value = "\${qddt.api.origin}")
     lateinit var origin: String
+
+//    @Value(value = "\${management.endpoints.web.cors.allowed-headers}")
+//    lateinit var allowedHeaders: String
 
     @Bean
     fun authenticationTokenFilterBean(): AuthTokenFilter {
@@ -46,7 +53,7 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
     }
 
     @Bean
-    @Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     override fun authenticationManagerBean(): AuthenticationManager {
         return super.authenticationManagerBean()
     }
@@ -73,6 +80,7 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
         // Set permissions on endpoints
         http.authorizeRequests() // Our public endpoints
             .antMatchers("/").permitAll()
+            .antMatchers(HttpMethod.OPTIONS).permitAll()
             .antMatchers("/login/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers(HttpMethod.GET, "/**").permitAll()
@@ -89,12 +97,15 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
 
     }
 
-    @Throws(java.lang.Exception::class)
-    override fun configure(web: WebSecurity) {
-        web.ignoring()
-            .antMatchers("/explorer/**")
-            .antMatchers("/actuator/**")
-    }
+//    @Throws(Exception::class)
+//    override fun configure(web: WebSecurity) {
+//        web.ignoring()
+//            .antMatchers("/")
+//            .antMatchers(HttpMethod.OPTIONS)
+//
+////            .antMatchers("/explorer/**")
+////            .antMatchers("/actuator/**")
+//    }
 
     // Used by spring security if CORS is enabled.
     @Bean
@@ -102,9 +113,11 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
         config.allowCredentials = true
-        config.addAllowedOrigin(origin)
+        config.addAllowedOrigin("http://localhost:4200")
+//        config.allowedOriginPatterns =  listOf("https://*.nsd.no/","http://localhost:4200/")
         config.addAllowedHeader("*")
-        config.addAllowedMethod("*")
+        config.allowedMethods = listOf("GET", "DELETE", "POST", "OPTIONS")
+        logger.info(origin)
         source.registerCorsConfiguration("/**", config)
         return CorsFilter(source)
     }

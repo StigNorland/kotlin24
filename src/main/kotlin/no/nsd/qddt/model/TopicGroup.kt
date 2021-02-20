@@ -42,14 +42,14 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "TOPIC_GROUP")
-class TopicGroup(
-  @Column(name = "description", length = 20000)
-  var description:String?=null,
+class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived, IDomainObjectParentRef {
 
-
-):AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived, IDomainObjectParentRef {
+  var label: String=""
 
   override lateinit var name: String
+
+  @Column(length = 20000)
+  var description:String?=null
 
   @Column(name = "study_id", insertable = false, updatable = false)
   protected val studyId:UUID?=null
@@ -99,6 +99,7 @@ class TopicGroup(
       }
     }
   }
+
 
   override val xmlBuilder:AbstractXmlBuilder
     get() = TopicGroupFragmentBuilder(this)

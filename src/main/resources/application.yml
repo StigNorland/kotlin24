@@ -122,7 +122,7 @@ logging:
 spring:
   config:
     activate:
-      on-profile: test
+      on-profile: stage
   jpa:
     hibernate:
       ddl-auto: update
@@ -152,7 +152,7 @@ spring:
     password: qddt
     username: qddt
     url: jdbc:postgresql://localhost:5432/qddt-dev
-server:
-  port: 8080
-  servlet:
-    context-path: /api
+#server:
+#  port: 8080
+#  servlet:
+#    context-path: /api

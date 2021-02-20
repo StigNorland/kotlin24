@@ -15,7 +15,7 @@ import java.util.*
  * @author Dag Østgulen Heradstveit
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "categories", collectionResourceRel = "Categories", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
+@RepositoryRestResource(path = "category", collectionResourceRel = "Categories", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
 internal interface CategoryRepository : BaseRepository<Category, UUID>  {
     @Query(
         value = "SELECT ca.* FROM category ca WHERE ( ca.category_kind ILIKE :categoryType OR ca.hierarchy_level ILIKE :hierarchyLevel ) " +

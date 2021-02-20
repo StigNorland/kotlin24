@@ -13,7 +13,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "surveyprograms", collectionResourceRel = "surveyprogram", itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
+@RepositoryRestResource(path = "surveyprogram", collectionResourceRel = "SurveyPrograms", itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
 interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram, UUID> {
 
     @Query(value = ("SELECT c.* FROM study c " +

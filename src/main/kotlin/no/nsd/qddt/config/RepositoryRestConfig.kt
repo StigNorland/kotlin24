@@ -1,7 +1,9 @@
 package  no.nsd.qddt.config
 
 import no.nsd.qddt.model.*
+import no.nsd.qddt.repository.handler.QuestionItemEventHandler
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer
@@ -36,5 +38,10 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(User::class.java)
 
         config.repositoryDetectionStrategy = RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED
+    }
+
+    @Bean
+    fun questionItemEventHandler(): QuestionItemEventHandler {
+        return QuestionItemEventHandler()
     }
 }

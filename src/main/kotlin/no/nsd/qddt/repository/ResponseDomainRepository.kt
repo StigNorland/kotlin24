@@ -12,7 +12,7 @@ import java.util.*
 * @author Dag Østgulen Heradstveit
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "responsedomains", collectionResourceRel = "ResponseDomains", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
+@RepositoryRestResource(path = "responsedomain", collectionResourceRel = "ResponseDomains", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
 internal interface ResponseDomainRepository:BaseRepository<ResponseDomain, UUID> {
   // Page<ResponseDomain> findByResponseKindAndNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(ResponseKind responseKind, String name, String description, Pageable pageable);
   // TODO fix query --->

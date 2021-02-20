@@ -1,8 +1,9 @@
-package no.nsd.qddt.security
+package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.User
+import no.nsd.qddt.security.AuthTokenUtil
+import no.nsd.qddt.security.UserForm
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -34,7 +35,7 @@ class AuthenticationController {
 //        private val logger: Logger = LoggerFactory.getLogger(AuthenticationController::class.java)
 //    }
 
-    @PostMapping("/")
+    @PostMapping
     fun authenticateUser(@RequestBody userForm: UserForm): ResponseEntity<*> {
         return try {
 
@@ -42,8 +43,8 @@ class AuthenticationController {
             val user: User = authenticate.principal as User
             SecurityContextHolder.getContext().authentication = authenticate
             ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, jwtUtil.generateJwtToken(authenticate))
-                .body(user)
+//                .header(HttpHeaders.AUTHORIZATION,jwtUtil.generateJwtToken(authenticate) )
+                .body(jwtUtil.generateJwtToken(authenticate))
         } catch (ex: BadCredentialsException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build<Any>()
         }
