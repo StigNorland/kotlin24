@@ -43,12 +43,8 @@ dependencies {
     implementation("com.itextpdf:html2pdf:2.0.2")
 
 
-	compile( "org.springframework.data:spring-data-rest-hal-browser")
-
-
-
 	runtimeOnly("org.postgresql:postgresql")
-//	runtimeOnly("org.springframework.data:spring-data-rest-hal-browser")
+	runtimeOnly("org.springframework.data:spring-data-rest-hal-browser:3.3.7.RELEASE")
 //	runtimeOnly("com.h2database:h2")
 //	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 
