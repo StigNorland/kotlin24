@@ -9,21 +9,19 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 
-import java.util.*
-
 /**
  * @author Dag Østgulen Heradstveit
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "category", collectionResourceRel = "Categories", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
-internal interface CategoryRepository : BaseRepository<Category, UUID>  {
+internal interface CategoryRepository : BaseRepository<Category>  {
     @Query(
         value = "SELECT ca.* FROM category ca WHERE ( ca.category_kind ILIKE :categoryType OR ca.hierarchy_level ILIKE :hierarchyLevel ) " +
-                "AND ( ca.xml_lang ILIKE :xmlLang AND (ca.name LIKE :name or ca.label ILIKE :name  or ca.description ILIKE :description ) )" +
-                "ORDER BY ?#{#pageable}",
+                "AND ( ca.xml_lang ILIKE :xmlLang AND (ca.name LIKE :name or ca.label ILIKE :name  or ca.description ILIKE :description ) )"
+                ,
         countQuery = "SELECT count(ca.*) FROM category ca WHERE ( ca.category_kind ILIKE :categoryType OR ca.hierarchy_level ILIKE :hierarchyLevel ) " +
                 "AND ( ca.xml_lang ILIKE :xmlLang AND (ca.name LIKE :name or ca.label ILIKE :name  or ca.description ILIKE :description ) )"
-                + " ORDER BY ?#{#pageable}",
+                ,
         nativeQuery = true
     )
     fun findByQuery(

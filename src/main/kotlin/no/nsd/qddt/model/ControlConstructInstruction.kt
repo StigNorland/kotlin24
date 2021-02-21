@@ -12,7 +12,6 @@ import javax.persistence.*
 @Embeddable
 class ControlConstructInstruction : Serializable {
     @ManyToOne(cascade = [CascadeType.DETACH, CascadeType.MERGE], fetch = FetchType.EAGER)
-    @JoinColumn(name = "instruction_id")
     lateinit var instruction: Instruction
 
     @Enumerated(EnumType.STRING)
