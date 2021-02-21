@@ -12,7 +12,7 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "author", collectionResourceRel = "Authors", itemResourceRel = "Author", excerptProjection = AuthorListe::class)
-interface AuthorRepository : JpaRepository<Author, UUID> {
+interface AuthorRepository : JpaRepository<Author,UUID> {
     fun findAuthorsByAboutContainingOrNameContainingOrEmailContaining(
         about: String?,
         name: String?,

@@ -1,4 +1,4 @@
-package no.nsd.qddt.repository;
+package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.repository.projection.AgencyListe
@@ -11,4 +11,4 @@ import java.util.*
  */
 
 @RepositoryRestResource(path = "agency", collectionResourceRel = "Agencies", itemResourceRel = "Agency", excerptProjection = AgencyListe::class)
-interface AgencyRepository : JpaRepository<Agency, UUID>
+interface AgencyRepository : JpaRepository<Agency,UUID>

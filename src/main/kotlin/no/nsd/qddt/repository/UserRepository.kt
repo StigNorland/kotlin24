@@ -17,7 +17,7 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "user", collectionResourceRel = "Users", itemResourceRel = "User", excerptProjection = UserListe::class)
-interface UserRepository : CrudRepository<User, UUID> {
+interface UserRepository : CrudRepository<User,UUID> {
 
     @RestResource(rel = "email", path = "by-mail")
     fun findByEmailIgnoreCase(email: String): User?

@@ -1,10 +1,9 @@
 package no.nsd.qddt.model.interfaces
 
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor
-import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.NoRepositoryBean
-import java.io.Serializable
+import org.springframework.data.repository.history.RevisionRepository
 import java.util.*
 
 /**
@@ -14,5 +13,7 @@ import java.util.*
  * @author Stig Norland
  */
 @NoRepositoryBean
-interface BaseRepository<T, ID : Serializable> : JpaRepository<T, ID>, 
-    JpaSpecificationExecutor<T>, RevisionRepository<T, ID, Int>
+interface BaseRepository<T : AbstractEntityAudit> :
+    RevisionRepository<T, UUID, Int>,
+    JpaRepository<T, UUID>
+//    JpaSpecificationExecutor<T>

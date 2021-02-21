@@ -14,7 +14,7 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "universe", collectionResourceRel = "Universes", itemResourceRel = "Universe", excerptProjection = UniverseListe::class)
-interface UniverseRepository : JpaRepository<Universe, UUID> {
+interface UniverseRepository : JpaRepository<Universe,UUID> {
 
     @RestResource(rel = "desctiption", path = "findBy")
     fun findByDescriptionIgnoreCaseLikeAndXmlLangLike( description: String, xmlLang: String,  pageable: Pageable): Page<Universe>

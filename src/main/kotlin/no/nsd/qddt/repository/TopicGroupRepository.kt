@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.history.Revision
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.data.rest.core.annotation.RestResource
@@ -18,7 +20,8 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "topicgroup", collectionResourceRel = "TopicGroups", itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
-interface TopicGroupRepository : BaseArchivedRepository<TopicGroup, UUID> {
+interface TopicGroupRepository : BaseArchivedRepository<TopicGroup>, RevisionRepository<TopicGroup, UUID, Int>,
+    JpaRepository<TopicGroup, UUID> {
 
     private val logger: Logger
         get() = LoggerFactory.getLogger(this.javaClass)
