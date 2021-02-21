@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.config.EnableHypermediaSupport
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.filter.ForwardedHeaderFilter
+import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 
@@ -24,12 +25,12 @@ class ApplicationConfig {
         return FilterRegistrationBean(ForwardedHeaderFilter())
     }
 
-//    @Bean
-//    fun cacheControlFilter(): FilterRegistrationBean<*> {
-//        val registration = FilterRegistrationBean<OncePerRequestFilter>(CacheControlFilter())
-//        registration.addUrlPatterns("/*")
-//        return registration
-//    }
+    @Bean
+    fun cacheControlFilter(): FilterRegistrationBean<OncePerRequestFilter> {
+        val registration = FilterRegistrationBean<OncePerRequestFilter>(CacheControlFilter())
+        registration.addUrlPatterns("/*")
+        return registration
+    }
 
 //    @Scheduled(fixedRate = ONE_WEEK )
 //    @CacheEvict(value = ["FYLKER", "SKOLER","KOMMUNER", "PARTIER"])

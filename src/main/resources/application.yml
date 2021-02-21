@@ -1,9 +1,6 @@
-## JWT Auth
-#  auth.expires=86400
-#  auth.header=Authorization
-#auth.secret=some-random-secret
-
 spring:
+  profiles:
+    active: development
   # security:
   #   oauth2:
   #     resourceserver:
@@ -14,23 +11,7 @@ spring:
     name: qddt-service
   data:
     rest:
-      base-path: /api
-  jpa:
-    open-in-view: true
-    hibernate:
-      ddl-auto: validate
-      use-new-id-generator-mappings: false
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    properties:
-      org:
-        hibernate:
-          envers:
-            audit_table_suffix: _aud
-            default_schema: audit
-            store_data_at_delete: true
-            do_not_audit_optimistic_locking_field: false
+      base-path: /
   datasource:
     driver-class-name: org.postgresql.Driver
     initialization-mode: embedded
@@ -42,10 +23,56 @@ spring:
     url: jdbc:postgresql://${QDDT_DB_HOST:localhost}:${QDDT_DB_PORT:5432}/${QDDT_DB_NAME:qddt-dev}
   jmx:
     enabled: false
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+#      use-new-id-generator-mappings: false
+    #      naming:
+    #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    #        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    properties:
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _aud
+            default_schema: audit
+            store_data_at_delete: true
+            do_not_audit_optimistic_locking_field: false
+            audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+  #          ejb:
+  #            naming_strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+  management:
+    endpoints:
+      web:
+        base-path: /actuator
+        exposure:
+          include: health,prometheus,metrics
+        path-mapping:
+          health: health
+        cors:
+          allowed-headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers
+    endpoint:
+      metrics:
+        enabled: true
+      prometheus:
+        enabled: true
+    metrics:
+      export:
+        prometheus:
+          enabled: true
+
+
+security:
+  jwt:
+    token:
+      secret: some-random-secret
+      expiration-time: 28800000  # 8 timer
+      header: Authorization
 
 server:
   forward-headers-strategy: framework
@@ -59,21 +86,43 @@ server:
     min-response-size: 1024
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/hal+json,application/hal
 
-jwt-security:
-  secret: some-random-secret
-  expiration-time: 86400
+qddt:
+  api:
+    origin: https://*.nsd.no/, http://localhost:4200/
+    rooturl: http://localhost:5001/
+    fileroot: c:\\Projects\\qddt\\uploads\\
 
+
+logging:
+  level:
+    web: DEBUG
+
+
+#  management:
+#    endpoints:
+#      web:
+#        exposure:
+#          include: health,prometheus
+#        path-mapping:
+#          health: health
+#          prometheus: metrics
+#      cors:
+#        allowed-headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization
+#        allowed-origins: https://*.nsd.no, https://*.nsd.no/api/, http://localhost:5001
 #  header: Authorization
 #  expires: 86400
 #  secret: some-random-secret
 #  expiration-time: 86400
-
+## JWT Auth
+#  auth.expires=86400
+#  auth.header=Authorization
+#auth.secret=some-random-secret
 
 ---
 spring:
   config:
     activate:
-      on-profile: test
+      on-profile: stage
   jpa:
     hibernate:
       ddl-auto: update
@@ -93,6 +142,7 @@ spring:
       ddl-auto: update
   datasource:
     continue-on-error: false
+
 ---
 spring:
   config:
@@ -102,7 +152,7 @@ spring:
     password: qddt
     username: qddt
     url: jdbc:postgresql://localhost:5432/qddt-dev
-server:
-  port: 8080
-  servlet:
-    context-path: /api
+#server:
+#  port: 8080
+#  servlet:
+#    context-path: /api

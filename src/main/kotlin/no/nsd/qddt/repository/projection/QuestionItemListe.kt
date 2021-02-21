@@ -1,0 +1,17 @@
+package no.nsd.qddt.repository.projection
+
+import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.embedded.ElementRefResponseDomain
+import org.springframework.data.rest.core.config.Projection
+
+
+/**
+ * @author Stig Norland
+ */
+@Projection(name = "questionItemListe", types = [QuestionItem::class])
+interface QuestionItemListe: IAbstractEntityEditList {
+    var question: String
+    var intent: String
+    var responseDomainRef: ElementRefResponseDomain
+}
+

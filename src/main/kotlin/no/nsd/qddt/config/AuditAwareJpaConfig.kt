@@ -8,10 +8,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 /**
  * @author Stig Norland
  */
-@Configuration //@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
+@Configuration
+//@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 //@EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
-@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
+@EnableJpaRepositories(
+    basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.config", "no.nsd.qddt.security"],
+    repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
 class AuditAwareJpaConfig {
+
     @Bean
     fun customAuditProvider(): AuditAwareImpl {
         return AuditAwareImpl()
