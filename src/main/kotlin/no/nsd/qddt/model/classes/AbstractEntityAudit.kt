@@ -2,20 +2,18 @@ package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import no.nsd.qddt.model.Agency
+import no.nsd.qddt.model.Comment
+import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.exception.StackTraceFilter
-import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
-import no.nsd.qddt.model.builder.pdf.PdfReport
-import no.nsd.qddt.model.Comment
-import no.nsd.qddt.model.Agency
-import no.nsd.qddt.model.User
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
-import org.springframework.security.core.context.SecurityContextHolder
 import java.io.ByteArrayOutputStream
 import java.io.Serializable
 import java.util.*
@@ -30,6 +28,7 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
  */
 @Audited
 @MappedSuperclass
+@EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
 
     @Column(name="based_on_object",updatable = false)
@@ -38,9 +37,6 @@ abstract class AbstractEntityAudit(
     @Column(name="based_on_revision", updatable = false)
     override var basedOnRevision: Int? = null,
 
-    @AttributeOverrides(
-        AttributeOverride(name = "revision",column = Column(name = "rev"))
-    )
     @Embedded
     override var version: EmbeddedVersion= EmbeddedVersion(),
 
@@ -54,7 +50,9 @@ abstract class AbstractEntityAudit(
      * What am I?
      */
 
-    // @JsonBackReference(value = "agentRef")
+//    @Column(updatable = false, insertable = false)
+//    override var rev: Int? = null
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agency_id")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
@@ -93,57 +91,6 @@ abstract class AbstractEntityAudit(
 
 // TODO : moce these to PrePersist class
 
-    @PrePersist
-    private fun onInsert() {
-        val user = SecurityContextHolder.getContext().authentication.details as User
-        agency = user.agency
-        if (this.xmlLang == "") user.agency.xmlLang.also { xmlLang = it }
-        beforeInsert()
-    }
-
-    @PreUpdate
-    private fun onUpdate() {
-        try {
-            var ver: EmbeddedVersion? = version
-            var change = changeKind
-
-            // it is illegal to update an entity with "Creator statuses" (CREATED...BASEDON)
-            if ( (change.ordinal <= ChangeKind.REFERENCED.ordinal)  and !ver!!.isModified) {
-                change = ChangeKind.IN_DEVELOPMENT
-                changeKind = change
-            }
-            if (changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
-                changeComment = change.description
-            when (change) {
-                ChangeKind.CREATED
-                    -> if (changeComment == "") changeComment = change.description
-                ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED
-                    -> ver = EmbeddedVersion()
-                ChangeKind.REFERENCED, ChangeKind.TO_BE_DELETED
-                    -> {}
-                ChangeKind.UPDATED_PARENT, ChangeKind.UPDATED_CHILD, ChangeKind.UPDATED_HIERARCHY_RELATION
-                    -> ver.versionLabel = ""
-                ChangeKind.IN_DEVELOPMENT -> ver.versionLabel = ChangeKind.IN_DEVELOPMENT.name
-                ChangeKind.TYPO -> {
-                    ver.minor++
-                    ver.versionLabel = ""
-                }
-                ChangeKind.CONCEPTUAL, ChangeKind.EXTERNAL, ChangeKind.OTHER, ChangeKind.ADDED_CONTENT -> {
-                    ver.major++
-                    ver.versionLabel =""
-                }
-                ChangeKind.ARCHIVED -> {
-                    (this as IArchived).isArchived =true
-                    ver.versionLabel =""
-                }
-            }
-            version = ver
-            beforeUpdate()
-        } catch (ex: Exception) {
-            logger.error("AbstractEntityAudit::onUpdate", ex)
-        }
-    }
-
     fun makePdf(): ByteArrayOutputStream {
         val pdfOutputStream = ByteArrayOutputStream()
         try {
@@ -164,7 +111,5 @@ abstract class AbstractEntityAudit(
     }
 
     abstract fun fillDoc(pdfReport: PdfReport, counter: String)
-    protected abstract fun beforeUpdate() 
-    protected abstract fun beforeInsert()
 
 }

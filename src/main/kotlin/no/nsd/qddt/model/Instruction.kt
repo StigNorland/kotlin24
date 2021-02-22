@@ -40,16 +40,10 @@ class Instruction : AbstractEntityAudit() {
         TODO("Not yet implemented")
     }
 
-    override fun beforeUpdate() {
-        TODO("Not yet implemented")
-    }
 
-    override fun beforeInsert() {
-        TODO("Not yet implemented")
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return InstructionFragmentBuilder(this)
     }
-
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = InstructionFragmentBuilder(this)
 //        {
 //            override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
 //                super.addXmlFragments(fragments)
@@ -69,13 +63,13 @@ class Instruction : AbstractEntityAudit() {
 //                children.addAll(
 //                    sequence
 //                        .filter { it.element != null }
-//                        .map { it.element!!.xmlBuilder }.toList()
+//                        .map { it.element!!.xmlBuilder() }.toList()
 //                )
 //            }
 //        }
 
 
-//    override val xmlBuilder: AbstractXmlBuilder
+//    override fun xmlBuilder(): AbstractXmlBuilder
 //        get() = XmlDDIFragmentBuilder<Instruction>(this) {
 //            val xmlFragment: String
 //                get() = String.format(

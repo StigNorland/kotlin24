@@ -1,10 +1,10 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.Concept
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.enums.ElementKind
 import java.util.stream.Collectors
 
 /**
@@ -21,12 +21,12 @@ class ConceptFragmentBuilder(concept: Concept) : XmlDDIFragmentBuilder<Concept>(
 """
     private val children:  MutableList<AbstractXmlBuilder> =  concept.children.stream()
         .filter { it != null }
-        .map { it.xmlBuilder }
+        .map { it.xmlBuilder() }
         .collect(Collectors.toList())
 
     private val questions:  MutableList<AbstractXmlBuilder> = concept.conceptQuestionItems.stream()
         .filter { it.element != null }
-        .map { it.element!!.xmlBuilder }
+        .map { it.element!!.xmlBuilder() }
         .collect(Collectors.toList())
 
     override fun <S : AbstractEntityAudit> getXmlHeader(instance: S): String {

@@ -1,8 +1,8 @@
 package no.nsd.qddt.model.builder.xml
 
+import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.TopicGroup
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.collections.HashMap
@@ -25,7 +25,7 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="ddi:instance:3_2  https://ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/instance.xsd">
 """
-    private val builder: AbstractXmlBuilder = rootElement.xmlBuilder!!
+    private val builder: AbstractXmlBuilder = rootElement.xmlBuilder()!!
     private val orderedFragments: MutableMap<ElementKind, MutableMap<String, String>> = EnumMap(ElementKind::class.java)
 
     private fun getTopLevelReference(typeOfObject: String): String {

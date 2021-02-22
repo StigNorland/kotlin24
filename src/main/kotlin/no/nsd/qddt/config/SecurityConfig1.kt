@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse
 )
 class SecurityConfig1 : WebSecurityConfigurerAdapter() {
 
-    protected val logger: Logger = LoggerFactory.getLogger(PermissionEvaluatorImpl::class.java)
+    protected val logger: Logger = LoggerFactory.getLogger(SecurityConfig1::class.java)
 
     @Value(value = "\${qddt.api.origin}")
     lateinit var origin: String
@@ -84,11 +84,10 @@ class SecurityConfig1 : WebSecurityConfigurerAdapter() {
             .antMatchers("/login/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers(HttpMethod.GET, "/**").permitAll()
-            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
             .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
             .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
-            .antMatchers(HttpMethod.GET, "/user/page/search/*").hasRole("ADMIN")
+            .antMatchers(HttpMethod.GET, "/user/search/*").hasRole("ADMIN")
             .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
 //            .anyRequest().authenticated()
 

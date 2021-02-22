@@ -5,17 +5,26 @@ import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.ConceptListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.history.Revision
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import org.springframework.data.rest.core.annotation.RestResource
 import java.util.*
 /**
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "concept", collectionResourceRel = "Concepts", itemResourceRel = "Concept", excerptProjection = ConceptListe::class)
 interface ConceptRepository:BaseArchivedRepository<Concept>, RevisionRepository<Concept, UUID, Int>, JpaRepository<Concept, UUID> {
+
+
+    @RestResource(rel = "revision", path = "rev")
+    override fun findRevisions(id: UUID, pageable: Pageable): Page<Revision<Int, Concept>>
+
+    @RestResource(rel = "all", path = "list")
+    override fun findAll(pageable: Pageable): Page<Concept>
 
     fun findByTopicGroupIdAndNameIsNotNull(id:UUID, pageable:Pageable):Page<Concept>
 

@@ -21,4 +21,6 @@ interface IAbstractEntityEditList {
     fun getVersion(): String?
 
     var xmlLang: String
+
+    var classKind: String
 }

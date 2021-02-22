@@ -13,42 +13,41 @@ import javax.persistence.*
  */
 @Entity
 @Table(name="user_account")
-class User (
+class User (private  var username : String ? =null
+) : UserDetails {
 
     @Id  @GeneratedValue
     @Column(updatable = false, nullable = false)
-    var id: UUID?=null,
+    var id: UUID?=null
 
-    var email : String,
+    lateinit var email : String
 
-    private  var username : String,
 
     @JsonIgnore
-    private var password : String,
+    private lateinit var password : String
 
-    private  var isEnabled: Boolean=false,
+    private  var isEnabled: Boolean=false
 
     @Version
-    val modified: Timestamp? = null,
+    val modified: Timestamp? = null
 
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference(value = "agentRef")
     @JoinColumn(name = "agency_id")
-    var agency : Agency,
+    lateinit var agency : Agency
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
-    protected var authority: MutableCollection<Authority>
+    protected lateinit var authority: MutableCollection<Authority>
 
-    ): UserDetails {
 
     override fun getPassword(): String {
         return password
     }
 
     override fun getUsername(): String {
-        return username
+        return username?:"?"
     }
 
     override fun isAccountNonExpired(): Boolean {

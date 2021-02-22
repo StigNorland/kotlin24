@@ -53,6 +53,11 @@ class AuthTokenUtil {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
     }
 
+    fun getEmailFromJwtToken(token: String?): String {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.getValue("email") as String
+    }
+
+
     fun validateJwtToken(authToken: String?): Boolean {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken)

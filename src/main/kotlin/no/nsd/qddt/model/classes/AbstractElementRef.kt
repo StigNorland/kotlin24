@@ -48,7 +48,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
             major = value.major
             minor = value.minor
             versionLabel = value.versionLabel
-            elementRevision = value.revision
+            elementRevision = value.rev
         }
 
     @Column(name = "element_major")

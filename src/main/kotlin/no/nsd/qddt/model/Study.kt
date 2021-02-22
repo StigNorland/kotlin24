@@ -131,33 +131,10 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
         }
     }
 
-    @PreRemove
-    fun remove() {
-        logger.debug(" Study pre remove " + surveyProgram?.name)
-        surveyProgram?.studies?.removeIf { it.id == this.id }
-        authors.clear()
-        instruments.clear()
-    }
 
-    override fun beforeUpdate() {
-        logger.info("Study beforeUpdate")
-        if (surveyIdx == null) {
-            logger.info("Setting surveyIdx")
-            surveyIdx = surveyProgram?.studies?.indexOf(this)
-        }
-    }
 
-    override fun beforeInsert() {
-        logger.info("Study beforeInsert")
-        if (surveyProgram != null && surveyIdx == null) {
-            logger.info("Setting surveyIdx")
-            surveyIdx = surveyProgram!!.studies.indexOf(this)
-        } else {
-            logger.debug("no survey reference, cannot add..")
-        }
+    override fun xmlBuilder(): AbstractXmlBuilder? {
+        return null
     }
-
-    override val xmlBuilder: AbstractXmlBuilder?
-        get() = null
 
 }

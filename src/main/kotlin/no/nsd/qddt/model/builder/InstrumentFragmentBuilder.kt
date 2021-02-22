@@ -42,7 +42,7 @@ class InstrumentFragmentBuilder(entity: Instrument) : XmlDDIFragmentBuilder<Inst
     private fun addChildren() {
         entity.root?.children?. let{ mutableList -> mutableList
             .filter { it.element != null }
-            .map { it.element!!.xmlBuilder }
+            .map { it.element!!.xmlBuilder() }
             .let { children.addAll(it.toList()) }
         }
     }

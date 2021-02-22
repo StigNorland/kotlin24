@@ -3,10 +3,10 @@ package no.nsd.qddt.model
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.enums.SequenceKind
-import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.embedded.ElementRefCondition
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.enums.SequenceKind
 import org.hibernate.envers.Audited
 import javax.persistence.*
 
@@ -97,8 +97,8 @@ class Sequence : ControlConstruct() {
 
     }
 
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = object : ControlConstructFragmentBuilder<Sequence>(this) {
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return object : ControlConstructFragmentBuilder<Sequence>(this) {
             override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
                 super.addXmlFragments(fragments)
                 if (children.size == 0) addChildren()
@@ -116,9 +116,10 @@ class Sequence : ControlConstruct() {
                 children.addAll(
                     sequence
                         .filter { it.element != null }
-                        .map { it.element!!.xmlBuilder }.toList()
+                        .map { it.element!!.xmlBuilder() }.toList()
                 )
             }
         }
+    }
 
 }

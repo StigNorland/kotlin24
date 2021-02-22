@@ -25,7 +25,7 @@ class Version : Comparable<Version>, Serializable {
     var versionLabel: String = ""
 
     @Transient
-    var revision: Int = 0
+    var rev: Int? = null
 
     @Transient
     @JsonIgnore
@@ -43,7 +43,7 @@ class Version : Comparable<Version>, Serializable {
     constructor(major: Int, minor: Int, revision: Int, versionLabel: String) {
         this.major = major
         this.minor = minor
-        this.revision = revision
+        this.rev = revision
         this.versionLabel = versionLabel
         isModified = false
     }
@@ -54,7 +54,7 @@ class Version : Comparable<Version>, Serializable {
     }
 
     fun toDDIXml(): String {
-        return String.format(VERSION_FORMAT, major, minor, if (revision != 0) ".$revision" else "")
+        return String.format(VERSION_FORMAT, major, minor, if (rev != 0) ".$rev" else "")
             .trim { it <= ' ' }
     }
 
@@ -65,7 +65,7 @@ class Version : Comparable<Version>, Serializable {
     fun toJson(): String {
         return String.format(
             "{\"Version\":{\"major\":\"%d\", \"minor\":\"%d\", \"versionLabel\":\"%s\"%s}}",
-            major, minor, versionLabel, if (revision != 0) ", \"revision\":\"$revision\"" else ""
+            major, minor, versionLabel, if (rev != 0) ", \"revision\":\"$rev\"" else ""
         )
     }
 }

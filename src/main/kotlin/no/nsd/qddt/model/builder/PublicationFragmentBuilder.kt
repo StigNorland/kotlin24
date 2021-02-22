@@ -44,7 +44,7 @@ class PublicationFragmentBuilder(entity: Publication) : XmlDDIFragmentBuilder<Pu
     private fun addChildren() {
         entity.publicationElements
             .filter { it.element != null }
-            .map { it.element!!.xmlBuilder }
+            .map { it.element!!.xmlBuilder() }
             .let { children = it as MutableList<AbstractXmlBuilder> }
     }
 }

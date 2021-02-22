@@ -101,8 +101,9 @@ class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchive
   }
 
 
-  override val xmlBuilder:AbstractXmlBuilder
-    get() = TopicGroupFragmentBuilder(this)
+  override fun xmlBuilder():AbstractXmlBuilder {
+    return TopicGroupFragmentBuilder(this)
+  }
   
   
   fun addConcept(concept: Concept): Concept {
@@ -188,11 +189,5 @@ class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchive
     authors.clear()
     otherMaterials.clear()
   }
-  override fun beforeUpdate() {
-      TODO("Not yet implemented")
-  }
 
-  override fun beforeInsert() {
-      TODO("Not yet implemented")
-  }
 }

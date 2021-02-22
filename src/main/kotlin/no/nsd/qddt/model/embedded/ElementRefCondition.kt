@@ -48,10 +48,10 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
             field = value?.also {
                 elementId = it.id
                 name = it.label?:it.name
-                version.revision = elementRevision?:0
+                version.rev = elementRevision?:0
                 version = it.version
-                if (version.revision == 0)
-                    version.revision = elementRevision?:0
+                if (version.rev == 0)
+                    version.rev = elementRevision?:0
             }
             if (value == null) {
                 name = null

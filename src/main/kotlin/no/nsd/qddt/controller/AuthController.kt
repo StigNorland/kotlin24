@@ -3,6 +3,8 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.User
 import no.nsd.qddt.security.AuthTokenUtil
 import no.nsd.qddt.security.UserForm
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,17 +32,13 @@ class AuthenticationController {
     @Autowired
     private lateinit var jwtUtil: AuthTokenUtil
 
-
-//    companion object {
-//        private val logger: Logger = LoggerFactory.getLogger(AuthenticationController::class.java)
-//    }
-
     @PostMapping
     fun authenticateUser(@RequestBody userForm: UserForm): ResponseEntity<*> {
         return try {
 
             val authenticate = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userForm.email,userForm.password))
             val user: User = authenticate.principal as User
+            logger.info("Uesr logged in {}", user.id)
             SecurityContextHolder.getContext().authentication = authenticate
             ResponseEntity.ok()
 //                .header(HttpHeaders.AUTHORIZATION,jwtUtil.generateJwtToken(authenticate) )
@@ -49,12 +47,7 @@ class AuthenticationController {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build<Any>()
         }
 
-//        with (authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userForm.email,userForm.password))) {
-//            SecurityContextHolder.getContext().authentication = this
-//
-//            return ResponseEntity.ok(jwtUtil.generateJwtToken(this))
-//        }
     }
 
-
+    protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 }

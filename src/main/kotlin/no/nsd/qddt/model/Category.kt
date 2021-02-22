@@ -2,25 +2,25 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import java.util.*
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import javax.persistence.*
-import org.hibernate.envers.Audited
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
+import no.nsd.qddt.model.builder.CategoryFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.builder.CategoryFragmentBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryRelationCodeType
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
-import no.nsd.qddt.model.embedded.ResponseCardinality
-import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.utils.StringTool
+import org.hibernate.envers.Audited
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.stream.Collectors
+import javax.persistence.*
 import kotlin.streams.toList
 
 /**
@@ -211,20 +211,6 @@ class Category(
         return if (i != 0) i else modified.compareTo(other.modified)
     }
 
-    override fun beforeUpdate() {
-        TODO("Not yet implemented")
-    }
-
-    override fun beforeInsert() {
-        logger.debug("Category beforeInsert $name")
-        hierarchyLevel = when (categoryKind) {
-            CategoryType.DATETIME, CategoryType.BOOLEAN, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.CATEGORY ->
-                HierarchyLevel.ENTITY
-            CategoryType.MISSING_GROUP, CategoryType.LIST, CategoryType.SCALE, CategoryType.MIXED ->
-                HierarchyLevel.GROUP_ENTITY
-        }
-        name = name.trim()
-    }
 
     // /used to keep track of current item in the recursive call populateCatCodes
     @Transient
@@ -282,7 +268,9 @@ class Category(
         }
     }
 
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = CategoryFragmentBuilder(this)
+    override fun xmlBuilder(): AbstractXmlBuilder
+    {
+        return CategoryFragmentBuilder(this)
+    }
 
 }

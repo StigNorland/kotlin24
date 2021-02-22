@@ -15,5 +15,5 @@ interface IDomainObject : IWebMenuPreview, IXmlBuilder {
     var modifiedBy: User
     var agency: Agency
     var classKind: String
-    // val xmlBuilder: AbstractXmlBuilder?
+    // fun xmlBuilder(): AbstractXmlBuilder?
 }

@@ -45,13 +45,16 @@ class QuestionItem :AbstractEntityAudit() {
   @Embedded
   var responseDomainRef: ElementRefResponseDomain = ElementRefResponseDomain()
 
+//  @ManyToOne
+//  lateinit var rdRevisionEntity: Revision<Int,ResponseDomain>
 
   @Transient
   @JsonSerialize
   var parentRefs: MutableList<ParentRef<IDomainObjectParentRef>> = mutableListOf()
 
-  override val xmlBuilder:AbstractXmlBuilder
-    get() =  QuestionItemFragmentBuilder(this)
+  override fun xmlBuilder():AbstractXmlBuilder {
+    return QuestionItemFragmentBuilder(this)
+  }
   
 
   fun updateStatusQI() {
@@ -76,7 +79,5 @@ class QuestionItem :AbstractEntityAudit() {
     }
   }
 
-  override  fun beforeUpdate() {}
-  override  fun beforeInsert() {}
 
 }

@@ -1,11 +1,11 @@
 package no.nsd.qddt.model.builder
 
 import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.enums.CategoryType
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.ElementKind
 import org.slf4j.LoggerFactory
 import java.util.stream.Collectors
 
@@ -185,7 +185,7 @@ class FragmentBuilderManageRep(entity: Category, degreeSlopeFromHorizontal:Strin
       CategoryType.LIST -> FragmentBuilderCode(category)
       else -> {
         LOG.info("getbuilder get default")
-        category.xmlBuilder
+        category.xmlBuilder()
       }
     }
   }

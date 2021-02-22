@@ -169,15 +169,8 @@ class Concept(
         }
     }
 
-    override fun beforeUpdate() {
-        TODO("Not yet implemented")
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return ConceptFragmentBuilder(this)
     }
-
-    override fun beforeInsert() {
-        TODO("Not yet implemented")
-    }
-
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = ConceptFragmentBuilder(this)
 
 }

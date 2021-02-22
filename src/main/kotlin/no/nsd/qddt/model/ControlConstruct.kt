@@ -55,16 +55,11 @@ class ControlConstruct : AbstractEntityAudit() {
         TODO("Not yet implemented")
     }
 
-    override fun beforeUpdate() {
-        TODO("Not yet implemented")
+
+
+
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return ControlConstructFragmentBuilder(this)
     }
-
-    override fun beforeInsert() {
-        TODO("Not yet implemented")
-    }
-
-
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = ControlConstructFragmentBuilder(this)
 
 }
