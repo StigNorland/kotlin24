@@ -1,11 +1,11 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.ResponseKind
 import java.util.stream.Collectors
 /**
@@ -85,7 +85,7 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
 //  }
   private fun getInMixedRef(depth:Int):String {
     return entity.managedRepresentation.children.stream().map {
-        ref -> String.format(xmlInMixed, ref.xmlBuilder.getXmlEntityRef(depth + 2))
+        ref -> String.format(xmlInMixed, ref.xmlBuilder().getXmlEntityRef(depth + 2))
       }.collect(Collectors.joining())
   }
 }

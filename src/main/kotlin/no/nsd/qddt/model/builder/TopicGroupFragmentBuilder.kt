@@ -1,9 +1,9 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.enums.ElementKind
 import java.util.*
 import java.util.stream.Collectors
 
@@ -24,12 +24,12 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
 
     private val childrenBuilders:  MutableList<AbstractXmlBuilder> = topicGroup.concepts.stream()
         .filter { it != null }
-        .map { it.xmlBuilder }
+        .map { it.xmlBuilder() }
         .collect(Collectors.toList())
 
     private val questions:  MutableList<AbstractXmlBuilder> = topicGroup.topicQuestionItems.stream()
         .filter { it.element != null }
-        .map { it.element!!.xmlBuilder }
+        .map { it.element!!.xmlBuilder() }
         .collect(Collectors.toList())
 
     // private val questions: List<QuestionItemFragmentBuilder>

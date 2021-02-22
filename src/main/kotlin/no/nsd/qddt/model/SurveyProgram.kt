@@ -61,8 +61,9 @@ class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorS
     }
 
 
-    override val xmlBuilder: AbstractXmlBuilder?
-        get() = null
+    override fun xmlBuilder(): AbstractXmlBuilder? {
+        return null
+    }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "Survey")
@@ -75,14 +76,6 @@ class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorS
         for (study in studies) {
             study.fillDoc(pdfReport, counter + ++i)
         }
-    }
-
-    override fun beforeUpdate() {
-        TODO("Not yet implemented")
-    }
-
-    override fun beforeInsert() {
-        TODO("Not yet implemented")
     }
 
     override var isArchived: Boolean = false

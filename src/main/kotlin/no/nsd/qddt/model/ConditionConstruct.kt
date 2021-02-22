@@ -2,8 +2,8 @@ package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.enums.ConditionKind
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.enums.ConditionKind
 import no.nsd.qddt.model.interfaces.IConditionNode
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -31,6 +31,7 @@ class ConditionConstruct : ControlConstruct(), IConditionNode {
     var sequence: MutableList<ElementRefEmbedded<ControlConstruct>> = mutableListOf()
 
 
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = ControlConstructFragmentBuilder(this)
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return ControlConstructFragmentBuilder(this)
+    }
 }

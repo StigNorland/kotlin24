@@ -46,7 +46,8 @@ class Comment(
         }
     }
 
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = XmlDDICommentsBuilder(this)
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return XmlDDICommentsBuilder(this)
+    }
 
 }

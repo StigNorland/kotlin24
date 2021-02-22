@@ -35,6 +35,5 @@ abstract class AbstractEntity {
     @Version
     lateinit var modified: Timestamp
 
-
-    abstract val xmlBuilder: AbstractXmlBuilder?
+    abstract fun xmlBuilder(): AbstractXmlBuilder?
 }

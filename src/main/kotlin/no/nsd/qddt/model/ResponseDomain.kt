@@ -7,15 +7,15 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.property.TextAlignment
 import com.itextpdf.layout.property.UnitValue
-import no.nsd.qddt.model.enums.CategoryType
-import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.builder.ResponseDomainFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
+import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
-import no.nsd.qddt.model.builder.ResponseDomainFragmentBuilder
 import no.nsd.qddt.utils.StringTool.CapString
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -114,18 +114,11 @@ class ResponseDomain:AbstractEntityAudit() {
     pdfReport.theDocument?.add(table)
   }
 
-  public override fun beforeUpdate() {
-    TODO("Not yet implemented")
-  }
-
-  override fun beforeInsert() {
-    TODO("Not yet implemented")
-  }
-
   val managedRepresentationFlatten get() = getFlatManagedRepresentation(managedRepresentation)
 
-  override val xmlBuilder:XmlDDIFragmentBuilder<ResponseDomain>
-  get() = ResponseDomainFragmentBuilder(this)
+  override fun xmlBuilder():XmlDDIFragmentBuilder<ResponseDomain> {
+    return ResponseDomainFragmentBuilder(this)
+  }
   
 
   /**

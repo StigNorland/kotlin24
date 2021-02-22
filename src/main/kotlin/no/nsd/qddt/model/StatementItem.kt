@@ -18,6 +18,7 @@ class StatementItem : ControlConstruct() {
     @Column(name = "description")
     var statement: String? = null
 
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = ControlConstructFragmentBuilder(this)
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return ControlConstructFragmentBuilder(this)
+    }
 }

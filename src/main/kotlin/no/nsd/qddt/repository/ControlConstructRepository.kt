@@ -29,7 +29,7 @@ interface ControlConstructRepository: RevisionRepository<ControlConstruct, UUID,
             name = "findByQuery", nativeQuery = true,
             value = "SELECT cc.* FROM CONTROL_CONSTRUCT cc " +
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
-                    "WHERE cc.control_construct_kind = :constructKind " +
+                    " WHERE cc.control_construct_kind = cast(:constructKind AS text) " +
                     " AND cc.xml_lang ILIKE :xmlLang " +
                     " AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
                     " OR (:name is null OR cc.name ILIKE cast(:name AS text)) " +
@@ -39,7 +39,7 @@ interface ControlConstructRepository: RevisionRepository<ControlConstruct, UUID,
                     " ) ",
             countQuery = "SELECT count(cc.*) FROM CONTROL_CONSTRUCT cc " +
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
-                    "WHERE cc.control_construct_kind = :constructKind " +
+                    "WHERE cc.control_construct_kind =  cast(:constructKind AS text) " +
                     " AND cc.xml_lang ILIKE :xmlLang " +
                     " AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
                     " OR (:name is null OR cc.name ILIKE cast(:name AS text)) " +
@@ -55,21 +55,19 @@ interface ControlConstructRepository: RevisionRepository<ControlConstruct, UUID,
             @Param("description") desc: String?,
             @Param("questionName") questionName: String?,
             @Param("questionText") questionText: String?,
-            @Param("xmlLang") xmlLang: String?,
+            @Param("xmlLang") xmlLang: String?="%",
             pageable: Pageable?
         ): Page<S>?
 
 
         @Query(
-            name = "removeInstruction",
-            nativeQuery = true,
+            name = "removeInstruction", nativeQuery = true,
             value = "DELETE FROM control_construct_instruction cci WHERE cci.control_construct_id = :controlConstructId"
         )
         fun removeInstruction(@Param("controlConstructId") controlConstructId: UUID?)
 
         @Query(
-            name = "removeUniverse",
-            nativeQuery = true,
+            name = "removeUniverse", nativeQuery = true,
             value = "DELETE FROM control_construct_universe ccu WHERE ccu.question_construct_id = :controlConstructId"
         )
         fun removeUniverse(@Param("controlConstructId") controlConstructId: UUID?)

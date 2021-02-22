@@ -57,9 +57,7 @@ class Publication : AbstractEntityAudit() {
 
     }
 
-    override fun beforeUpdate() {}
-    override fun beforeInsert() {}
-
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = PublicationFragmentBuilder(this)
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return PublicationFragmentBuilder(this)
+    }
 }

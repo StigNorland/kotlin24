@@ -1,8 +1,8 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
+import no.nsd.qddt.model.enums.ElementKind
 import java.util.stream.Collectors
 /**
 * @author Stig Norland
@@ -25,7 +25,7 @@ class QuestionItemFragmentBuilder(questionItem: QuestionItem):XmlDDIFragmentBuil
     "%7\$s")
       // r:ConceptReference/r:URN"/>
       // r:ConceptReference/r:TypeOfObject" defaultValue="Concept" fixedValue="true"/>
-    private val responseBuilder = questionItem.responseDomainRef.element?.xmlBuilder
+    private val responseBuilder = questionItem.responseDomainRef.element?.xmlBuilder()
 
     override val xmlFragment:String
         get() {
@@ -51,7 +51,7 @@ class QuestionItemFragmentBuilder(questionItem: QuestionItem):XmlDDIFragmentBuil
 
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
         super.addXmlFragments(fragments)
-        entity.parentRefs.stream().forEach{ it.entity?.xmlBuilder?.addXmlFragments(fragments) }
+        entity.parentRefs.stream().forEach{ it.entity?.xmlBuilder()?.addXmlFragments(fragments) }
         responseBuilder?.addXmlFragments(fragments)
     }
 

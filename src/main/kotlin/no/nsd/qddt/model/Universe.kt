@@ -1,15 +1,15 @@
 package no.nsd.qddt.model;
 
+import no.nsd.qddt.model.builder.UniverseFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
 import org.hibernate.envers.Audited
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Table
 import javax.persistence.UniqueConstraint
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.builder.pdf.PdfReport
-import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.builder.UniverseFragmentBuilder
-import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
 /**
 * @author Stig Norland
 */
@@ -34,13 +34,12 @@ class Universe(override var name: String = ""):AbstractEntityAudit() {
         }
       }
 
-  override val xmlBuilder:AbstractXmlBuilder
-    get() = UniverseFragmentBuilder(this)
+  override fun xmlBuilder():AbstractXmlBuilder {
+      return UniverseFragmentBuilder(this)
+  }
     
   override fun fillDoc(pdfReport: PdfReport, counter: String) {
     // do nothing.....
   }
 
-  override fun beforeUpdate() {}
-  override fun beforeInsert() {}
 }

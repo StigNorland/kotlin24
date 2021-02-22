@@ -3,6 +3,9 @@ package no.nsd.qddt.security
 /**
  * @author Stig Norland
  */
+import no.nsd.qddt.config.SecurityConfig1
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -16,6 +19,9 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+
+
+
 @Component
 class AuthTokenFilter : OncePerRequestFilter() {
 
@@ -24,7 +30,6 @@ class AuthTokenFilter : OncePerRequestFilter() {
 
     @Autowired
     private lateinit var jwtUtils: AuthTokenUtil
-
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest,response: HttpServletResponse,filterChain: FilterChain) {
@@ -39,17 +44,33 @@ class AuthTokenFilter : OncePerRequestFilter() {
                 filterChain.doFilter(request, response)
                 return
             }
-            userDetailsService.loadUserByUsername(jwtUtils.getUserNameFromJwtToken(token))?.let { user ->
-                SecurityContextHolder.getContext().authentication =
-                    UsernamePasswordAuthenticationToken(user, null, user.authorities).let {
-                        it.details = WebAuthenticationDetailsSource().buildDetails(request)
-                        it
-                    }
+
+            // Get user identity and set it on the spring security context
+            val userDetails = userDetailsService.loadUserByUsername(jwtUtils.getEmailFromJwtToken(token))
+
+            val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails?.authorities).run {
+                details = WebAuthenticationDetailsSource().buildDetails(request)
+                this
             }
+
+            SecurityContextHolder.getContext().authentication = authentication
+
+
+//            userDetailsService.loadUserByUsername(jwtUtils.getEmailFromJwtToken(token))?.let { user ->
+//                SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(user, null, user.authorities).let{
+//                        it.details = WebAuthenticationDetailsSource().buildDetails(request)
+//                        it
+//                    }
+//            }
+
         } catch (e: Exception) {
             logger.error("Cannot set user authentication: {}", e)
         }
         filterChain.doFilter(request, response)
+    }
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(SecurityConfig1::class.java)
     }
 
 }

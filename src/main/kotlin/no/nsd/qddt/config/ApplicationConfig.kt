@@ -32,6 +32,12 @@ class ApplicationConfig {
         return registration
     }
 
+//    @Bean("elementRepositoryLoader")
+//    fun getElementRepositoryLoader(): ElementRepositoryLoader {
+//        return ElementRepositoryLoader()
+//    }
+
+
 //    @Scheduled(fixedRate = ONE_WEEK )
 //    @CacheEvict(value = ["FYLKER", "SKOLER","KOMMUNER", "PARTIER"])
 //    fun clearCache() {

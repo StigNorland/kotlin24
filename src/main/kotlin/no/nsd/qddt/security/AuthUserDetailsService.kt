@@ -3,6 +3,7 @@ package no.nsd.qddt.security
 //import no.nsd.qddt.repository.UserRepository
 import no.nsd.qddt.model.User
 import no.nsd.qddt.repository.UserRepository
+import no.nsd.qddt.security.AuthTokenFilter.Companion.logger
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
@@ -17,8 +18,8 @@ class AuthUserDetailsService(private val userRepository: UserRepository) : UserD
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(name: String): User? {
         return userRepository.findByEmailIgnoreCase(name.toLowerCase().trim()).also {
-            if(it!= null) {
-                print(it)
+            if(it == null) {
+                logger.error("User not found {}", name)
             }
         }
     }

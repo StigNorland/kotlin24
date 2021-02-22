@@ -5,11 +5,10 @@ import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.enums.InstrumentKind
 import no.nsd.qddt.model.classes.ParentRef
+import no.nsd.qddt.model.enums.InstrumentKind
 import org.hibernate.envers.Audited
 import javax.persistence.*
-import javax.persistence.FetchType
 
 
 
@@ -68,13 +67,12 @@ class Instrument : AbstractEntityAudit() {
     //    }
 
 
-    override val xmlBuilder: AbstractXmlBuilder
-        get() = InstrumentFragmentBuilder(this)
+    override fun xmlBuilder(): AbstractXmlBuilder {
+        return InstrumentFragmentBuilder(this)
+    }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addParagraph("Instrument...")
     }
 
-    override fun beforeUpdate() {}
-    override fun beforeInsert() {}
 }

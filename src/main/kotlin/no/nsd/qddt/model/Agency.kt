@@ -1,5 +1,6 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*
@@ -14,8 +15,14 @@ class Agency (
     var xmlLang:String
     ): Comparable<Agency> {
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
+
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    var users: MutableList<User> = mutableListOf()
 
 
     override fun compareTo(other: Agency): Int {

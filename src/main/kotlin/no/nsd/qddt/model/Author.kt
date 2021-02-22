@@ -1,12 +1,12 @@
 package no.nsd.qddt.model
 
+// import no.nsd.qddt.domain.study.Study
+// import no.nsd.qddt.domain.surveyprogram.SurveyProgram
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-// import no.nsd.qddt.domain.study.Study
-// import no.nsd.qddt.domain.surveyprogram.SurveyProgram
+import no.nsd.qddt.model.classes.AbstractEntity
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
 import java.net.URL
@@ -54,7 +54,7 @@ class Author : AbstractEntity() {
 
     
     //    @PrePersist
-    override val xmlBuilder: AbstractXmlBuilder?
-        get() = null
+    override fun xmlBuilder(): AbstractXmlBuilder? { return null }
+
 
 }
