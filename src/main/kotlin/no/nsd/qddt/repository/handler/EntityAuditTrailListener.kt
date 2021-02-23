@@ -1,31 +1,30 @@
 package no.nsd.qddt.repository.handler
 
-import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.QuestionItem
-import no.nsd.qddt.model.Study
-import no.nsd.qddt.model.User
+import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.classes.ElementLoader
+import no.nsd.qddt.model.embedded.ElementRefResponseDomain
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.repository.ResponseDomainRepository
+import no.nsd.qddt.service.RepositoryLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 import org.springframework.security.core.context.SecurityContextHolder
 import javax.persistence.*
+
 
 /**
  * @author Stig Norland
  */
-class EntityAuditTrailListener {
-
+class EntityAuditTrailListener{
 
     @Autowired
-    var responseDomainRepository: ResponseDomainRepository? = null
-
+    private val applicationContext: ApplicationContext? = null
 
     @PreRemove
     private fun beforeAnyUpdate(entity: AbstractEntityAudit) {
@@ -111,11 +110,12 @@ class EntityAuditTrailListener {
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
+        var loader =  applicationContext?.getBean("repositoryLoaderImpl") as RepositoryLoader
         when (entity) {
             is QuestionItem -> {
-//                val repository =  elementRepositoryLoader.getRepository(entity.responseDomainRef.elementKind)
-//                val loader = ElementLoader<ResponseDomain>(responseDomainRepository)
-//                loader.fill(entity.responseDomainRef)
+                val repository =  loader.getRepository<ResponseDomain>(entity.responseDomainRef.elementKind)
+                val loader = ElementLoader<ResponseDomain>(repository)
+                entity.responseDomainRef = loader.fill(entity.responseDomainRef) as ElementRefResponseDomain
             }
 
 //            is Study -> {
@@ -175,6 +175,13 @@ class EntityAuditTrailListener {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)
     }
+
+//    override fun setApplicationContext(applicationContext: ApplicationContext) {
+//        log.info("ok ? ")
+//        fetcher =  applicationContext.getBean("repositoryLoader", RepositoryLoader::class.java  )
+//        log.info("ok etter? ")
+//
+//    }
 
 
 }

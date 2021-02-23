@@ -16,7 +16,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "concept", collectionResourceRel = "Concepts", itemResourceRel = "Concept", excerptProjection = ConceptListe::class)
+@RepositoryRestResource(path = "concept", collectionResourceRel = "items", itemResourceRel = "Concept", excerptProjection = ConceptListe::class)
 interface ConceptRepository:BaseArchivedRepository<Concept>, RevisionRepository<Concept, UUID, Int>, JpaRepository<Concept, UUID> {
 
 

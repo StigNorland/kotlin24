@@ -26,7 +26,7 @@ class ElementRefResponseDomain() : IElementRef<ResponseDomain> , Serializable {
     override var elementKind: ElementKind = ElementKind.RESPONSEDOMAIN
 
     @javax.persistence.Transient
-    @JsonSerialize
+    @JsonSerialize(contentAs = ResponseDomain::class)
     override var element: ResponseDomain? = null
         set(value) {
             field = value

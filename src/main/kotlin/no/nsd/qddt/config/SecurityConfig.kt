@@ -1,164 +1,160 @@
-//package no.nsd.qddt.config
-//
-//import no.nsd.qddt.security.AuthEntryPointJwt
-//import no.nsd.qddt.security.AuthTokenFilter
-//import no.nsd.qddt.security.AuthUserDetailsService
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.beans.factory.annotation.Value
-//import org.springframework.context.annotation.Bean
-//import org.springframework.context.annotation.Configuration
-//import org.springframework.http.HttpMethod
-//import org.springframework.security.authentication.AuthenticationManager
-//import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-//import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity
-//import org.springframework.security.config.annotation.web.builders.WebSecurity
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-//import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-//import org.springframework.security.config.http.SessionCreationPolicy
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-//import org.springframework.security.crypto.password.PasswordEncoder
-//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-//
-//
-///**
-// * @author Stig Norland
-// */
-//@Configuration
-//@EnableWebSecurity
-//@EnableGlobalMethodSecurity(
-////    securedEnabled = true,
-////    jsr250Enabled = true,
-//    prePostEnabled = true)
-//class SecurityConfig : WebSecurityConfigurerAdapter() {
-//
-//    @Value("\${qddt.api.origin}")
-//    lateinit var origin: String
-//
-//    @Autowired
-//    lateinit var userDetailsService: AuthUserDetailsService
-//
-//    @Autowired
-//    private lateinit var unauthorizedHandler: AuthEntryPointJwt
-//
-//
-//    @Bean
-//    fun authenticationTokenFilterBean(): AuthTokenFilter {
-//        return AuthTokenFilter()
-//    }
-//
-//    @Bean
+package no.nsd.qddt.config
+
+import no.nsd.qddt.security.AuthTokenFilter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.servlet.FilterRegistrationBean
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.hateoas.config.EnableHypermediaSupport
+import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
+import org.springframework.web.filter.ForwardedHeaderFilter
+import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
+
+/**
+ * @author Stig Norland
+ */
+@Configuration
+@EnableWebMvc
+//@EnableCaching
+//@EnableScheduling
+@EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL])
+@EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
+@EnableJpaRepositories(
+    basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.config", "no.nsd.qddt.security", "no.nsd.qddt.service"],
+    repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(
+    securedEnabled = true,
+    jsr250Enabled = true,
+    prePostEnabled = true
+)
+class SecurityConfig : WebSecurityConfigurerAdapter() {
+
+    protected val logger: Logger = LoggerFactory.getLogger(SecurityConfig::class.java)
+
+    @Value(value = "\${qddt.api.origin}")
+    lateinit var origin: String
+
+
+    @Bean
+    @Throws(Exception::class)
+    override fun authenticationManagerBean(): AuthenticationManager {
+        return super.authenticationManagerBean()
+    }
+    @Bean
+    fun customAuditProvider(): AuditAwareImpl {
+        return AuditAwareImpl()
+    }
+
+    @Bean
+    fun authenticationTokenFilterBean(): AuthTokenFilter {
+        return AuthTokenFilter()
+    }
+
+    @Bean
+    fun passwordEncoderBean(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+
+
+    @Bean
+    fun corsFilter(): CorsFilter {
+        val source = UrlBasedCorsConfigurationSource()
+        val config = CorsConfiguration()
+        config.allowCredentials = true
+        config.addAllowedOrigin("http://localhost:4200")
+//        config.allowedOriginPatterns =  listOf("https://*.nsd.no/","http://localhost:4200/")
+        config.addAllowedHeader("*")
+        config.allowedMethods = listOf("GET", "DELETE", "POST", "OPTIONS")
+        logger.info(origin)
+        source.registerCorsConfiguration("/**", config)
+        return CorsFilter(source)
+    }
+
+    @Bean
+    fun forwardedHeaderFilter(): FilterRegistrationBean<ForwardedHeaderFilter> {
+        return FilterRegistrationBean(ForwardedHeaderFilter())
+    }
+
+    @Bean
+    fun cacheControlFilter(): FilterRegistrationBean<OncePerRequestFilter> {
+        val registration = FilterRegistrationBean<OncePerRequestFilter>(CacheControlFilter())
+        registration.addUrlPatterns("/*")
+        return registration
+    }
+
+
+    @Throws(Exception::class)
+    override fun configure(http: HttpSecurity) {
+        // Enable CORS and disable CSRF
+        http.cors().and().csrf().disable()
+
+        // Set session management to stateless
+        http
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+
+        // Set unauthorized requests exception handler
+        http
+            .exceptionHandling()
+            .authenticationEntryPoint { request: HttpServletRequest?, response: HttpServletResponse, ex: AuthenticationException ->
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED,ex.message)
+            }
+            .and()
+
+        // Set permissions on endpoints
+        http.authorizeRequests() // Our public endpoints
+            .antMatchers("/").permitAll()
+            .antMatchers(HttpMethod.OPTIONS).permitAll()
+            .antMatchers("/login/**").permitAll()
+            .antMatchers("/actuator/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
+            .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
+            .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
+            .antMatchers(HttpMethod.GET, "/user/search/*").hasRole("ADMIN")
+            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
+//            .anyRequest().authenticated()
+
+        // Add JWT token filter
+        http.addFilterBefore(authenticationTokenFilterBean(),UsernamePasswordAuthenticationFilter::class.java)
+
+    }
+
 //    @Throws(Exception::class)
-//    override fun authenticationManagerBean(): AuthenticationManager {
-//        return super.authenticationManagerBean()
-//    }
-//
-//    @Bean
-//    fun passwordEncoderBean(): PasswordEncoder {
-//        return BCryptPasswordEncoder()
-//    }
-//
-//
-//
-//    @Throws(Exception::class)
-//    override fun configure(authBuilder: AuthenticationManagerBuilder) {
-//        authBuilder
-//            .userDetailsService(userDetailsService)
-//            .passwordEncoder(passwordEncoderBean())
-//    }
-//
-//
-//    @Throws(Exception::class)
-//    override fun configure(httpSecurity: HttpSecurity) {
-//
-//
-//        httpSecurity.csrf().disable() // dont authenticate this particular request
-//            .authorizeRequests().antMatchers("/auth/signin").permitAll()
-//            .antMatchers(HttpMethod.OPTIONS, "/**")
-//            .permitAll().anyRequest() // all other requests need to be authenticated
-//            .authenticated().and().exceptionHandling() // make sure we use stateless session; session won't be used to
-//            .authenticationEntryPoint(unauthorizedHandler).and()
-//            .exceptionHandling().accessDeniedPage("/auth/signin").and()
-//            .sessionManagement()
-//            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//
-//        // Add a filter to validate the tokens with every request
-////        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
-//        httpSecurity
-//            .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
-//            .headers().cacheControl()
-//
-////        http.cors().and().csrf().disable()
-////            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-////            .exceptionHandling().accessDeniedPage("/auth/signin").and()
-////            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-////            .authorizeRequests()
-////                .antMatchers("/auth/**").permitAll()
-////                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-////                .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
-////                .antMatchers(HttpMethod.GET, "/**").hasAnyAuthority()
-////                .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
-////                .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
-////                .antMatchers(HttpMethod.GET, "/user/page/search/*").hasRole("ADMIN")
-////                .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
-////                .anyRequest().authenticated()
-////
-////        http.apply( JwtTokenFilterConfigurer(jwtTokenProvider))
-////
-////        http
-////            .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
-////            .headers().cacheControl()
-//    }
-//
-//
-//    @Throws(java.lang.Exception::class)
 //    override fun configure(web: WebSecurity) {
 //        web.ignoring()
-//            .antMatchers("/explorer/**")
-//            .antMatchers("/actuator/**")
-////            .and().ignoring()
-////            .antMatchers("/h2-console/**/**")
+//            .antMatchers("/")
+//            .antMatchers(HttpMethod.OPTIONS)
+//
+////            .antMatchers("/explorer/**")
+////            .antMatchers("/actuator/**")
 //    }
-//
-////    @Autowired
-////    @Throws(Exception::class)
-////    fun configureGlobal(auth: AuthenticationManagerBuilder) {
-////        // configure AuthenticationManager so that it knows from where to load
-////        // user for matching credentials
-////        // Use BCryptPasswordEncoder
-////        auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoderBean())
-////    }
-//
-//
-////    @Bean
-////    fun corsConfigurationSource(): CorsConfigurationSource? {
-////        val source = UrlBasedCorsConfigurationSource()
-////        source.registerCorsConfiguration("/**", CorsConfiguration().applyPermitDefaultValues())
-////        return source
-////    }
-//
-////    @Bean
-////    fun corsConfigurer(): WebMvcConfigurer? {
-////        return object : WebMvcConfigurer {
-////            override fun addCorsMappings(registry: CorsRegistry) {
-////                registry.addMapping("/api/**")
-////                    .allowedOrigins(origin.split(",").toString())
-////            }
-////        }
-////    }
-//
-////    @Throws(Exception::class)
-////    override fun configure(httpSecurity: HttpSecurity) {
-////
-////        httpSecurity.csrf().disable() // dont authenticate this particular request
-////            .authorizeRequests().antMatchers("/auth/signin").permitAll()
-////            .antMatchers(HttpMethod.OPTIONS, "/**")
-////            .permitAll().anyRequest() // all other requests need to be authenticated
-////            .authenticated().and().exceptionHandling() // make sure we use stateless session; session won't be used to
-////            .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-////            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-////
-////        // Add a filter to validate the tokens with every request
-////        httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
-////    }
-//}
+
+    // Used by spring security if CORS is enabled.
+
+
+}

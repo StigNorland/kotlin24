@@ -3,7 +3,7 @@ package no.nsd.qddt.security
 /**
  * @author Stig Norland
  */
-import no.nsd.qddt.config.SecurityConfig1
+import no.nsd.qddt.config.SecurityConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -70,7 +70,7 @@ class AuthTokenFilter : OncePerRequestFilter() {
     }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(SecurityConfig1::class.java)
+        val logger: Logger = LoggerFactory.getLogger(SecurityConfig::class.java)
     }
 
 }

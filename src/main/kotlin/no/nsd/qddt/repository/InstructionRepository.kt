@@ -10,5 +10,5 @@ import java.util.*
  * @author Stig Norland
  */
 
-@RepositoryRestResource(path = "instruction", collectionResourceRel = "Instructions", itemResourceRel = "Instruction", excerptProjection = InstructionListe::class)
+@RepositoryRestResource(path = "instruction", collectionResourceRel = "items", itemResourceRel = "Instruction", excerptProjection = InstructionListe::class)
 interface InstructionRepository : JpaRepository<Instruction,UUID>

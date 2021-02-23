@@ -1,5 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
+import org.springframework.dao.DataAccessException
+import org.springframework.data.domain.Example
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.history.Revision
@@ -12,6 +14,34 @@ import org.springframework.data.history.Revision
  * @author Dag Østgulen Heradstveit
  */
 interface BaseServiceAudit<T, ID, N> where N : Number?, N : Comparable<N>? {
+
+    /**
+     * Store object T to backstore
+     * @param instance object T
+     * @return saved instance T (may have fields updated by backstore)
+     */
+    //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR')")
+    fun <S : T?> save(instance: S): S
+
+    /**
+     * Deletes object with id ID from backstore, exception raised by failure.
+     * @param id ID of entity
+     */
+    //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @Throws(DataAccessException::class)
+    fun delete(id: ID)
+
+
+    /**
+     * Returns a [Page] of entities matching the given [Example]. In case no match could be found, an empty
+     * [Page] is returned.
+     *
+     * @param example must not be null.
+     * @param pageable can be null.
+     * @return a [Page] of entities matching the given [Example].
+     */
+    fun <S : T?> findAll(example: Example<S>?, pageable: Pageable?): Page<S>?
+
     /**
      * Find the latest changed revision.
      * @param id of the entity

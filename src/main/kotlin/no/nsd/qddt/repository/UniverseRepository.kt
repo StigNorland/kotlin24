@@ -13,7 +13,7 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "universe", collectionResourceRel = "Universes", itemResourceRel = "Universe", excerptProjection = UniverseListe::class)
+@RepositoryRestResource(path = "universe", collectionResourceRel = "items", itemResourceRel = "Universe", excerptProjection = UniverseListe::class)
 interface UniverseRepository : JpaRepository<Universe,UUID> {
 
     @RestResource(rel = "description", path = "findBy")

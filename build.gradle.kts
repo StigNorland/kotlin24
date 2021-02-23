@@ -20,17 +20,20 @@ repositories {
 
 dependencies {
 //	implementation("org.springframework.security.oauth:spring-security-oauth2:2.4.1.RELEASE")
+	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-hateoas")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+	implementation("org.springframework.boot:spring-boot-starter-hateoas")
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
 		exclude("org.apache.tomcat:tomcat-jdbc")
 	}
 	implementation("org.springframework.data:spring-data-envers:2.4.3")
 	implementation("org.hibernate:hibernate-envers:5.4.25.Final")
+//	implementation("org.springframework:spring-core:5.3.4")
 
-//	implementation("org.springframework.boot:spring-boot-starter-mustache")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

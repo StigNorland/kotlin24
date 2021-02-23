@@ -114,7 +114,7 @@ class ResponseDomain:AbstractEntityAudit() {
     pdfReport.theDocument?.add(table)
   }
 
-  val managedRepresentationFlatten get() = getFlatManagedRepresentation(managedRepresentation)
+  fun managedRepresentationFlatten() = getFlatManagedRepresentation(managedRepresentation)
 
   override fun xmlBuilder():XmlDDIFragmentBuilder<ResponseDomain> {
     return ResponseDomainFragmentBuilder(this)

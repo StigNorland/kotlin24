@@ -6,18 +6,7 @@ import org.springframework.dao.DataAccessException
  * @author Stig Norland
  */
 interface BaseService<T, ID> {
-    /**
-     *
-     * @return number of entities
-     */
-    fun count(): Long
 
-    /**
-     *
-     * @param id ID of entity
-     * @return true if exists
-     */
-    fun exists(id: ID): Boolean
 
     /**
      * Return a entity based on its ID.
