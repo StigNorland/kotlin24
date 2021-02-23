@@ -1,5 +1,6 @@
 package no.nsd.qddt.repository.projection
 
+import no.nsd.qddt.model.embedded.Version
 import org.springframework.beans.factory.annotation.Value
 import java.sql.Timestamp
 import java.util.*
@@ -17,8 +18,9 @@ interface IAbstractEntityEditList {
     @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency.name  }")
     fun getModifiedBy(): String?
 
-    @Value(value = "#{target.version.toString() }")
-    fun getVersion(): String?
+    var version: Version
+//    @Value(value = "#{target.version.toString() }")
+//    fun getVersion(): String?
 
     var xmlLang: String
 
