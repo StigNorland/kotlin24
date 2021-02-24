@@ -21,7 +21,7 @@ class Agency : Comparable<Agency> {
     var xmlLang:String="en-GB"
 
     @JsonIgnore
-    @JsonBackReference(value = "agentRefSurvey")
+//    @JsonBackReference(value = "agentRefSurvey")
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
 

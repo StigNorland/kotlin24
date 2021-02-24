@@ -1,5 +1,6 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -12,31 +13,29 @@ import javax.persistence.*
  */
 @Entity
 @Table(name="user_account")
-class User (
-    @Id  @GeneratedValue
-    val id: UUID?=null,
+class User: UserDetails {
+
+    @Id  @GeneratedValue lateinit var id: UUID
 
     @Version
-    val modified: Timestamp?=null,
+    lateinit var modified: Timestamp
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agency_id")
-    var agency : Agency?=null,
+    @JsonBackReference(value = "userAgencyRef")
+    lateinit var agency : Agency
 
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
-    internal var authority: MutableCollection<Authority> = mutableListOf(),
+    internal lateinit var authority: MutableCollection<Authority>
 
-    private  var isEnabled: Boolean=false,
+    private  var isEnabled: Boolean=false
 
-    private var username : String? = null,
+    private lateinit var username : String
 
     @JsonIgnore
-    private  var password : String? =null
-
-
-): UserDetails {
+    private lateinit var password : String
 
     lateinit var email : String
 
@@ -45,11 +44,11 @@ class User (
     val angencyId: UUID?=null
 
     override fun getPassword(): String {
-        return password?:"?"
+        return password
     }
 
     override fun getUsername(): String {
-        return username?:"?"
+        return username
     }
 
     override fun isAccountNonExpired(): Boolean {

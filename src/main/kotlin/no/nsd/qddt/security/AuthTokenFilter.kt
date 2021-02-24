@@ -48,7 +48,7 @@ class AuthTokenFilter : OncePerRequestFilter() {
             // Get user identity and set it on the spring security context
             val userDetails = userDetailsService.loadUserByUsername(jwtUtils.getEmailFromJwtToken(token))
 
-            val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails?.authorities).run {
+            val authentication = UsernamePasswordAuthenticationToken(userDetails, userDetails?.password, userDetails?.authorities).run {
                 details = WebAuthenticationDetailsSource().buildDetails(request)
                 this
             }
