@@ -2,6 +2,7 @@ package no.nsd.qddt.repository
 import no.nsd.qddt.model.ControlConstruct
 import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.repository.projection.ControlConstructListe
+import no.nsd.qddt.repository.projection.QuestionConstructListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -14,8 +15,8 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "controlconstruct", collectionResourceRel = "items", itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
-interface ControlConstructRepository: RevisionRepository<ControlConstruct, UUID, Int>,  JpaRepository<ControlConstruct, UUID> {
+@RepositoryRestResource(path = "controlconstruct",  itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
+interface ControlConstructRepository<T : ControlConstruct>: RevisionRepository<T, UUID, Int>,  JpaRepository<T, UUID> {
 
         /**
          *
@@ -73,3 +74,7 @@ interface ControlConstructRepository: RevisionRepository<ControlConstruct, UUID,
         fun removeUniverse(@Param("controlConstructId") controlConstructId: UUID?)
 
     }
+
+
+@RepositoryRestResource(path = "questionconstruct",  itemResourceRel = "QuestionConstruct", excerptProjection = QuestionConstructListe::class)
+interface QuestionConstructRepository: ControlConstructRepository<QuestionConstruct>

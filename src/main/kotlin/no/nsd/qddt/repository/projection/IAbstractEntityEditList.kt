@@ -2,7 +2,6 @@ package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.embedded.Version
 import org.springframework.beans.factory.annotation.Value
-import java.sql.Timestamp
 import java.util.*
 
 /**
@@ -13,7 +12,9 @@ interface IAbstractEntityEditList {
 
     var name: String
 
-    var modified: Timestamp
+    @Value(value = "#{target.modified.getTime() }")
+    fun getModified(): Long
+
 
     @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency.name  }")
     fun getModifiedBy(): String?

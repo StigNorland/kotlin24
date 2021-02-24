@@ -38,8 +38,8 @@ class AuthTokenUtil {
         claims["email"] = userDetails.email
         claims["agency"] = userDetails.agency.let {
              object: AgencyListe {
-                 override var id = it.id
-                 override var name =it.name
+                 override var id = it!!.id
+                 override var name = it!!.name
             }
         }
 

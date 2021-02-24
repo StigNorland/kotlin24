@@ -1,6 +1,5 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -13,37 +12,40 @@ import javax.persistence.*
  */
 @Entity
 @Table(name="user_account")
-class User (private  var username : String ? =null
-) : UserDetails {
-
+class User (
     @Id  @GeneratedValue
-    @Column(updatable = false, nullable = false)
-    var id: UUID?=null
+    val id: UUID?=null,
+
+    @Version
+    val modified: Timestamp?=null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agency_id")
+    var agency : Agency?=null,
+
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    internal var authority: MutableCollection<Authority> = mutableListOf(),
+
+    private  var isEnabled: Boolean=false,
+
+    private var username : String? = null,
+
+    @JsonIgnore
+    private  var password : String? =null
+
+
+): UserDetails {
 
     lateinit var email : String
 
 
-    @JsonIgnore
-    private lateinit var password : String
-
-    private  var isEnabled: Boolean=false
-
-    @Version
-    val modified: Timestamp? = null
-
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JsonBackReference(value = "agentRef")
-    @JoinColumn(name = "agency_id")
-    lateinit var agency : Agency
-
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER)
-    protected lateinit var authority: MutableCollection<Authority>
-
+    @Column( name="agency_id", updatable = false, insertable = false)
+    val angencyId: UUID?=null
 
     override fun getPassword(): String {
-        return password
+        return password?:"?"
     }
 
     override fun getUsername(): String {
@@ -72,9 +74,9 @@ class User (private  var username : String ? =null
         }.toMutableList()
     }
 
-    override fun toString(): String {
-        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
-    }
+//    override fun toString(): String {
+//        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
+//    }
 
 
 }

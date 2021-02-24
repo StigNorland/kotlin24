@@ -17,7 +17,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "surveyprogram", collectionResourceRel = "items", itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
+@RepositoryRestResource(path = "surveyprogram",  itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
 interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , RevisionRepository<SurveyProgram, UUID, Int>,
     JpaRepository<SurveyProgram, UUID> {
 
@@ -36,6 +36,6 @@ interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , Revisi
     fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<SurveyProgram>
 
 //    @RestResource(rel = "all", path = "list")
-    fun findByAgencyId( id: UUID): List<SurveyProgram>?
+    fun findByAgency_Id( id: UUID, pageable:Pageable?): Page<SurveyProgram>
 
 }

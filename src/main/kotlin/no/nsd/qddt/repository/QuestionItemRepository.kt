@@ -12,7 +12,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "questionitem", collectionResourceRel = "items", itemResourceRel = "QuestionItem", excerptProjection = QuestionItemListe::class)
+@RepositoryRestResource(path = "questionitem",  itemResourceRel = "QuestionItem", excerptProjection = QuestionItemListe::class)
 interface QuestionItemRepository:  RevisionRepository<QuestionItem, UUID, Int>,  JpaRepository<QuestionItem, UUID> {
 
     @Query(nativeQuery = true,

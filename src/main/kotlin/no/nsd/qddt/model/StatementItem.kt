@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import org.hibernate.envers.Audited
 import javax.persistence.Column
@@ -20,5 +21,9 @@ class StatementItem : ControlConstruct() {
 
     override fun xmlBuilder(): AbstractXmlBuilder {
         return ControlConstructFragmentBuilder(this)
+    }
+
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+        TODO("Not yet implemented")
     }
 }

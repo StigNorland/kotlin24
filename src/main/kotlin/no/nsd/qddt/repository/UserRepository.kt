@@ -16,7 +16,7 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "user", collectionResourceRel = "items", itemResourceRel = "User", excerptProjection = UserListe::class)
+@RepositoryRestResource(path = "user",  itemResourceRel = "User", excerptProjection = UserListe::class)
 interface UserRepository : CrudRepository<User,UUID> {
 
     @RestResource(rel = "email", path = "by-mail")

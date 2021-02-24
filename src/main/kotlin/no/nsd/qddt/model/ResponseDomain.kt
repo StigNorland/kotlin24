@@ -64,9 +64,9 @@ class ResponseDomain:AbstractEntityAudit() {
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE])
+  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE], targetEntity = Category::class)
   @JoinColumn(name = "category_id")
-  var managedRepresentation: Category = Category(hierarchyLevel = HierarchyLevel.GROUP_ENTITY)
+  var managedRepresentation: Category = Category().apply { hierarchyLevel = HierarchyLevel.GROUP_ENTITY }
     get() {
       if (codes.size > 0)
         field.codes =codes

@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
+import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.enums.ConditionKind
@@ -33,5 +34,9 @@ class ConditionConstruct : ControlConstruct(), IConditionNode {
 
     override fun xmlBuilder(): AbstractXmlBuilder {
         return ControlConstructFragmentBuilder(this)
+    }
+
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+        TODO("Not yet implemented")
     }
 }
