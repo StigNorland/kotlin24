@@ -13,41 +13,42 @@ import javax.persistence.*
  */
 @Entity
 @Table(name="user_account")
-class User (private  var username : String ? =null
-) : UserDetails {
+class User: UserDetails {
 
-    @Id  @GeneratedValue
-    @Column(updatable = false, nullable = false)
-    var id: UUID?=null
+    @Id  @GeneratedValue lateinit var id: UUID
 
-    lateinit var email : String
+    @Version
+    lateinit var modified: Timestamp
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "agency_id")
+    @JsonBackReference(value = "userAgencyRef")
+    lateinit var agency : Agency
+
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    internal lateinit var authority: MutableCollection<Authority>
+
+    private  var isEnabled: Boolean=false
+
+    private lateinit var username : String
 
     @JsonIgnore
     private lateinit var password : String
 
-    private  var isEnabled: Boolean=false
-
-    @Version
-    val modified: Timestamp? = null
+    lateinit var email : String
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JsonBackReference(value = "agentRef")
-    @JoinColumn(name = "agency_id")
-    lateinit var agency : Agency
-
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER)
-    protected lateinit var authority: MutableCollection<Authority>
-
+    @Column( name="agency_id", updatable = false, insertable = false)
+    val angencyId: UUID?=null
 
     override fun getPassword(): String {
         return password
     }
 
     override fun getUsername(): String {
-        return username?:"?"
+        return username
     }
 
     override fun isAccountNonExpired(): Boolean {
@@ -72,9 +73,9 @@ class User (private  var username : String ? =null
         }.toMutableList()
     }
 
-    override fun toString(): String {
-        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
-    }
+//    override fun toString(): String {
+//        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
+//    }
 
 
 }

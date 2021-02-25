@@ -1,5 +1,7 @@
 package no.nsd.qddt.service
 
+import no.nsd.qddt.model.ControlConstruct
+import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.repository.*
 import org.slf4j.Logger
@@ -21,7 +23,11 @@ class RepositoryLoaderImpl : RepositoryLoader {
     @Autowired private var responseDomainRepository: ResponseDomainRepository? = null
 
     @Autowired private var questionItemRepository: QuestionItemRepository? = null
-    @Autowired private var controlConstructRepository: ControlConstructRepository? = null
+    @Autowired private var controlConstructRepository: ControlConstructRepository<ControlConstruct>? = null
+    @Autowired private var questionConstructRepository: ControlConstructRepository<QuestionConstruct>? = null
+//    @Autowired private var controlConstructRepository: ControlConstructRepository<ControlConstruct>? = null
+//    @Autowired private var controlConstructRepository: ControlConstructRepository<ControlConstruct>? = null
+//    @Autowired private var controlConstructRepository: ControlConstructRepository<ControlConstruct>? = null
     @Autowired private var topicGroupRepository: TopicGroupRepository? = null
     @Autowired private var surveyProgramRepository: SurveyProgramRepository? = null
     @Autowired private var studyRepository: StudyRepository? = null
@@ -32,8 +38,8 @@ class RepositoryLoaderImpl : RepositoryLoader {
         logger.info("get Service -> $elementKind")
         return when (elementKind) {
             ElementKind.CONCEPT -> conceptRepository as RevisionRepository<T,UUID,Int>
+            ElementKind.QUESTION_CONSTRUCT -> questionConstructRepository as RevisionRepository<T,UUID,Int>
                 ElementKind.CONTROL_CONSTRUCT,
-                ElementKind.QUESTION_CONSTRUCT,
                 ElementKind.STATEMENT_CONSTRUCT,
                 ElementKind.SEQUENCE_CONSTRUCT,
                 ElementKind.CONDITION_CONSTRUCT -> controlConstructRepository as RevisionRepository<T,UUID,Int>

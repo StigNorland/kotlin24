@@ -14,7 +14,7 @@ import java.util.*
 * @author Dag Østgulen Heradstveit
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "responsedomain", collectionResourceRel = "ResponseDomains", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
+@RepositoryRestResource(path = "responsedomain",  itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
 interface ResponseDomainRepository:  RevisionRepository<ResponseDomain, UUID, Int>, JpaRepository<ResponseDomain, UUID>  {
   // Page<ResponseDomain> findByResponseKindAndNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(ResponseKind responseKind, String name, String description, Pageable pageable);
   // TODO fix query --->
@@ -22,7 +22,7 @@ interface ResponseDomainRepository:  RevisionRepository<ResponseDomain, UUID, In
     @Query( nativeQuery = true,
       value = ("SELECT RD.* FROM RESPONSEDOMAIN RD " +
               " WHERE RD.response_kind = :ResponseKind AND  ( " +
-              "   RD.xml_lang ILIKE :xmlLang  AND ( " +
+              "   (:xmlLang is null OR RD.xml_lang ILIKE cast(:xmlLang AS text)) AND ( " +
               "     (:name is null OR RD.name ILIKE cast(:name AS text)) " +
               "     OR (:description is null OR RD.description ILIKE cast(:description AS text)) " +
               "     OR RD.category_id in (select distinct c.id FROM category c WHERE  (:anchor is null OR c.description ILIKE cast(:anchor AS text)) ) " +
@@ -33,7 +33,7 @@ interface ResponseDomainRepository:  RevisionRepository<ResponseDomain, UUID, In
       ),
       countQuery = ("SELECT count(RD.*) FROM RESPONSEDOMAIN RD " +
               " WHERE RD.response_kind = :ResponseKind AND  ( " +
-              "   RD.xml_lang ILIKE :xmlLang  AND ( " +
+              "   (:xmlLang is null OR RD.xml_lang ILIKE cast(:xmlLang AS text)) AND ( " +
               "     (:name is null OR RD.name ILIKE cast(:name AS text)) " +
               "     OR (:description is null OR RD.description ILIKE cast(:description AS text)) " +
               "     OR RD.category_id in (select distinct c.id FROM category c WHERE  (:anchor is null OR c.description ILIKE cast(:anchor AS text)) ) " +
@@ -44,10 +44,10 @@ interface ResponseDomainRepository:  RevisionRepository<ResponseDomain, UUID, In
       )
   )
   fun findByQuery(@Param("ResponseKind") ResponseKind:String,
-                  @Param("name") name:String?,
+                  @Param("name") name:String?="%",
                   @Param("description") description:String?,
                   @Param("question") question:String?,
                   @Param("anchor") anchor:String?,
-                  @Param("xmlLang") xmlLang:String?="en-GB",
-                  pageable:Pageable?):Page<ResponseDomain>
+                  @Param("xmlLang") xmlLang:String?,
+                  pageable:Pageable?= Pageable.unpaged()):Page<ResponseDomain>
 }

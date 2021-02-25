@@ -54,7 +54,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
         return when (PermissionType.valueOf(permission)) {
             PermissionType.OWNER -> isOwner(details as User, entity)
             PermissionType.USER -> isUser(details as User, entity)
-            PermissionType.AGENCY -> isMemberOfAgency((details as User).agency, entity as IDomainObject)
+            PermissionType.AGENCY -> isMemberOfAgency((details as User).agency!!, entity as IDomainObject)
         }
     }
 

@@ -14,7 +14,6 @@ import no.nsd.qddt.model.enums.CategoryRelationCodeType
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.Audited
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -54,21 +53,29 @@ import kotlin.streams.toList
     name = "CATEGORY",
     uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "category_kind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
-class Category(
+class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
+
+
     /**
      *   A display label for the category. May be expressed in multiple languages.
      *   Repeat for labels with different content, for example,
      *   labels with differing length limitations or of different types or applications.
      */
-    var label: String? = null,
+    var label: String = ""
 
+    override var name: String = ""
+        get() {
+            if (field.isNullOrBlank())
+                field = label.toUpperCase()
+            return field
+        }
     /*
      *   A description of the content and purpose of the category.
      *   May be expressed in multiple languages and supports the use of structured content.
      *   Note that comparison of categories is done using the content of description.
     */
     @Column(length = 2000)
-    var description: String? = null,
+    var description: String =""
 //        set(value) {
 //            field =  StringTool.CapString(value)
 //        }
@@ -83,30 +90,21 @@ class Category(
      *  like numeric range / text length /
      */
     @Embedded
-    var inputLimit: ResponseCardinality = ResponseCardinality(),
+    var inputLimit: ResponseCardinality = ResponseCardinality()
 
     @Column(name = "classification_level")
     @Enumerated(EnumType.STRING)
-    var classificationLevel: CategoryRelationCodeType? = null,
+    var classificationLevel: CategoryRelationCodeType?=null
 
     /**
      *  format is used by datetime, and other kinds if needed.
      */
-    var format: String = "",
+    var format: String = ""
 
     @Column(name = "Hierarchy_level", nullable = false)
     @Enumerated(EnumType.STRING)
-    var hierarchyLevel: HierarchyLevel
+    var hierarchyLevel: HierarchyLevel = HierarchyLevel.ENTITY
 
-
-) : AbstractEntityAudit(), Comparable<Category>, Cloneable {
-
-    override var name: String = ""
-        get() {
-            if (StringTool.IsNullOrTrimEmpty(field))
-                field = label!!.toUpperCase()
-            return field
-        }
 
     @Column(name = "category_kind")
     @Enumerated(EnumType.STRING)
@@ -257,7 +255,13 @@ class Category(
     }
 
     public override fun clone(): Category {
-        return Category(name, label,inputLimit,classificationLevel,format,hierarchyLevel).apply {
+        return Category().apply {
+            name = name
+            label = label
+            inputLimit = inputLimit
+            classificationLevel = classificationLevel
+            format = format
+            hierarchyLevel = hierarchyLevel
             categoryKind = categoryKind
             children = children
             code = code

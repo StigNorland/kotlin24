@@ -16,7 +16,7 @@ import java.util.*
  * @author Stig Norland
  */
 
-@RepositoryRestResource(path = "instrument", collectionResourceRel = "Instruments", itemResourceRel = "Instrument", excerptProjection = InstrumentListe::class)
+@RepositoryRestResource(path = "instrument", itemResourceRel = "Instrument", excerptProjection = InstrumentListe::class)
 interface InstrumentRepository: BaseArchivedRepository<Instrument>, RevisionRepository<Instrument, UUID, Int>,  JpaRepository<Instrument, UUID> {
 
     @Query(nativeQuery = true,

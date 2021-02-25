@@ -27,7 +27,6 @@ import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.utils.StringTool
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.net.URL
@@ -254,7 +253,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                     .setBorder(Border.NO_BORDER) //                .setWidth(width100*0.20F)
                     .add(
                         Paragraph(
-                            comment.modifiedBy.username + "@" + comment.modifiedBy.agency.name +
+                            comment.modifiedBy.username + "@" + (comment.modifiedBy.agency?.name ?:"?" ) +
                                     java.lang.String.format(" - %1\$TD %1\$TT", comment.modified.toLocalDateTime())
                         )
                     )

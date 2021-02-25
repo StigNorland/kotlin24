@@ -8,12 +8,14 @@ import no.nsd.qddt.repository.SurveyProgramRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.RepositoryRestController
 import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import java.util.function.Consumer
+import javax.persistence.EntityNotFoundException
 
 
 /**
@@ -63,12 +65,11 @@ class SurveyProgramController {
 
 
     @GetMapping(value = ["/list"] )
-    fun listByUser(@AuthenticationPrincipal user:User?): List<SurveyProgram>? {
-        val agent = user?.agency
-        return if (agent != null) {
-            repository.findByAgencyId(agent.id)
-        } else
-            null
+    fun listByUser(@AuthenticationPrincipal user:User?) {
+        if (user == null)
+            throw EntityNotFoundException("User not found")
+//        val agent = user?.agency ?: throw EntityNotFoundException("by agent")
+        user.angencyId?.let { repository.findByAgency_Id(it, Pageable.unpaged()) }
     }
 
 

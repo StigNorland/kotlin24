@@ -2,7 +2,6 @@ package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.interfaces.BaseArchivedRepository
-import no.nsd.qddt.repository.projection.SurveyProgramListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.history.Revision
@@ -10,14 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
-import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.data.rest.core.annotation.RestResource
 import java.util.*
 
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "surveyprogram", collectionResourceRel = "SurveyPrograms", itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
+//@RepositoryRestResource(path = "surveyprogram",  itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
 interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , RevisionRepository<SurveyProgram, UUID, Int>,
     JpaRepository<SurveyProgram, UUID> {
 
@@ -36,6 +34,6 @@ interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , Revisi
     fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<SurveyProgram>
 
 //    @RestResource(rel = "all", path = "list")
-    fun findByAgencyId( id: UUID): List<SurveyProgram>?
+    fun findByAgency_Id( id: UUID, pageable:Pageable?): Page<SurveyProgram>
 
 }

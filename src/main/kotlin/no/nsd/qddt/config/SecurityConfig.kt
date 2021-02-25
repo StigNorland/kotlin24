@@ -5,6 +5,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.servlet.FilterRegistrationBean
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean
@@ -36,14 +37,13 @@ import javax.servlet.http.HttpServletResponse
  * @author Stig Norland
  */
 @Configuration
-@EnableWebMvc
-//@EnableCaching
-//@EnableScheduling
-@EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL])
-@EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
 @EnableJpaRepositories(
     basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.config", "no.nsd.qddt.security", "no.nsd.qddt.service"],
     repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
+@EnableWebMvc
+@EnableCaching
+@EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL])
+@EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
     securedEnabled = true,
@@ -132,12 +132,12 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .antMatchers("/login/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers(HttpMethod.GET, "/**").permitAll()
-            .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
-            .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
-            .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
-            .antMatchers(HttpMethod.GET, "/user/search/*").hasRole("ADMIN")
-            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
-//            .anyRequest().authenticated()
+//            .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
+//            .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
+//            .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
+//            .antMatchers(HttpMethod.GET, "/user/search/*").hasRole("ADMIN")
+//            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
+            .anyRequest().authenticated()
 
         // Add JWT token filter
         http.addFilterBefore(authenticationTokenFilterBean(),UsernamePasswordAuthenticationFilter::class.java)

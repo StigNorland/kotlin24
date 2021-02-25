@@ -13,7 +13,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
  * @author Dag Østgulen Heradstveit
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "category", collectionResourceRel = "Categories", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
+@RepositoryRestResource(path = "category", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
 interface CategoryRepository : BaseRepository<Category>  {
     @Query(
         value = "SELECT ca.* FROM category ca WHERE ( ca.category_kind ILIKE :categoryType OR ca.hierarchy_level ILIKE :hierarchyLevel ) " +

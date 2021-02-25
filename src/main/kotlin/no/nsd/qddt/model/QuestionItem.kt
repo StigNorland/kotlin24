@@ -8,7 +8,6 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.embedded.ElementRefResponseDomain
-import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -57,10 +56,10 @@ class QuestionItem :AbstractEntityAudit() {
   }
   
 
-  fun updateStatusQI() {
-    this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-    this.changeComment = "Concept reference removed"
-  }
+//  fun updateStatusQI() {
+//    this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+//    this.changeComment = "Concept reference removed"
+//  }
 
   override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "QuestionItem")

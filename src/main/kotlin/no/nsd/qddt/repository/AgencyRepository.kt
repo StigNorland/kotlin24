@@ -10,5 +10,5 @@ import java.util.*
  * @author Stig Norland
  */
 
-@RepositoryRestResource(path = "agency", collectionResourceRel = "Agencies", itemResourceRel = "Agency", excerptProjection = AgencyListe::class)
+@RepositoryRestResource(path = "agency", itemResourceRel = "Agency", excerptProjection = AgencyListe::class)
 interface AgencyRepository : JpaRepository<Agency,UUID>

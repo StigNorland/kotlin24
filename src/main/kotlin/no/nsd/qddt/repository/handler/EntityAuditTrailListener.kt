@@ -39,8 +39,8 @@ class EntityAuditTrailListener{
     @PrePersist
     private fun onInsert(entity: AbstractEntityAudit) {
         val user = SecurityContextHolder.getContext().authentication.details as User
-        entity.agency = user.agency
-        if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
+        entity.agency = user.agency!!
+        if (entity.xmlLang == "") user.agency!!.xmlLang.also { entity.xmlLang = it }
         when (entity) {
             is Category -> {
                 beforeCategoryInsert(entity)
@@ -110,10 +110,10 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        var loader =  applicationContext?.getBean("repositoryLoaderImpl") as RepositoryLoader
+        var bean =  applicationContext?.getBean("repositoryLoaderImpl") as RepositoryLoader
         when (entity) {
             is QuestionItem -> {
-                val repository =  loader.getRepository<ResponseDomain>(entity.responseDomainRef.elementKind)
+                val repository =  bean.getRepository<ResponseDomain>(entity.responseDomainRef.elementKind)
                 val loader = ElementLoader<ResponseDomain>(repository)
                 entity.responseDomainRef = loader.fill(entity.responseDomainRef) as ElementRefResponseDomain
             }
