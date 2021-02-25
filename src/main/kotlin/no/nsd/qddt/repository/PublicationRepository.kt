@@ -15,7 +15,7 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "publication", collectionResourceRel = "items", itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
+@RepositoryRestResource(path = "publication", collectionResourceRel = "Publications", itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
 interface PublicationRepository: BaseArchivedRepository<Publication> , RevisionRepository<Publication, UUID, Int>,
     JpaRepository<Publication, UUID> {
 

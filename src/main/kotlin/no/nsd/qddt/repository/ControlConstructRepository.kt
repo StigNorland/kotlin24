@@ -14,7 +14,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "controlconstruct", collectionResourceRel = "items", itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
+@RepositoryRestResource(path = "controlconstruct", collectionResourceRel = "ControlConstructs", itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
 interface ControlConstructRepository: RevisionRepository<ControlConstruct, UUID, Int>,  JpaRepository<ControlConstruct, UUID> {
 
         /**

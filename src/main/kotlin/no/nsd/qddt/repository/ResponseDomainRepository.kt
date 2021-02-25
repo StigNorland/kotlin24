@@ -14,7 +14,7 @@ import java.util.*
 * @author Dag Østgulen Heradstveit
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "responsedomain", collectionResourceRel = "items", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
+@RepositoryRestResource(path = "responsedomain", collectionResourceRel = "ResponseDomains", itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
 interface ResponseDomainRepository:  RevisionRepository<ResponseDomain, UUID, Int>, JpaRepository<ResponseDomain, UUID>  {
   // Page<ResponseDomain> findByResponseKindAndNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(ResponseKind responseKind, String name, String description, Pageable pageable);
   // TODO fix query --->

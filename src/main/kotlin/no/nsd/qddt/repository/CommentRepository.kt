@@ -8,5 +8,5 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "comment", collectionResourceRel = "items", itemResourceRel = "Comment")
+@RepositoryRestResource(path = "comment", collectionResourceRel = "Comments", itemResourceRel = "Comment")
 interface CommentRepository: JpaRepository<Comment, UUID>

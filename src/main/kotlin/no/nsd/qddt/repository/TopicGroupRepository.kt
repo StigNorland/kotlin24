@@ -17,7 +17,7 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "topicgroup", collectionResourceRel = "items", itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
+@RepositoryRestResource(path = "topicgroup", collectionResourceRel = "TopicGroups", itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
 interface TopicGroupRepository : BaseArchivedRepository<TopicGroup>, RevisionRepository<TopicGroup, UUID, Int>,
     JpaRepository<TopicGroup, UUID> {
 

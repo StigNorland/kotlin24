@@ -17,7 +17,7 @@ import java.util.*
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "surveyprogram", collectionResourceRel = "items", itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
+@RepositoryRestResource(path = "surveyprogram", collectionResourceRel = "SurveyPrograms", itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class)
 interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , RevisionRepository<SurveyProgram, UUID, Int>,
     JpaRepository<SurveyProgram, UUID> {
 
