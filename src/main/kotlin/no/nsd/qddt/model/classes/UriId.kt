@@ -15,15 +15,6 @@ class UriId: Comparable<UriId> , Serializable {
 
     var rev: Int? = null
 
-    fun fromString(uri: String) : UriId {
-        val parts = uri.split(":")
-        return UriId().apply { 
-            id = UUID.fromString(parts[0])
-            if (parts.size==2)
-                rev = parts[1].toInt()
-        }
-    }
-
     override fun toString(): String {
         if (rev != null)
             return "$id:$rev"
@@ -39,6 +30,18 @@ class UriId: Comparable<UriId> , Serializable {
         catch (nfe:NumberFormatException) {
           id.compareTo(id)
         }
-    } 
+    }
+
+    companion object {
+        fun fromString(uri: String) : UriId {
+            val parts = uri.split(":")
+            return UriId().apply {
+                id = UUID.fromString(parts[0])
+                if (parts.size==2)
+                    rev = parts[1].toInt()
+            }
+        }
+
+    }
 
 }
