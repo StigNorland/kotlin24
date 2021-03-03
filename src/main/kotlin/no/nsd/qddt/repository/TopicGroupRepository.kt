@@ -28,7 +28,6 @@ interface TopicGroupRepository : BaseArchivedRepository<TopicGroup>, RevisionRep
     @RestResource(rel = "all", path = "list")
     override fun findAll(pageable: Pageable): Page<TopicGroup>
 
-    fun findByStudyId(id: UUID): List<TopicGroup>?
 
     fun findByTopicQuestionItemsElementId(id: UUID): List<TopicGroup>?
 

@@ -1,10 +1,12 @@
 {
     "cSpell.words": [
+        "Cacheable",
         "Cloneable",
         "DATETIME",
         "Liste",
         "Pageable",
         "Serializable",
+        "bcrypt",
         "controlconstruct",
         "databind",
         "datasource",
@@ -24,6 +26,7 @@
         "servlet",
         "springframework",
         "topicgroup",
+        "userdetails",
         "usertype",
         "vararg"
     ]

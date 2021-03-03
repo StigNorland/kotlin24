@@ -20,15 +20,18 @@ class User: UserDetails {
     @Version
     lateinit var modified: Timestamp
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "agency_id")
-    @JsonBackReference(value = "userAgencyRef")
+
+    @Column(insertable = false, updatable = false)
+    var agencyId: UUID? = null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agencyId")
     lateinit var agency : Agency
 
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
-    internal lateinit var authority: MutableCollection<Authority>
+    internal lateinit var authority: MutableSet<Authority>
 
     private  var isEnabled: Boolean=false
 
@@ -39,9 +42,6 @@ class User: UserDetails {
 
     lateinit var email : String
 
-
-    @Column( name="agency_id", updatable = false, insertable = false)
-    val angencyId: UUID?=null
 
     override fun getPassword(): String {
         return password
@@ -70,7 +70,7 @@ class User: UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return authority.map {
             GrantedAuthority { it.authority }
-        }.toMutableList()
+        }.toMutableSet()
     }
 
 //    override fun toString(): String {

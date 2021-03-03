@@ -15,7 +15,7 @@ import javax.persistence.Embeddable
 @Embeddable
 class ElementRefResponseDomain() : IElementRef<ResponseDomain> , Serializable {
 
-    override lateinit var elementId: UUID
+    override var elementId: UUID?=null
     override var elementRevision: Int? = null
     override var name: String? = null
 

@@ -23,7 +23,7 @@ interface ControlConstructRepository<T : ControlConstruct>: RevisionRepository<T
          * @param questionId
          * @return
          */
-        fun findByQuestionItemRefElementId(questionId: UUID): List<QuestionConstruct>?
+        fun findByQuestionIdId(questionId: UUID): List<QuestionConstruct>?
 
 
         @Query(

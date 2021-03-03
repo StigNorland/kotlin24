@@ -1,9 +1,11 @@
 package no.nsd.qddt.model.embedded
 
  import com.fasterxml.jackson.annotation.JsonIgnore
+ import com.fasterxml.jackson.databind.annotation.JsonSerialize
  import java.io.Serializable
  import javax.persistence.Embeddable
  import javax.persistence.Transient
+ import javax.persistence.Column
 
 /**
  * @author Stig Norland
@@ -25,7 +27,9 @@ class Version : Comparable<Version>, Serializable {
     var versionLabel: String = ""
 
     @Transient
-    var rev: Int? = null
+    @JsonSerialize
+    @Column(name="rev", insertable = false, updatable = false)
+    var rev: Int = 0
 
     @Transient
     @JsonIgnore

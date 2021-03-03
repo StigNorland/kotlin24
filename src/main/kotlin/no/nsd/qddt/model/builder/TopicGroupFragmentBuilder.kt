@@ -22,10 +22,10 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
 %7${"$"}s		</c:ConceptGroup>
 """
 
-    private val childrenBuilders:  MutableList<AbstractXmlBuilder> = topicGroup.concepts.stream()
-        .filter { it != null }
-        .map { it.xmlBuilder() }
-        .collect(Collectors.toList())
+    // private val childrenBuilders:  MutableList<AbstractXmlBuilder> = topicGroup.concepts.stream()
+    //     .filter { it != null }
+    //     .map { it.xmlBuilder() }
+    //     .collect(Collectors.toList())
 
     private val questions:  MutableList<AbstractXmlBuilder> = topicGroup.topicQuestionItems.stream()
         .filter { it.element != null }
@@ -37,9 +37,9 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
         super.addXmlFragments(fragments)
         //        fragments.putIfAbsent( getUrnId(), getXmlFragment() );
-        for (child in childrenBuilders) {
-            child.addXmlFragments(fragments)
-        }
+        // for (child in childrenBuilders) {
+        //     child.addXmlFragments(fragments)
+        // }
         for (question in questions) {
             question.addXmlFragments(fragments)
         }
@@ -64,7 +64,8 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
                 entity.name,
                 entity.description,
                 entity.xmlLang,
-                childrenBuilders.stream().map { it.getXmlEntityRef(3) }.collect(Collectors.joining())
+                ""
+                // childrenBuilders.stream().map { it.getXmlEntityRef(3) }.collect(Collectors.joining())
             )    
         }
 }

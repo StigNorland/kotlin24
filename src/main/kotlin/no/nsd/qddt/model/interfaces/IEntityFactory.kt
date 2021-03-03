@@ -13,7 +13,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
     fun copyBody(source: T, dest: T): T
     fun copy(source: T, revision: Int?): T {
         val rev = when {
-            source.isNewCopy -> null
+            source.isNewCopy() -> null
             else -> revision
         }
         return copyBody(source,makeNewCopy(source, rev))

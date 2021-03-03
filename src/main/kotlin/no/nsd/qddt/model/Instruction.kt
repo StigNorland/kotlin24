@@ -18,7 +18,7 @@ import javax.persistence.*
 @Table(
     name = "INSTRUCTION",
     uniqueConstraints = [UniqueConstraint(
-        columnNames = ["name", "description", "agency_id"],
+        columnNames = ["name", "description", "agencyId"],
         name = "UNQ_INSTRUCTION_NAME"
     )]
 )

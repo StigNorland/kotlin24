@@ -133,7 +133,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     @Transient
     @JsonSerialize
     @JsonDeserialize
-    var code: Code = Code("")
+    var code: Code? = null
 
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "category_idx")
@@ -142,7 +142,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         return if (categoryKind == CategoryType.SCALE) {
             if (field.isEmpty()) logger.error("getChildren() is 0/NULL")
             field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
-                .sorted(Comparator.comparing { obj: Category -> obj.code })
+                .sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") })
                 .toList() as MutableList<Category>
         } else
             field.stream()
@@ -152,7 +152,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     set(value) {
         field =
         when (categoryKind) {
-            CategoryType.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code }).collect(Collectors.toList())
+            CategoryType.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
             else -> value
         }
     }
@@ -210,49 +210,49 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     }
 
 
-    // /used to keep track of current item in the recursive call populateCatCodes
-    @Transient
-    private var _Index = 0
+    // // /used to keep track of current item in the recursive call populateCatCodes
+    // @Transient
+    // private var _Index = 0
 
-    //codes.clear();
-    // this is useful for populating codes before saving to DB (used in the service)
-    var codes: MutableList<Code>
-        get() = harvestCatCodes(this)
-        set(codes) {
-            _Index = 0
-            populateCatCodes(this, codes)
-            //codes.clear();
-        }
+    // //codes.clear();
+    // // this is useful for populating codes before saving to DB (used in the service)
+    // var codes: MutableList<Code>?
+    //     get() = harvestCatCodes(this)
+    //     set(codes) {
+    //         _Index = 0
+    //         populateCatCodes(this, codes)
+    //         //codes.clear();
+    //     }
 
-    private fun harvestCatCodes(current: Category?): MutableList<Code> {
-        val tmplist: MutableList<Code> = mutableListOf()
-        if (current == null) return tmplist
-        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
-            tmplist.add((current.code))
-        }
-        current.children.forEach {  tmplist.addAll(harvestCatCodes(it)) }
-        return tmplist
-    }
+    // private fun harvestCatCodes(current: Category?): MutableList<Code> {
+    //     val tmpList: MutableList<Code> = mutableListOf()
+    //     if (current == null) return tmpList
+    //     if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
+    //         tmpList.add((current.code))
+    //     }
+    //     current.children.forEach {  tmpList.addAll(harvestCatCodes(it)) }
+    //     return tmpList
+    // }
 
-    private fun populateCatCodes(current: Category?, codes: List<Code>) {
-        assert(current != null)
-        if (current!!.hierarchyLevel == HierarchyLevel.ENTITY) {
-            try {
-                current.code = codes[_Index]
-                _Index++
-            } catch (iob: IndexOutOfBoundsException) {
-                current.code = Code()
-            } catch (ex: Exception) {
-                logger.error(
-                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).toString() +
-                            " populateCatCodes (catch & continue) " + ex.message + " - " +
-                            current
-                )
-                current.code = Code()
-            }
-        }
-        current.children.forEach { populateCatCodes(it, codes) }
-    }
+    // private fun populateCatCodes(current: Category?, codes: List<Code>) {
+    //     assert(current != null)
+    //     if (current!!.hierarchyLevel == HierarchyLevel.ENTITY) {
+    //         try {
+    //             current.code = codes[_Index]
+    //             _Index++
+    //         } catch (iob: IndexOutOfBoundsException) {
+    //             current.code = Code()
+    //         } catch (ex: Exception) {
+    //             logger.error(
+    //                 LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).toString() +
+    //                         " populateCatCodes (catch & continue) " + ex.message + " - " +
+    //                         current
+    //             )
+    //             current.code = Code()
+    //         }
+    //     }
+    //     current.children.forEach { populateCatCodes(it, codes) }
+    // }
 
     public override fun clone(): Category {
         return Category().apply {

@@ -16,10 +16,14 @@ import java.util.*
 */
 @RepositoryRestResource(path = "responsedomain",  itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
 interface ResponseDomainRepository:  RevisionRepository<ResponseDomain, UUID, Int>, JpaRepository<ResponseDomain, UUID>  {
+
+
   // Page<ResponseDomain> findByResponseKindAndNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(ResponseKind responseKind, String name, String description, Pageable pageable);
   // TODO fix query --->
 
-    @Query( nativeQuery = true,
+
+
+  @Query( nativeQuery = true,
       value = ("SELECT RD.* FROM RESPONSEDOMAIN RD " +
               " WHERE RD.response_kind = :ResponseKind AND  ( " +
               "   (:xmlLang is null OR RD.xml_lang ILIKE cast(:xmlLang AS text)) AND ( " +

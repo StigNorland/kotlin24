@@ -20,7 +20,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
      * but should never be persisted.
      */
 
-    override lateinit var elementId: UUID
+    override var elementId: UUID?=null
 
     @Embedded
     @Transient
@@ -72,4 +72,17 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
                 elementRevision = null
             }
         }
+
+    public override fun clone(): ElementRefQuestionItem {
+        return ElementRefQuestionItem().apply {
+            this.version = version
+            this.name =name
+            if (element != null)
+                this.element = element
+            else
+                this.elementId = elementId
+            
+        }
+    }
+    
 }

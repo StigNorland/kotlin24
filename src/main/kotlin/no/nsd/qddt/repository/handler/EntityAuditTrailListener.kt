@@ -5,11 +5,12 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.ElementLoader
 import no.nsd.qddt.model.embedded.ElementRefResponseDomain
 import no.nsd.qddt.model.embedded.Version
+import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
-import no.nsd.qddt.model.interfaces.IArchived
-import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.service.RepositoryLoader
+import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.*
+import no.nsd.qddt.service.RepLoaderServiceImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,12 +39,15 @@ class EntityAuditTrailListener{
 
     @PrePersist
     private fun onInsert(entity: AbstractEntityAudit) {
-        val user = SecurityContextHolder.getContext().authentication.details as User
-        entity.agency = user.agency!!
-        if (entity.xmlLang == "") user.agency!!.xmlLang.also { entity.xmlLang = it }
+        // val user = SecurityContextHolder.getContext().authentication.details as User
+        // entity.agency = user.agency!!
+        // if (entity.xmlLang == "") user.agency!!.xmlLang.also { entity.xmlLang = it }
         when (entity) {
             is Category -> {
                 beforeCategoryInsert(entity)
+            }
+            is ResponseDomain -> {
+                entity.codes = harvestCatCodes(entity.managedRepresentation)
             }
             is Study -> {
                 beforeStudyInsert(entity)
@@ -94,6 +98,9 @@ class EntityAuditTrailListener{
                 is Study -> {
                     beforeStudyUpdate(entity)
                 }
+                is ResponseDomain -> {
+                    entity.codes = harvestCatCodes(entity.managedRepresentation)
+                }
             }
         } catch (ex: Exception) {
             log.error("AbstractEntityAudit::onUpdate", ex)
@@ -110,19 +117,46 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        var bean =  applicationContext?.getBean("repositoryLoaderImpl") as RepositoryLoader
+        var bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
         when (entity) {
-            is QuestionItem -> {
-                val repository =  bean.getRepository<ResponseDomain>(entity.responseDomainRef.elementKind)
-                val loader = ElementLoader<ResponseDomain>(repository)
-                entity.responseDomainRef = loader.fill(entity.responseDomainRef) as ElementRefResponseDomain
-            }
+            is QuestionConstruct -> {
+                if (entity.questionItem == null && entity.questionId?.id != null) {
 
-//            is Study -> {
-//                log.debug("Study loaded from database: {}" , entity.id)
-//            }
+                    val repository =  bean.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
+                    val questionItem  =  with(entity.questionId!!) {
+                        if (rev != null)
+                            repository.findRevision(id,rev!!).get().entity 
+                        else 
+                            repository.findLastChangeRevision(id).get().entity
+                    }
+                    questionItem.rev = entity.questionId?.rev
+                    log.debug("{} : {}" ,questionItem.version.rev, questionItem.rev)
+                    entity.questionItem = questionItem
+                }
+
+            }
+            is QuestionItem -> {
+                if (entity.responseDomain == null && entity.responseId?.id != null) {
+
+                    val repository =  bean.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
+                    val responseDomain  =  with(entity.responseId!!) {
+                        if (rev != null)
+                            repository.findRevision(id,rev!!).get().entity 
+                        else 
+                            repository.findLastChangeRevision(id).get().entity
+                    }
+                    responseDomain.rev = entity.responseId?.rev
+                    log.debug("{} : {}" ,responseDomain.version.rev, responseDomain.rev)
+                    entity.responseDomain = responseDomain
+                }
+            }
+            is ResponseDomain -> {
+                log.debug("ResponseDomain populating codes...: {}" , entity.id)
+                var _index = 0
+                populateCatCodes(entity.managedRepresentation,_index,entity.codes)
+            }
             else -> {
-                log.debug("{}:{}:{} loaded from database", entity.classKind.padEnd(14) , entity.id, entity.name)
+                // log.debug("{}: {}: {} NOT loaded ", entity.classKind.padEnd(15) , entity.id, entity.name)
             }
         }
 
@@ -172,16 +206,43 @@ class EntityAuditTrailListener{
          }
     }
 
+
+
+
     companion object {
         private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)
     }
 
-//    override fun setApplicationContext(applicationContext: ApplicationContext) {
-//        log.info("ok ? ")
-//        fetcher =  applicationContext.getBean("repositoryLoader", RepositoryLoader::class.java  )
-//        log.info("ok etter? ")
-//
-//    }
 
+    private fun harvestCatCodes(current: Category?): MutableList<Code> {
+        val tmpList: MutableList<Code> = mutableListOf()
+        if (current == null) return tmpList
+        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
+            tmpList.add((current.code?:Code("")))
+        }
+        current.children.forEach {  tmpList.addAll(harvestCatCodes(it)) }
+        return tmpList
+    }
 
+    
+    private fun populateCatCodes(current: Category?, _index: Int,  codes: List<Code>): Int {
+        assert(current != null)
+        var _Index = _index
+
+        if (current!!.hierarchyLevel == HierarchyLevel.ENTITY) {
+            try {
+                log.debug(codes[_Index]?.toString()?:"EMPTY!!!")
+                current.code = codes[_Index++]
+            } catch (iob: IndexOutOfBoundsException) {
+                current.code = Code()
+            } catch (ex: Exception) {
+                log.error(ex.localizedMessage)
+                current.code = Code()
+            }
+        }
+        current.children.forEach { 
+            _Index = populateCatCodes(it, _Index, codes) 
+        }
+        return _Index
+    }
 }

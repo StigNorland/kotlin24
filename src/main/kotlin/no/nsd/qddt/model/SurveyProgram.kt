@@ -35,22 +35,22 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "SURVEY_PROGRAM")
-class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArchived {
+class SurveyProgram() : AbstractEntityAudit(), IAuthorSet, IArchived {
 
-    @Column(length = 20000, nullable = false)
-    var description: String? = null
+    override var name: String = ""
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "surveyProgram", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-    @OrderColumn(name = "survey_idx")
-    @AuditMappedBy(mappedBy = "surveyProgram", positionMappedBy = "surveyIdx")
+    @Column(length = 20000)
+    var description: String? = ""
+
+    @OrderColumn(name = "surveyIdx",  updatable = false, insertable = false)
+    // @AuditMappedBy(mappedBy = "surveyId", positionMappedBy = "surveyIdx")
+    @OneToMany(mappedBy = "surveyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var studies: MutableList<Study> = mutableListOf()
+    
+    override var isArchived: Boolean = false
 
-//    @OrderBy(value = "name ASC,email DESC")
-//    @JoinTable(
-//        name = "SURVEY_PROGRAM_AUTHORS",
-//        joinColumns = [JoinColumn(name = "survey_id")],
-//        inverseJoinColumns = [JoinColumn(name = "author_id")]
-//    )
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    override var authors: MutableSet<Author> = mutableSetOf()
 
     fun addStudy(study: Study): Study {
         studies.add(study)
@@ -77,12 +77,6 @@ class SurveyProgram(override var name: String) : AbstractEntityAudit(), IAuthorS
             study.fillDoc(pdfReport, counter + ++i)
         }
     }
-
-    override var isArchived: Boolean = false
-
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    override var authors: MutableSet<Author> = mutableSetOf()
 
 
 

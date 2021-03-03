@@ -41,14 +41,12 @@ class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>>
         elementsIndex.add(element = this)
     }
 
-    val isRoot: Boolean
-        get() = parent == null
 
     // this should make Hibernate fetch children
-    val isLeaf: Boolean
-        get() = children.size == 0
+    fun isLeaf() = children.size == 0
+
     val level: Int
-        get() = if (isRoot) 0 else parent!!.level + 1
+        get() = parent?.level?:-1 +1
 
     fun addChild(child: T): TreeNode<T> {
         val childNode = TreeNode(child)
@@ -59,10 +57,10 @@ class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>>
     }
 
     fun checkInNodes() {
-        children.forEach(Consumer { c: TreeNode<T> ->
-            c.parent = this
-            c.checkInNodes()
-        })
+        children.forEach { 
+            it.parent = this
+            it.checkInNodes()
+        }
     }
 
     private fun registerChildForSearch(node: TreeNode<T>) {

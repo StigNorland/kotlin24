@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.classes
+package no.nsd.qddt.config
 
 import no.nsd.qddt.model.User
 import org.hibernate.envers.DefaultRevisionEntity

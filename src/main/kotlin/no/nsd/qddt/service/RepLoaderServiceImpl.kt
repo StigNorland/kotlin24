@@ -3,21 +3,22 @@ package no.nsd.qddt.service
 import no.nsd.qddt.model.ControlConstruct
 import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.stereotype.Service
+import org.hibernate.criterion.NullExpression
 import java.util.*
 import javax.persistence.EntityNotFoundException
-
 
 /**
  * @author Stig Norland
  */
-@Service
-class RepositoryLoaderImpl : RepositoryLoader {
+@Service("repLoaderService")
+class RepLoaderServiceImpl : RepLoaderService {
     internal val logger: Logger = LoggerFactory.getLogger(this.javaClass)
     @Autowired private var conceptRepository: ConceptRepository? = null
     @Autowired private var responseDomainRepository: ResponseDomainRepository? = null
@@ -35,6 +36,8 @@ class RepositoryLoaderImpl : RepositoryLoader {
     @Autowired private var instrumentRepository: InstrumentRepository? = null
 
     override fun <T> getRepository(elementKind: ElementKind): RevisionRepository<T, UUID, Int> {
+        if (elementKind == null)
+            throw Exception("ElementKind cannot be null")
         logger.info("get Service -> $elementKind")
         return when (elementKind) {
             ElementKind.CONCEPT -> conceptRepository as RevisionRepository<T,UUID,Int>
@@ -51,10 +54,15 @@ class RepositoryLoaderImpl : RepositoryLoader {
             ElementKind.TOPIC_GROUP -> topicGroupRepository as RevisionRepository<T,UUID,Int>
             ElementKind.PUBLICATION -> publicationRepository as RevisionRepository<T,UUID,Int>
             else -> {
-                throw EntityNotFoundException("ElementKind :${elementKind.className} not defined.")
+                throw EntityNotFoundException("ElementKind :${elementKind} not defined.")
             }
         }
     }
 
 }
 
+
+// public interface RepLoader {
+
+//     fun <T> getRepository(elementKind: ElementKind): RevisionRepository<T, UUID, Int>
+// }

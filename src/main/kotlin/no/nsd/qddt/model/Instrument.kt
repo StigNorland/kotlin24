@@ -1,15 +1,15 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
+// import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.ParentRef
+// import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.enums.InstrumentKind
 import org.hibernate.envers.Audited
 import javax.persistence.*
-
+import java.util.*
 
 
 
@@ -25,7 +25,15 @@ import javax.persistence.*
 @Table(name = "INSTRUMENT")
 class Instrument : AbstractEntityAudit() {
 
-    override lateinit var name: String
+    @Column(insertable = false, updatable = false)
+    var studyId: UUID? = null
+
+    @ManyToOne
+    @JoinColumn(name="studyId")
+    var study: Study? = null
+
+    override var name: String = ""
+
 
     var label: String = ""
         protected set(value) {
@@ -35,25 +43,22 @@ class Instrument : AbstractEntityAudit() {
             }
         }
 
+
     var description: String? = null
 
     var externalInstrumentLocation: String? = null
 
-    @Column(name = "instrument_kind")
     @Enumerated(EnumType.STRING)
     var instrumentKind = InstrumentKind.QUESTIONNAIRE_SEMISTRUCTURED
 
-    @JsonBackReference(value = "studyRef")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "study_id", updatable = false)
-    var study: Study? = null
+    // @JsonBackReference(value = "studyRef")
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "study_id", updatable = false)
 
 
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE])
     var root: InstrumentNode<*>? = null
 
-    val parentRef: ParentRef<Study>?
-        get() = study?.let { ParentRef(it) }
 
     ////    TODO implement outparams....
     //    @Transient

@@ -13,7 +13,7 @@ class QuestionItemFactory: IEntityFactory<QuestionItem> {
   override fun copyBody(source: QuestionItem, dest: QuestionItem): QuestionItem {
     with(dest) {
       name = source.name
-      responseDomainRef = source.responseDomainRef
+      responseId = source.responseId
       question = source.question
       intent = source.intent
     }

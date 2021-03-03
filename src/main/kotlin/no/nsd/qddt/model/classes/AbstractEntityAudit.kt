@@ -37,12 +37,9 @@ abstract class AbstractEntityAudit(
     @Column(name="based_on_revision", updatable = false)
     override var basedOnRevision: Int? = null,
 
-    @Embedded
-    override var version: EmbeddedVersion= EmbeddedVersion(),
-
     var xmlLang: String = "en-GB"
 
-) : AbstractEntity(), IBasedOn, IWebMenuPreview, Serializable {
+) : AbstractEntity(), IWebMenuPreview, IBasedOn,  Serializable {
 
     /**
      * I am the beginning of the end, and the end of time and space.
@@ -53,10 +50,20 @@ abstract class AbstractEntityAudit(
 //    @Column(updatable = false, insertable = false)
 //    override var rev: Int? = null
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "agency_id")
+
+    @Embedded
+    override lateinit var version: EmbeddedVersion
+
+
+    @Column(insertable = false, updatable = false)
+    var agencyId: UUID? = null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agencyId")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     override lateinit var agency : Agency
+
+    // override lateinit var agency : Agency
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -85,7 +92,7 @@ abstract class AbstractEntityAudit(
 
 
     @NotAudited
-    @OrderColumn(name = "owner_idx")
+    @OrderColumn(name = "ownerIdx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
 

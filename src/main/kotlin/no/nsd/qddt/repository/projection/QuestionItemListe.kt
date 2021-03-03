@@ -2,6 +2,7 @@ package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.embedded.ElementRefResponseDomain
+import no.nsd.qddt.model.ResponseDomain
 import org.springframework.data.rest.core.config.Projection
 
 
@@ -12,6 +13,7 @@ import org.springframework.data.rest.core.config.Projection
 interface QuestionItemListe: IAbstractEntityEditList {
     var question: String
     var intent: String
-    var responseDomainRef: ElementRefResponseDomain
+    var responseDomain: ResponseDomain?
+    // var responseDomainRef: ElementRefResponseDomain
 }
 

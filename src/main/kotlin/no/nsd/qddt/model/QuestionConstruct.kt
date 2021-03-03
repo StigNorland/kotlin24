@@ -1,15 +1,28 @@
 package no.nsd.qddt.model
 
+// import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
+// import no.nsd.qddt.model.builder.pdf.PdfReport
+// import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+// import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+// import no.nsd.qddt.model.enums.ControlConstructInstructionRank
+// import no.nsd.qddt.model.enums.ElementKind
+// import no.nsd.qddt.repository.handler.QuestionConstructRefAuditTrailer
+// import org.hibernate.envers.Audited
+// import javax.persistence.*
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.enums.ControlConstructInstructionRank
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.repository.handler.QuestionConstructRefAuditTrailer
 import org.hibernate.envers.Audited
+// import kotlin.streams.toList
+import java.util.stream.Collectors
 import javax.persistence.*
-import kotlin.streams.toList
 
 /**
  * @author Stig Norland
@@ -18,20 +31,38 @@ import kotlin.streams.toList
 @Audited
 @DiscriminatorValue("QUESTION_CONSTRUCT")
 @EntityListeners(value = [QuestionConstructRefAuditTrailer::class])
-class QuestionConstruct : ControlConstruct() {
+class QuestionConstruct: ControlConstruct() {
+
     @Column(name = "description", length = 1500)
-    var description: String? = null
+    var description: String = ""
 
-    @AttributeOverrides(
-        AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
-        AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
-        AttributeOverride(name = "elementId",column = Column(name = "questionitem_id")),
-        AttributeOverride(name = "elementRevision",column = Column(name = "questionitem_revision")),
-        AttributeOverride(name = "version.rev",column = Column(name = "questionitem_revision"))
-    )
+    // @AttributeOverrides(
+    //     AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
+    //     AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
+    //     AttributeOverride(name = "elementId",column = Column(name = "questionitem_id")),
+    //     AttributeOverride(name = "elementRevision",column = Column(name = "questionitem_revision"))
+    //     // AttributeOverride(name = "version.rev",column = Column(name = "questionitem_revision"))
+    // )
+    // @Embedded
+    // var questionItemRef: ElementRefQuestionItem? = null
+
+    @Column(insertable = false, updatable = false)
     @Embedded
-    var questionItemRef: ElementRefQuestionItem? = null
-
+    @AttributeOverrides(
+      AttributeOverride(name = "id",column = Column(name = "questionitem_id", nullable =true)),
+      AttributeOverride(name = "rev",column = Column(name = "questionitem_revision", nullable =true)),
+    )
+    var questionId: UriId? = null
+  
+    // @AttributeOverrides(
+    //     AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
+    //     AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
+    //     AttributeOverride(name = "id",column = Column(name = "questionitem_id")),
+    //     AttributeOverride(name = "rev",column = Column(name = "questionitem_revision"))
+    // )
+    @Transient
+    @JsonSerialize
+    var questionItem: QuestionItem? = null
     
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "universe_idx")
@@ -54,13 +85,13 @@ class QuestionConstruct : ControlConstruct() {
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == ControlConstructInstructionRank.PRE }
             .map {   it.instruction.description}
-            .toList()
-    
+            .collect(Collectors.toList())
+            
     val postInstructions
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == ControlConstructInstructionRank.POST }
             .map {   it.instruction.description}
-            .toList()
+            .collect(Collectors.toList())
 
 
 
@@ -80,15 +111,17 @@ class QuestionConstruct : ControlConstruct() {
                 }
 
             private fun addChildren() {
-                questionItemRef?.element?.let { children.add(it.xmlBuilder()) }
+                questionItem?.let { children.add(it.xmlBuilder()) }
                 children.addAll(
                     universe.stream()
-                        .map { it.xmlBuilder() }.toList()
+                        .map { it.xmlBuilder() }
+                        .collect(Collectors.toList())
                 )
 
                 children.addAll(
                     controlConstructInstructions.stream()
-                        .map { it.instruction.xmlBuilder() }.toList()
+                        .map { it.instruction.xmlBuilder() }
+                        .collect(Collectors.toList())
                 )
             }
         }
@@ -112,8 +145,8 @@ class QuestionConstruct : ControlConstruct() {
         }
 
         pdfReport.addHeader2("Question Item")
-        questionItemRef?.name?.let { pdfReport.addParagraph(it) }
-        questionItemRef?.element?.responseDomainRef?.element?.fillDoc(pdfReport, "")
+        questionItem?.name?.let { pdfReport.addParagraph(it) }
+        questionItem?.responseDomain?.fillDoc(pdfReport, "")
 
         if (postInstructions.isNotEmpty())
             pdfReport.addHeader2("Post Instructions")

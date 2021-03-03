@@ -13,8 +13,8 @@ interface IBasedOn:IDomainObject {
     var changeKind: ChangeKind
     var changeComment: String
 
-    val isBasedOn get() = changeKind == ChangeKind.BASED_ON || changeKind == ChangeKind.NEW_COPY || changeKind == ChangeKind.TRANSLATED || changeKind == ChangeKind.REFERENCED
-    val isNewCopy get() = (changeKind == ChangeKind.NEW_COPY || version.rev == 0 && changeKind != ChangeKind.CREATED)
+    fun isBasedOn() = changeKind == ChangeKind.BASED_ON || changeKind == ChangeKind.NEW_COPY || changeKind == ChangeKind.TRANSLATED || changeKind == ChangeKind.REFERENCED
+    fun isNewCopy() = (changeKind == ChangeKind.NEW_COPY || version.rev == 0 && changeKind != ChangeKind.CREATED)
 
 
     /**
@@ -23,7 +23,7 @@ interface IBasedOn:IDomainObject {
      * TYPO, can be used modify without breaking a release.
      * Every other version is a IN_DEVELOPMENT change.
      */
-    enum class ChangeKind(name: String, val description: String) {
+    public enum class ChangeKind(name: String, val description: String) {
         CREATED("Created", "New element status"),
         BASED_ON("Based on", "Based on copy"),
         NEW_COPY("New Copy","Copy new"),

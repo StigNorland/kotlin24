@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.config.Projection
 @Projection(name = "studyListe", types = [Study::class])
 interface StudyListe: IAbstractEntityEditList {
     var description: String
-    var topicGroup: List<TopicGroup>
+    // var topicGroup: List<TopicGroup>
     var isArchived: Boolean
 
 }

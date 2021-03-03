@@ -1,9 +1,8 @@
 package no.nsd.qddt.repository.handler
 
 import no.nsd.qddt.model.classes.ElementLoader
-import no.nsd.qddt.model.interfaces.IElementRef
-import no.nsd.qddt.model.interfaces.IWebMenuPreview
-import no.nsd.qddt.service.RepositoryLoader
+import no.nsd.qddt.model.interfaces.*
+import no.nsd.qddt.service.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +16,7 @@ import javax.persistence.PreUpdate
 abstract class AbstractElementRefAuditTrailListener<T : IWebMenuPreview> {
 
     @Autowired
-    lateinit var loader1: RepositoryLoader
+    lateinit var loader1: RepLoaderService
 
 
     @PrePersist

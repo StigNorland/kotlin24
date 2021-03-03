@@ -12,13 +12,13 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-class ElementLoader<T : IWebMenuPreview>(protected var repository: RevisionRepository<*, UUID, Int>) {
+class ElementLoader<T : IWebMenuPreview>(protected var repository: RevisionRepository<T, UUID, Int>) {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     fun fill(element: IElementRef<T>): IElementRef<T> {
         try {
             get(element.elementId, element.elementRevision).also {  
-                element.element = it?.entity as T
+                element.element = it.entity
                 element.elementRevision = it.revisionNumber.get()
             }
             return element
@@ -29,12 +29,12 @@ class ElementLoader<T : IWebMenuPreview>(protected var repository: RevisionRepos
     }
 
     // uses rev Object to facilitate by rev by reference
-    private operator fun get(id: UUID, rev: Int?): Revision<Int, out Any>? {
+    private operator fun get(id: UUID?, rev: Int?): Revision<Int, out T> {
         return try {
             rev?.let {
-                return repository.findRevision(id, it).get()
+                return repository.findRevision(id!!, it).get()
             }
-            return repository.findLastChangeRevision(id).orElseThrow()
+            return repository.findLastChangeRevision(id!!).orElseThrow()
         } catch (e: RevisionDoesNotExistException) {
             if (rev == null) throw e // if we get an RevisionDoesNotExistException with rev == null, we have already tried to get last change, exiting function
             logger.warn("ElementLoader - RevisionDoesNotExist fallback, fetching latest -> $id")

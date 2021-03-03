@@ -22,7 +22,7 @@ import javax.persistence.EntityNotFoundException
  * @author Stig Norland
  */
 @RepositoryRestController
-@RequestMapping(path = ["/surveyprogram"])
+// @RequestMapping(path = ["/surveyprogram"])
 class SurveyProgramController {
 
     @Autowired
@@ -43,7 +43,7 @@ class SurveyProgramController {
     }
 
 
-    @PostMapping(value = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(value = ["/"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun update(@RequestBody instance: SurveyProgram): SurveyProgram? {
         instance.studies.forEach(Consumer { c: Study ->
             c.changeKind = IBasedOn.ChangeKind.UPDATED_PARENT
@@ -64,12 +64,12 @@ class SurveyProgramController {
     }
 
 
-    @GetMapping(value = ["/list"] )
+    @GetMapping(value = ["/list/"] )
     fun listByUser(@AuthenticationPrincipal user:User?) {
         if (user == null)
             throw EntityNotFoundException("User not found")
 //        val agent = user?.agency ?: throw EntityNotFoundException("by agent")
-        user.angencyId?.let { repository.findByAgency_Id(it, Pageable.unpaged()) }
+        user.agencyId?.let { repository.findByAgency_Id(it, Pageable.unpaged()) }
     }
 
 

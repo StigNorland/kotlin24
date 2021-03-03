@@ -20,16 +20,12 @@ class Agency : Comparable<Agency> {
 
     var xmlLang:String="en-GB"
 
-    @JsonIgnore
-//    @JsonBackReference(value = "agentRefSurvey")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
 
 
-    @JsonIgnore
-    @JsonBackReference(value = "agentRefUser")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-    var users: MutableList<User> = mutableListOf()
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    var users: MutableSet<User> = mutableSetOf()
 
 
     override fun compareTo(other: Agency): Int {

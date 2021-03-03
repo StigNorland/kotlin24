@@ -25,7 +25,7 @@ class QuestionItemFragmentBuilder(questionItem: QuestionItem):XmlDDIFragmentBuil
     "%7\$s")
       // r:ConceptReference/r:URN"/>
       // r:ConceptReference/r:TypeOfObject" defaultValue="Concept" fixedValue="true"/>
-    private val responseBuilder = questionItem.responseDomainRef.element?.xmlBuilder()
+    private val responseBuilder = questionItem.responseDomain?.xmlBuilder()
 
     override val xmlFragment:String
         get() {

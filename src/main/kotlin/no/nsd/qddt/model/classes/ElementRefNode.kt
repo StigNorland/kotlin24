@@ -21,8 +21,9 @@ class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<
     @Column(updatable = false, nullable = false)
     lateinit var id: UUID
 
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ElementRefNode::class)
-    @JsonBackReference(value = "parentRef")
+    @JsonBackReference(value = "parentElementRefNode")
     var parent: ElementRefNode<T>? = null
 
     // in the @OrderColumn annotation on the referencing entity.
@@ -52,16 +53,13 @@ class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<
         elementsIndex!!.add(this)
     }
 
-    val isRoot: Boolean
-        get() = parent == null
+    // fun isRoot() = parent == null
 
     // this should make Hibernate fetch children
-    val isLeaf: Boolean
-        get() = children!!.size == 0
+    fun isLeaf() = children!!.size == 0
+
     val level: Int
-        get() = if (isRoot) 0 else parent!!.level + 1
-
-
+        get() = parent?.level?:-1 +1
 
 
     fun addChild(child: T): ElementRefNode<T> {
@@ -94,17 +92,6 @@ class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<
 
     override fun iterator(): ElementRefNodeIter<T> {
         return ElementRefNodeIter(this)
-    }
-
-    override fun setValues(): AbstractElementRef<T> {
-        if (element == null)
-            return this
-//        else if (element is StatementItem)
-//            name = element!!.name + " ➫ " + (element as StatementItem).getStatement() else if (element is ConditionConstruct) {
-//            println("ignorerer set value")
-//        } else if (element is QuestionConstruct) { }
-    else version = element!!.version
-        return this
     }
 
 }

@@ -42,61 +42,66 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "TOPIC_GROUP")
-class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived, IDomainObjectParentRef {
+class TopicGroup(): AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived {
+
+  @Column(insertable = false, updatable = false)
+  var studyIdx:Int?=null
+
+  @Column(insertable = false, updatable = false)
+  var studyId:UUID?=null
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name="studyId")
+  var study: Study? = null
+
 
   var label: String=""
 
-  override lateinit var name: String
+  override var name: String = ""
 
   @Column(length = 20000)
-  var description:String?=null
-
-  @Column(name = "study_id", insertable = false, updatable = false)
-  protected val studyId:UUID?=null
-
-  @ManyToOne
-  @JsonBackReference(value = "studyRef")
-  @JoinColumn(name = "study_id", updatable = false)
-  var study: Study? = null
-
-  @Column(name = "study_idx", insertable = false, updatable = false)
-  private var studyIdx:Int?=null
+  var description:String=""
 
 
-  @OrderColumn(name = "concept_idx")
-  @AuditMappedBy(mappedBy = "topicGroup", positionMappedBy = "conceptIdx")
-  @OneToMany(mappedBy = "topicGroup", fetch = FetchType.LAZY, targetEntity = Concept::class, orphanRemoval = true,
-    cascade = [CascadeType.REMOVE,CascadeType.PERSIST])
-  var concepts: MutableList<Concept> = mutableListOf()
+  // @OrderColumn(name = "studyIdx",  updatable = false, insertable = false)
+  // // @AuditMappedBy(mappedBy = "studyId", positionMappedBy = "studyIdx")
+  // @OneToMany(mappedBy = "studyId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
+  // @OrderColumn(name = "conceptIdx")
+  // @AuditMappedBy(mappedBy = "topicGroupId", positionMappedBy = "conceptIdx")
+  // @OneToMany( mappedBy = "topicGroupId" , cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
+  // @PrimaryKeyJoinColumn
+  // var concepts: MutableList<Concept> = mutableListOf()
 
-  @OrderColumn(name = "topicgroup_idx")
+  // @OrderColumn(name = "concept_idx")
+  // @AuditMappedBy(mappedBy = "topicGroup", positionMappedBy = "conceptIdx")
+  // @OneToMany(mappedBy = "topicGroup", fetch = FetchType.LAZY, targetEntity = Concept::class, orphanRemoval = true,
+  //   cascade = [CascadeType.REMOVE,CascadeType.PERSIST])
+  // var concepts: MutableList<Concept> = mutableListOf()
+
+  // @OrderColumn(name = "topicgroup_idx")
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "TOPIC_GROUP_QUESTION_ITEM", joinColumns = [JoinColumn(name = "topicgroup_id",referencedColumnName = "id")] )
   var topicQuestionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
-  @JoinTable(name = "TOPIC_GROUP_AUTHORS", joinColumns = [JoinColumn(name = "topicgroup_id")], inverseJoinColumns = [JoinColumn(name = "author_id")])
-  override var authors:MutableSet<Author> = mutableSetOf()
+  @ManyToMany
+  override var authors: MutableSet<Author> = mutableSetOf()
 
   @OrderColumn(name = "owner_idx")
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id", referencedColumnName = "id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
 
-  @Transient
-  override var parentRef: IParentRef? = null
-
 
   override var isArchived:Boolean = false
   set(value) {
     field = value
     if (value){
-      logger.info(name + " isArchived(" + concepts.size + ")")
+      // logger.info(name + " isArchived(" + concepts.size + ")")
       changeKind = ChangeKind.ARCHIVED
-      this.concepts.forEach { 
-        if (!it.isArchived)
-          it.isArchived = true
-      }
+      // this.concepts.forEach { 
+      //   if (!it.isArchived)
+      //     it.isArchived = true
+      // }
     }
   }
 
@@ -106,13 +111,13 @@ class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchive
   }
   
   
-  fun addConcept(concept: Concept): Concept {
-    this.concepts.add(concept)
-    concept.topicGroup = this
-    changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-    changeComment = "Concept [" + concept.name + "] added"
-    return concept
-  }
+  // fun addConcept(concept: Concept): Concept {
+  //   this.concepts.add(concept)
+  //   concept.topicGroup = this
+  //   changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+  //   changeComment = "Concept [" + concept.name + "] added"
+  //   return concept
+  // }
 
   override fun addOtherMaterial(otherMaterial: OtherMaterial): OtherMaterial {
     return super.addOtherMaterial(otherMaterial).apply {
@@ -149,7 +154,7 @@ class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchive
   
   override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "Module $counter")
-    pdfReport.addParagraph(this.description?:"?")
+    pdfReport.addParagraph(this.description)
 
 
     if (comments.size > 0)
@@ -168,8 +173,8 @@ class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchive
             addHeader2(it.name, String.format("Version %s", it.version))
             addParagraph(it.question)
           }
-          if (it.responseDomainRef.element != null)
-            it.responseDomainRef.element.apply {
+          if (it.responseDomain != null)
+            it.responseDomain.apply {
               fillDoc(pdfReport, "")
             }
         }
@@ -177,10 +182,10 @@ class TopicGroup:AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchive
 
     pdfReport.addPadding()
 
-    var i = 0
-    concepts.forEach {
-        it.fillDoc(pdfReport, counter + "." + ++i)
-    }
+    // var i = 0
+    // concepts.forEach {
+    //     it.fillDoc(pdfReport, counter + "." + ++i)
+    // }
   }
   
   @PreRemove

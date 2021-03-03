@@ -23,26 +23,31 @@ import javax.persistence.*
 @AttributeOverride(name = "name", column = Column(name = "element_name", length = 1500))
 class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<InstrumentNode<T>> {
     @Id @GeneratedValue
-    @Column(updatable = false, nullable = false)
-    lateinit var id: UUID
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstrumentNode::class)
-    @JsonBackReference(value = "parentRef")
-    var parent: InstrumentNode<T>? = null
+    var id: UUID? = null
 
     // in the @OrderColumn annotation on the referencing entity.
-    @Column(name = "parent_idx", insertable = false, updatable = false)
-    private var parentIdx: Int = -1
+    @Column(insertable = false, updatable = false)
+    var parentIdx: Int? = 0
 
-    @OrderColumn(name = "parent_idx")
-    @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
+    @Column(insertable = false, updatable = false)
+    protected var parentId: UUID? = null
+
+    // @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstrumentNode::class)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstrumentNode::class)
+    @JoinColumn(name="parentId")
+    var parent: InstrumentNode<T>? = null
+
+
+    @OrderColumn(name = "parentIdx", insertable = false, updatable = false)
+    // @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
     @OneToMany(
-        mappedBy = "parent",
-        fetch = FetchType.EAGER,
+        mappedBy="parentId",
         targetEntity = InstrumentNode::class,
         orphanRemoval = true,
         cascade = [CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE]
     )
+    // @PrimaryKeyJoinColumn
     var children: MutableList<InstrumentNode<T>> = mutableListOf()
 
     @JsonIgnore
@@ -55,7 +60,7 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
         name = "INSTRUMENT_PARAMETER",
         joinColumns = [JoinColumn(name = "node_id", referencedColumnName = "id")]
     )
-    private var parameters: MutableList<Parameter> = mutableListOf()
+    var parameters: MutableList<Parameter> = mutableListOf()
 
     constructor(data: T) : super(data) {
         elementsIndex.add(this)
@@ -71,14 +76,13 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
         parameters.removeIf { p: Parameter -> p.parameterKind == "IN" }
     }
 
-    val isRoot: Boolean
-        get() = parent == null
+    // fun isRoot() = (parent == null)
 
     // this should make Hibernate fetch children
-    val isLeaf: Boolean
-        get() = children.size == 0
+    fun isLeaf() = (children.size == 0)
+    
     val level: Int
-        get() = if (isRoot) 0 else parent!!.level + 1
+        get() = parent?.level?:-1 +1
 
 
     fun addChild(child: T): InstrumentNode<T> {
@@ -122,7 +126,6 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
         return null
     }
 
-
     override fun iterator(): Iterator<InstrumentNode<T>> {
         return InstrumentNodeIter(this).iterator()
     }
@@ -132,7 +135,7 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
             is StatementItem -> name = element.name + " ➫ " + (element as StatementItem).statement
             is ConditionConstruct -> println("ignorerer set value")
             is QuestionConstruct -> println("ignorerer set value")
-            is ControlConstruct -> {
+            else -> {
                 elementKind = ElementKind.getEnum(element.classKind)
                 version = element.version
             }

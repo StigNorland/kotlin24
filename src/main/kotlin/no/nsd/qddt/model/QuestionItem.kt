@@ -7,7 +7,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.ParentRef
-import no.nsd.qddt.model.embedded.ElementRefResponseDomain
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -35,17 +35,18 @@ class QuestionItem :AbstractEntityAudit() {
   @Column(length = 3000)
   var intent:String=""
 
-  @AttributeOverrides(
-    AttributeOverride(name = "name",column = Column(name = "responsedomain_name")),
-    AttributeOverride(name = "elementId",column = Column(name = "responsedomain_id")),
-    AttributeOverride(name = "elementRevision",column = Column(name = "responsedomain_revision")
-    )
-  )
-  @Embedded
-  var responseDomainRef: ElementRefResponseDomain = ElementRefResponseDomain()
 
-//  @ManyToOne
-//  lateinit var rdRevisionEntity: Revision<Int,ResponseDomain>
+  @Column(insertable = false, updatable = false)
+  @Embedded
+  @AttributeOverrides(
+    AttributeOverride(name = "id",column = Column(name = "responsedomain_id", nullable =true)),
+    AttributeOverride(name = "rev",column = Column(name = "responsedomain_revision", nullable =true)),
+  )
+  var responseId: UriId? = null
+
+  @Transient
+  @JsonSerialize
+  var responseDomain: ResponseDomain? = null
 
   @Transient
   @JsonSerialize
@@ -54,12 +55,6 @@ class QuestionItem :AbstractEntityAudit() {
   override fun xmlBuilder():AbstractXmlBuilder {
     return QuestionItemFragmentBuilder(this)
   }
-  
-
-//  fun updateStatusQI() {
-//    this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-//    this.changeComment = "Concept reference removed"
-//  }
 
   override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "QuestionItem")
@@ -68,7 +63,7 @@ class QuestionItem :AbstractEntityAudit() {
       pdfReport.addHeader2("Intent").add(Paragraph(this.intent))
     }
       
-    responseDomainRef.element.apply {  
+    responseDomain?.apply {  
       fillDoc(pdfReport, "")
     }
 
@@ -77,6 +72,5 @@ class QuestionItem :AbstractEntityAudit() {
       pdfReport.addComments(comments)
     }
   }
-
 
 }

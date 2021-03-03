@@ -18,7 +18,7 @@ import javax.persistence.UniqueConstraint
 @Table(
     name = "UNIVERSE",
     uniqueConstraints = [UniqueConstraint(
-        columnNames = ["name","description","agency_id"],
+        columnNames = ["name","description","agencyId"],
         name = "UNQ_universe_name"
     )]                                                      //https://github.com/DASISH/qddt-client/issues/606
 )

@@ -21,7 +21,7 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
 
 
     @ExceptionHandler(Exception::class)
-    fun handleAll(ex: Exception, request: WebRequest?): ResponseEntity<Any?>? {
+    fun handleAll(ex: Exception, request: WebRequest?): ResponseEntity<Any>? {
         log.error(ex.message, ex.cause)
         request?.let {
             log.info(it.toString())
@@ -31,7 +31,7 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
             qddtStack.forEach {
                 log.debug(it.toString())
             }
-        val apiError = ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.localizedMessage, qddtStack.map { it.toString() })
+        val apiError = ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.message?:ex.localizedMessage, qddtStack.map { it.toString() })
         return ResponseEntity(apiError, HttpHeaders(), apiError.status)
     }
 }

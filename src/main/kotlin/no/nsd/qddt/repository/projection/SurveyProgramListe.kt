@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.config.Projection
 @Projection(name = "surveyProgramListe", types = [SurveyProgram::class])
 interface SurveyProgramListe: IAbstractEntityEditList {
     var description: String
-    var studies: List<Study>
+    // var studies: List<Study>
     var isArchived: Boolean
 }
 

@@ -14,6 +14,7 @@ import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import javax.persistence.*
+import java.util.*
 
 /**
  *
@@ -39,61 +40,57 @@ import javax.persistence.*
  * @author Stig Norland
  * @author Dag Østgulen Heradstveit
  */
-@Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+// @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
 @Audited
 @Entity
 @Table(name = "STUDY")
-class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArchived, IDomainObjectParentRef {
+class Study() : AbstractEntityAudit(), IAuthorSet, IArchived {
 
-    @ManyToOne
-    @JsonBackReference(value = "surveyRef")
-    @JoinColumn(name = "survey_id", updatable = false)
+    @Column(insertable = false, updatable = false)
+    var surveyIdx: Int? = null
+
+    @Column(insertable = false, updatable = false)
+    var surveyId: UUID? = null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="surveyId")
     var surveyProgram: SurveyProgram? = null
 
-//    @Column(name = "survey_id", insertable = false, updatable = false)
-//    protected var surveyId: UUID? = null
-
-    @Column(name = "survey_idx", insertable = false, updatable = false)
-    private var surveyIdx: Int? = null
+    override var name: String = ""
 
     @Column(length = 20000)
-    var description: String? = null
+    var description: String = ""
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "study", cascade = [CascadeType.MERGE, CascadeType.DETACH])
+    // @OrderColumn(name = "studyIdx",  updatable = false, insertable = false)
+    // @AuditMappedBy(mappedBy = "studyId", positionMappedBy = "studyIdx")
+    @OneToMany(mappedBy = "studyId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
+    var topicGroups: MutableList<TopicGroup> = mutableListOf()
+
+    @OneToMany( mappedBy="studyId", cascade = [CascadeType.ALL])
+    @PrimaryKeyJoinColumn
     var instruments: MutableSet<Instrument> = mutableSetOf()
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "study", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-    @OrderColumn(name = "study_idx", nullable = false)
-    @AuditMappedBy(mappedBy = "study", positionMappedBy = "studyIdx")
-    private var topicGroups: MutableList<TopicGroup> = mutableListOf()
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
-//    @JoinTable(
-//        name = "STUDY_AUTHORS",
-//        joinColumns = [JoinColumn(name = "study_id")],
-//        inverseJoinColumns = [JoinColumn(name = "author_id")]
-//    )
+    
+    @ManyToMany(cascade = [CascadeType.DETACH])
     override var authors: MutableSet<Author> = mutableSetOf()
 
-    @Transient
-    override var parentRef: IParentRef? = null
 
-
-    @Column(name = "is_archived")
+    // @Column(name = "is_archived")
     override var isArchived = false
-        set(archived) {
+        set(value) {
             try {
-                field = archived
-                if (archived) {
+                field = value
+                if (value) {
                     changeKind = ChangeKind.ARCHIVED
-                    if (Hibernate.isInitialized(topicGroups))
-                        logger.debug("getTopicGroups isInitialized. ")
-                    else
-                        Hibernate.initialize(topicGroups)
+                //     if (Hibernate.isInitialized(topicGroups))
+                //         logger.debug("getTopicGroups isInitialized. ")
+                //     else
+                //         Hibernate.initialize(topicGroups)
 
-                    for (topicGroup in topicGroups) {
-                        if (!topicGroup.isArchived) topicGroup.isArchived = archived
-                    }
+                //     topicGroups.forEach{
+                //         if (!it.isArchived) 
+                //             it.isArchived = true
+                //     }
                 }
             } catch (ex: Exception) {
                 logger.error("setArchived", ex)
@@ -104,14 +101,13 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
         }
 
 
-    fun addTopicGroup(topicGroup: TopicGroup): TopicGroup {
-        topicGroups.add(topicGroup)
-        topicGroup.study = this
-        changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = "TopicGroup [" + topicGroup.name + "] added"
-        return topicGroup
-    }
-
+    // fun addTopicGroup(topicGroup: TopicGroup): TopicGroup {
+    //     topicGroups.add(topicGroup)
+    //     topicGroup.study = this
+    //     changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+    //     changeComment = "TopicGroup [" + topicGroup.name + "] added"
+    //     return topicGroup
+    // }
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
@@ -125,12 +121,11 @@ class Study(override var name: String) : AbstractEntityAudit(), IAuthorSet, IArc
         pdfReport.addComments(comments)
 
         pdfReport.addPadding()
-        var teller = if (counter.isNotEmpty()) "$counter." else counter
-        for ((i, topic) in topicGroups.withIndex()) {
-            topic.fillDoc(pdfReport, teller + (i + 1))
-        }
+        // var teller = if (counter.isNotEmpty()) "$counter." else counter
+        // for ((i, topic) in topicGroups.withIndex()) {
+        //     topic.fillDoc(pdfReport, teller + (i + 1))
+        // }
     }
-
 
 
     override fun xmlBuilder(): AbstractXmlBuilder? {

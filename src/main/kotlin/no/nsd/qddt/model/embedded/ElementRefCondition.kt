@@ -18,8 +18,8 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
      * but should never be persisted.
      */
 
-    override lateinit var elementId: UUID
-    override var elementRevision: Int? = -1
+    override var elementId: UUID?=null
+    override var elementRevision: Int? = null
     @Transient
     @JsonSerialize
     override var version: Version = Version()
@@ -48,7 +48,6 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
             field = value?.also {
                 elementId = it.id
                 name = it.label?:it.name
-                version.rev = elementRevision?:0
                 version = it.version
                 if (version.rev == 0)
                     version.rev = elementRevision?:0

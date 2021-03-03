@@ -24,12 +24,14 @@ class Comment(
     @Column(length = 10000)
     var comment: String? = null,
 
-    @Column(name = "owner_id", columnDefinition = "uuid", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
+    var ownerIdx: Int? = 0,
+
+    @Column(updatable = false, nullable = false)
     var ownerId: UUID? = null,
 
-    @OrderColumn(name = "owner_idx")
+    @OrderColumn(name = "ownerIdx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
-
     var comments: MutableList<Comment> = mutableListOf(),
 
     @Column(name = "is_public", columnDefinition = "boolean not null default true")

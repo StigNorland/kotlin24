@@ -11,7 +11,7 @@ import java.util.*
 interface IElementRef<T : IWebMenuPreview> : Cloneable, Serializable {
     var name: String?
     var version: Version
-    var elementId: UUID
+    var elementId: UUID?
     var elementRevision: Int?
     var elementKind: ElementKind
     var element: T?

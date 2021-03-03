@@ -67,16 +67,7 @@ class ResponseDomain:AbstractEntityAudit() {
   @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE], targetEntity = Category::class)
   @JoinColumn(name = "category_id")
   var managedRepresentation: Category = Category().apply { hierarchyLevel = HierarchyLevel.GROUP_ENTITY }
-    get() {
-      if (codes.size > 0)
-        field.codes =codes
-      return field
-    }
-  set(value) {
-    field = value
-    codes = value.codes
 
-  }
 
   override fun fillDoc(pdfReport: PdfReport, counter: String) {
     val table = com.itextpdf.layout.element.Table(UnitValue.createPercentArray(floatArrayOf(15.0f, 70.0f, 15.0f)))
@@ -100,7 +91,7 @@ class ResponseDomain:AbstractEntityAudit() {
           .setBorder(DottedBorder(ColorConstants.GRAY, 1F)))
         table.addCell(Cell()
           .setTextAlignment(TextAlignment.CENTER)
-          .add(Paragraph(cat.code.value))
+          .add(Paragraph(cat.code?.value))
           .setBorder(DottedBorder(ColorConstants.GRAY, 1F)))
       }
       else
@@ -114,18 +105,8 @@ class ResponseDomain:AbstractEntityAudit() {
     pdfReport.theDocument?.add(table)
   }
 
-  fun managedRepresentationFlatten() = getFlatManagedRepresentation(managedRepresentation)
-
   override fun xmlBuilder():XmlDDIFragmentBuilder<ResponseDomain> {
     return ResponseDomainFragmentBuilder(this)
-  }
-  
-
-  /**
- * this is useful for populating codes before saving to DB
- */
-  fun populateCodes() {
-    this.codes = managedRepresentation.codes
   }
   
 

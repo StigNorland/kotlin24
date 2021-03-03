@@ -24,7 +24,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
             element = it
         }
     }
-    constructor(elementKind: ElementKind, elementId: UUID, elementRevision: Int?) {
+    constructor(elementKind: ElementKind, elementId: UUID?, elementRevision: Int?) {
         this.elementKind = elementKind
         this.elementId = elementId
         this.elementRevision = elementRevision
@@ -33,71 +33,53 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
 
-
-    override lateinit var elementId: UUID
-
-    @Column(name = "element_revision")
-    override var elementRevision: Int? = 0
+    override var elementId: UUID?=null
 
     @Column(name = "element_name", length = 500)
     override var name: String? = null
 
-    override var version: Version
-        get() = Version(major, minor, elementRevision?:0, versionLabel?:"")
-        set(value) {
-            major = value.major
-            minor = value.minor
-            versionLabel = value.versionLabel
-            elementRevision = value.rev
-        }
+    @Column(name = "element_major" )
+    var major: Int? = null
 
-    @Column(name = "element_major")
-    private var major: Int = 1
+    @Column(name = "element_minor" )
+    var minor: Int? = null
 
-    @Column(name = "element_minor")
-    private var minor: Int = 0
+    @Column(name = "element_version_label" )
+    var versionLabel: String? = null
+    
+    @Column(name = "element_revision" )
+    override var elementRevision: Int? = null
 
-    @Column(name = "element_version_label")
-    private var versionLabel: String? = null
+    @AttributeOverrides(
+        AttributeOverride(name = "major",       column = Column(name = "element_major")),
+        AttributeOverride(name = "minor",       column = Column(name = "element_minor")),
+        // AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
+        AttributeOverride(name = "versionLabel",column = Column(name = "element_version_label"))
+    )
+    @Transient
+    override var version: Version = Version()
 
+   
     @Transient
     @JsonSerialize
     @JsonDeserialize
     override var element: T? = null
-    set(value) {
-        field = value
-        setValues()
-    }
-
-    protected fun setValues(): AbstractElementRef<T> {
-        if (StringTool.IsNullOrEmpty(name)) {
-            when (element) {
-                is QuestionItem -> (element!!.name + " ➫ " + (element as QuestionItem?)!!.question).also { name = it }
-                 is StatementItem -> name =
-                     element!!.name + " ➫ " + (element as StatementItem?)!!.statement
-                 is ConditionConstruct -> {
-                     name = element!!.name + " ➫ " + (element as ConditionConstruct?)!!.condition
-                     println(
-                         ElementKind.getEnum(element!!::class.simpleName)
-                             .toString() + " - ConditionConstruct- name set"
-                     )
-                 }
-                 is QuestionConstruct -> {
-                     println(
-                         ElementKind.getEnum(element!!::class.simpleName)
-                             .toString() + " - QuestionConstruct name not set"
-                     )
-                 }
-                else -> println(ElementKind.getEnum(element!!::class.simpleName).toString() + " - set name")
+        set(value) {
+            field = value
+            value?.let {
+                elementId = it.id
+                version = it.version
+                when (it) {
+                    is QuestionItem -> (it.name + " ➫ " + it.question).also { name = it }
+                    is StatementItem -> (it.name + " ➫ " + it.statement).also { name = it }
+                    is ConditionConstruct -> (it.name + " ➫ " + it.condition).also { name = it }
+                    // is QuestionConstruct -> name = it
+                    else -> name = it.name
+                }
             }
-            name = element!!.name
+            if (value == null) {
+                name = ""
+            }
         }
-        element?.also {
-            version = it.version
-            name = it.name
-            elementId = it.id
-        }
-        return this
-    }
 
 }

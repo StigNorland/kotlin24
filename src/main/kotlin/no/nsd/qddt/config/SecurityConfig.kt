@@ -1,36 +1,38 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.security.AuthTokenFilter
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.servlet.FilterRegistrationBean
-import org.springframework.cache.annotation.EnableCaching
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
-import org.springframework.hateoas.config.EnableHypermediaSupport
-import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.AuthenticationException
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.springframework.web.filter.CorsFilter
-import org.springframework.web.filter.ForwardedHeaderFilter
-import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import javax.servlet.http.HttpServletRequest
+import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.filter.ForwardedHeaderFilter
+import org.springframework.web.filter.CorsFilter
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.http.HttpMethod
+import org.springframework.hateoas.server.RepresentationModelProcessor
+import org.springframework.hateoas.config.EnableHypermediaSupport
+import org.springframework.hateoas.EntityModel
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Bean
+import org.springframework.cache.annotation.EnableCaching
+import org.springframework.boot.web.servlet.FilterRegistrationBean
+import org.springframework.beans.factory.annotation.Value
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import no.nsd.qddt.security.AuthTokenFilter
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletRequest
 
 
 /**
@@ -76,6 +78,20 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Bean
     fun passwordEncoderBean(): PasswordEncoder {
         return BCryptPasswordEncoder()
+    }
+
+    @Bean
+    fun questionItemProcessor(): RepresentationModelProcessor<EntityModel<QuestionItem>> {
+        
+        return RepresentationModelProcessor<EntityModel<QuestionItem>>() {
+        
+            process(model: EntityModel<QuestionItem>):EntityModel<QuestionItem> {
+
+                model.add(new Link("http://localhost:8080/people", "added-link"))
+                return model
+
+            }
+        }
     }
 
 
@@ -132,6 +148,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .antMatchers("/login/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers(HttpMethod.GET, "/**").permitAll()
+            .antMatchers(HttpMethod.POST, "/**").permitAll() //.access("hasAuthority('ROLE_ADMIN')")
 //            .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
 //            .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
 //            .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")

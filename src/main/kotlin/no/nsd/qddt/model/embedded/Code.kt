@@ -1,4 +1,5 @@
 package no.nsd.qddt.model.embedded
+
 import org.hibernate.envers.Audited
 import java.io.Serializable
 import javax.persistence.Column
@@ -10,7 +11,7 @@ import javax.persistence.Embeddable
 */
 @Audited
 @Embeddable
-class Code(
+data class Code(
   @Column(name = "code_value")
   var value:String=""
 ):Comparable<Code> , Serializable {
