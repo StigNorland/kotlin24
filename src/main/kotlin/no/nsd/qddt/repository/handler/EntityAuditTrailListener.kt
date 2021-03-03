@@ -2,20 +2,18 @@ package no.nsd.qddt.repository.handler
 
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.ElementLoader
-import no.nsd.qddt.model.embedded.ElementRefResponseDomain
-import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
-import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.interfaces.*
-import no.nsd.qddt.service.RepLoaderServiceImpl
+import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.model.interfaces.IArchived
+import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.model.interfaces.RepLoaderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.security.core.context.SecurityContextHolder
 import javax.persistence.*
 
 
@@ -231,7 +229,7 @@ class EntityAuditTrailListener{
 
         if (current!!.hierarchyLevel == HierarchyLevel.ENTITY) {
             try {
-                log.debug(codes[_Index]?.toString()?:"EMPTY!!!")
+                log.debug(codes[_Index].toString())
                 current.code = codes[_Index++]
             } catch (iob: IndexOutOfBoundsException) {
                 current.code = Code()

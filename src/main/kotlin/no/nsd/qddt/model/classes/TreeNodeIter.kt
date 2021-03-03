@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.classes
 
-import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.TreeNode
+import no.nsd.qddt.model.interfaces.IDomainObject
 
 /**
  * @author Stig Norland

@@ -1,6 +1,7 @@
 package no.nsd.qddt.model.builder
 import no.nsd.qddt.model.Category
-import java.util.Collections
+import java.util.*
+
 /**
 * @author Stig Norland
 */

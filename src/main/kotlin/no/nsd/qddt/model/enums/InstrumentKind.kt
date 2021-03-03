@@ -1,7 +1,5 @@
 package no.nsd.qddt.model.enums
 
-import java.lang.IllegalArgumentException
-
 /**
  * @author Stig Norland
  */

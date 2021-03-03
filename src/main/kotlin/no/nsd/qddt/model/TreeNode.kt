@@ -3,11 +3,10 @@ package no.nsd.qddt.model
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.classes.AbstractElementRef
-import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.classes.TreeNodeIter
+import no.nsd.qddt.model.interfaces.IDomainObject
 import org.hibernate.envers.Audited
 import java.util.*
-import java.util.function.Consumer
 import javax.persistence.*
 
 /**

@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.interfaces.IEntityFactory
 import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.interfaces.IEntityFactory
 
 /**
 * @author Stig Norland

@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.interfaces.IEntityFactory
 import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.interfaces.IEntityFactory
 import java.util.stream.Collectors
 
 /**

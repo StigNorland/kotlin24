@@ -36,7 +36,12 @@ abstract class AbstractEntity {
     @JsonSerialize
     var rev: Int? = null
 
+
+    @Column(insertable = false, updatable = false)
+    var modifiedById: UUID? = null
+
     @ManyToOne
+    @JoinColumn(name = "modifiedById")
     @LastModifiedBy
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     lateinit var modifiedBy: User

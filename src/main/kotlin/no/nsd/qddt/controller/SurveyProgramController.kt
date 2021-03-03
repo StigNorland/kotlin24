@@ -17,12 +17,11 @@ import java.util.*
 import java.util.function.Consumer
 import javax.persistence.EntityNotFoundException
 
-
 /**
  * @author Stig Norland
  */
 @RepositoryRestController
-// @RequestMapping(path = ["/surveyprogram"])
+@RequestMapping(path = ["/surveyprogram"])
 class SurveyProgramController {
 
     @Autowired

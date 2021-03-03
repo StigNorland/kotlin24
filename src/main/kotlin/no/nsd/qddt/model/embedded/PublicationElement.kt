@@ -1,15 +1,14 @@
 package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.classes.AbstractElementRef
-import no.nsd.qddt.model.ControlConstruct
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.interfaces.IDomainObject
+import no.nsd.qddt.model.interfaces.IElementRef
 import org.hibernate.envers.Audited
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
+
 /**
  * @author Stig Norland
  */
@@ -45,7 +44,7 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
             field = value?.also {
                 elementId = it.id
                 name = it.name
-                elementRevision = it.version.rev?:0
+                elementRevision = it.version.rev
                 version = it.version
                 if (version.rev == 0)
                     version.rev = elementRevision?:0

@@ -9,18 +9,16 @@ package no.nsd.qddt.model
 // import no.nsd.qddt.repository.handler.QuestionConstructRefAuditTrailer
 // import org.hibernate.envers.Audited
 // import javax.persistence.*
+// import kotlin.streams.toList
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.embedded.ElementRefQuestionItem
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.enums.ControlConstructInstructionRank
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.repository.handler.QuestionConstructRefAuditTrailer
 import org.hibernate.envers.Audited
-// import kotlin.streams.toList
 import java.util.stream.Collectors
 import javax.persistence.*
 
@@ -129,7 +127,7 @@ class QuestionConstruct: ControlConstruct() {
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "ControlConstruct $counter")
-        description?.let { pdfReport.addParagraph(it) }
+        description.let { pdfReport.addParagraph(it) }
 
         if (universe.size > 0)
             pdfReport.addHeader2("Universe")

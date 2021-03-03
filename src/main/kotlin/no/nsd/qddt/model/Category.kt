@@ -15,8 +15,6 @@ import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.envers.Audited
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.stream.Collectors
 import javax.persistence.*
@@ -65,7 +63,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
     override var name: String = ""
         get() {
-            if (field.isNullOrBlank())
+            if (field.isBlank())
                 field = label.toUpperCase()
             return field
         }
@@ -182,7 +180,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     val isValid: Boolean
         get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
             CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children.size == 0 && inputLimit.valid()
-            CategoryType.CATEGORY -> children.size == 0 && label != null && label!!.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
+            CategoryType.CATEGORY -> children.size == 0 && label.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
                 .isNotEmpty()
             else -> false
         } else when (categoryKind) {
@@ -201,9 +199,9 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         if (i != 0) return i
         i = name.compareTo(other.name)
         if (i != 0) return i
-        i = label!!.compareTo(other.label!!)
+        i = label.compareTo(other.label)
         if (i != 0) return i
-        i = description!!.compareTo(other.description!!)
+        i = description.compareTo(other.description)
         if (i != 0) return i
         i = this.id.compareTo(other.id)
         return if (i != 0) i else modified.compareTo(other.modified)

@@ -1,15 +1,15 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.interfaces.*
+import no.nsd.qddt.model.interfaces.IArchived
+import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
-import org.hibernate.envers.AuditMappedBy
+import no.nsd.qddt.model.interfaces.IOtherMaterialList
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
@@ -42,7 +42,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "TOPIC_GROUP")
-class TopicGroup(): AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived {
+class TopicGroup : AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArchived {
 
   @Column(insertable = false, updatable = false)
   var studyIdx:Int?=null
@@ -63,14 +63,14 @@ class TopicGroup(): AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArch
   var description:String=""
 
 
-  // @OrderColumn(name = "studyIdx",  updatable = false, insertable = false)
-  // // @AuditMappedBy(mappedBy = "studyId", positionMappedBy = "studyIdx")
-  // @OneToMany(mappedBy = "studyId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
-  // @OrderColumn(name = "conceptIdx")
-  // @AuditMappedBy(mappedBy = "topicGroupId", positionMappedBy = "conceptIdx")
-  // @OneToMany( mappedBy = "topicGroupId" , cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
-  // @PrimaryKeyJoinColumn
-  // var concepts: MutableList<Concept> = mutableListOf()
+//   @OrderColumn(name = "studyIdx",  updatable = false, insertable = false)
+//   // @AuditMappedBy(mappedBy = "studyId", positionMappedBy = "studyIdx")
+//   @OneToMany(mappedBy = "studyId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
+//   @OrderColumn(name = "conceptIdx")
+//   @AuditMappedBy(mappedBy = "topicgroupId", positionMappedBy = "conceptIdx")
+   @OneToMany( mappedBy = "topicgroupId" ,  fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
+//   @PrimaryKeyJoinColumn
+   var concepts: MutableList<Concept> = mutableListOf()
 
   // @OrderColumn(name = "concept_idx")
   // @AuditMappedBy(mappedBy = "topicGroup", positionMappedBy = "conceptIdx")
@@ -80,15 +80,15 @@ class TopicGroup(): AbstractEntityAudit(), IAuthorSet, IOtherMaterialList, IArch
 
   // @OrderColumn(name = "topicgroup_idx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "TOPIC_GROUP_QUESTION_ITEM", joinColumns = [JoinColumn(name = "topicgroup_id",referencedColumnName = "id")] )
+  @CollectionTable( joinColumns = [JoinColumn(name = "topicgroupId",referencedColumnName = "id")] )
   var topicQuestionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
   @ManyToMany
   override var authors: MutableSet<Author> = mutableSetOf()
 
-  @OrderColumn(name = "owner_idx")
+  @OrderColumn(name = "ownerIdx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id", referencedColumnName = "id")])
+  @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "ownerId", referencedColumnName = "id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
 
 

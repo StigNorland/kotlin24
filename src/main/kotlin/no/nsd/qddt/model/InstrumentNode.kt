@@ -1,13 +1,11 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.classes.AbstractElementRef
 import no.nsd.qddt.model.classes.ConditionNode
 import no.nsd.qddt.model.embedded.Parameter
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IConditionNode
-import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.lang.reflect.InvocationTargetException
 import java.util.*

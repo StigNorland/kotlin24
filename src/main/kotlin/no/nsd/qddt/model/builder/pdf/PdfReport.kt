@@ -253,7 +253,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                     .setBorder(Border.NO_BORDER) //                .setWidth(width100*0.20F)
                     .add(
                         Paragraph(
-                            comment.modifiedBy.username + "@" + (comment.modifiedBy.agency?.name ?:"?" ) +
+                            comment.modifiedBy.username + "@" + comment.modifiedBy.agency.name +
                                     java.lang.String.format(" - %1\$TD %1\$TT", comment.modified.toLocalDateTime())
                         )
                     )

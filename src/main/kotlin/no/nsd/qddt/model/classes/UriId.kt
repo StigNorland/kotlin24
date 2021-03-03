@@ -1,9 +1,8 @@
 package no.nsd.qddt.model.classes
 
-import org.hibernate.envers.Audited
 import java.io.Serializable
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Embeddable
 
 
 /**
@@ -27,7 +26,7 @@ class UriId: Comparable<UriId> , Serializable {
 
     override fun toString(): String {
         if (rev != null)
-            return String.format("{}:{}", id, rev)
+            return "$id:$rev"
         return id.toString()
     }
 

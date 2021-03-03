@@ -1,8 +1,8 @@
 package no.nsd.qddt.model.builder.xml
 
-import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
 import java.time.ZoneId
 import java.time.ZoneOffset

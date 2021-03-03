@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder;
 
-import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder;
 import no.nsd.qddt.model.Universe
+import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 
 /**
  * @author Stig Norland

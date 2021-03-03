@@ -33,13 +33,13 @@ class AuthTokenUtil {
             .setExpiration(Date(Date().time + jwtExpirationMs.get()))
 
         claims["role"] = userDetails.authorities
-        claims["modified"] = userDetails.modified?.toLocalDateTime()
+        claims["modified"] = userDetails.modified.toLocalDateTime()
         claims["id"] = userDetails.id.toString()
         claims["email"] = userDetails.email
         claims["agency"] = userDetails.agency.let {
              object: AgencyListe {
-                 override var id = it!!.id
-                 override var name = it!!.name
+                 override var id = it.id
+                 override var name = it.name
             }
         }
 

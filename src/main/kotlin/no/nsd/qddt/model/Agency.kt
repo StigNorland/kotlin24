@@ -1,7 +1,5 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonIgnore
 import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*

@@ -1,6 +1,5 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
@@ -8,13 +7,9 @@ import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
-import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
-import no.nsd.qddt.model.interfaces.IParentRef
-import org.hibernate.Hibernate
-import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import javax.persistence.*
 import java.util.*
+import javax.persistence.*
 
 /**
  *
@@ -44,8 +39,16 @@ import java.util.*
 @Audited
 @Entity
 @Table(name = "STUDY")
-class Study() : AbstractEntityAudit(), IAuthorSet, IArchived {
+class Study : AbstractEntityAudit(), IAuthorSet, IArchived {
 
+    override var name: String = ""
+
+    @Column(length = 20000)
+    var description: String = ""
+
+/**---------------------------------------------
+*    Parent ref
+----------------------------------------------**/
     @Column(insertable = false, updatable = false)
     var surveyIdx: Int? = null
 
@@ -56,11 +59,9 @@ class Study() : AbstractEntityAudit(), IAuthorSet, IArchived {
     @JoinColumn(name="surveyId")
     var surveyProgram: SurveyProgram? = null
 
-    override var name: String = ""
-
-    @Column(length = 20000)
-    var description: String = ""
-
+    /**---------------------------------------------
+     *    Child refs
+    ----------------------------------------------**/
     // @OrderColumn(name = "studyIdx",  updatable = false, insertable = false)
     // @AuditMappedBy(mappedBy = "studyId", positionMappedBy = "studyIdx")
     @OneToMany(mappedBy = "studyId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
@@ -113,7 +114,7 @@ class Study() : AbstractEntityAudit(), IAuthorSet, IArchived {
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
 
         pdfReport.addHeader(this, "Study $counter")
-        description?.let { pdfReport.addParagraph(it) }
+        description.let { pdfReport.addParagraph(it) }
 
         if (comments.size > 0)
             pdfReport.addHeader2("Comments")

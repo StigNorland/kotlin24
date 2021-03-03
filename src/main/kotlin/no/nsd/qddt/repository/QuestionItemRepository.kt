@@ -13,7 +13,7 @@ import java.util.*
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "questionitem",  itemResourceRel = "QuestionItem", excerptProjection = QuestionItemListe::class)
-interface QuestionItemRepository:  RevisionRepository<QuestionItem, UUID, Int>,  JpaRepository<QuestionItem, UUID> {
+interface QuestionItemRepository:  JpaRepository<QuestionItem, UUID>,  RevisionRepository<QuestionItem, UUID, Int>  {
 
     @Query(nativeQuery = true,
     value = ("SELECT qi.* FROM QUESTION_ITEM qi " +

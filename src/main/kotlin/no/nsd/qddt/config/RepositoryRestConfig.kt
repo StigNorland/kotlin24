@@ -1,7 +1,8 @@
 package  no.nsd.qddt.config
 
 import no.nsd.qddt.model.*
-import no.nsd.qddt.repository.*
+import no.nsd.qddt.repository.QuestionItemRepository
+import no.nsd.qddt.repository.ResponseDomainRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
@@ -39,10 +40,10 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(Universe::class.java)
         config.exposeIdsFor(User::class.java)
 
-        // config.withEntityLookup()
-        // .forRepository(QuestionItemRepository::class.java)
-        // .withIdMapping(QuestionItem::responseId)
-        // .withLookup(ResponseDomainRepository::findRevision);
+         config.withEntityLookup()
+         .forRepository(QuestionItemRepository::class.java)
+         .withIdMapping(QuestionItem::responseId)
+         .withLookup(ResponseDomainRepository::findRevision);
 
         config.repositoryDetectionStrategy = RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED
     }

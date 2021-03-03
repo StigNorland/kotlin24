@@ -1,18 +1,11 @@
 package no.nsd.qddt.utils
 
-import kotlin.Throws
-import org.hibernate.usertype.UserType
-import org.hibernate.HibernateException
-import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
-import java.sql.PreparedStatement
-import java.util.stream.Collectors
-import java.util.function.Consumer
 import java.util.*
-import java.sql.SQLException
-import java.sql.ResultSet
+import java.util.function.Consumer
+import java.util.stream.Collectors
 
 /**
  * @author Stig Norland

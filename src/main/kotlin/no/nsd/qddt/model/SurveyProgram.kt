@@ -6,7 +6,6 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn
-import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import javax.persistence.*
 

@@ -1,16 +1,15 @@
 package no.nsd.qddt.model
 
 // import com.fasterxml.jackson.annotation.JsonBackReference
+// import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-// import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.enums.InstrumentKind
 import org.hibernate.envers.Audited
-import javax.persistence.*
 import java.util.*
-
+import javax.persistence.*
 
 
 /**

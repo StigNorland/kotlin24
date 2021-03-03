@@ -1,7 +1,5 @@
 package no.nsd.qddt.utils
 
-import kotlin.reflect.KProperty
-
 /**
  * @author Stig Norland
  */

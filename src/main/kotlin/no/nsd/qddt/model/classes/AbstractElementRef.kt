@@ -6,14 +6,12 @@ package no.nsd.qddt.model.classes
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ConditionConstruct
-import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.StatementItem
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
-import no.nsd.qddt.utils.StringTool
 import java.util.*
 import javax.persistence.*
 

@@ -1,7 +1,7 @@
 package no.nsd.qddt.service
 
-import no.nsd.qddt.model.interfaces.BaseService
 import no.nsd.qddt.model.TreeNode
+import no.nsd.qddt.model.interfaces.BaseService
 import java.util.*
 
 /**

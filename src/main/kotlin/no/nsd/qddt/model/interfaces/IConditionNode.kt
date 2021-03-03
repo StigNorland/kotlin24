@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
-import no.nsd.qddt.model.enums.ConditionKind
 import no.nsd.qddt.model.embedded.Version
+import no.nsd.qddt.model.enums.ConditionKind
 import java.util.*
 
 /**

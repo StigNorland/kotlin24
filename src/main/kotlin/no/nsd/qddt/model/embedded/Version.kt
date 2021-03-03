@@ -3,9 +3,9 @@ package no.nsd.qddt.model.embedded
  import com.fasterxml.jackson.annotation.JsonIgnore
  import com.fasterxml.jackson.databind.annotation.JsonSerialize
  import java.io.Serializable
+ import javax.persistence.Column
  import javax.persistence.Embeddable
  import javax.persistence.Transient
- import javax.persistence.Column
 
 /**
  * @author Stig Norland

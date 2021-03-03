@@ -2,7 +2,8 @@ package no.nsd.qddt.model.classes
 
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.exception.StackTraceFilter
-import no.nsd.qddt.model.interfaces.*
+import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
+import no.nsd.qddt.model.interfaces.IParentRef
 import org.slf4j.LoggerFactory
 import java.util.*
 import javax.persistence.Column

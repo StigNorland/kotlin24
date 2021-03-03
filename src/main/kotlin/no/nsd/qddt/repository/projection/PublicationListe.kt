@@ -1,5 +1,7 @@
 package no.nsd.qddt.repository.projection
 
-class PublicationListe {
+import no.nsd.qddt.model.Publication
+import org.springframework.data.rest.core.config.Projection
 
-}
+@Projection(name = "publicationListe", types = [Publication::class])
+interface PublicationListe: IAbstractEntityEditList

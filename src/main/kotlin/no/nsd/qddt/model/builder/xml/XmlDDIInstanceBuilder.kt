@@ -22,7 +22,7 @@ open class XmlDDIInstanceBuilder<T : AbstractEntityAudit>(protected val instance
     xsi:schemaLocation="ddi:instance:3_2 http://www.ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/instance.xsd">
 """
     protected val id: String
-        protected get() = "null"
+        get() = "null"
 
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {}
 

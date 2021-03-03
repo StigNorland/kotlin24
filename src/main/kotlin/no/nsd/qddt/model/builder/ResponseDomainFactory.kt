@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder
 
-import no.nsd.qddt.model.interfaces.IEntityFactory
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.interfaces.IEntityFactory
 
 class ResponseDomainFactory: IEntityFactory<ResponseDomain> {
   override fun create(): ResponseDomain {
