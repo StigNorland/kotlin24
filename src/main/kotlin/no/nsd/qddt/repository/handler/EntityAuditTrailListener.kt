@@ -105,7 +105,6 @@ class EntityAuditTrailListener{
         }
     }
 
-
     @PostPersist
     @PostUpdate
     @PostRemove
@@ -115,7 +114,7 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        var bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
+        val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
         when (entity) {
             is QuestionConstruct -> {
                 if (entity.questionItem == null && entity.questionId?.id != null) {
@@ -160,7 +159,7 @@ class EntityAuditTrailListener{
 
     }
 
-    fun beforeCategoryInsert(entity: Category) {
+    private fun beforeCategoryInsert(entity: Category) {
         with(entity) {
             log.info("Category beforeInsert $name")
             hierarchyLevel = when (categoryKind) {
@@ -173,7 +172,7 @@ class EntityAuditTrailListener{
         }
     }
 
-    fun beforeStudyRemove(entity: Study) {
+    private fun beforeStudyRemove(entity: Study) {
         with(entity) {
             log.debug(" Study pre remove " + surveyProgram?.name)
             surveyProgram?.studies?.removeIf { it.id == this.id }
@@ -182,7 +181,7 @@ class EntityAuditTrailListener{
         }
     }
 
-    fun beforeStudyUpdate(entity: Study) {
+    private fun beforeStudyUpdate(entity: Study) {
         with(entity) {
             log.info("Study beforeUpdate")
 //            if (surveyIdx == null) {
@@ -192,7 +191,7 @@ class EntityAuditTrailListener{
         }
     }
 
-    fun beforeStudyInsert(entity: Study) {
+    private fun beforeStudyInsert(entity: Study) {
          with(entity) {
              log.info("Study beforeInsert")
 //             if (surveyProgram != null && surveyIdx == null) {
@@ -204,14 +203,6 @@ class EntityAuditTrailListener{
          }
     }
 
-
-
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)
-    }
-
-
     private fun harvestCatCodes(current: Category?): MutableList<Code> {
         val tmpList: MutableList<Code> = mutableListOf()
         if (current == null) return tmpList
@@ -222,7 +213,6 @@ class EntityAuditTrailListener{
         return tmpList
     }
 
-    
     private fun populateCatCodes(current: Category?, _index: Int,  codes: List<Code>): Int {
         assert(current != null)
         var _Index = _index
@@ -243,4 +233,9 @@ class EntityAuditTrailListener{
         }
         return _Index
     }
+
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)
+    }
+
 }

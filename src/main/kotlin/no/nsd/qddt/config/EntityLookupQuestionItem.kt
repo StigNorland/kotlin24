@@ -30,6 +30,7 @@ class EntityLookupQuestionItem: EntityLookupSupport<QuestionItem>() {
         val uri = UriId.fromString(id as String)
         return if (uri.rev != null)
             repository.findRevision(uri.id, uri.rev!!).map {
+                it.entity.rev = uri.rev
                 it.entity
             } else
             repository.findById(uri.id)
