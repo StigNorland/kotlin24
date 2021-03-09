@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "questionConstructListe", types = [QuestionConstruct::class])
-interface QuestionConstructListe: IAbstractEntityEditList {
+interface QuestionConstructListe: IAbstractEntityViewList {
     @Value(value = "#{target.questionItem?.question.toString() }")
     fun getQuestionText(): String?
 

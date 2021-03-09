@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.interfaces
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 
 /**
@@ -13,7 +14,9 @@ interface IBasedOn:IDomainObject {
     var changeKind: ChangeKind
     var changeComment: String
 
+    @JsonIgnore
     fun isBasedOn() = changeKind == ChangeKind.BASED_ON || changeKind == ChangeKind.NEW_COPY || changeKind == ChangeKind.TRANSLATED || changeKind == ChangeKind.REFERENCED
+    @JsonIgnore
     fun isNewCopy() = (changeKind == ChangeKind.NEW_COPY || version.rev == 0 && changeKind != ChangeKind.CREATED)
 
 

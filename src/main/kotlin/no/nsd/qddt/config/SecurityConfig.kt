@@ -31,6 +31,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+
+
+
 
 
 /**
@@ -40,7 +44,6 @@ import javax.servlet.http.HttpServletResponse
 @EnableJpaRepositories(
     basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.config", "no.nsd.qddt.security", "no.nsd.qddt.service"],
     repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
-@EnableWebMvc
 @EnableCaching
 @EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL])
 @EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
@@ -123,6 +126,11 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     }
 
 
+
+    fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(LoggerInterceptor())
+    }
+
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         // Enable CORS and disable CSRF
@@ -144,21 +152,22 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 
         // Set permissions on endpoints
         http.authorizeRequests() // Our public endpoints
-            .antMatchers("/").permitAll()
-            .antMatchers(HttpMethod.OPTIONS).permitAll()
-            .antMatchers("/login/**").permitAll()
-            .antMatchers("/actuator/**").permitAll()
-            .antMatchers(HttpMethod.GET, "/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/**").permitAll() //.access("hasAuthority('ROLE_ADMIN')")
+            .anyRequest().permitAll()
+//            .antMatchers(HttpMethod.GET,"/**").permitAll()
+//            .antMatchers(HttpMethod.OPTIONS).permitAll()
+//            .antMatchers("/login/**").permitAll()
+//            .antMatchers("/actuator/**").permitAll()
+//            .antMatchers("//browser/**").permitAll()
+//            .antMatchers(HttpMethod.POST, "/**").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
 //            .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
 //            .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
 //            .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
 //            .antMatchers(HttpMethod.GET, "/user/search/*").hasRole("ADMIN")
 //            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
-            .anyRequest().authenticated()
+//            .anyRequest().authenticated()
 
         // Add JWT token filter
-        http.addFilterBefore(authenticationTokenFilterBean(),UsernamePasswordAuthenticationFilter::class.java)
+//        http.addFilterBefore(authenticationTokenFilterBean(),UsernamePasswordAuthenticationFilter::class.java)
 
     }
 

@@ -1,7 +1,7 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.OtherMaterial
-import no.nsd.qddt.model.exception.FileUploadException
+import no.nsd.qddt.config.exception.FileUploadException
 import no.nsd.qddt.service.OtherMaterialService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.FileSystemResource

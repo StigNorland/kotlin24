@@ -10,14 +10,14 @@ package no.nsd.qddt.model
 // import org.hibernate.envers.Audited
 // import javax.persistence.*
 // import kotlin.streams.toList
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.enums.ControlConstructInstructionRank
+import no.nsd.qddt.model.enums.InstructionRank
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.repository.handler.QuestionConstructRefAuditTrailer
 import org.hibernate.envers.Audited
 import java.util.stream.Collectors
 import javax.persistence.*
@@ -28,21 +28,11 @@ import javax.persistence.*
 @Entity
 @Audited
 @DiscriminatorValue("QUESTION_CONSTRUCT")
-@EntityListeners(value = [QuestionConstructRefAuditTrailer::class])
+//@EntityListeners(value = [QuestionConstructRefAuditTrailer::class])
 class QuestionConstruct: ControlConstruct() {
 
     @Column(name = "description", length = 1500)
     var description: String = ""
-
-    // @AttributeOverrides(
-    //     AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
-    //     AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
-    //     AttributeOverride(name = "elementId",column = Column(name = "questionitem_id")),
-    //     AttributeOverride(name = "elementRevision",column = Column(name = "questionitem_revision"))
-    //     // AttributeOverride(name = "version.rev",column = Column(name = "questionitem_revision"))
-    // )
-    // @Embedded
-    // var questionItemRef: ElementRefQuestionItem? = null
 
     @Column(insertable = false, updatable = false)
     @Embedded
@@ -66,6 +56,7 @@ class QuestionConstruct: ControlConstruct() {
     @OrderColumn(name = "universe_idx")
     var universe: MutableList<Universe> = mutableListOf()
 
+    @JsonIgnore
     @OrderColumn(name = "instruction_idx")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -74,20 +65,26 @@ class QuestionConstruct: ControlConstruct() {
     )
     var controlConstructInstructions: MutableList<ControlConstructInstruction> = mutableListOf()
 
+
+//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "pk.fk")
+//    @MapKeyColumn(name = "aar")
+//    val valgKommentar: Map<Short, FylkeKommentar>?,
+
+
 //    @OneToMany(fetch = FetchType.EAGER,  mappedBy = "pk.fk")
 //    @MapKeyColumn(name = "instructionRank")
-//    val controlConstructInstructions2: Map<ControlConstructInstructionRank, MutableList<ControlConstructInstruction>> = mutableMapOf()
+//    val controlConstructInstructions2: Map<InstructionRank, MutableList<ControlConstructInstruction>> = mutableMapOf()
 
 
     val preInstructions
         get() = controlConstructInstructions.stream()
-            .filter { it.instructionRank == ControlConstructInstructionRank.PRE }
+            .filter { it.instructionRank == InstructionRank.PRE }
             .map {   it.instruction.description}
             .collect(Collectors.toList())
             
     val postInstructions
         get() = controlConstructInstructions.stream()
-            .filter { it.instructionRank == ControlConstructInstructionRank.POST }
+            .filter { it.instructionRank == InstructionRank.POST }
             .map {   it.instruction.description}
             .collect(Collectors.toList())
 

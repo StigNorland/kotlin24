@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.SurveyProgram
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.SurveyProgramListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -17,7 +16,7 @@ import java.util.*
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "surveyprogram",  itemResourceRel = "SurveyProgram", excerptProjection = SurveyProgramListe::class )
-interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , RevisionRepository<SurveyProgram, UUID, Int>, JpaRepository<SurveyProgram, UUID> {
+interface SurveyProgramRepository: BaseArchivedRepository<SurveyProgram> {
 
     // @RestResource(rel = "revision", path = "rev")
     override fun findRevisions(id: UUID, pageable: Pageable): Page<Revision<Int, SurveyProgram>>
@@ -26,10 +25,10 @@ interface SurveyProgramRepository:BaseArchivedRepository<SurveyProgram> , Revisi
 
 
     @Query(nativeQuery = true,
-        value = ("SELECT c.* FROM study c " +
-                  "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) "),
-        countQuery = ("SELECT count(c.*) FROM study c " +
-                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) "),
+        value = "SELECT c.* FROM study c " +
+                  "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
+        countQuery ="SELECT count(c.*) FROM study c " +
+                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
     )
     fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<SurveyProgram>
 

@@ -2,7 +2,6 @@ package no.nsd.qddt.repository
 import no.nsd.qddt.model.ControlConstruct
 import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.repository.projection.ControlConstructListe
-import no.nsd.qddt.repository.projection.QuestionConstructListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -16,7 +15,7 @@ import java.util.*
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "controlconstruct",  itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
-interface ControlConstructRepository<T : ControlConstruct>: RevisionRepository<T, UUID, Int>,  JpaRepository<T, UUID> {
+interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T>{
 
         /**
          *
@@ -30,14 +29,14 @@ interface ControlConstructRepository<T : ControlConstruct>: RevisionRepository<T
             name = "findByQuery", nativeQuery = true,
             value = "SELECT cc.* FROM CONTROL_CONSTRUCT cc " +
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
-                    " WHERE cc.control_construct_kind = cast(:constructKind AS text) " +
-                    " AND cc.xml_lang ILIKE :xmlLang " +
-                    " AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
-                    " OR (:name is null OR cc.name ILIKE cast(:name AS text)) " +
-                    " OR (:description is null OR cc.description ILIKE cast(:description AS text)) " +
-                    " OR (:questionName is null OR qi.name ILIKE cast(:questionName AS text)) " +
-                    " OR (:questionText is null OR qi.question ILIKE cast(:questionText AS text)) " +
-                    " ) ",
+                    "WHERE cc.control_construct_kind = cast(:constructKind AS text) " +
+                    "AND cc.xml_lang ILIKE :xmlLang " +
+                    "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
+                    "OR (:name is null OR cc.name ILIKE cast(:name AS text)) " +
+                    "OR (:description is null OR cc.description ILIKE cast(:description AS text)) " +
+                    "OR (:questionName is null OR qi.name ILIKE cast(:questionName AS text)) " +
+                    "OR (:questionText is null OR qi.question ILIKE cast(:questionText AS text)) " +
+                    ") ",
             countQuery = "SELECT count(cc.*) FROM CONTROL_CONSTRUCT cc " +
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
                     "WHERE cc.control_construct_kind =  cast(:constructKind AS text) " +
@@ -76,5 +75,3 @@ interface ControlConstructRepository<T : ControlConstruct>: RevisionRepository<T
     }
 
 
-@RepositoryRestResource(path = "questionconstruct",  itemResourceRel = "QuestionConstruct", excerptProjection = QuestionConstructListe::class)
-interface QuestionConstructRepository: ControlConstructRepository<QuestionConstruct>

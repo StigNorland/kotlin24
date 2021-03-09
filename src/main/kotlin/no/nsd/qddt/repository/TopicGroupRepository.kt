@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.TopicGroup
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.TopicGroupListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -18,8 +17,7 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "topicgroup",  itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
-interface TopicGroupRepository : BaseArchivedRepository<TopicGroup>, RevisionRepository<TopicGroup, UUID, Int>,
-    JpaRepository<TopicGroup, UUID> {
+interface TopicGroupRepository : BaseArchivedRepository<TopicGroup> {
 
 
     @RestResource(rel = "revision", path = "rev")
@@ -29,7 +27,7 @@ interface TopicGroupRepository : BaseArchivedRepository<TopicGroup>, RevisionRep
     override fun findAll(pageable: Pageable): Page<TopicGroup>
 
 
-    fun findByTopicQuestionItemsElementId(id: UUID): List<TopicGroup>?
+    fun findByQuestionItemsElementId(id: UUID): List<TopicGroup>?
 
 
     @Query( nativeQuery = true,

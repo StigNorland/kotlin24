@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
-import no.nsd.qddt.repository.handler.QuestionItemRefAuditTrailer
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
@@ -12,7 +11,7 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
-@EntityListeners(value = [QuestionItemRefAuditTrailer::class])
+//@EntityListeners(value = [QuestionItemRefAuditTrailer::class])
 @Embeddable
 class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
     /**

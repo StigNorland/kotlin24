@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Study
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.StudyListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -18,7 +17,7 @@ import java.util.*
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "study",  itemResourceRel = "Study", excerptProjection = StudyListe::class)
-interface StudyRepository:BaseArchivedRepository<Study> , RevisionRepository<Study, UUID, Int>, JpaRepository<Study, UUID> {
+interface StudyRepository: BaseArchivedRepository<Study> {
 
 
     @RestResource(rel = "revision", path = "rev")
@@ -29,12 +28,10 @@ interface StudyRepository:BaseArchivedRepository<Study> , RevisionRepository<Stu
 
 
     @Query(nativeQuery = true,
-        value = ("SELECT c.* FROM study c " +
-                  "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) "
-        ),
-        countQuery = ("SELECT count(c.*) FROM study c " +
-                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) "
-        ),
+        value       = "SELECT c.* FROM study c " +
+                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
+        countQuery = "SELECT count(c.*) FROM study c " +
+                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
     )
     fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<Study>
 

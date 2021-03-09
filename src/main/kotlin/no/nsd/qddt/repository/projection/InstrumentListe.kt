@@ -4,4 +4,4 @@ import no.nsd.qddt.model.Instrument
 import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "instrumentListe", types = [Instrument::class])
-interface InstrumentListe: IAbstractEntityEditList
+interface InstrumentListe: IAbstractEntityViewList

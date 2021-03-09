@@ -4,4 +4,4 @@ import no.nsd.qddt.model.Concept
 import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "conceptListe", types = [Concept::class])
-interface ConceptListe: IAbstractEntityEditList
+interface ConceptListe: IAbstractEntityViewList

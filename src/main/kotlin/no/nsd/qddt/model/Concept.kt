@@ -3,11 +3,8 @@ package no.nsd.qddt.model
 import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
-import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
-import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
@@ -27,58 +24,20 @@ import javax.persistence.*
 
 @Audited
 @Entity
-@Table(name = "CONCEPT")
-class Concept : AbstractEntityAudit(), IArchived {
+@DiscriminatorValue("CONCEPT")
+class Concept : ConceptHierarchy() {
 
-    var label: String=""
-
-    override var name: String = ""
-
-    @Column(length = 20000)
-    var description: String=""
-
-    override var isArchived: Boolean = false
-
-    /**---------------------------------------------
-     *    Parent ref
-    ----------------------------------------------**/
-
-    @Column(insertable = false, updatable = false)
-    var conceptIdx: Int? = null
-
-    @Column(insertable = false, updatable = false)
-    var conceptId:UUID? = null
-
-    @Column(insertable = false, updatable = false)
-    var topicgroupId:UUID? = null
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="topicgroupId")
-    var topicGroup: TopicGroup? = null
-
-    /**---------------------------------------------
-     *    Children refs
-    ----------------------------------------------**/
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="conceptId")
-//    var parent: Concept? = null
-
-    //    @PrimaryKeyJoinColumn
-//    @OrderColumn(name="conceptIdx")
-//    @AuditMappedBy(mappedBy = "conceptId", positionMappedBy = "conceptIdx")
-    @OneToMany(mappedBy = "conceptId",cascade = [CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE])
-    var children: MutableList<Concept> = mutableListOf()
+    override lateinit var name: String
 
 
-    // @OrderColumn(name="conceptIdx")
+    @OrderColumn(name="parentIdx")
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "CONCEPT_QUESTION_ITEM", joinColumns = [JoinColumn(name = "conceptId", referencedColumnName = "id")])
-    var conceptQuestionItems: MutableList<ElementRefQuestionItem> = mutableListOf()
+    @CollectionTable(name = "CONCEPT_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
+    var questionItems: MutableList<ElementRefQuestionItem> = mutableListOf()
 
 
     fun removeQuestionItem(id: UUID, rev: Int) {
-        conceptQuestionItems.removeIf { it.elementId == id && it.version.rev == rev }.also { doIt ->
+        questionItems.removeIf { it.elementId == id && it.version.rev == rev }.also { doIt ->
             if (doIt) {
                 this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
                 this.changeComment = "QuestionItem assosiation removed"
@@ -90,37 +49,15 @@ class Concept : AbstractEntityAudit(), IArchived {
         }
     }
 
-
     fun addQuestionItem(qef: ElementRefQuestionItem) {
-        this.conceptQuestionItems.stream().noneMatch{it === qef}.run {
-            conceptQuestionItems.add(qef)
+        this.questionItems.stream().noneMatch{it === qef}.run {
+            questionItems.add(qef)
             changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
             changeComment = "QuestionItem assosiation added"
             // myParents().forEach{ it.changeKind = ChangeKind.UPDATED_CHILD}
         }
     }
 
-//    fun addChildren(concept: Concept): Concept {
-//        this.children.add(concept)
-//        concept.parent = this
-//        changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-//        changeComment = "SubConcept added"
-//        // myParents().forEach{ it.changeKind = ChangeKind.UPDATED_CHILD}
-//        return concept
-//    }
-
-
-    // private fun myParents(): List<AbstractEntityAudit> {
-    //     var  current: AbstractEntityAudit = this
-    //     return sequence<AbstractEntityAudit>() {
-    //         while (current.parent != null) {
-    //             current = current.parent
-    //             yield(current as AbstractEntityAudit)
-    //         }
-    //         if (current.topicGroup != null)
-    //             yield(current.topicGroup as AbstractEntityAudit)
-    //     }.toList()
-    // }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         try {
@@ -132,9 +69,9 @@ class Concept : AbstractEntityAudit(), IArchived {
                 pdfReport.addComments(comments)
             }
 
-            if (conceptQuestionItems.size > 0) {
+            if (questionItems.size > 0) {
                 pdfReport.addHeader2("QuestionItem(s)")
-                conceptQuestionItems.stream().map {
+                questionItems.stream().map {
                     it.element
                 }
                     .forEach {
@@ -162,6 +99,7 @@ class Concept : AbstractEntityAudit(), IArchived {
     }
 
     override fun xmlBuilder(): AbstractXmlBuilder {
+        this.children
         return ConceptFragmentBuilder(this)
     }
 

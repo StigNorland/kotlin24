@@ -26,7 +26,10 @@ import javax.persistence.*
         [UniqueConstraint(name = "UNQ_RESPONSEDOMAIN_NAME",
           columnNames = ["name","category_id","based_on_object"])]
 )
-class ResponseDomain:AbstractEntityAudit() {
+data class ResponseDomain(
+  @Column(length = 2000, nullable = false)
+  var description:String = ""
+):AbstractEntityAudit() {
   /**
  * Can't have two responsedomain with the same template and the same name, unless they are based on
  */
@@ -34,8 +37,6 @@ class ResponseDomain:AbstractEntityAudit() {
   override var name: String = ""
     get() =  CapString(field)
 
-  @Column(length = 2000, nullable = false)
-  var description:String = ""
 
   /**
    * Vocabulary for Display layout would suffice with 'Horizontal' (default) vs. Vertical'.
@@ -102,7 +103,7 @@ class ResponseDomain:AbstractEntityAudit() {
         table.addCell(Cell(1, 2).add(Paragraph(cat.label))
           .setBorder(DottedBorder(ColorConstants.GRAY, 1F)))
       }
-    pdfReport.theDocument?.add(table)
+    pdfReport.getTheDocument().add(table)
   }
 
   override fun xmlBuilder():XmlDDIFragmentBuilder<ResponseDomain> {

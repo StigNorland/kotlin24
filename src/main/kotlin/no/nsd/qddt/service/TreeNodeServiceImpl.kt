@@ -1,6 +1,6 @@
 package no.nsd.qddt.service//package no.nsd.qddt.domain.treenode
 //
-//import no.nsd.qddt.model.exception.ResourceNotFoundException
+//import no.nsd.qddt.config.exception.ResourceNotFoundException
 //import org.springframework.beans.factory.annotation.Autowired
 //import org.springframework.security.access.prepost.PreAuthorize
 //import org.springframework.stereotype.Service

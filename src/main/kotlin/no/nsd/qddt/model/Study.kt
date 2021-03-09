@@ -2,13 +2,9 @@ package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
-import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -38,34 +34,11 @@ import javax.persistence.*
 // @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
 @Audited
 @Entity
-@Table(name = "STUDY")
-class Study : AbstractEntityAudit(), IAuthorSet, IArchived {
+@DiscriminatorValue("STUDY")
+class Study : ConceptHierarchy(), IAuthorSet, IArchived {
 
     override var name: String = ""
 
-    @Column(length = 20000)
-    var description: String = ""
-
-/**---------------------------------------------
-*    Parent ref
-----------------------------------------------**/
-    @Column(insertable = false, updatable = false)
-    var surveyIdx: Int? = null
-
-    @Column(insertable = false, updatable = false)
-    var surveyId: UUID? = null
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="surveyId")
-    var surveyProgram: SurveyProgram? = null
-
-    /**---------------------------------------------
-     *    Child refs
-    ----------------------------------------------**/
-    // @OrderColumn(name = "studyIdx",  updatable = false, insertable = false)
-    // @AuditMappedBy(mappedBy = "studyId", positionMappedBy = "studyIdx")
-    @OneToMany(mappedBy = "studyId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
-    var topicGroups: MutableList<TopicGroup> = mutableListOf()
 
     @OneToMany( mappedBy="studyId", cascade = [CascadeType.ALL])
     @PrimaryKeyJoinColumn
@@ -73,42 +46,20 @@ class Study : AbstractEntityAudit(), IAuthorSet, IArchived {
 
     
     @ManyToMany(cascade = [CascadeType.DETACH])
+    @JoinTable(
+        name = "CONCEPT_HIERARCHY_AUTHORS",
+        joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")])
     override var authors: MutableSet<Author> = mutableSetOf()
 
-
-    // @Column(name = "is_archived")
-    override var isArchived = false
-        set(value) {
-            try {
-                field = value
-                if (value) {
-                    changeKind = ChangeKind.ARCHIVED
-                //     if (Hibernate.isInitialized(topicGroups))
-                //         logger.debug("getTopicGroups isInitialized. ")
-                //     else
-                //         Hibernate.initialize(topicGroups)
-
-                //     topicGroups.forEach{
-                //         if (!it.isArchived) 
-                //             it.isArchived = true
-                //     }
-                }
-            } catch (ex: Exception) {
-                logger.error("setArchived", ex)
-                StackTraceFilter.filter(ex.stackTrace).stream()
-                    .map { a -> a.toString() }
-                    .forEach(logger::info)
-            }
-        }
-
-
-    // fun addTopicGroup(topicGroup: TopicGroup): TopicGroup {
-    //     topicGroups.add(topicGroup)
-    //     topicGroup.study = this
-    //     changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-    //     changeComment = "TopicGroup [" + topicGroup.name + "] added"
-    //     return topicGroup
-    // }
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name="parentId", insertable = false, updatable = false )
+//    override var parent: SurveyProgram? = null
+//
+//    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
+//    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentId",cascade = [CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE])
+//    override lateinit var children: MutableList<TopicGroup>
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
@@ -122,10 +73,10 @@ class Study : AbstractEntityAudit(), IAuthorSet, IArchived {
         pdfReport.addComments(comments)
 
         pdfReport.addPadding()
-        // var teller = if (counter.isNotEmpty()) "$counter." else counter
-        // for ((i, topic) in topicGroups.withIndex()) {
-        //     topic.fillDoc(pdfReport, teller + (i + 1))
-        // }
+         var teller = if (counter.isNotEmpty()) "$counter." else counter
+         for ((i, topic) in children.withIndex()) {
+             topic.fillDoc(pdfReport, teller + (i + 1))
+         }
     }
 
 

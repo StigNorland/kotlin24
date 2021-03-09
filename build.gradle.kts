@@ -9,6 +9,9 @@ plugins {
 	kotlin("plugin.serialization") version "1.4.30"
 }
 
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions.useIR = true
+
 group = "no.nsd"
 //group = "com.example"
 version = "0.0.1-SNAPSHOT"
@@ -30,6 +33,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
 		exclude("org.apache.tomcat:tomcat-jdbc")
 	}
+
+	implementation("org.springframework.hateoas:spring-hateoas")
 	implementation("org.springframework.data:spring-data-envers:2.4.3")
 	implementation("org.hibernate:hibernate-envers:5.4.25.Final")
 //	implementation("org.springframework:spring-core:5.3.4")
@@ -42,8 +47,8 @@ dependencies {
 	implementation("net.logstash.logback:logstash-logback-encoder:6.5")
 
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("com.itextpdf:itext7-core:7.1.1")
-    implementation("com.itextpdf:html2pdf:2.0.2")
+    implementation("com.itextpdf:itext7-core:7.1.14")
+    implementation("com.itextpdf:html2pdf:3.0.3")
 
 
 	runtimeOnly("org.postgresql:postgresql")

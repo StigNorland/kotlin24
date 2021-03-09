@@ -27,7 +27,7 @@ class TopicGroupFragmentBuilder(topicGroup: TopicGroup) : XmlDDIFragmentBuilder<
     //     .map { it.xmlBuilder() }
     //     .collect(Collectors.toList())
 
-    private val questions:  MutableList<AbstractXmlBuilder> = topicGroup.topicQuestionItems.stream()
+    private val questions:  MutableList<AbstractXmlBuilder> = topicGroup.questionItems.stream()
         .filter { it.element != null }
         .map { it.element!!.xmlBuilder() }
         .collect(Collectors.toList())

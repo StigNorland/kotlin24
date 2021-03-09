@@ -21,6 +21,9 @@ spring:
     password: ${QDDT_DB_USER:qddt}
     username: ${QDDT_DB_PASSWORD_PSQL:qddt}
     url: jdbc:postgresql://${QDDT_DB_HOST:localhost}:${QDDT_DB_PORT:5432}/${QDDT_DB_NAME:qddt-dev}
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
   jmx:
     enabled: false
   jpa:

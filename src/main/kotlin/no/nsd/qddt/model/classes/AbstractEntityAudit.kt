@@ -2,11 +2,12 @@ package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.itextpdf.io.source.ByteArrayOutputStream
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.exception.StackTraceFilter
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
@@ -14,7 +15,6 @@ import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
-import java.io.ByteArrayOutputStream
 import java.io.Serializable
 import java.util.*
 import java.util.stream.Collectors

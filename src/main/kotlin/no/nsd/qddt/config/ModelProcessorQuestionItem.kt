@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 
 
 /**
- * A [RepresentationModelProcessor] that takes an [Order] that has been wrapped by Spring Data REST into an
+ * A [RepresentationModelProcessor] that takes an [Entity] that has been wrapped by Spring Data REST into an
  * [EntityModel] and applies custom Spring HATEAOS-based [Link]s based on the state.
  * @author Stig Norland
  */

@@ -18,9 +18,9 @@ class ConceptFactory: IEntityFactory<Concept> {
       label = source.label
       name = source.name
       children = source.children.stream()
-        .map{  copy(it, basedOnRevision) }
+        .map{  copy(it as Concept, basedOnRevision) }
         .collect(Collectors.toList())
-      conceptQuestionItems = source.conceptQuestionItems.stream()
+      questionItems = source.questionItems.stream()
         .map{ it.clone()  }
         .collect(Collectors.toList())
       // dest.getChildren().forEach(action -> action.setParentC(dest));

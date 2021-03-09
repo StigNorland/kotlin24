@@ -4,7 +4,8 @@ import com.itextpdf.html2pdf.HtmlConverter
 import com.itextpdf.io.IOException
 import com.itextpdf.io.font.constants.StandardFonts
 import com.itextpdf.io.image.ImageDataFactory
-import com.itextpdf.kernel.colors.ColorConstants.BLUE
+import com.itextpdf.io.source.ByteArrayOutputStream
+import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.kernel.colors.DeviceRgb
 import com.itextpdf.kernel.events.PdfDocumentEvent
 import com.itextpdf.kernel.font.PdfFont
@@ -23,122 +24,120 @@ import com.itextpdf.layout.layout.LayoutContext
 import com.itextpdf.layout.layout.LayoutResult
 import com.itextpdf.layout.property.*
 import com.itextpdf.layout.renderer.ParagraphRenderer
+import no.nsd.qddt.config.exception.StackTraceFilter.filter
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.exception.StackTraceFilter
-import no.nsd.qddt.utils.StringTool
+import no.nsd.qddt.utils.StringTool.CapString
+import org.joda.time.DateTime
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.ByteArrayOutputStream
 import java.net.URL
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
-import java.util.AbstractMap.SimpleEntry
-import java.util.stream.Collectors
-import kotlin.collections.ArrayList
+import java.util.AbstractMap
 
-//import javassist.Loader
-//import java.util.function.Consumer
-//import java.util.function.Function
-//import java.util.stream.Collectors
 
 /**
  * @author Stig Norland
  */
 class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(outputStream).setSmartMode(true)) {
-    private val logger = LoggerFactory.getLogger(this.javaClass)
-    
-    private val toc: MutableList<SimpleEntry<String, SimpleEntry<String, Int>>> = ArrayList()
-    var width100 = 0f
-    private var font: PdfFont? = null
-    private var bold: PdfFont? = null
-    private var chapterHeading: PdfFont? = null
-    private val sizeSmall = 9F
-    private val sizeNormal = 12F
-    private val sizeHeader2 = 14F
-    private val sizeHeader1 = 23F
+
+    protected val LOG: Logger = LoggerFactory.getLogger(this.javaClass)
+
+    private val toc: MutableList<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<String, Int>>> = ArrayList()
+
+//    private val toc: MutableList<MutableMap<String, MutableMap<String, Int>>> = mutableListOf()
+
+    private var document = Document(this, PageSize.A4)
+
+    var width100 = PageSize.A4.width - document.leftMargin - document.rightMargin
+
+    private var font: PdfFont = createFont(StandardFonts.TIMES_ROMAN)
+    private var bold: PdfFont = createFont(StandardFonts.TIMES_BOLD)
+    private var chapterHeading: PdfFont = createFont(StandardFonts.COURIER)
+    private val sizeSmall = 9
+    private val sizeNormal = 12
+    private val sizeHeader2 = 14
+    private val sizeHeader1 = 23
+
+
     private val cellStyleLeft = Style()
-        .setFontSize(sizeSmall)
+        .setFontSize(sizeSmall.toFloat())
         .setTextAlignment(TextAlignment.LEFT)
-        .setBorder(Border.NO_BORDER)
-        .setPadding(1.0f)
+        .setBorder(Border.NO_BORDER).setPadding(1.0f)
+
     private val cellStyleRight = Style()
-        .setFontSize(sizeSmall)
+        .setFontSize(sizeSmall.toFloat())
         .setTextAlignment(TextAlignment.RIGHT)
-        .setBorder(Border.NO_BORDER)
-        .setPadding(1.0f)
-        .setPaddingRight(4.0f)
-    private var document: Document? = null
+        .setBorder(Border.NO_BORDER).setPadding(1.0f).setPaddingRight(4.0f)
 
     fun createToc() {
         val url = getResource("qddt.png")
-        val startToc: Int = numberOfPages
+        val startToc = numberOfPages
         lastPage.setPageLabel(PageLabelNumberingStyle.LOWERCASE_ROMAN_NUMERALS, null, 1)
-        document!!.add(AreaBreak(AreaBreakType.NEXT_PAGE))
-        document!!.add(
+        //        LOG.info( String.join( ", ", getPageLabels() ) );
+        document.add(AreaBreak(AreaBreakType.NEXT_PAGE))
+        document.add(
             Image(ImageDataFactory.create(url))
                 .setHorizontalAlignment(HorizontalAlignment.CENTER)
         )
             .add(
                 Paragraph()
                     .setFont(bold)
-                    .setFontSize(24F)
+                    .setFontSize(24f)
                     .setTextAlignment(TextAlignment.CENTER)
                     .add("Pdf report")
-                    .setPaddingBottom(60F).setKeepTogether(false)
+                    .setPaddingBottom(60f).setKeepTogether(false)
             )
             .add(
                 Paragraph()
                     .setFont(font)
-                    .setFontSize(18F)
+                    .setFontSize(18f)
                     .setTextAlignment(TextAlignment.CENTER)
                     .add(toc[0].value.key.split("\t").toTypedArray()[1])
-                    .setPaddingBottom(60F)
+                    .setPaddingBottom(60f)
             )
+            //        toc.get(0).getValue().getKey().split("\t")[1])
+
             .add(
                 Paragraph()
-                    .add("Generated " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE d MMMM YYYY HH:mm:SS")))
+                    .add("Generated " + DateTime.now().toString("EEEE d MMMM YYYY HH:mm:SS"))
                     .setTextAlignment(TextAlignment.CENTER)
             )
-        document!!.add(AreaBreak())
-        document!!.add(Paragraph().setFont(bold).add("Table of Content").setDestination("toc"))
-        val tabstops: MutableList<TabStop> = ArrayList()
-        tabstops.add(TabStop(580F, TabAlignment.RIGHT, DottedLine()))
+        document.add(AreaBreak())
+        document.add(Paragraph().setFont(bold).add("Table of Content").setDestination("toc"))
+        val tabStops: MutableList<TabStop> = mutableListOf()
+        tabStops.add(TabStop(580F, TabAlignment.RIGHT, DottedLine()))
         for ((key, text) in toc) {
-            document!!.add(
+            document.add(
                 Paragraph()
                     .setMultipliedLeading(1.2f)
-                    .addTabStops(tabstops)
+                    .addTabStops(tabStops)
                     .add(text.key)
                     .add(Tab())
                     .add(text.value.toString())
                     .setAction(PdfAction.createGoTo(key))
             )
         }
-        val lastPage: Int = numberOfPages
+        val lastPage = numberOfPages
         val tocPages = lastPage - startToc
         try {
             for (i in 0 until tocPages) {
                 movePage(getLastPage(), 1)
             }
         } catch (ex: Exception) {
-            logger.error("createToc", ex)
+            LOG.error("createToc", ex)
         }
         //        LOG.info( String.join( ", ", getPageLabels() ) );
         getPage(1).setPageLabel(PageLabelNumberingStyle.LOWERCASE_ROMAN_NUMERALS, null, 1)
         getPage(tocPages + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS, "Page ", 1)
-        getPage(startToc + 1).setPageLabel(
-            PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS,
-            "Page ",
-            startToc - tocPages + 1
-        )
-        document!!.flush()
+        getPage(startToc + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS,"Page ",startToc - tocPages + 1)
+        document.flush()
         close()
     }
 
-
+    //    public PdfFont getParagraphFont() {
+    //        return paragraphFont;
+    //    }
     private var outline: PdfOutline? = null
-
     fun addHeader(element: AbstractEntityAudit, header: String): Document {
         val values = header.split(" ").toTypedArray()
         var chapter = ""
@@ -147,23 +146,22 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             //            document.add( new AreaBreak(AreaBreakType.NEXT_AREA  ) );
             // document.add( new AreaBreak() );        //https://github.com/DASISH/qddt-client/issues/611
         }
-        outline = createOutline(outline, StringTool.CapString(element.name), element.id.toString())
-        val titlePage: SimpleEntry<String, Int> =
-            SimpleEntry(chapter + "\t" + StringTool.CapString(element.name), numberOfPages)
-        toc.add(SimpleEntry(element.id.toString(), titlePage))
-        val p: Paragraph = Paragraph(element.name)
-            .setFontColor(BLUE)
-            .setFontSize(sizeHeader1)
+        outline = createOutline(outline, CapString(element.name), element.id.toString())
+        val titlePage = AbstractMap.SimpleEntry(chapter + "\t" + CapString(element.name), numberOfPages)
+        toc.add(AbstractMap.SimpleEntry(element.id.toString(), titlePage))
+        val p = Paragraph(element.name)
+            .setFontColor(ColorConstants.BLUE)
+            .setFontSize(sizeHeader1.toFloat())
             .setMultipliedLeading(1f) //            .setWidth(width100*0.8F)
             .setDestination(element.id.toString())
         val table = Table(UnitValue.createPercentArray(floatArrayOf(68.0f, 12.0f, 20.0f)))
         table.addCell(
-            Cell(4, 1).add(Paragraph(header).setMultipliedLeading(1f).setFontSize(21F).setFont(chapterHeading))
+            Cell(4, 1).add(Paragraph(header).setMultipliedLeading(1f).setFontSize(21f).setFont(chapterHeading))
                 .setTextAlignment(TextAlignment.LEFT)
                 .setBorder(Border.NO_BORDER)
                 .add(
                     Paragraph("__________________________________________________________")
-                        .setFontColor(BLUE)
+                        .setFontColor(ColorConstants.BLUE)
                         .setVerticalAlignment(VerticalAlignment.TOP)
                 )
                 .add(p)
@@ -173,70 +171,64 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             .addCell(Cell().add(Paragraph("Last Saved")).addStyle(cellStyleRight))
             .addCell(Cell().add(Paragraph(String.format("%1\$TF %1\$TT", element.modified))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Last Saved By")).addStyle(cellStyleRight))
-            .addCell(Cell().add(Paragraph(StringTool.CapString(element.modifiedBy.username))).addStyle(cellStyleLeft))
+            .addCell(Cell().add(Paragraph(CapString(element.modifiedBy.username))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Agency")).addStyle(cellStyleRight))
             .addCell(Cell().add(Paragraph(element.agency.name)).addStyle(cellStyleLeft))
             .setWidth(width100)
         p.setNextRenderer(UpdatePageRenderer(p, titlePage))
-        val div: Div = Div().add(table).setKeepTogether(true).setKeepWithNext(true)
-        return document!!.add(div)
+        val div = Div().add(table).setKeepTogether(true).setKeepWithNext(true)
+        return document.add(div)
     }
 
-    val theDocument: Document?
-        get() = document
-
-    fun addHeader2(header: String?): Document {
-        return addHeader2(header, null)
+    fun getTheDocument(): Document {
+        return document
     }
 
-    fun addHeader2(header: String?, rev: String?): Document {
-        return document!!.add(
+    @JvmOverloads
+    fun addHeader2(header: String?, rev: String? = null): Document {
+        return document.add(
             Paragraph(header)
                 .setMaxWidth(width100 * 0.8f)
-                .setFontColor(BLUE)
-                .setFontSize(sizeHeader2)
+                .setFontColor(ColorConstants.BLUE)
+                .setFontSize(sizeHeader2.toFloat())
                 .addTabStops(TabStop(width100 * 0.80f, TabAlignment.RIGHT))
                 .add(Tab())
-                .add(rev ?: "")
+                .add(rev?:"")
                 .setKeepWithNext(true)
         )
     }
 
-    fun addParagraph(value: String): Document? {
+    fun addParagraph(value: String): Document {
         try {
-            val para: Paragraph = Paragraph().setWidth(width100 * 0.8f).setKeepTogether(false)
-            Arrays.stream(value.split("\n").toTypedArray())
-                .map {
-                    when {
-                        it.matches(Regex(HTML_PATTERN)) -> it
-                        else -> "$it</br>"
-                    }
-                }
-                .collect(Collectors.joining(" ")).also {
-                    HtmlConverter.convertToElements(it).forEach {
-                        element -> para.add(element as IBlockElement )
-                    }
-                    document!!.add(para)
-                }
+            val joined = value.split("\n")
+                .map { if (it.matches(Regex(HTML_PATTERN))) it else "$it</br>" }
+                .joinToString { " " }
+
+            val para = Paragraph().setWidth(width100 * 0.8f).setKeepTogether(false)
+
+            HtmlConverter.convertToElements(joined).forEach {
+                para.add(it as IBlockElement)
+            }
+            document.add(para)
         } catch (e: IOException) {
             e.printStackTrace()
         }
         return document
     }
 
-    fun addComments(comments: List<Comment>): Document {
-        val table: Table = Table(UnitValue.createPercentArray(floatArrayOf(25.0f, 25.0f, 25.0f, 25.0f)))
+    fun addComments(comments: List<Comment>?): Document {
+        val table = Table(UnitValue.createPercentArray(floatArrayOf(25.0f, 25.0f, 25.0f, 25.0f)))
             .setKeepTogether(true)
             .setWidth(width100 * 0.8f)
             .setPaddingBottom(15F)
-        for (comment in comments.stream().filter(Comment::isPublic).collect(Collectors.toList())) {
-            addCommentRow(table, comment, 0)
+        comments?.stream()?.filter { it?.isPublic == true }?.forEach {
+            addCommentRow(table, it, 0)
         }
-        return document!!.add(table)
+        return document.add(table)
     }
 
     fun addPadding(): Document {
-        return document!!.add(Paragraph().setPaddingBottom(15F).setKeepTogether(false))
+        return document.add(Paragraph().setPaddingBottom(15f).setKeepTogether(false))
     }
 
     private fun addCommentRow(table: Table, comment: Comment, level: Int) {
@@ -244,9 +236,9 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             .addCell(
                 Cell(1, 3)
                     .setBorder(Border.NO_BORDER) //                .setWidth(width100*0.8F)
-                    .setPaddingBottom(10F)
-                    .setPaddingRight(10F)
-                    .add(Paragraph(comment.comment).setPaddingLeft(20F * level))
+                    .setPaddingBottom(10f)
+                    .setPaddingRight(10f)
+                    .add(Paragraph(comment.comment).setPaddingLeft((20 * level).toFloat()))
             )
             .addCell(
                 Cell(1, 1)
@@ -254,89 +246,76 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                     .add(
                         Paragraph(
                             comment.modifiedBy.username + "@" + comment.modifiedBy.agency.name +
-                                    java.lang.String.format(" - %1\$TD %1\$TT", comment.modified.toLocalDateTime())
+                                    String.format(" - %1\$TD %1\$TT", comment.modified.toLocalDateTime())
                         )
                     )
             )
-        for (subComment in comment.comments.stream().filter(Comment::isPublic)
-            .collect(Collectors.toList())) {
-            addCommentRow(table, subComment, level + 1)
+        comment.comments.stream().filter { it?.isPublic == true }?.forEach {
+            addCommentRow(table, it,  level + 1)
         }
     }
 
-    private fun createOutline(source: PdfOutline?, title: String, key: String): PdfOutline {
-         return when (source) {
-             null -> {
-                 getOutlines(false).addOutline(title).apply {
-                     addDestination(PdfDestination.makeDestination(PdfString(key)))
-                 }
-             }
-             else -> {
-                 source.addOutline(title).apply {
-                     addDestination(PdfDestination.makeDestination(PdfString(key)))
-                 }
-             }
-         }
-    }
-
-    private inner class UpdatePageRenderer(modelElement: Paragraph?,private var entry: SimpleEntry<String, Int>) : ParagraphRenderer(modelElement) {
-        override fun layout(layoutContext: LayoutContext): LayoutResult {
-            return super.layout(layoutContext).also {
-                entry.setValue(layoutContext.area.pageNumber)
+    private fun createOutline(outline: PdfOutline?, title: String, key: String): PdfOutline? {
+        return when (outline) {
+            null -> {
+                getOutlines(false)
+                    .addOutline(title).apply {
+                        addDestination(PdfDestination.makeDestination(PdfString(key)))
+                    }
+            }
+            else -> {
+                outline.addOutline(title).apply {
+                    addDestination(PdfDestination.makeDestination(PdfString(key)))
+                }
             }
         }
     }
 
+    private inner class UpdatePageRenderer(modelElement: Paragraph?, protected var entry: AbstractMap.SimpleEntry<String, Int>) :
+        ParagraphRenderer(modelElement) {
+        override fun layout(layoutContext: LayoutContext): LayoutResult {
+            val result = super.layout(layoutContext)
+            entry.setValue(layoutContext.area.pageNumber)
+            return result
+        }
+    }
+
     private fun getResource(resource: String): URL {
-        return  ClassLoader.getSystemResource(resource) ?: URL(resource)
-//        var url = URL(resource)
-//        //Try with the Thread Context Loader.
-//        var classLoader = Thread.currentThread().contextClassLoader
-//        if (classLoader != null) {
-//            return classLoader.getResource(resource)
-//        }
-//
-//        //Let's now try with the classloader that loaded this class.
-//        classLoader = Loader::class.java.classLoader
-//        if (classLoader != null) {
-//            url = classLoader.getResource(resource)
-//            if (url != null) {
-//                return url
-//            }
-//        }
-//        LOG.info("getResource failing soon...")
-//
-//        //Last ditch attempt. Get the resource from the classpath.
-//        return ClassLoader.getSystemResource(resource)
+
+        Thread.currentThread().contextClassLoader.let { classLoader ->
+            classLoader.getResource((resource)). let {
+                if (it != null) return it
+            }
+        }
+
+        LOG.info("getResource failing soon...")
+
+        //Last ditch attempt. Get the resource from the classpath.
+        return ClassLoader.getSystemResource(resource)
     }
 
     companion object {
-        private const val serialVersionUID = 1345354324653452L
-        private const val HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
+        const val HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>"
     }
 
-    //    private PdfDocument pdfContent;
     init {
         try {
-            font = createFont(StandardFonts.TIMES_ROMAN)
-            bold = createFont(StandardFonts.TIMES_BOLD)
-            chapterHeading = createFont(StandardFonts.COURIER)
-
 //            pdfContent = new PdfDocument( new PdfWriter(dest) )
             initializeOutlines()
-            getCatalog().pageMode = PdfName.UseOutlines
-            document = Document(this, PageSize.A4)
-            width100 = PageSize.A4.width - document!!.leftMargin - document!!.rightMargin
-            document!!.setTextAlignment(TextAlignment.JUSTIFIED)
+            catalog.pageMode = PdfName.UseOutlines
+
+            document.setTextAlignment(TextAlignment.JUSTIFIED)
                 .setHyphenation(HyphenationConfig("en", "uk", 3, 3))
                 .setFont(font)
-                .setFontSize(sizeNormal)
-            addEventHandler(PdfDocumentEvent.START_PAGE, TextFooterEventHandler(document!!))
+                .setFontSize(sizeNormal.toFloat())
+
+            addEventHandler(PdfDocumentEvent.START_PAGE, TextFooterEventHandler(document))
+
         } catch (ex: Exception) {
-            logger.error("PdfReport()", ex)
-            StackTraceFilter.filter(ex.stackTrace).stream()
-                .map { it.toString() }
-                .forEach { msg: String? -> logger.info(msg) }
+            LOG.error("PdfReport()", ex)
+            filter(ex.stackTrace).stream()
+                .map { a: StackTraceElement -> a.toString() }
+                .forEach(LOG::info)
         }
     }
 }

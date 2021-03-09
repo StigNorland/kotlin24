@@ -3,6 +3,7 @@ package  no.nsd.qddt.config
 import no.nsd.qddt.model.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
+import org.springframework.data.rest.core.mapping.ExposureConfigurer
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer
 import org.springframework.stereotype.Component
@@ -39,13 +40,14 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(Universe::class.java)
         config.exposeIdsFor(User::class.java)
 
+
 //        config.withEntityLookup()
 //            .forRepository(QuestionItemRepository::class.java, QuestionItem::responseId, QuestionItemRepository::findRevision)
 
 //         config.withEntityLookup()
-//         .forRepository<>(QuestionItemRepository::class.java)
-//         .withIdMapping(QuestionItem::responseId)
-//         .withLookup(ResponseDomainRepository::findRevision)
+//             .forRepository(ResponseDomainRepository::class.java,
+//                 { ent ->  UriId() },
+//                 EntityLookupRegistrar.LookupRegistrar.Lookup())
 
         config.repositoryDetectionStrategy = RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED
     }

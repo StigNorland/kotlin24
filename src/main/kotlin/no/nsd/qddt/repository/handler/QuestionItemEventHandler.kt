@@ -10,17 +10,17 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler
 /**
  * @author Stig Norland
  */
-@RepositoryEventHandler(QuestionItem::class)
-class QuestionItemEventHandler {
-
-    @HandleBeforeSave
-    fun handleQuestionSave(questionItem: QuestionItem?) {
-        log.info("handleQuestionSave -> {}", questionItem?.id?:"???" )
-    }
-
-
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(QuestionItemEventHandler::class.java)
-    }
-
-}
+//@RepositoryEventHandler(QuestionItem::class)
+//class QuestionItemEventHandler {
+//
+//    @HandleBeforeSave
+//    fun handleQuestionSave(questionItem: QuestionItem?) {
+//        log.info("handleQuestionSave -> {}", questionItem?.id?:"???" )
+//    }
+//
+//
+//    companion object {
+//        private val log: Logger = LoggerFactory.getLogger(QuestionItemEventHandler::class.java)
+//    }
+//
+//}

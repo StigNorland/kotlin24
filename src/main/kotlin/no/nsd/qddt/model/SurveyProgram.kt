@@ -2,12 +2,10 @@ package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
-import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.envers.Audited
 import javax.persistence.*
+
 
 /**
  *
@@ -33,47 +31,41 @@ import javax.persistence.*
  */
 @Audited
 @Entity
-@Table(name = "SURVEY_PROGRAM")
-class SurveyProgram() : AbstractEntityAudit(), IAuthorSet, IArchived {
+@DiscriminatorValue("SURVEY_PROGRAM")
+class SurveyProgram() : ConceptHierarchy(), IAuthorSet {
 
     override var name: String = ""
 
-    @Column(length = 20000)
-    var description: String? = ""
 
-    @OrderColumn(name = "surveyIdx",  updatable = false, insertable = false)
-    // @AuditMappedBy(mappedBy = "surveyId", positionMappedBy = "surveyIdx")
-    @OneToMany(mappedBy = "surveyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-    var studies: MutableList<Study> = mutableListOf()
+
+//    @OrderColumn(name = "surveyIdx",  updatable = false, insertable = false)
+//    // @AuditMappedBy(mappedBy = "surveyId", positionMappedBy = "surveyIdx")
+//    @OneToMany(mappedBy = "surveyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+//    var studies: MutableList<Study> = mutableListOf()
     
-    override var isArchived: Boolean = false
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "CONCEPT_HIERARCHY_AUTHORS",
+        joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")])
     override var authors: MutableSet<Author> = mutableSetOf()
-
-    fun addStudy(study: Study): Study {
-        studies.add(study)
-        study.surveyProgram = this
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = "Study [" + study.name + "] added"
-        return study
-    }
 
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
     }
 
+
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "Survey")
-        description?.let { pdfReport.addParagraph(it) }
+        description.let { pdfReport.addParagraph(it) }
         if (comments.size > 0)
             pdfReport.addHeader2("Comments")
         pdfReport.addComments(comments)
         pdfReport.addPadding()
-        var i = 0
-        for (study in studies) {
-            study.fillDoc(pdfReport, counter + ++i)
+        for ((i, study) in children.withIndex()) {
+            study.fillDoc(pdfReport, counter + (i + 1))
         }
     }
 

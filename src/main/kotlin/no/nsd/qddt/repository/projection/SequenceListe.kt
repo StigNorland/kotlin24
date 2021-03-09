@@ -4,4 +4,4 @@ import no.nsd.qddt.model.Sequence
 import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "sequenceListe", types = [Sequence::class])
-interface SequenceListe: IAbstractEntityEditList
+interface SequenceListe: IAbstractEntityViewList

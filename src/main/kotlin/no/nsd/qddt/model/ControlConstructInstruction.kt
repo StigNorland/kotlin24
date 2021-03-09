@@ -1,6 +1,6 @@
 package no.nsd.qddt.model
 
-import no.nsd.qddt.model.enums.ControlConstructInstructionRank
+import no.nsd.qddt.model.enums.InstructionRank
 import org.hibernate.envers.Audited
 import java.io.Serializable
 import javax.persistence.*
@@ -15,6 +15,6 @@ class ControlConstructInstruction : Serializable {
     lateinit var instruction: Instruction
 
     @Enumerated(EnumType.STRING)
-    lateinit var instructionRank: ControlConstructInstructionRank
+    lateinit var instructionRank: InstructionRank
     
 }

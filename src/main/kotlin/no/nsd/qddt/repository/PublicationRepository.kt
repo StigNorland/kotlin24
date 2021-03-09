@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Publication
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.PublicationListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -16,8 +15,7 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "publication", itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
-interface PublicationRepository: BaseArchivedRepository<Publication> , RevisionRepository<Publication, UUID, Int>,
-    JpaRepository<Publication, UUID> {
+interface PublicationRepository: BaseArchivedRepository<Publication> {
 
     @Query(nativeQuery = true,
         value = ("SELECT c.* FROM study c " +

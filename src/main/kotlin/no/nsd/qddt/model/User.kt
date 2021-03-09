@@ -12,7 +12,7 @@ import javax.persistence.*
  */
 @Entity
 @Table(name="user_account")
-class User: UserDetails {
+class User {
 
     @Id  @GeneratedValue lateinit var id: UUID
 
@@ -20,9 +20,19 @@ class User: UserDetails {
     lateinit var modified: Timestamp
 
 
+    lateinit var username : String
+
+    lateinit var email : String
+
+    var isEnabled: Boolean? = false
+
+    @JsonIgnore
+    lateinit var password : String
+
     @Column(insertable = false, updatable = false)
     var agencyId: UUID? = null
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agencyId")
     lateinit var agency : Agency
@@ -30,47 +40,8 @@ class User: UserDetails {
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
-    internal lateinit var authority: MutableSet<Authority>
+    lateinit var authority: MutableSet<Authority>
 
-    private  var isEnabled: Boolean=false
-
-    private lateinit var username : String
-
-    @JsonIgnore
-    private lateinit var password : String
-
-    lateinit var email : String
-
-
-    override fun getPassword(): String {
-        return password
-    }
-
-    override fun getUsername(): String {
-        return username
-    }
-
-    override fun isAccountNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isAccountNonLocked(): Boolean {
-        return true
-    }
-
-    override fun isCredentialsNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isEnabled(): Boolean {
-        return isEnabled
-    }
-
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return authority.map {
-            GrantedAuthority { it.authority }
-        }.toMutableSet()
-    }
 
 //    override fun toString(): String {
 //        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"

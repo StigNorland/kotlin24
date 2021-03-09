@@ -1,7 +1,7 @@
 package  no.nsd.qddt.config
 
-import no.nsd.qddt.model.exception.ApiError
-import no.nsd.qddt.model.exception.StackTraceFilter
+import no.nsd.qddt.config.exception.ApiError
+import no.nsd.qddt.config.exception.StackTraceFilter
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -22,6 +22,7 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(Exception::class)
     fun handleAll(ex: Exception, request: WebRequest?): ResponseEntity<Any>? {
+        log.info("handleAll custom handler")
         log.error(ex.message, ex.cause)
         request?.let {
             log.info(it.toString())

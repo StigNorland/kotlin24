@@ -24,7 +24,7 @@ class ConceptFragmentBuilder(concept: Concept) : XmlDDIFragmentBuilder<Concept>(
         .map { it.xmlBuilder() }
         .collect(Collectors.toList())
 
-    private val questions:  MutableList<AbstractXmlBuilder> = concept.conceptQuestionItems.stream()
+    private val questions:  MutableList<AbstractXmlBuilder> = concept.questionItems.stream()
         .filter { it.element != null }
         .map { it.element!!.xmlBuilder() }
         .collect(Collectors.toList())

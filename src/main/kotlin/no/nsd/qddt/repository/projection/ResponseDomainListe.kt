@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.config.Projection
  * @author Stig Norland
  */
 @Projection(name = "responseDomainListe", types = [ResponseDomain::class])
-interface ResponseDomainListe: IAbstractEntityEditList {
+interface ResponseDomainListe: IAbstractEntityViewList {
     var displayLayout: String
     var responseKind: String
 //    var managedRepresentation: Category

@@ -1,6 +1,7 @@
 package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.User
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 import java.sql.Timestamp
 import java.util.*
@@ -11,8 +12,9 @@ import java.util.*
 @Projection(name = "userListe", types = [User::class])
 interface UserListe {
     val id: UUID
-    var username : String
+    @Value(value = "#{target.username }")
+    fun getName(): String
     var email : String
-    var modified : Timestamp
+    var agencyId: UUID?
 }
 

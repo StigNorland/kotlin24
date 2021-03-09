@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Instrument
-import no.nsd.qddt.model.interfaces.BaseArchivedRepository
 import no.nsd.qddt.repository.projection.InstrumentListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -17,7 +16,7 @@ import java.util.*
  */
 
 @RepositoryRestResource(path = "instrument", itemResourceRel = "Instrument", excerptProjection = InstrumentListe::class)
-interface InstrumentRepository: BaseArchivedRepository<Instrument>, RevisionRepository<Instrument, UUID, Int>,  JpaRepository<Instrument, UUID> {
+interface InstrumentRepository: BaseArchivedRepository<Instrument> {
 
     @Query(nativeQuery = true,
         value = ("SELECT c.* FROM instrument c " +

@@ -30,7 +30,7 @@ internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
             // val cf = ConceptFactory().copy(source, revision)
             // concepts.forEach(Consumer<Concept> { concept: Concept -> concept.setTopicGroup(dest) })
 
-            topicQuestionItems = source.topicQuestionItems.stream()
+            questionItems = source.questionItems.stream()
                 .map{ it.clone() }
                 .collect(Collectors.toList())
                 

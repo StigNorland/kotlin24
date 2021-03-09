@@ -5,6 +5,6 @@ import no.nsd.qddt.model.QuestionItem
 /**
  * @author Stig Norland
  */
-class QuestionItemRefAuditTrailer: AbstractElementRefAuditTrailListener<QuestionItem>()
+//class QuestionItemRefAuditTrailer: AbstractElementRefAuditTrailListener<QuestionItem>()
 
 

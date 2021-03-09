@@ -4,4 +4,4 @@ import no.nsd.qddt.model.StatementItem
 import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "statementItemtListe", types = [StatementItem::class])
-interface StatementItemtListe: IAbstractEntityEditList
+interface StatementItemtListe: IAbstractEntityViewList

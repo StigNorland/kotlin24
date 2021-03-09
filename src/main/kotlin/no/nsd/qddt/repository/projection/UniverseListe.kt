@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.config.Projection
  * @author Stig Norland
  */
 @Projection(name = "universeListe", types = [Universe::class])
-interface UniverseListe:IAbstractEntityEditList {
+interface UniverseListe:IAbstractEntityViewList {
     var description:String
 }
 

@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.classes
 
+import org.springframework.core.convert.converter.Converter
 import java.io.Serializable
 import java.util.*
 import javax.persistence.Embeddable
@@ -9,7 +10,7 @@ import javax.persistence.Embeddable
  * @author Stig Norland
  */
 @Embeddable
-class UriId: Comparable<UriId> , Serializable {
+class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
 
     lateinit var id: UUID
 
@@ -32,16 +33,20 @@ class UriId: Comparable<UriId> , Serializable {
         }
     }
 
+    override fun convert(source: Serializable): UriId? {
+        return Companion.fromAny(source)
+    }
+
     companion object {
-        fun fromString(uri: String) : UriId {
-            val parts = uri.split(":")
+        fun fromAny(source: Any): UriId {
+            val parts = source.toString().split(":")
             return UriId().apply {
                 id = UUID.fromString(parts[0])
                 if (parts.size==2)
                     rev = parts[1].toInt()
             }
-        }
 
+        }
     }
 
 }

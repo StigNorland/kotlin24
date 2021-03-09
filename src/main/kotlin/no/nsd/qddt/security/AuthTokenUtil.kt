@@ -7,6 +7,7 @@ import no.nsd.qddt.utils.StringTool
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -25,7 +26,7 @@ class AuthTokenUtil {
 
 
     fun generateJwtToken(authentication: Authentication): String {
-        val userDetails = authentication.principal as User
+        val userDetails = authentication.principal as UserDetails
         val claims = Jwts.claims()
             .setId(UUID.randomUUID().toString())
             .setSubject(StringTool.CapString(userDetails.username))
@@ -33,15 +34,7 @@ class AuthTokenUtil {
             .setExpiration(Date(Date().time + jwtExpirationMs.get()))
 
         claims["role"] = userDetails.authorities
-        claims["modified"] = userDetails.modified.toLocalDateTime()
-        claims["id"] = userDetails.id.toString()
-        claims["email"] = userDetails.email
-        claims["agency"] = userDetails.agency.let {
-             object: AgencyListe {
-                 override var id = it.id
-                 override var name = it.name
-            }
-        }
+//        claims["email"] = userDetails.
 
         return  AuthResponse(Jwts.builder()
             .setClaims(claims)

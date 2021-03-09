@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.config.Projection
  * @author Stig Norland
  */
 @Projection(name = "topicGroupListe", types = [TopicGroup::class])
-interface TopicGroupListe: IAbstractEntityEditList {
+interface TopicGroupListe: IAbstractEntityViewList {
     var description: String
 }
 

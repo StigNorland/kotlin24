@@ -1,7 +1,9 @@
 package no.nsd.qddt.repository.handler
 
 import no.nsd.qddt.model.*
+import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
@@ -14,6 +16,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import org.springframework.data.repository.history.RevisionRepository
+import java.util.*
 import javax.persistence.*
 
 
@@ -120,43 +124,46 @@ class EntityAuditTrailListener{
                 if (entity.questionItem == null && entity.questionId?.id != null) {
 
                     val repository =  bean.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
-                    val questionItem  =  with(entity.questionId!!) {
-                        if (rev != null)
-                            repository.findRevision(id,rev!!).get().entity 
-                        else 
-                            repository.findLastChangeRevision(id).get().entity
-                    }
-                    questionItem.rev = entity.questionId?.rev
-                    log.debug("{} : {}" ,questionItem.version.rev, questionItem.rev)
-                    entity.questionItem = questionItem
-                }
+                    entity.questionItem = LoadRevisionEntity(entity.questionId!!,repository)
 
+                }
             }
             is QuestionItem -> {
                 if (entity.responseDomain == null && entity.responseId?.id != null) {
 
                     val repository =  bean.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
-                    val responseDomain  =  with(entity.responseId!!) {
-                        if (rev != null)
-                            repository.findRevision(id,rev!!).get().entity 
-                        else 
-                            repository.findLastChangeRevision(id).get().entity
-                    }
-                    responseDomain.rev = entity.responseId?.rev
-                    log.debug("{} : {}" ,responseDomain.version.rev, responseDomain.rev)
-                    entity.responseDomain = responseDomain
+                    entity.responseDomain = LoadRevisionEntity(entity.responseId!!,repository)
+
+                    var _index = 0
+                    populateCatCodes(entity.responseDomain!!.managedRepresentation,_index, entity.responseDomain!!.codes)
+
                 }
             }
             is ResponseDomain -> {
-                log.debug("ResponseDomain populating codes...: {}" , entity.id)
+
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
+
             }
             else -> {
-                // log.debug("{}: {}: {} NOT loaded ", entity.classKind.padEnd(15) , entity.id, entity.name)
+                log.debug("{}: {}: {} NOT loaded ", entity.classKind.padEnd(15) , entity.id, entity.name)
             }
         }
+    }
 
+    private fun <T: AbstractEntity>LoadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
+        return with(uri) {
+            if (rev != null)
+                repository.findRevision(id,rev!!).map {
+                    it.entity.rev = rev
+                    it.entity
+                    }.get()
+            else
+                repository.findLastChangeRevision(id).map {
+                    it.entity.rev = rev
+                    it.entity
+                }.get()
+        }
     }
 
     private fun beforeCategoryInsert(entity: Category) {
@@ -174,8 +181,8 @@ class EntityAuditTrailListener{
 
     private fun beforeStudyRemove(entity: Study) {
         with(entity) {
-            log.debug(" Study pre remove " + surveyProgram?.name)
-            surveyProgram?.studies?.removeIf { it.id == this.id }
+            log.debug(" Study pre remove " + parent?.name)
+            parent?.children?.removeIf { it.id == this.id }
             authors.clear()
             instruments.clear()
         }

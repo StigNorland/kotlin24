@@ -49,7 +49,7 @@ import kotlin.streams.toList
 @Entity
 @Table(
     name = "CATEGORY",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "category_kind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
+    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
 class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
@@ -90,7 +90,6 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     @Embedded
     var inputLimit: ResponseCardinality = ResponseCardinality()
 
-    @Column(name = "classification_level")
     @Enumerated(EnumType.STRING)
     var classificationLevel: CategoryRelationCodeType?=null
 
@@ -99,12 +98,11 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
      */
     var format: String = ""
 
-    @Column(name = "Hierarchy_level", nullable = false)
+    @Column( nullable = false)
     @Enumerated(EnumType.STRING)
     var hierarchyLevel: HierarchyLevel = HierarchyLevel.ENTITY
 
 
-    @Column(name = "category_kind")
     @Enumerated(EnumType.STRING)
     var categoryKind: CategoryType = CategoryType.CATEGORY
         set(value) {
@@ -156,7 +154,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
-        val document: Document = pdfReport.theDocument!!
+        val document = pdfReport.getTheDocument()
         when (categoryKind) {
             CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN, CategoryType.CATEGORY -> {
                 document.add(Paragraph("Category $label"))
@@ -174,8 +172,8 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         document.add(Paragraph(" "))
     }
 
-    /*
-    preRec for valid Categories
+    /**
+    *  preRec for valid Categories
      */
     val isValid: Boolean
         get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {

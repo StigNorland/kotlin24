@@ -25,9 +25,10 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "QUESTION_ITEM")
-class QuestionItem :AbstractEntityAudit() {
-
+data class QuestionItem(
   override var name: String=""
+) :AbstractEntityAudit() {
+
 
   @Column(length = 2000)
   var question:String=""

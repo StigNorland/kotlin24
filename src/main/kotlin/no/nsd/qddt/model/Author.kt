@@ -20,15 +20,15 @@ import javax.persistence.*
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 class Author : AbstractEntity() {
     //--------------------------------------------------------------------------------
-    @Column(name = "name", length = 70, nullable = false)
+    @Column(length = 70, nullable = false)
     var name: String? = null
-    var email: String? = null
+    var email: String? = ""
 
-    @Column(name = "about", length = 500)
-    var about: String? = null
-    var homepage: URL? = null
-    var picture: URL? = null
-    var authorsAffiliation: String? = null
+    @Column(length = 500)
+    var about: String? = ""
+    var homepage: String? = ""
+    var pictureUrl: String? = ""
+    var authorsAffiliation: String? = ""
 
     @Transient
     @JsonSerialize

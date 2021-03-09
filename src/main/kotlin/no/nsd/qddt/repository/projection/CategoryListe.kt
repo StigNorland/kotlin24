@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "categoryListe", types = [Category::class])
-interface CategoryListe: IAbstractEntityEditList {
+interface CategoryListe: IAbstractEntityViewList {
 
 
     @Value(value = "#{target.categoryKind?.toString() }")
