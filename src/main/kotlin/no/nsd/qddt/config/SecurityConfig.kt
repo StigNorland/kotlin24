@@ -12,7 +12,6 @@ import org.springframework.data.envers.repository.support.EnversRevisionReposito
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.hateoas.config.EnableHypermediaSupport
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -28,13 +27,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
 import org.springframework.web.filter.ForwardedHeaderFilter
 import org.springframework.web.filter.OncePerRequestFilter
-import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry
-
-
-
 
 
 /**
@@ -126,10 +120,10 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     }
 
 
-
-    fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(LoggerInterceptor())
-    }
+//    @Bean
+//    fun addInterceptors(registry: InterceptorRegistry) {
+//        registry.addInterceptor(LoggerInterceptor())
+//    }
 
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
@@ -167,7 +161,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 //            .anyRequest().authenticated()
 
         // Add JWT token filter
-//        http.addFilterBefore(authenticationTokenFilterBean(),UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
 
     }
 

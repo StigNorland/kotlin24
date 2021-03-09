@@ -6,7 +6,7 @@ import no.nsd.qddt.model.OtherMaterial
  * @author Stig Norland
  */
 interface IOtherMaterialList {
-    var otherMaterials: MutableList<OtherMaterial>
+    var otherMaterials: MutableSet<OtherMaterial>
     /**
      * Add a [Author] to a [Set] of authors.
      * @param user added author.

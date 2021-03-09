@@ -3,10 +3,9 @@ package no.nsd.qddt.model
 import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -25,37 +24,26 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("CONCEPT")
-class Concept : ConceptHierarchy() {
+data class Concept(override var name: String ="?") : ConceptHierarchy() {
 
-    override lateinit var name: String
 
+//    @OrderColumn(name="parentIdx")
+//    @ElementCollection(fetch = FetchType.EAGER)
+//    @CollectionTable(joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
+//    var questionItems: MutableList<ElementRefQuestionItem> = mutableListOf()
 
     @OrderColumn(name="parentIdx")
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "CONCEPT_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
-    var questionItems: MutableList<ElementRefQuestionItem> = mutableListOf()
+    @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
+    var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
-
-    fun removeQuestionItem(id: UUID, rev: Int) {
-        questionItems.removeIf { it.elementId == id && it.version.rev == rev }.also { doIt ->
-            if (doIt) {
-                this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-                this.changeComment = "QuestionItem assosiation removed"
-                // this.myParents().forEach{
-                //     it.changeKind = ChangeKind.UPDATED_CHILD
-                //     it.changeComment = "QuestionItem assosiation removed from child"
-                // }
-            }
-        }
-    }
-
-    fun addQuestionItem(qef: ElementRefQuestionItem) {
-        this.questionItems.stream().noneMatch{it === qef}.run {
+    fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {
+        if (this.questionItems.stream().noneMatch { cqi -> cqi == qef }) {
             questionItems.add(qef)
-            changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-            changeComment = "QuestionItem assosiation added"
-            // myParents().forEach{ it.changeKind = ChangeKind.UPDATED_CHILD}
-        }
+            this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+            this.changeComment = "QuestionItem association added"
+        } else
+            logger.debug("QuestionItem not inserted, match found")
     }
 
 

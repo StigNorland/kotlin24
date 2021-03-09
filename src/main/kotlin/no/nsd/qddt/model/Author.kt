@@ -2,15 +2,16 @@ package no.nsd.qddt.model
 
 // import no.nsd.qddt.domain.study.Study
 // import no.nsd.qddt.domain.surveyprogram.SurveyProgram
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
-import java.net.URL
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Table
+import javax.persistence.Transient
 
 /**
  * @author Stig Norland
@@ -18,11 +19,10 @@ import javax.persistence.*
 @Entity
 @Table(name = "AUTHOR")
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-class Author : AbstractEntity() {
+data class Author(var email: String? = "") : AbstractEntity() {
     //--------------------------------------------------------------------------------
     @Column(length = 70, nullable = false)
     var name: String? = null
-    var email: String? = ""
 
     @Column(length = 500)
     var about: String? = ""
@@ -48,9 +48,9 @@ class Author : AbstractEntity() {
     // @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
     // var studies: Set<Study> = HashSet()
 
-    @JsonBackReference(value = "topicRef")
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
-    var topicGroups: MutableSet<TopicGroup> = mutableSetOf()
+//    @JsonBackReference(value = "topicRef")
+//    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
+//    var topicGroups: MutableSet<TopicGroup> = mutableSetOf()
 
     
     //    @PrePersist

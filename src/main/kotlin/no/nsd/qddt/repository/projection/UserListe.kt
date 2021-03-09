@@ -3,7 +3,6 @@ package no.nsd.qddt.repository.projection
 import no.nsd.qddt.model.User
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
-import java.sql.Timestamp
 import java.util.*
 
 /**
@@ -16,5 +15,8 @@ interface UserListe {
     fun getName(): String
     var email : String
     var agencyId: UUID?
+    @Value(value = "#{target.getAuthority() }")
+    fun getAuthoriy():String
+
 }
 

@@ -4,7 +4,8 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IAuthorSet
 import org.hibernate.envers.Audited
-import javax.persistence.*
+import javax.persistence.DiscriminatorValue
+import javax.persistence.Entity
 
 
 /**
@@ -32,9 +33,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("SURVEY_PROGRAM")
-class SurveyProgram() : ConceptHierarchy(), IAuthorSet {
-
-    override var name: String = ""
+data class SurveyProgram(override var name: String = "") : ConceptHierarchy(), IAuthorSet {
 
 
 
@@ -44,12 +43,12 @@ class SurveyProgram() : ConceptHierarchy(), IAuthorSet {
 //    var studies: MutableList<Study> = mutableListOf()
     
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinTable(
-        name = "CONCEPT_HIERARCHY_AUTHORS",
-        joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")])
-    override var authors: MutableSet<Author> = mutableSetOf()
+//    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+//    @JoinTable(
+//        name = "CONCEPT_HIERARCHY_AUTHORS",
+//        joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")],
+//        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")])
+//    override var authors: MutableSet<Author> = mutableSetOf()
 
 
     override fun xmlBuilder(): AbstractXmlBuilder? {

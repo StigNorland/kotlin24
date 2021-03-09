@@ -51,6 +51,13 @@ abstract class ConceptHierarchy : AbstractEntityAudit(), IArchived, IHaveChilden
         return entity
     }
 
+    @ManyToMany
+    @JoinTable(
+        joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "authorId", referencedColumnName = "id")])
+    var authors: MutableSet<Author> = mutableSetOf()
+
+
     override var isArchived = false
         set(value) {
             try {

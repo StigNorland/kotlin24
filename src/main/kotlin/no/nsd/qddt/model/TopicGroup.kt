@@ -39,35 +39,14 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("TOPIC_GROUP")
-class TopicGroup : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
+data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
 
-  override var name: String = ""
 
-//  @Column(length = 20000)
-//  var description:String=""
-
-  // @OrderColumn(name = "topicgroup_idx")
+//  @OrderColumn(name = "ownerIdx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable
-  var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
+  @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "ownerId", referencedColumnName = "id")])
+  override var otherMaterials: MutableSet<OtherMaterial> = mutableSetOf()
 
-  @ManyToMany()
-  @JoinTable(
-    name = "CONCEPT_HIERARCHY_AUTHORS",
-    joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")],
-    inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")]
-  )  override var authors: MutableSet<Author> = mutableSetOf()
-
-  @OrderColumn(name = "ownerIdx")
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "TOPIC_GROUP_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "ownerId", referencedColumnName = "id")])
-  override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
-
-
-  override fun xmlBuilder():AbstractXmlBuilder {
-    return TopicGroupFragmentBuilder(this)
-  }
-  
   override fun addOtherMaterial(otherMaterial: OtherMaterial): OtherMaterial {
     return super.addOtherMaterial(otherMaterial).apply {
       changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
@@ -77,30 +56,26 @@ class TopicGroup : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
     }
   }
 
-  // no update for QI when removing (it is bound to a revision anyway...).
-  fun removeQuestionItem(questionItemId:UUID, rev:Int) {
-    val toDelete = ElementRefEmbedded<QuestionItem>(ElementKind.QUESTION_ITEM, questionItemId, rev)
-    if (questionItems.removeIf { q -> q == toDelete })
-    {
-      this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-      this.changeComment = "QuestionItem association removed"
-    }
-  }
+  @OrderColumn(name="parentIdx")
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
+  var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
-  fun addQuestionItem(questionItemId:UUID, rev:Int) {
-    addQuestionItem(ElementRefEmbedded(ElementKind.QUESTION_ITEM, questionItemId, rev))
-  }
- 
   fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {
     if (this.questionItems.stream().noneMatch { cqi -> cqi == qef }) {
       questionItems.add(qef)
       this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
       this.changeComment = "QuestionItem association added"
     } else
-    logger.debug("ConceptQuestionItem not inserted, match found")
+      logger.debug("QuestionItem not inserted, match found")
   }
 
-  
+
+  override fun xmlBuilder():AbstractXmlBuilder {
+    return TopicGroupFragmentBuilder(this)
+  }
+
+
   override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "Module $counter")
     pdfReport.addParagraph(this.description)

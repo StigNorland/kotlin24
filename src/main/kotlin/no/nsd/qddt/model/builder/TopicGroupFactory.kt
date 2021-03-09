@@ -22,7 +22,7 @@ internal class TopicGroupFactory : IEntityFactory<TopicGroup> {
 //             label = source.label
             otherMaterials = source.otherMaterials.stream()
             .map{ it.clone() }
-            .collect(Collectors.toList())
+            .collect(Collectors.toSet())
 
             // concepts = source.concepts.stream()
             // .map{ copy(it, dest.basedOnRevision) })

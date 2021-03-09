@@ -12,22 +12,52 @@ import javax.persistence.*
  */
 @Entity
 @Table(name="user_account")
-class User {
+data class User(private var username : String = "?"):UserDetails {
 
     @Id  @GeneratedValue lateinit var id: UUID
 
     @Version
     lateinit var modified: Timestamp
 
-
-    lateinit var username : String
-
     lateinit var email : String
 
-    var isEnabled: Boolean? = false
+    override fun getUsername(): String {
+        return username
+    }
+
+    override fun isAccountNonExpired(): Boolean {
+        return true
+    }
+
+    override fun isAccountNonLocked(): Boolean {
+        return true
+    }
+
+    override fun isCredentialsNonExpired(): Boolean {
+        return true
+    }
+
+    private var isEnabled: Boolean = false
+    override fun isEnabled(): Boolean {
+        return isEnabled
+    }
 
     @JsonIgnore
-    lateinit var password : String
+    private lateinit var password : String
+    override fun getPassword(): String {
+        return password
+    }
+
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
+    private lateinit var authorities: MutableCollection<Authority>
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+        return authorities.map {
+            GrantedAuthority { it.authority }
+        }.toMutableSet()
+    }
+
 
     @Column(insertable = false, updatable = false)
     var agencyId: UUID? = null
@@ -38,14 +68,12 @@ class User {
     lateinit var agency : Agency
 
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER)
-    lateinit var authority: MutableSet<Authority>
-
-
 //    override fun toString(): String {
 //        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
 //    }
 
+    fun getAuthority(): String {
+        return authorities.joinToString { it.authority }
+    }
 
 }

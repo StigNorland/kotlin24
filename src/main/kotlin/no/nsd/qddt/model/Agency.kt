@@ -1,8 +1,7 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonManagedReference
+import org.hibernate.annotations.Where
 import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*
@@ -14,13 +13,13 @@ data class Agency( var name: String="?") : Comparable<Agency> {
     @Column(updatable = false, nullable = false)
     lateinit var id: UUID
 
-
     @Version
     lateinit var modified : Timestamp
 
     var xmlLang:String="en-GB"
 
     @JsonIgnore
+    @Where(clause = "class_kind='SURVEY_PROGRAM'")
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
 
