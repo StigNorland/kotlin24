@@ -10,12 +10,14 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
+@Cacheable
 @Entity
 @Table(name="user_account")
 data class User(private var username : String = "?"):UserDetails {
 
     @Id  @GeneratedValue lateinit var id: UUID
 
+    @JsonIgnore
     @Version
     lateinit var modified: Timestamp
 
@@ -25,14 +27,17 @@ data class User(private var username : String = "?"):UserDetails {
         return username
     }
 
+    @JsonIgnore
     override fun isAccountNonExpired(): Boolean {
         return true
     }
 
+    @JsonIgnore
     override fun isAccountNonLocked(): Boolean {
         return true
     }
 
+    @JsonIgnore
     override fun isCredentialsNonExpired(): Boolean {
         return true
     }

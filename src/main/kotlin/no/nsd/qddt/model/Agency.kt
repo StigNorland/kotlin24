@@ -21,12 +21,11 @@ data class Agency( var name: String="?") : Comparable<Agency> {
     @JsonIgnore
     @Where(clause = "class_kind='SURVEY_PROGRAM'")
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-    var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
+    var surveyPrograms: MutableSet<SurveyProgram> = mutableSetOf()
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var users: MutableSet<User> = mutableSetOf()
-
 
     override fun compareTo(other: Agency): Int {
         val i = this.id.compareTo(other.id)
@@ -35,4 +34,5 @@ data class Agency( var name: String="?") : Comparable<Agency> {
             else -> modified.compareTo(other.modified)
         }
     }
+
 }
