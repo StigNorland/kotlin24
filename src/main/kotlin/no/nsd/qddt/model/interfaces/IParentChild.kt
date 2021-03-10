@@ -1,9 +1,6 @@
 package no.nsd.qddt.model.interfaces
 
-import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.TopicGroup
 import java.util.*
-import javax.persistence.*
 
 interface  IHaveParent<T:IBasedOn>: IBasedOn {
 

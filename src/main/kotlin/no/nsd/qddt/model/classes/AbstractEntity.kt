@@ -40,7 +40,7 @@ abstract class AbstractEntity {
     @Column(insertable = false, updatable = false)
     var modifiedById: UUID? = null
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "modifiedById")
     @LastModifiedBy
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

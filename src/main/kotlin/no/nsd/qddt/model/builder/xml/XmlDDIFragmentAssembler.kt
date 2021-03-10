@@ -3,6 +3,7 @@ package no.nsd.qddt.model.builder.xml
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.security.AuthTokenFilter.Companion.logger
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.collections.HashMap
@@ -48,12 +49,11 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
         return sb.append(XMLDEF)
             .append(xmlFragHeader)
             .append(getTopLevelReference(typeofObject))
-            .append(orderedFragments.entries.stream()
-                .sorted()
-                .filter { it.value.isNotEmpty() }
-                .map {
-                    it.value.values.stream()
-                        .sorted(Comparator.comparing { s: String -> s.substring(0, 16) })
+            .append(orderedFragments.entries
+                .filter {it.value.isNotEmpty() }.sortedBy { it.key }
+                .joinToString {
+                    logger.debug("{} {} {}",it.key.name, it.key.className,it.value.size)
+                    var tmp = it.value.values.stream()
                         .collect(
                             Collectors.joining(
                                 "\t</ddi:Fragment>\n\t<ddi:Fragment>\n",
@@ -61,8 +61,8 @@ open class XmlDDIFragmentAssembler<T : AbstractEntityAudit>(private val rootElem
                                 "\t</ddi:Fragment>\n"
                             )
                         )
-                }
-                .collect(Collectors.joining()))
+                    return@joinToString tmp
+                })
             .append(footer)
             .toString()
     }

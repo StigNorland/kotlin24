@@ -3,7 +3,7 @@ package no.nsd.qddt.model.enums
 /**
  * @author Stig Norland
  */
-enum class ElementKind( name: String, val className: String, val ddiPreFix: String) {
+enum class ElementKind( name: String, val className: String, val ddiPreFix: String): Comparable<ElementKind> {
     SURVEY_PROGRAM("Survey", "SurveyProgram", ""),
     STUDY("Study", "Study", ""),
     TOPIC_GROUP("Module","TopicGroup","c"),

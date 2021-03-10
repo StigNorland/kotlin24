@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nsd.qddt.repository.handler.AgentAuditTrailListener
 import org.hibernate.annotations.Where
 import java.sql.Timestamp
 import java.util.*
@@ -8,6 +9,7 @@ import javax.persistence.*
 
 @Cacheable
 @Entity
+@EntityListeners(value = [AgentAuditTrailListener::class])
 data class Agency( var name: String="?") : Comparable<Agency> {
     @Id @GeneratedValue
     @Column(updatable = false, nullable = false)

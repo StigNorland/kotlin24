@@ -3,11 +3,11 @@ package no.nsd.qddt.model.classes
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.io.source.ByteArrayOutputStream
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
@@ -58,7 +58,7 @@ abstract class AbstractEntityAudit(
     @Column(insertable = false, updatable = false)
     var agencyId: UUID? = null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agencyId")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     override lateinit var agency : Agency

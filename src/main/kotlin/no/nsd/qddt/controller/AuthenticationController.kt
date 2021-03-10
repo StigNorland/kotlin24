@@ -7,6 +7,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
@@ -32,7 +33,7 @@ class AuthenticationController {
     @Autowired
     private lateinit var jwtUtil: AuthTokenUtil
 
-    @PostMapping
+    @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun authenticateUser(@RequestBody userForm: UserForm): ResponseEntity<*> {
         return try {
 
@@ -40,9 +41,9 @@ class AuthenticationController {
             val user: User = authenticate.principal as User
             logger.info("Uesr logged in {}", user.id)
             SecurityContextHolder.getContext().authentication = authenticate
-            ResponseEntity.ok()
+            ResponseEntity.ok(jwtUtil.generateJwtToken(authenticate))
 //                .header(HttpHeaders.AUTHORIZATION,jwtUtil.generateJwtToken(authenticate) )
-                .body(jwtUtil.generateJwtToken(authenticate))
+//                .body(jwtUtil.generateJwtToken(authenticate))
         } catch (ex: BadCredentialsException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build<Any>()
         }
