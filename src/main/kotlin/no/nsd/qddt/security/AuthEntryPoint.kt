@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse
  */
 @Component
 class AuthEntryPointJwt : AuthenticationEntryPoint {
+
     @Throws(IOException::class, ServletException::class)
     override fun commence(
         request: HttpServletRequest?,
