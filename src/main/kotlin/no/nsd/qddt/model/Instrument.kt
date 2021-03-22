@@ -22,7 +22,11 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "INSTRUMENT")
-class Instrument : AbstractEntityAudit() {
+class Instrument(
+    override var name: String = "",
+    var description: String? = null
+
+) : AbstractEntityAudit() {
 
     @Column(insertable = false, updatable = false)
     var studyId: UUID? = null
@@ -31,19 +35,15 @@ class Instrument : AbstractEntityAudit() {
     @JoinColumn(name="studyId")
     var study: Study? = null
 
-    override var name: String = ""
-
-
     var label: String = ""
         protected set(value) {
             field = value
-            if (name.isBlank()) {
+            if (name.isNullOrBlank()) {
                 name = value.toUpperCase()
             }
         }
 
 
-    var description: String? = null
 
     var externalInstrumentLocation: String? = null
 

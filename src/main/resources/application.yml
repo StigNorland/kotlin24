@@ -1,12 +1,6 @@
 spring:
   profiles:
     active: development
-  # security:
-  #   oauth2:
-  #     resourceserver:
-  #       jwt:
-  #         issuer-uri: http://localhost:8083/auth/realms/baeldung
-  #         jwk-set-uri: http://localhost:8083/auth/realms/baeldung/protocol/openid-connect/certs
   application:
     name: qddt-service
   data:
@@ -30,21 +24,20 @@ spring:
     open-in-view: true
     hibernate:
       ddl-auto: validate
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
 #      use-new-id-generator-mappings: false
-    #      naming:
-    #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    #        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     properties:
       org:
         hibernate:
+          use-new-id-generator-mappings: false
           envers:
             audit_table_suffix: _aud
             default_schema: audit
             store_data_at_delete: true
             do_not_audit_optimistic_locking_field: false
             audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
-  #          ejb:
-  #            naming_strategy: org.hibernate.cfg.DefaultComponentSafeNamingStrategy
   servlet:
     multipart:
       max-file-size: 100MB

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import org.hibernate.envers.Audited
+import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,35 +20,33 @@ import javax.persistence.*
  */
 @Audited
 @MappedSuperclass
-abstract class AbstractEntity {
-    @Transient
-    @JsonIgnore
-    protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
-
-    // @PrimaryKey 
-    // @Embedded
-    // lateinit val uri: UriId
-
+abstract class AbstractEntity(
     @Id @GeneratedValue
     @Column(updatable = false, nullable = false)
-    lateinit var id: UUID
+    var id: UUID? = null,
 
     @Transient
     @JsonSerialize
-    var rev: Int? = null
-
+    var rev: Int? = null,
 
     @Column(insertable = false, updatable = false)
-    var modifiedById: UUID? = null
+    var modifiedById: UUID? = null,
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Version
+    var modified: Timestamp?=null
+) {
+    @ManyToOne
     @JoinColumn(name = "modifiedById")
     @LastModifiedBy
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    lateinit var modifiedBy: User
+//    @NotAudited
+    var modifiedBy: User? = null
 
-    @Version
-    lateinit var modified: Timestamp
 
     abstract fun xmlBuilder(): AbstractXmlBuilder?
+
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    }
 }

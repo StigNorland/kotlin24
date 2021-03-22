@@ -12,9 +12,11 @@ import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
+import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
 
+@Audited
 @MappedSuperclass
 abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
     constructor(entity: T?) {
@@ -51,7 +53,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
     @AttributeOverrides(
         AttributeOverride(name = "major",       column = Column(name = "element_major")),
         AttributeOverride(name = "minor",       column = Column(name = "element_minor")),
-        // AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
+        AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
         AttributeOverride(name = "versionLabel",column = Column(name = "element_version_label"))
     )
     @Transient
@@ -66,7 +68,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
             field = value
             value?.let {
                 elementId = it.id
-                version = it.version
+                version = it.version!!
                 when (it) {
                     is QuestionItem -> (it.name + " ➫ " + it.question).also { name = it }
                     is StatementItem -> (it.name + " ➫ " + it.statement).also { name = it }

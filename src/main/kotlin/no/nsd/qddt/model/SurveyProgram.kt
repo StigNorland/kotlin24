@@ -4,6 +4,8 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IAuthorSet
 import org.hibernate.envers.Audited
+import javax.persistence.AttributeOverride
+import javax.persistence.Column
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 
@@ -33,28 +35,12 @@ import javax.persistence.Entity
 @Audited
 @Entity
 @DiscriminatorValue("SURVEY_PROGRAM")
+@AttributeOverride(name ="parentId", column = Column(name = "PARENT_ID"))
 data class SurveyProgram(override var name: String = "") : ConceptHierarchy(), IAuthorSet {
-
-
-
-//    @OrderColumn(name = "surveyIdx",  updatable = false, insertable = false)
-//    // @AuditMappedBy(mappedBy = "surveyId", positionMappedBy = "surveyIdx")
-//    @OneToMany(mappedBy = "surveyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-//    var studies: MutableList<Study> = mutableListOf()
-    
-
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-//    @JoinTable(
-//        name = "CONCEPT_HIERARCHY_AUTHORS",
-//        joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")],
-//        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")])
-//    override var authors: MutableSet<Author> = mutableSetOf()
-
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
     }
-
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "Survey")
@@ -67,7 +53,5 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy(), I
             study.fillDoc(pdfReport, counter + (i + 1))
         }
     }
-
-
 
 }

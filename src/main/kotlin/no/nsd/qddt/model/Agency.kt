@@ -11,6 +11,7 @@ import javax.persistence.*
 @Entity
 @EntityListeners(value = [AgentAuditTrailListener::class])
 data class Agency( var name: String="?") : Comparable<Agency> {
+
     @Id @GeneratedValue
     @Column(updatable = false, nullable = false)
     lateinit var id: UUID
@@ -22,11 +23,11 @@ data class Agency( var name: String="?") : Comparable<Agency> {
 
     @JsonIgnore
     @Where(clause = "class_kind='SURVEY_PROGRAM'")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    @OneToMany(mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableSet<SurveyProgram> = mutableSetOf()
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    @OneToMany(mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var users: MutableSet<User> = mutableSetOf()
 
     override fun compareTo(other: Agency): Int {

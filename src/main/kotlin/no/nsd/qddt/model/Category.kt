@@ -1,5 +1,6 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.layout.Document
@@ -14,6 +15,7 @@ import no.nsd.qddt.model.enums.CategoryRelationCodeType
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.utils.StringTool
 import org.hibernate.envers.Audited
 import java.util.*
 import java.util.stream.Collectors
@@ -47,6 +49,7 @@ import kotlin.streams.toList
  */
 @Audited
 @Entity
+@Cacheable
 @Table(
     name = "CATEGORY",
     uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
@@ -74,14 +77,14 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     */
     @Column(length = 2000)
     var description: String =""
-//        set(value) {
-//            field =  StringTool.CapString(value)
-//        }
-//        get {
-//            if StringTool.IsNullOrEmpty(field)
-//                field = categoryType.name
-//            return field
-//        },
+        set(value) {
+            field =  StringTool.CapString(value)
+        }
+        get() {
+            if (field.isNullOrEmpty())
+                field = categoryKind.description
+            return field
+        }
 
     /**
      *  This field is only used for categories that facilitates user input.
@@ -153,32 +156,16 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         }
     }
 
-    override fun fillDoc(pdfReport: PdfReport, counter: String) {
-        val document = pdfReport.getTheDocument()
-        when (categoryKind) {
-            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN, CategoryType.CATEGORY -> {
-                document.add(Paragraph("Category $label"))
-                document.add(Paragraph("Type ${categoryKind.name}"))
-            }
-            CategoryType.MISSING_GROUP -> {
-            }
-            CategoryType.LIST -> {
-            }
-            CategoryType.SCALE -> {
-            }
-            CategoryType.MIXED -> {
-            }
-        }
-        document.add(Paragraph(" "))
-    }
-
     /**
     *  preRec for valid Categories
      */
-    val isValid: Boolean
-        get() = if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
+    @JsonIgnore
+    fun isValid(): Boolean
+    {
+        return if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
             CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children.size == 0 && inputLimit.valid()
-            CategoryType.CATEGORY -> children.size == 0 && label.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }
+            CategoryType.CATEGORY -> children.size == 0 && label.trim { it <= ' ' }
+                .isNotEmpty() && name.trim { it <= ' ' }
                 .isNotEmpty()
             else -> false
         } else when (categoryKind) {
@@ -187,68 +174,24 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
             CategoryType.MIXED -> children.size >= 2 && classificationLevel != null
             else -> false
         }
+    }
 
     override fun compareTo(other: Category): Int {
-        var i = this.agency.compareTo(other.agency)
+        var i = this.agency.compareTo(other.agency) ?:0
         if (i != 0) return i
         i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i
         i = categoryKind.compareTo(other.categoryKind)
         if (i != 0) return i
-        i = name.compareTo(other.name)
+        i = name.compareTo(other.name.toString())
         if (i != 0) return i
         i = label.compareTo(other.label)
         if (i != 0) return i
         i = description.compareTo(other.description)
         if (i != 0) return i
-        i = this.id.compareTo(other.id)
-        return if (i != 0) i else modified.compareTo(other.modified)
+        i = this.id!!.compareTo(other.id)
+        return if (i != 0) i else modified?.compareTo(other.modified)?:0
     }
-
-
-    // // /used to keep track of current item in the recursive call populateCatCodes
-    // @Transient
-    // private var _Index = 0
-
-    // //codes.clear();
-    // // this is useful for populating codes before saving to DB (used in the service)
-    // var codes: MutableList<Code>?
-    //     get() = harvestCatCodes(this)
-    //     set(codes) {
-    //         _Index = 0
-    //         populateCatCodes(this, codes)
-    //         //codes.clear();
-    //     }
-
-    // private fun harvestCatCodes(current: Category?): MutableList<Code> {
-    //     val tmpList: MutableList<Code> = mutableListOf()
-    //     if (current == null) return tmpList
-    //     if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
-    //         tmpList.add((current.code))
-    //     }
-    //     current.children.forEach {  tmpList.addAll(harvestCatCodes(it)) }
-    //     return tmpList
-    // }
-
-    // private fun populateCatCodes(current: Category?, codes: List<Code>) {
-    //     assert(current != null)
-    //     if (current!!.hierarchyLevel == HierarchyLevel.ENTITY) {
-    //         try {
-    //             current.code = codes[_Index]
-    //             _Index++
-    //         } catch (iob: IndexOutOfBoundsException) {
-    //             current.code = Code()
-    //         } catch (ex: Exception) {
-    //             logger.error(
-    //                 LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).toString() +
-    //                         " populateCatCodes (catch & continue) " + ex.message + " - " +
-    //                         current
-    //             )
-    //             current.code = Code()
-    //         }
-    //     }
-    //     current.children.forEach { populateCatCodes(it, codes) }
-    // }
 
     public override fun clone(): Category {
         return Category().apply {
@@ -268,9 +211,25 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         }
     }
 
-    override fun xmlBuilder(): AbstractXmlBuilder
-    {
-        return CategoryFragmentBuilder(this)
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+        val document = pdfReport.getTheDocument()
+        when (categoryKind) {
+            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN, CategoryType.CATEGORY -> {
+                document.add(Paragraph("Category $label"))
+                document.add(Paragraph("Type ${categoryKind.name}"))
+            }
+            CategoryType.MISSING_GROUP -> {
+            }
+            CategoryType.LIST -> {
+            }
+            CategoryType.SCALE -> {
+            }
+            CategoryType.MIXED -> {
+            }
+        }
+        document.add(Paragraph(" "))
     }
+
+    override fun xmlBuilder() = CategoryFragmentBuilder(this)
 
 }

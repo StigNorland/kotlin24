@@ -22,7 +22,7 @@ interface BaseMixedRepository<T : AbstractEntityAudit> :    RevisionRepository<T
 //
 //    override fun findRevision(id: UUID, revisionNumber: Int): Optional<Revision<Int, T>>
 //
-//    override fun <S : T> save(entity: S): S
+    override fun <S : T> save(entity: S): S
 //
 //    override fun findById(id: UUID): Optional<T>
 //

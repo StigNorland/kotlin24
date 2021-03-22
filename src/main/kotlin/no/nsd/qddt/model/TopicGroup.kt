@@ -44,7 +44,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
 
 //  @OrderColumn(name = "ownerIdx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "ownerId", referencedColumnName = "id")])
+  @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "ownerId")])
   override var otherMaterials: MutableSet<OtherMaterial> = mutableSetOf()
 
   override fun addOtherMaterial(otherMaterial: OtherMaterial): OtherMaterial {
@@ -58,7 +58,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
 
   @OrderColumn(name="parentIdx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
+  @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId")])
   var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
   fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {

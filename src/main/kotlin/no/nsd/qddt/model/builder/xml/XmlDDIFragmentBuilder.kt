@@ -38,8 +38,8 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit>(val entity: T) : A
     private val urnId: String
         get() = String.format(
             "%1\$s:%2\$s:%3\$s",
-            entity.agency.name,
+            entity.agency?.name,
             entity.id,
-            entity.version.toDDIXml()
+            entity.version!!.toDDIXml()
         )
 }

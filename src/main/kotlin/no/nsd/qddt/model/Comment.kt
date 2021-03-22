@@ -19,6 +19,7 @@ import javax.persistence.*
  */
 //@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Entity
+@Cacheable(false)
 @Table(name = "comment")
 class Comment(
     @Column(length = 10000)

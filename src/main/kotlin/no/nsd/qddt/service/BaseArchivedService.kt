@@ -13,7 +13,7 @@ interface BaseArchivedService<T : AbstractEntityAudit> : BaseService<T, UUID> {
 //        var instance: T = instance
         return try {
             if (instance.changeKind === ChangeKind.ARCHIVED) {
-                findOne<T>(instance.id).apply {
+                findOne<T>(instance.id!!).apply {
                     (this as IArchived).isArchived = true
                     changeComment = instance.changeComment
                 }

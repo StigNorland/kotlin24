@@ -8,7 +8,7 @@ import java.util.*
  * @author Stig Norland
  */
 interface IConditionNode {
-   var id: UUID
+   var id: UUID?
    var version: Version
    var name: String
    var condition: String?

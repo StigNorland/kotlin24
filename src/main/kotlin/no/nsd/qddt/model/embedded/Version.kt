@@ -1,6 +1,7 @@
 package no.nsd.qddt.model.embedded
 
  import com.fasterxml.jackson.annotation.JsonIgnore
+ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
  import com.fasterxml.jackson.databind.annotation.JsonSerialize
  import java.io.Serializable
  import javax.persistence.Column
@@ -11,7 +12,8 @@ package no.nsd.qddt.model.embedded
  * @author Stig Norland
  */
 @Embeddable
-class Version : Comparable<Version>, Serializable {
+//@JsonDeserialize(converter = KotlinVersionConverter::class)
+data class Version( var versionLabel: String = "") : Comparable<Version>, Serializable {
     var major = 1
         set(value) {
             field = value
@@ -24,7 +26,6 @@ class Version : Comparable<Version>, Serializable {
             isModified = true
         }
 
-    var versionLabel: String = ""
 
     @Transient
     @JsonSerialize
@@ -42,13 +43,12 @@ class Version : Comparable<Version>, Serializable {
     private val VERSION_FORMAT = "%1\$s.%2\$s%3\$s"
 
 
-    constructor()
 
-    constructor(major: Int, minor: Int, revision: Int, versionLabel: String) {
+    constructor(major: Int, minor: Int, revision: Int?=null, versionLabel: String?=null) : this() {
         this.major = major
         this.minor = minor
-        this.rev = revision
-        this.versionLabel = versionLabel
+        this.rev = revision?:0
+        this.versionLabel = versionLabel?:""
         isModified = false
     }
 

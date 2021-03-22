@@ -30,9 +30,9 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
     @Column(insertable = false, updatable = false)
     protected var parentId: UUID? = null
 
-    // @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstrumentNode::class)
+    // @ManyToOne( targetEntity = InstrumentNode::class)
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstrumentNode::class)
+    @ManyToOne( targetEntity = InstrumentNode::class)
     @JoinColumn(name="parentId")
     var parent: InstrumentNode<T>? = null
 
@@ -135,7 +135,7 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
             is QuestionConstruct -> println("ignorerer set value")
             else -> {
                 elementKind = ElementKind.getEnum(element.classKind)
-                version = element.version
+                version = element.version!!
             }
         }
         return this

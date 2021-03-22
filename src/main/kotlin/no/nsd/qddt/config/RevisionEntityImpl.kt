@@ -13,15 +13,12 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
-@Table
-@Entity(name = "revinfo")
+@Entity
+@Table( name = "revinfo")
 @RevisionEntity(AuditRevisionListener::class)
-//    @AttributeOverrides({
-//        @AttributeOverride(name = "timestamp", column = @Column(name = "rev_timestamp")),
-//        @AttributeOverride(name = "id", column = @Column(name = "revision_id"))
-//    })
 //@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-class RevisionEntityImpl : DefaultRevisionEntity() {
+class RevisionEntityImpl() : DefaultRevisionEntity() {
+
     @ManyToOne
     @LastModifiedBy
     lateinit var modifiedBy: User

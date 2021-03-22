@@ -63,7 +63,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
                 elementId = it.id
                 name = it.name
                 text = it.question
-                version = it.version
+                version = it.version!!
             }
             if (value == null) {
                 name = ""

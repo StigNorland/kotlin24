@@ -10,4 +10,5 @@ class Authority (
     @Id  @GeneratedValue
     val id: UUID,
     var authority: String,
-    var name: String)
+    var name: String
+)

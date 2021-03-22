@@ -9,33 +9,40 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "PUBLICATION_STATUS")
-class PublicationStatus {
+data class PublicationStatus(
+    var label: String?=null
+
+) : Comparable<PublicationStatus> {
     enum class Published {
         NOT_PUBLISHED, INTERNAL_PUBLICATION, EXTERNAL_PUBLICATION
     }
-
     @Id
     var id: Long? = null
+
 
     @Enumerated(EnumType.STRING)
     var published: Published = Published.NOT_PUBLISHED
 
-    lateinit var label: String
 
     var description: String? = null
 
-    @JsonBackReference(value = "parentRef")
-    @ManyToOne
-    @JoinColumn(name = "publication_status_id", updatable = false, insertable = false)
-    val parent: PublicationStatus? = null
 
-    @Column(name = "publication_status_idx", updatable = false, insertable = false)
+    @Column(updatable = false, insertable = false)
     @JsonIgnore
-    val childrenIdx: Int? = null
+    val parentIdx: Int? = null
+
+    @Column(updatable = false, insertable = false)
+//    @JsonIgnore
+    val parentId: Int? = null
 
     @OneToMany(fetch = FetchType.LAZY)
-    @OrderColumn(name = "publication_status_idx")
-    @JoinColumn(name = "publication_status_id")
+    @OrderColumn(name = "parentIdx")
+    @JoinColumn(name = "parentId")
     var children: MutableList<PublicationStatus> = mutableListOf()
+
+    override fun compareTo(other: PublicationStatus): Int {
+        return id?.compareTo(other.id!!)?:0
+    }
+
 
 }

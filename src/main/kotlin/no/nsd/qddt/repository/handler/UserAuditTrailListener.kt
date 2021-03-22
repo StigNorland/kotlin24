@@ -1,44 +1,34 @@
 package no.nsd.qddt.repository.handler
 
-import no.nsd.qddt.model.Agency
-import no.nsd.qddt.model.classes.AbstractEntity
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.User
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.data.repository.history.RevisionRepository
-import java.util.*
 import javax.persistence.PostLoad
 import javax.persistence.PostPersist
 import javax.persistence.PostRemove
 import javax.persistence.PostUpdate
 
-
-/**
- * @author Stig Norland
- */
-class AgentAuditTrailListener{
-
+class UserAuditTrailListener {
     @Autowired
     private val applicationContext: ApplicationContext? = null
 
     @PostPersist
     @PostUpdate
     @PostRemove
-    private fun afterAnyUpdate(entity: Agency) {
+    private fun afterAnyUpdate(entity: User) {
         log.debug("Add/update/delete complete for entity: {}" , entity.id)
     }
 
     @PostLoad
-    private fun afterLoad(entity: Agency) {
-        log.debug("UNTOUCHED - {} : {} : {}", "Agency" , entity.id, entity.name)
+    private fun afterLoad(entity: User) {
+        log.debug("UNTOUCHED - {} : {} : {}", "User" , entity.username, entity.agency.name)
         val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(AgentAuditTrailListener::class.java)
+        private val log: Logger = LoggerFactory.getLogger(UserAuditTrailListener::class.java)
     }
-
 }

@@ -39,7 +39,7 @@ class AuthenticationController {
 
             val authenticate = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userForm.email,userForm.password))
             val user: User = authenticate.principal as User
-            logger.info("Uesr logged in {}", user.id)
+            logger.info("User logged in {}", user.toString())
             SecurityContextHolder.getContext().authentication = authenticate
             ResponseEntity.ok(jwtUtil.generateJwtToken(authenticate))
 //                .header(HttpHeaders.AUTHORIZATION,jwtUtil.generateJwtToken(authenticate) )

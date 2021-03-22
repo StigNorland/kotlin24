@@ -1,7 +1,5 @@
 package no.nsd.qddt.model
 
-// import no.nsd.qddt.domain.study.Study
-// import no.nsd.qddt.domain.surveyprogram.SurveyProgram
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -26,7 +24,7 @@ data class Author(var email: String? = "") : AbstractEntity() {
 
     @Column(length = 500)
     var about: String? = ""
-    var homepage: String? = ""
+    var homepageUrl: String? = ""
     var pictureUrl: String? = ""
     var authorsAffiliation: String? = ""
 
@@ -40,20 +38,6 @@ data class Author(var email: String? = "") : AbstractEntity() {
     @JsonDeserialize
     val xmlLang = "none"
 
-    // @JsonBackReference(value = "surveyRef")
-    // @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
-    // var surveyPrograms: Set<SurveyProgram> = HashSet()
-
-    // @JsonBackReference(value = "studyRef")
-    // @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
-    // var studies: Set<Study> = HashSet()
-
-//    @JsonBackReference(value = "topicRef")
-//    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
-//    var topicGroups: MutableSet<TopicGroup> = mutableSetOf()
-
-    
-    //    @PrePersist
     override fun xmlBuilder(): AbstractXmlBuilder? { return null }
 
 

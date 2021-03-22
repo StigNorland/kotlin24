@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.history.Revision
 import org.springframework.data.rest.webmvc.BasePathAwareController
+import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.MediaType
@@ -26,13 +27,16 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
     override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<ResponseDomain>> {
         return super.getById(uri).also {
             it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
+//            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
+//            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
+
 //            it.body.content.managedRepresentation.id
 //            it.body?.add(linkTo<BaseMixedRepository<Category>> { getById(uri) }.withSelfRel())
         }
     }
 
-    @GetMapping("/responsedomain/revisions/{uri}",produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<Revision<Int, ResponseDomain>>> {
+    @GetMapping("/responsedomain/{uri}/revisions",produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<ResponseDomain>>> {
         return super.getRevisions(uri, pageable)
     }
 
@@ -43,15 +47,13 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
 //        return IOUtils.toByteArray(`in`)
 //    }
 
-    @GetMapping("/responsedomain/{uri}/pdf", produces = [MediaType.APPLICATION_PDF_VALUE])
-    @ResponseBody
+    @GetMapping("/responsedomain/{uri}/pdf", produces = ["application/pdf"])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
 
-    @GetMapping("/responsedomain/{uri}/xml", produces = [MediaType.APPLICATION_XML_VALUE])
-    @ResponseBody
+    @GetMapping("/responsedomain/{uri}/xml", produces = ["application/xml"])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return  super.getXml(uri)
     }

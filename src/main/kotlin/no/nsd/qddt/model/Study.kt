@@ -37,26 +37,10 @@ import javax.persistence.*
 @DiscriminatorValue("STUDY")
 data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IArchived {
 
-    @OneToMany( mappedBy="studyId", cascade = [CascadeType.ALL])
-    @PrimaryKeyJoinColumn
+
+    @OneToMany( mappedBy="studyId")
+//    @PrimaryKeyJoinColumn
     var instruments: MutableSet<Instrument> = mutableSetOf()
-
-    
-//    @ManyToMany(cascade = [CascadeType.DETACH])
-//    @JoinTable(
-//        name = "CONCEPT_HIERARCHY_AUTHORS",
-//        joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")],
-//        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")])
-//    override var authors: MutableSet<Author> = mutableSetOf()
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="parentId", insertable = false, updatable = false )
-//    override var parent: SurveyProgram? = null
-//
-//    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
-//    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentId",cascade = [CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE])
-//    override lateinit var children: MutableList<TopicGroup>
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {

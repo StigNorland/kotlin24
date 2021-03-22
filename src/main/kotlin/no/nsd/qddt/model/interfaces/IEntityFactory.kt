@@ -37,7 +37,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
                 changeComment = "copy of " + (source.name)
             }
         }.apply { 
-            version.versionLabel = "COPY OF [" + (source.name) + "]"
+            version!!.versionLabel = "COPY OF [" + (source.name) + "]"
             (this as IArchived).isArchived = false
             classKind = source.classKind
             name = source.name

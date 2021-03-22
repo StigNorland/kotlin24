@@ -28,10 +28,10 @@ interface StudyRepository: BaseArchivedRepository<Study> {
 
 
     @Query(nativeQuery = true,
-        value       = "SELECT c.* FROM study c " +
-                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
-        countQuery = "SELECT count(c.*) FROM study c " +
-                    "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
+        value       = "SELECT c.* FROM concept_hierarchy c " +
+                    "WHERE ( c.change_kind !='BASED_ON' and class_kind='STUDY' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
+        countQuery = "SELECT count(c.*) FROM concept_hierarchy c " +
+                    "WHERE ( c.change_kind !='BASED_ON' and class_kind='STUDY' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
     )
     fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<Study>
 

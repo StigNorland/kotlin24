@@ -24,9 +24,10 @@ import javax.persistence.*
 */
 @Audited
 @Entity
+@Cacheable
 @Table(name = "QUESTION_ITEM")
 data class QuestionItem(
-  override var name: String=""
+  override var name: String =""
 ) :AbstractEntityAudit() {
 
 

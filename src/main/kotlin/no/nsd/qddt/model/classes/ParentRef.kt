@@ -19,9 +19,9 @@ class ParentRef<T : IDomainObjectParentRef>//            agency = entity.agency.
     var entity: T? = null
     override var parentRef: IParentRef? = null
     @Column(updatable = false, nullable = false)
-    override lateinit var id: UUID
+    override var id: UUID?=null
     override lateinit var name: String
-    override lateinit var version: Version
+    override var version: Version = Version()
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 

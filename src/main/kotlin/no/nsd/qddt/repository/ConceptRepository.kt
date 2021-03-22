@@ -28,15 +28,17 @@ interface ConceptRepository: BaseArchivedRepository<Concept> {
     fun findByQuestionItemsElementId(id:UUID):List<Concept>
     
     @Query( nativeQuery = true,
-        value = "SELECT c.* FROM concept c " +
+        value = "SELECT c.* FROM concept_hierarchy c " +
                 " WHERE c.change_kind !='BASED_ON' " +
+                " AND class_kind='CONCEPT' " +
                 " AND ( " +
                 " (:name is null OR c.name ILIKE cast(:name AS text)) " +
                 " OR  (:description is null OR c.description ILIKE cast(:description AS text)) " +
                 " ) "
         ,
-        countQuery = "SELECT count(c.*) FROM concept c " +
+        countQuery = "SELECT count(c.*) FROM concept_hierarchy c " +
                 " WHERE c.change_kind !='BASED_ON' " +
+                " AND class_kind='CONCEPT' " +
                 " AND ( " +
                 " (:name is null OR c.name ILIKE cast(:name AS text)) " +
                 " OR  (:description is null OR c.description ILIKE cast(:description AS text)) " +

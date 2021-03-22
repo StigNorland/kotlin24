@@ -1,6 +1,8 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nsd.qddt.repository.handler.AgentAuditTrailListener
+import no.nsd.qddt.repository.handler.UserAuditTrailListener
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.sql.Timestamp
@@ -13,7 +15,15 @@ import javax.persistence.*
 @Cacheable
 @Entity
 @Table(name="user_account")
-data class User(private var username : String = "?"):UserDetails {
+@EntityListeners(value = [UserAuditTrailListener::class])
+data class User(
+
+    private var username : String = "?",
+
+    @Column(insertable = false, updatable = false)
+    var agencyId: UUID? = null
+
+):UserDetails {
 
     @Id  @GeneratedValue lateinit var id: UUID
 
@@ -42,6 +52,7 @@ data class User(private var username : String = "?"):UserDetails {
         return true
     }
 
+    @JsonIgnore
     private var isEnabled: Boolean = false
     override fun isEnabled(): Boolean {
         return isEnabled
@@ -57,24 +68,21 @@ data class User(private var username : String = "?"):UserDetails {
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     private lateinit var authorities: MutableCollection<Authority>
+
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return authorities.map {
             GrantedAuthority { it.authority }
         }.toMutableSet()
     }
 
-
-    @Column(insertable = false, updatable = false)
-    var agencyId: UUID? = null
-
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "agencyId")
     lateinit var agency : Agency
 
 
 //    override fun toString(): String {
-//        return "User(email='$email', id=$id, modified=$modified, agency=${agency.name}, authority=${authority.joinToString(" + ") { it.authority }}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
+//        return "User(email='$email', id=$id, modified=$modified, agencyId=${agencyId?:"?"}, authority=${getAuthority()}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
 //    }
 
     fun getAuthority(): String {

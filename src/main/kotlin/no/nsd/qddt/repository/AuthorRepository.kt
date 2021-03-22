@@ -18,6 +18,6 @@ interface AuthorRepository : JpaRepository<Author,UUID> {
         name: String?,
         email: String?,
         pageable: Pageable?
-    ): Page<Author?>? //    @Override
+    ): Page<Author>? //    @Override
     //    Page<Revision<Integer, Author>> findRevisions(UUID uuid, Pageable pageable);
 }

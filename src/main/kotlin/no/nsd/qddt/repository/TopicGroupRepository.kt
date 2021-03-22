@@ -31,10 +31,10 @@ interface TopicGroupRepository : BaseArchivedRepository<TopicGroup> {
 
 
     @Query( nativeQuery = true,
-        value = "SELECT tg.* FROM topic_group tg " +
-                "WHERE (  tg.change_kind !='BASED_ON' and (tg.name ILIKE :name or tg.description ILIKE :description) ) ",
-        countQuery = "SELECT count(tg.*) FROM topic_group tg " +
-                "WHERE (  tg.change_kind !='BASED_ON' and (tg.name ILIKE :name or tg.description ILIKE :description) ) ",
+        value = "SELECT tg.* FROM concept_hierarchy tg " +
+                "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE :name or tg.description ILIKE :description) ) ",
+        countQuery = "SELECT count(tg.*) FROM concept_hierarchy tg " +
+                "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE :name or tg.description ILIKE :description) ) ",
     )
     fun findByQuery(@Param("name") name: String,@Param("description") description: String?,pageable: Pageable): Page<TopicGroup>
 }

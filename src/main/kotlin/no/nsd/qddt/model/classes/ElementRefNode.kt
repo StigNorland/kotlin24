@@ -22,7 +22,7 @@ class ElementRefNode<T : AbstractEntityAudit> : AbstractElementRef<T>, Iterable<
     lateinit var id: UUID
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ElementRefNode::class)
+    @ManyToOne( targetEntity = ElementRefNode::class)
     @JsonBackReference(value = "parentElementRefNode")
     var parent: ElementRefNode<T>? = null
 

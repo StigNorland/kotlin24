@@ -16,7 +16,7 @@ class FragmentBuilderCode(entity: Category): CategoryFragmentBuilder(entity) {
   get() = super.xmlFragment
 
   private val codeURN:String
-  get() = String.format(xmlURN, entity.agency.name, entity.id, entity.code?.value?:"<unset>")
+  get() = String.format(xmlURN, entity.agency?.name, entity.id, entity.code?.value?:"<unset>")
 
   override fun getXmlEntityRef(depth:Int):String {
     return String.format(xmlCode, codeURN, super.getXmlEntityRef(depth + 1), entity.code?.value?:"<unset>".trim(), getTabs(depth))

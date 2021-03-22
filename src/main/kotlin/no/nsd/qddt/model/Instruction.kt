@@ -22,9 +22,7 @@ import javax.persistence.*
         name = "UNQ_INSTRUCTION_NAME"
     )]
 )
-class Instruction : AbstractEntityAudit() {
-
-    override lateinit var name: String
+data class Instruction(override var name: String = "") : AbstractEntityAudit() {
 
     @Column(length = 2000, nullable = false)
     var description: String? = null

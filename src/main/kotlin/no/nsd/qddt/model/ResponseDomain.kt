@@ -22,6 +22,7 @@ import javax.persistence.*
 
 @Audited
 @Entity
+@Cacheable
 @Table(name = "RESPONSEDOMAIN", uniqueConstraints =
         [UniqueConstraint(name = "UNQ_RESPONSEDOMAIN_NAME",
           columnNames = ["name","category_id","based_on_object"])]

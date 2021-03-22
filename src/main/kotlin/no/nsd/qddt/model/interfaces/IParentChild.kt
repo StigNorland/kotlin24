@@ -19,7 +19,7 @@ interface IHaveChilden<T:IBasedOn>  {
 
 //    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
 //    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
-//    @OneToMany(mappedBy = "parentId" , fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
+//    @OneToMany(mappedBy = "parentId" ,  cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
     var children: MutableList<T>
 
     abstract fun addChild(entity:T ): T

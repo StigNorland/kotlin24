@@ -17,7 +17,7 @@ interface IBasedOn:IDomainObject {
     @JsonIgnore
     fun isBasedOn() = changeKind == ChangeKind.BASED_ON || changeKind == ChangeKind.NEW_COPY || changeKind == ChangeKind.TRANSLATED || changeKind == ChangeKind.REFERENCED
     @JsonIgnore
-    fun isNewCopy() = (changeKind == ChangeKind.NEW_COPY || version.rev == 0 && changeKind != ChangeKind.CREATED)
+    fun isNewCopy() = (changeKind == ChangeKind.NEW_COPY || version!!.rev == 0 && changeKind != ChangeKind.CREATED)
 
 
     /**
@@ -26,6 +26,7 @@ interface IBasedOn:IDomainObject {
      * TYPO, can be used modify without breaking a release.
      * Every other version is a IN_DEVELOPMENT change.
      */
+    @Suppress("UNUSED_PARAMETER")
     public enum class ChangeKind(name: String, val description: String) {
         CREATED("Created", "New element status"),
         BASED_ON("Based on", "Based on copy"),

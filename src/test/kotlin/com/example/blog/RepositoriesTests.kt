@@ -1,5 +1,7 @@
 //package com.example.blog
 //
+//import no.nsd.qddt.repository.SurveyProgramRepository
+//import no.nsd.qddt.repository.UserRepository
 //import org.assertj.core.api.Assertions.assertThat
 //import org.junit.jupiter.api.Test
 //import org.springframework.beans.factory.annotation.Autowired
@@ -9,9 +11,9 @@
 //
 //@DataJpaTest
 //class RepositoriesTests @Autowired constructor(
-//		val entityManager: TestEntityManager,
-//		val userRepository: UserRepository,
-//		val articleRepository: ArticleRepository) {
+//    val entityManager: TestEntityManager,
+//    val userRepository: UserRepository,
+//    val surveyRepository: SurveyProgramRepository) {
 //
 //	@Test
 //	fun `When findByIdOrNull then return Article`() {

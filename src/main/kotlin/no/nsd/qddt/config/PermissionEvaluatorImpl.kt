@@ -59,7 +59,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     }
 
     private fun isOwner(user: User, entity: AbstractEntity): Boolean {
-        return user.id == entity.modifiedBy.id
+        return user.id == entity.modifiedBy!!.id
     }
 
     // entity is a User entity
@@ -68,8 +68,8 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     }
 
     private fun isMemberOfAgency(agency: Agency, entity: IDomainObject): Boolean {
-        if (agency.id == entity.agency.id) return true
-        logger.info(agency.name + " != " + entity.agency.name)
+        if (agency.id == entity.agencyId) return true
+        logger.info(agency.id.toString() + " != " + entity.agencyId)
         return false
     }
 }

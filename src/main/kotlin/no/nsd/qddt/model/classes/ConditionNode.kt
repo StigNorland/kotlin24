@@ -11,7 +11,7 @@ import javax.persistence.Id
 /**
  * @author Stig Norland
  */
-class ConditionNode(@Id @GeneratedValue override var id: UUID, override var name: String, override var version: Version) : IWebMenuPreview {
+class ConditionNode(@Id @GeneratedValue override var id: UUID?=null, override var name: String="", override var version: Version= Version()) : IWebMenuPreview {
     var conditionKind: ConditionKind? = null
     var classKind: String? = null
     var condition: String? = null

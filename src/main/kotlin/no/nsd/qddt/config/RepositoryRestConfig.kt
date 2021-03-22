@@ -1,6 +1,7 @@
 package  no.nsd.qddt.config
 
 import no.nsd.qddt.model.*
+import no.nsd.qddt.repository.StudyRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
@@ -40,6 +41,12 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(User::class.java)
         config.exposeIdsFor(PublicationStatus::class.java)
 
+
+//        config.withEntityLookup().forRepository(AgencyRepository::class.java, Agency::id, AgencyRepository::findById)
+//        config.withEntityLookup().forRepository(UserRepository::class.java, User::id, UserRepository::findById)
+//        config.withEntityLookup().forRepository(StudyRepository::class.java, Study::id, StudyRepository::findById)
+
+//        config.withEntityLookup().forRepository(StudyRepository::class.java, User::id, StudyRepository:: )
 
 //        config.withEntityLookup()
 //            .forRepository(QuestionItemRepository::class.java, QuestionItem::responseId, QuestionItemRepository::findRevision)

@@ -15,18 +15,18 @@ import javax.persistence.*
 @Entity
 @Audited
 @Table(name = "PUBLICATION")
-class Publication : AbstractEntityAudit() {
+class Publication(
+    override var name: String = "",
+    var purpose: String =""
+) :
+    AbstractEntityAudit() {
 
-    lateinit var purpose: String
-
-    override lateinit var name: String
-
-    @Column(name = "status_id", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private var statusId: Long? = null
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    @JoinColumn(name = "status_id")
+    @JoinColumn(name = "statusId")
     lateinit var status: PublicationStatus
 
     @OrderColumn(name = "publication_idx")
@@ -47,7 +47,7 @@ class Publication : AbstractEntityAudit() {
         pdfReport.addHeader2("Purpose")
         pdfReport.addParagraph(purpose)
         pdfReport.addHeader2("Publication status")
-        pdfReport.addParagraph(status.label)
+        pdfReport.addParagraph(status.label!!)
         // pdfReport.addPadding();
 
         var i = 0

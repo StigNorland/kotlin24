@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.classes
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.io.source.ByteArrayOutputStream
@@ -28,14 +29,21 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
  */
 @Audited
 @MappedSuperclass
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
+
+    @Column(insertable = false, updatable = false)
+    override var agencyId: UUID? = null,
 
     @Column(name="based_on_object",updatable = false)
     override var basedOnObject: UUID? = null,
 
     @Column(name="based_on_revision", updatable = false)
     override var basedOnRevision: Int? = null,
+
+    @Embedded
+    override var version: EmbeddedVersion = EmbeddedVersion(),
 
     var xmlLang: String = "en-GB"
 
@@ -51,12 +59,6 @@ abstract class AbstractEntityAudit(
 //    override var rev: Int? = null
 
 
-    @Embedded
-    override lateinit var version: EmbeddedVersion
-
-
-    @Column(insertable = false, updatable = false)
-    var agencyId: UUID? = null
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agencyId")

@@ -22,10 +22,12 @@ import javax.persistence.*
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "CONTROL_CONSTRUCT_KIND")
 @Table(name = "CONTROL_CONSTRUCT")
-abstract class ControlConstruct : AbstractEntityAudit() {
+abstract class ControlConstruct(
+    var label: String = "",
+    override var name: String = ""
+) : AbstractEntityAudit() {
 
-    var label: String? = null
-    override lateinit var name: String
+
 
     @Transient
     @JsonSerialize

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.data.repository.history.RevisionRepository
+import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 import javax.persistence.*
 
@@ -41,9 +42,10 @@ class EntityAuditTrailListener{
 
     @PrePersist
     private fun onInsert(entity: AbstractEntityAudit) {
-        // val user = SecurityContextHolder.getContext().authentication.details as User
-        // entity.agency = user.agency!!
-        // if (entity.xmlLang == "") user.agency!!.xmlLang.also { entity.xmlLang = it }
+        log.debug("About to insert entity: {}" , entity.id)
+         val user = SecurityContextHolder.getContext().authentication.principal as User
+         entity.agency = user.agency
+         if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
         when (entity) {
             is Category -> {
                 beforeCategoryInsert(entity)
@@ -59,6 +61,7 @@ class EntityAuditTrailListener{
 
     @PreUpdate
     private fun onUpdate(entity: AbstractEntityAudit) {
+        log.debug("About to update entity: {}" , entity.id)
         try {
             with(entity) {
             var ver: Version? = version
@@ -118,13 +121,15 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
+        log.debug("After load of entity: {}" , entity.id)
+
         val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
         when (entity) {
             is QuestionConstruct -> {
                 if (entity.questionItem == null && entity.questionId?.id != null) {
 
                     val repository =  bean.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
-                    entity.questionItem = LoadRevisionEntity(entity.questionId!!,repository)
+                    entity.questionItem = loadRevisionEntity(entity.questionId!!,repository)
 
                 }
             }
@@ -132,7 +137,7 @@ class EntityAuditTrailListener{
                 if (entity.responseDomain == null && entity.responseId?.id != null) {
 
                     val repository =  bean.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
-                    entity.responseDomain = LoadRevisionEntity(entity.responseId!!,repository)
+                    entity.responseDomain = loadRevisionEntity(entity.responseId!!,repository)
 
                     var _index = 0
                     populateCatCodes(entity.responseDomain!!.managedRepresentation,_index, entity.responseDomain!!.codes)
@@ -140,19 +145,20 @@ class EntityAuditTrailListener{
                 }
             }
             is ResponseDomain -> {
+                log.debug("POPULATE_CODES - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)
 
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
 
             }
             else -> {
-                log.debug("{}: {}: {} NOT loaded ", entity.classKind.padEnd(15) , entity.id, entity.name)
+                log.debug("UNTOUCHED - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)
             }
         }
     }
 
 
-    private fun <T: AbstractEntity>LoadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
+    private fun <T: AbstractEntity>loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
         return with(uri) {
             if (rev != null)
                 repository.findRevision(id,rev!!).map {
@@ -222,13 +228,14 @@ class EntityAuditTrailListener{
     }
 
     private fun populateCatCodes(current: Category?, _index: Int,  codes: List<Code>): Int {
-        assert(current != null)
-        var _Index = _index
+        if (current == null) return _index
 
-        if (current!!.hierarchyLevel == HierarchyLevel.ENTITY) {
+        var index = _index
+
+        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
             try {
-                log.debug(codes[_Index].toString())
-                current.code = codes[_Index++]
+                log.debug(codes[index].toString())
+                current.code = codes[index++]
             } catch (iob: IndexOutOfBoundsException) {
                 current.code = Code()
             } catch (ex: Exception) {
@@ -237,9 +244,9 @@ class EntityAuditTrailListener{
             }
         }
         current.children.forEach { 
-            _Index = populateCatCodes(it, _Index, codes) 
+            index = populateCatCodes(it, index, codes)
         }
-        return _Index
+        return index
     }
 
     companion object {

@@ -171,9 +171,9 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             .addCell(Cell().add(Paragraph("Last Saved")).addStyle(cellStyleRight))
             .addCell(Cell().add(Paragraph(String.format("%1\$TF %1\$TT", element.modified))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Last Saved By")).addStyle(cellStyleRight))
-            .addCell(Cell().add(Paragraph(CapString(element.modifiedBy.username))).addStyle(cellStyleLeft))
+            .addCell(Cell().add(Paragraph(CapString(element.modifiedBy?.username))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Agency")).addStyle(cellStyleRight))
-            .addCell(Cell().add(Paragraph(element.agency.name)).addStyle(cellStyleLeft))
+            .addCell(Cell().add(Paragraph(element.agency?.name)).addStyle(cellStyleLeft))
             .setWidth(width100)
         p.setNextRenderer(UpdatePageRenderer(p, titlePage))
         val div = Div().add(table).setKeepTogether(true).setKeepWithNext(true)
@@ -245,8 +245,8 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                     .setBorder(Border.NO_BORDER) //                .setWidth(width100*0.20F)
                     .add(
                         Paragraph(
-                            comment.modifiedBy.username + "@" + comment.modifiedBy.agency.name +
-                                    String.format(" - %1\$TD %1\$TT", comment.modified.toLocalDateTime())
+                            comment.modifiedBy!!.username + "@" + comment.modifiedBy!!.agency.name +
+                                    String.format(" - %1\$TD %1\$TT", comment.modified?.toLocalDateTime())
                         )
                     )
             )

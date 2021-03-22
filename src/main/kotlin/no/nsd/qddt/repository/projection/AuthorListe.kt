@@ -10,7 +10,9 @@ import java.util.*
 interface AuthorListe {
     val id: UUID
     var name: String
-    var modified : Timestamp
     var email: String?
-    var homepage: URL?
+    var about: String?
+    var homepageUrl: String?
+    var pictureUrl: String?
+    var authorsAffiliation: String?
 }

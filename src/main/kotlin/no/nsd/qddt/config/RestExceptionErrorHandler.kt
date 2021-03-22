@@ -22,17 +22,24 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(Exception::class)
     fun handleAll(ex: Exception, request: WebRequest?): ResponseEntity<Any>? {
-        log.info("handleAll custom handler")
+        log.warn("CUSTOM ERRORHANDLER")
         log.error(ex.message, ex.cause)
         request?.let {
             log.info(it.toString())
         }
-        val qddtStack =  StackTraceFilter.filter(ex.stackTrace)
-        if (qddtStack.isNotEmpty())
-            qddtStack.forEach {
-                log.debug(it.toString())
-            }
-        val apiError = ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.message?:ex.localizedMessage, qddtStack.map { it.toString() })
+        var qddtStack =
+        StackTraceFilter.filter(ex.stackTrace).let {
+            if (it.isNotEmpty()) {
+                log.debug(it.joinToString(separator = "\n", prefix = "\t"))
+                it
+            } else
+                mutableListOf<StackTraceElement>()
+        }
+
+
+
+        val apiError = ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.message?:ex.localizedMessage?:ex.toString(), qddtStack.map { it.toString() })
+
         return ResponseEntity(apiError, HttpHeaders(), apiError.status)
     }
 }

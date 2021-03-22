@@ -117,7 +117,7 @@ class FragmentBuilderManageRep(entity: Category, degreeSlopeFromHorizontal:Strin
 
   private val missingCodeURN:String
   get() {
-    return String.format(xmlURN, entity.agency.name, entity.name, entity.version.toDDIXml())
+    return String.format(xmlURN, entity.agency?.name, entity.name, entity.version!!.toDDIXml())
   }
 
   init{

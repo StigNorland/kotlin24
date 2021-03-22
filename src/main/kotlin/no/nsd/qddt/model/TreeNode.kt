@@ -19,7 +19,7 @@ class TreeNode<T : IDomainObject> : AbstractElementRef<T>, Iterable<TreeNode<T>>
     @Column(updatable = false, nullable = false)
     lateinit var id: UUID
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = TreeNode::class)
+    @ManyToOne( targetEntity = TreeNode::class)
     @JsonBackReference(value = "parentRef")
     var parent: TreeNode<T>? = null
 

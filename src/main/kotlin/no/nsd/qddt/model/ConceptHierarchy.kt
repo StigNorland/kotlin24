@@ -2,6 +2,7 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIdentityReference
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.config.exception.StackTraceFilter
@@ -18,29 +19,33 @@ import javax.persistence.*
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "CLASS_KIND")
 @Table(name = "CONCEPT_HIERARCHY")
-abstract class ConceptHierarchy : AbstractEntityAudit(), IArchived, IHaveChilden<ConceptHierarchy>, IHaveParent<ConceptHierarchy> {
+abstract class ConceptHierarchy(
 
-    var label: String=""
+    var label: String="",
 
     @Column(length = 20000)
-    var description: String=""
+    var description: String="",
 
     @Column(insertable = false, updatable = false)
     override var parentId: UUID? = null
+
+) : AbstractEntityAudit(), IArchived, IHaveChilden<ConceptHierarchy>, IHaveParent<ConceptHierarchy> {
 
     @Column(insertable = false, updatable = false)
     override var parentIdx: Int? = null
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="parentId", insertable = false, updatable = false )
     override var parent: ConceptHierarchy? = null
 
-    //    @PrimaryKeyJoinColumn
-    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
-    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentId",cascade = [CascadeType.REMOVE,CascadeType.PERSIST,CascadeType.MERGE])
-    override lateinit var children: MutableList<ConceptHierarchy>
+//    @JsonIgnore
+//    @JsonIdentityReference
+//    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
+//    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
+    @OneToMany(mappedBy = "parentId")
+//    var instruments: MutableSet<Instrument> = mutableSetOf()
+    override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
 
     override fun addChild(entity: ConceptHierarchy): ConceptHierarchy {
@@ -70,7 +75,7 @@ abstract class ConceptHierarchy : AbstractEntityAudit(), IArchived, IHaveChilden
                      else
                          Hibernate.initialize(children)
 
-                    children?.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
+                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
                 }
             } catch (ex: Exception) {
                 logger.error("setArchived", ex)
