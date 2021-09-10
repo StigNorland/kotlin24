@@ -13,7 +13,7 @@ interface IDomainObject : IWebMenuPreview, IXmlBuilder {
     // var name: String
     // var version: Version
     var modified: Timestamp?
-    var modifiedBy: User?
+    var modifiedBy: User
     var agencyId: UUID?
     var agency: Agency
     var classKind: String

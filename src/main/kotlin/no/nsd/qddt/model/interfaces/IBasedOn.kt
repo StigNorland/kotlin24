@@ -27,7 +27,7 @@ interface IBasedOn:IDomainObject {
      * Every other version is a IN_DEVELOPMENT change.
      */
     @Suppress("UNUSED_PARAMETER")
-    public enum class ChangeKind(name: String, val description: String) {
+    enum class ChangeKind(name: String, val description: String) {
         CREATED("Created", "New element status"),
         BASED_ON("Based on", "Based on copy"),
         NEW_COPY("New Copy","Copy new"),

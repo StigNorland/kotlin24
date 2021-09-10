@@ -1,9 +1,10 @@
 package no.nsd.qddt.model.builder.xml
 
 import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.classes.AbstractEntity.Companion.logger
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.security.AuthTokenFilter.Companion.logger
+//import no.nsd.qddt.security.AuthTokenFilter.Companion.logger
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.collections.HashMap

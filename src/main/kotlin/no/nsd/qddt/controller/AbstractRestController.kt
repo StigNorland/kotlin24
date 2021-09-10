@@ -7,8 +7,6 @@ import no.nsd.qddt.repository.BaseMixedRepository
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.*
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
@@ -31,15 +29,15 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
     @ResponseBody
     open fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<T>>> {
 
-        var qpage: Pageable = if (pageable.sort.isUnsorted) {
+        val qPage: Pageable = if (pageable.sort.isUnsorted) {
              PageRequest.of(pageable.pageNumber, pageable.pageSize,Sort.Direction.DESC,"modified")
         } else {
             pageable
         }
-        logger.debug("getRevisions 1: {}" , qpage)
+        logger.debug("getRevisions 1: {}" , qPage)
 
 
-        val result = repository.findRevisions(UriId.fromAny(uri).id, qpage )
+        val result = repository.findRevisions(UriId.fromAny(uri).id, qPage )
         logger.debug("getRevisions 2: {}" , result.totalElements)
         val entities = result.content.map {
             it.entity.rev = it.revisionNumber.get()

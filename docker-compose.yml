@@ -1,0 +1,11 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+    container_name: qddt_postgres
+    ports:
+       - "5432:5432"
+    environment:
+      POSTGRES_DB: qddt-dev
+      POSTGRES_USER: qddt
+      POSTGRES_PASSWORD: qddt

@@ -1,20 +1,21 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.model.*
+import no.nsd.qddt.model.QuestionConstruct
+import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IHaveChilden
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks
+import org.springframework.data.rest.webmvc.support.RepositoryLinkBuilder
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.server.RepresentationModelProcessor
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
 import org.springframework.stereotype.Component
-import java.util.function.Supplier
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks
-import org.springframework.data.rest.webmvc.support.RepositoryLinkBuilder
 
 
 @Component
@@ -29,24 +30,23 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val linkBuilder = entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder
 
         model.addIf(
-            !model.hasLink("agency"),
-            Supplier { linkBuilder.slash(entity.id).slash("agency").withRel("agency") }
-        )
+            !model.hasLink("agency")
+        ) { linkBuilder.slash(entity.id).slash("agency").withRel("agency") }
         model.addIf(
-            !model.hasLink("modifiedBy"),
-            Supplier { linkBuilder.slash(entity.id).slash("modifiedBy").withRel("modifiedBy") }
-        )
+            !model.hasLink("modifiedBy")
+        ) { linkBuilder.slash(entity.id).slash("modifiedBy").withRel("modifiedBy") }
         model.addIf(
-            !model.hasLink("revisions"),
-            Supplier { linkBuilder.slash(entity.id).slash("revisions").withRel("revisions") }
-        )
+            !model.hasLink("revisions")
+        ) { linkBuilder.slash(entity.id).slash("revisions").withRel("revisions") }
 
         if (entity is IHaveChilden<*>) {
             logger.debug("entity is IHaveChilden {}", entity.name )
             model.addIf(
-                !model.hasLink("children"),
-                Supplier { (entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder).slash(entity.id).slash("children").withRel("children") }
-            )
+                !model.hasLink("children")
+            ) {
+                (entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder).slash(entity.id).slash("children")
+                    .withRel("children")
+            }
         }
 
         return when (entity) {

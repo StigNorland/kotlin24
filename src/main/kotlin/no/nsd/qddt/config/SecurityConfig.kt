@@ -1,9 +1,10 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.security.AuthTokenFilter
+//import no.nsd.qddt.security.AuthTokenFilter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -21,7 +22,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
@@ -42,6 +43,7 @@ import javax.servlet.http.HttpServletResponse
 @EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL])
 @EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
 @EnableWebSecurity
+@EnableConfigurationProperties
 @EnableGlobalMethodSecurity(
     securedEnabled = true,
     jsr250Enabled = true,
@@ -65,10 +67,10 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         return AuditAwareImpl()
     }
 
-    @Bean
-    fun authenticationTokenFilterBean(): AuthTokenFilter {
-        return AuthTokenFilter()
-    }
+//    @Bean
+//    fun authenticationTokenFilterBean(): AuthTokenFilter {
+//        return AuthTokenFilter()
+//    }
 
     @Bean
     fun passwordEncoderBean(): PasswordEncoder {
@@ -161,7 +163,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 //            .anyRequest().authenticated()
 
         // Add JWT token filter
-        http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
+//        http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
 
     }
 

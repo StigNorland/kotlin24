@@ -9,7 +9,7 @@ import java.util.*
 @Projection(name = "surveyProgramListe", types = [SurveyProgram::class])
 interface SurveyProgramListe {
     var id: UUID
-    var label: String
+    var description: String
     var name: String
 
     @Value(value = "#{target.modified.getTime() }")

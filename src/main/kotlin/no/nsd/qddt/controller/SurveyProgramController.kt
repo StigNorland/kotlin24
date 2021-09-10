@@ -1,8 +1,6 @@
 package no.nsd.qddt.controller
 
-import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.SurveyProgram
-import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page

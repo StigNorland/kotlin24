@@ -43,8 +43,9 @@ class EntityAuditTrailListener{
     @PrePersist
     private fun onInsert(entity: AbstractEntityAudit) {
         log.debug("About to insert entity: {}" , entity.id)
-         val user = SecurityContextHolder.getContext().authentication.principal as User
-         entity.agency = user.agency
+        val user = SecurityContextHolder.getContext().authentication.principal as User
+        entity.agency = user.agency
+        entity.modifiedBy = user
          if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
         when (entity) {
             is Category -> {
@@ -64,6 +65,7 @@ class EntityAuditTrailListener{
         log.debug("About to update entity: {}" , entity.id)
         try {
             with(entity) {
+            entity.modifiedBy = SecurityContextHolder.getContext().authentication.principal as User
             var ver: Version? = version
             var change = changeKind
 
@@ -162,12 +164,12 @@ class EntityAuditTrailListener{
         return with(uri) {
             if (rev != null)
                 repository.findRevision(id,rev!!).map {
-                    it.entity.rev = rev
+                    it.entity.rev = it.revisionNumber.get()
                     it.entity
                     }.get()
             else
                 repository.findLastChangeRevision(id).map {
-                    it.entity.rev = rev
+                    it.entity.rev = it.revisionNumber.get()
                     it.entity
                 }.get()
         }

@@ -2,12 +2,12 @@ package no.nsd.qddt.security
 
 import io.jsonwebtoken.*
 import no.nsd.qddt.model.User
-import no.nsd.qddt.repository.projection.AgencyListe
 import no.nsd.qddt.utils.StringTool
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -17,12 +17,14 @@ import java.util.*
 
 @Component
 class AuthTokenUtil {
+
     @Value("\${security.jwt.token.secret}")
     private lateinit var jwtSecret: String
 
     @Value("\${security.jwt.token.expiration-time}")
     private lateinit var jwtExpirationMs: Optional<Long>
 
+    protected class AgencyJ(val id:String, val name: String, val xmlLang: String):Serializable
 
     fun generateJwtToken(authentication: Authentication): String {
         val userDetails = authentication.principal as User
@@ -36,13 +38,11 @@ class AuthTokenUtil {
         claims["modified"] = userDetails.modified.toLocalDateTime()
         claims["id"] = userDetails.id.toString()
         claims["email"] = userDetails.email
-        claims["agency"] = userDetails.agency.let {
-             object: AgencyListe {
-                 override var id = it.id
-                 override var name = it.name
-                 override var xmlLang: String = it.xmlLang
-             }
-        }
+
+//        userDetails.agency.also {
+//            val agencyJson = Gson().toJson(AgencyJ(it.id.toString(),it.name, it.xmlLang))
+//            claims["agency"] = agencyJson
+//        }
 
         return  AuthResponse(Jwts.builder()
             .setClaims(claims)

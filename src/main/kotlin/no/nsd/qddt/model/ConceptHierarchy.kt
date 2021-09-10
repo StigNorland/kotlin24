@@ -41,8 +41,8 @@ abstract class ConceptHierarchy(
 
 //    @JsonIgnore
 //    @JsonIdentityReference
-//    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
-//    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
+    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
+    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parentId")
 //    var instruments: MutableSet<Instrument> = mutableSetOf()
     override var children: MutableList<ConceptHierarchy> = mutableListOf()

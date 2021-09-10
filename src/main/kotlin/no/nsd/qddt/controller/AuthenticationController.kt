@@ -30,8 +30,8 @@ class AuthenticationController {
     @Autowired
     private lateinit var authenticationManager: AuthenticationManager
 
-    @Autowired
-    private lateinit var jwtUtil: AuthTokenUtil
+//    @Autowired
+//    private lateinit var jwtUtil: AuthTokenUtil
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun authenticateUser(@RequestBody userForm: UserForm): ResponseEntity<*> {
@@ -41,7 +41,7 @@ class AuthenticationController {
             val user: User = authenticate.principal as User
             logger.info("User logged in {}", user.toString())
             SecurityContextHolder.getContext().authentication = authenticate
-            ResponseEntity.ok(jwtUtil.generateJwtToken(authenticate))
+            ResponseEntity.ok(AuthTokenUtil().generateJwtToken(authenticate))
 //                .header(HttpHeaders.AUTHORIZATION,jwtUtil.generateJwtToken(authenticate) )
 //                .body(jwtUtil.generateJwtToken(authenticate))
         } catch (ex: BadCredentialsException) {

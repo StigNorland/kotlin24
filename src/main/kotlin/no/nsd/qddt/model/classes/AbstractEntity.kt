@@ -1,11 +1,9 @@
 package no.nsd.qddt.model.classes
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import org.hibernate.envers.Audited
-import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,7 +25,8 @@ abstract class AbstractEntity(
 
     @Transient
     @JsonSerialize
-    var rev: Int? = null,
+    @Column(columnDefinition="default 0",  nullable = false)
+    var rev: Int = 0,
 
     @Column(insertable = false, updatable = false)
     var modifiedById: UUID? = null,
@@ -35,13 +34,12 @@ abstract class AbstractEntity(
     @Version
     var modified: Timestamp?=null
 ) {
+
+    @LastModifiedBy
     @ManyToOne
     @JoinColumn(name = "modifiedById")
-    @LastModifiedBy
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-//    @NotAudited
-    var modifiedBy: User? = null
-
+    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
+    lateinit var modifiedBy: User
 
     abstract fun xmlBuilder(): AbstractXmlBuilder?
 
