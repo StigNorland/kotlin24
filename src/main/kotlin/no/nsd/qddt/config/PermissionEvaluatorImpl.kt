@@ -6,6 +6,7 @@ import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.interfaces.IDomainObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetails
@@ -16,7 +17,7 @@ import java.io.Serializable
 /**
  * @author Stig Norland
  */
-@Component
+@Configuration
 class PermissionEvaluatorImpl : PermissionEvaluator {
 
     private enum class PermissionType {

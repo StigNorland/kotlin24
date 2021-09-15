@@ -16,43 +16,38 @@ import java.util.*
 
 
 @Component
-class AuthTokenUtil {
+class AuthTokenUtil: Serializable {
 
     @Value("\${security.jwt.token.secret}")
-    private lateinit var jwtSecret: String
-
+    private val  jwtSecret: String? = null
     @Value("\${security.jwt.token.expiration-time}")
-    private lateinit var jwtExpirationMs: Optional<Long>
+    private val  jwtExpirationMs: Long? = null
+
 
     protected class AgencyJ(val id:String, val name: String, val xmlLang: String):Serializable
 
     fun generateJwtToken(authentication: Authentication): String {
         val userDetails = authentication.principal as User
+        val expira = jwtExpirationMs?:  (1000 * 60 * 60 * 24L)
+
         val claims = Jwts.claims()
             .setId(UUID.randomUUID().toString())
             .setSubject(StringTool.CapString(userDetails.username))
             .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + jwtExpirationMs.get()))
+            .setExpiration(Date(Date().time + expira))
 
         claims["role"] = userDetails.authorities.joinToString { it.authority }
         claims["modified"] = userDetails.modified.toLocalDateTime()
         claims["id"] = userDetails.id.toString()
         claims["email"] = userDetails.email
+//        claims.put(claimsKey, Arrays.asList(SimpleGrantedAuthority(role.toString())))
 
-//        userDetails.agency.also {
-//            val agencyJson = Gson().toJson(AgencyJ(it.id.toString(),it.name, it.xmlLang))
-//            claims["agency"] = agencyJson
-//        }
-
-        return  AuthResponse(Jwts.builder()
-            .setClaims(claims)
-            .signWith(SignatureAlgorithm.HS512, jwtSecret)
-            .compact()).toString()
+        return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS256, jwtSecret).compact()
     }
 
-    fun getUserNameFromJwtToken(token: String?): String {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
-    }
+//    fun getUserNameFromJwtToken(token: String?): String {
+//        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
+//    }
 
     fun getEmailFromJwtToken(token: String?): String {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.getValue("email") as String
