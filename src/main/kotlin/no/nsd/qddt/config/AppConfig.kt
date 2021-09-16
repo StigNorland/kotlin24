@@ -20,7 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
 @EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL])
 @EnableJpaRepositories(
-    basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.config", "no.nsd.qddt.security", "no.nsd.qddt.service"],
+    basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.service", "no.nsd.qddt.config", "no.nsd.qddt.security"],
     repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
 class AppConfig {
     @Bean

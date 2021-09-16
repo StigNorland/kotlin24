@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.access.PermissionEvaluator
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.BeanIds.AUTHENTICATION_MANAGER
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -47,7 +50,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     lateinit var origin: String
 
     @Autowired
-    private lateinit var userDetailsService: AuthUserDetailsService
+    private lateinit var authUserDetailsService: AuthUserDetailsService
 
 
     @Bean(AUTHENTICATION_MANAGER)
@@ -56,6 +59,16 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         return super.authenticationManagerBean()
     }
 
+    @Bean
+    fun permissionEvaluatorBean() : PermissionEvaluator {
+        return PermissionEvaluatorImpl()
+    }
+
+    protected fun createExpressionHandler(): MethodSecurityExpressionHandler? {
+        val expressionHandler = DefaultMethodSecurityExpressionHandler()
+        expressionHandler.setPermissionEvaluator(PermissionEvaluatorImpl())
+        return expressionHandler
+    }
 
     @Bean
     fun authenticationTokenFilterBean(): AuthTokenFilter {
@@ -63,7 +76,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     }
 
     @Bean
-    fun passwordEncoderBean(): PasswordEncoder {
+    fun bCryptPasswordEncoderBean(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
 
@@ -127,8 +140,8 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure( auth: AuthenticationManagerBuilder){
         auth
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoderBean())
+            .userDetailsService(authUserDetailsService)
+            .passwordEncoder(bCryptPasswordEncoderBean())
     }
 
 }
