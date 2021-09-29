@@ -66,7 +66,7 @@ spring:
 security:
   jwt:
     token:
-      secret: some-random-secret
+      secret: somerandomsecret3254325323253245432535432532462465678654039205433
       expiration-time: 28800000  # 8 timer
       header: Authorization
 

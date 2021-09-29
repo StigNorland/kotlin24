@@ -37,12 +37,13 @@ class AuthTokenUtil: Serializable {
             .setExpiration(Date(Date().time + expira))
 
         claims["role"] = userDetails.authorities.joinToString { it.authority }
-        claims["modified"] = userDetails.modified.toLocalDateTime()
+        claims["modified"] = userDetails.modified.toLocalDateTime().toString()
         claims["id"] = userDetails.id.toString()
         claims["email"] = userDetails.email
-//        claims.put(claimsKey, Arrays.asList(SimpleGrantedAuthority(role.toString())))
 
-        return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS256, jwtSecret).compact()
+        return AuthResponse(Jwts.builder()
+            .setClaims(claims)
+            .signWith(SignatureAlgorithm.HS256, jwtSecret).compact()).toString()
     }
 
 //    fun getUserNameFromJwtToken(token: String?): String {

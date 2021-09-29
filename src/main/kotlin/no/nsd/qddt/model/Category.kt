@@ -183,7 +183,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
         if (i != 0) return i
         i = categoryKind.compareTo(other.categoryKind)
         if (i != 0) return i
-        i = name.compareTo(other.name.toString())
+        i = name.compareTo(other.name)
         if (i != 0) return i
         i = label.compareTo(other.label)
         if (i != 0) return i
