@@ -25,6 +25,8 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
 
     protected val logger: Logger = LoggerFactory.getLogger(PermissionEvaluatorImpl::class.java)
 
+
+
     override fun hasPermission(auth: Authentication, targetDomainObject: Any, permission: Any): Boolean {
         if (permission !is String || targetDomainObject !is AbstractEntity
         ) {
@@ -59,7 +61,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     }
 
     private fun isOwner(user: User, entity: AbstractEntity): Boolean {
-        return user.id == entity.modifiedBy!!.id
+        return user.id == entity.modifiedBy.id
     }
 
     // entity is a User entity

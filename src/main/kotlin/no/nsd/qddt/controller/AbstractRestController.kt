@@ -8,6 +8,7 @@ import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.*
+import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable

@@ -11,19 +11,20 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.PermissionEvaluator
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.BeanIds.AUTHENTICATION_MANAGER
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.config.web.server.ServerHttpSecurity.http
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -52,6 +53,8 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Autowired
     private lateinit var authUserDetailsService: AuthUserDetailsService
 
+//    @Autowired
+//    private  lateinit var permission: PermissionEvaluatorImpl
 
     @Bean(AUTHENTICATION_MANAGER)
     @Throws(Exception::class)
@@ -60,15 +63,17 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     }
 
     @Bean
-    fun permissionEvaluatorBean() : PermissionEvaluator {
+    fun permission() : PermissionEvaluator {
         return PermissionEvaluatorImpl()
     }
 
-    protected fun createExpressionHandler(): MethodSecurityExpressionHandler? {
-        val expressionHandler = DefaultMethodSecurityExpressionHandler()
-        expressionHandler.setPermissionEvaluator(PermissionEvaluatorImpl())
-        return expressionHandler
+    @Throws(java.lang.Exception::class)
+    override fun configure(web: WebSecurity) {
+        val handler = DefaultWebSecurityExpressionHandler()
+        handler.setPermissionEvaluator(permission())
+        web.expressionHandler(handler)
     }
+
 
     @Bean
     fun authenticationTokenFilterBean(): AuthTokenFilter {
@@ -97,6 +102,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         // Enable CORS and disable CSRF
+
         http.cors().and().csrf().disable()
 
         // Set session management to stateless
@@ -114,16 +120,15 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .and()
 
         // Set permissions on endpoints
-        http.authorizeRequests() // Our public endpoints
-            .antMatchers(HttpMethod.POST, "/**").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
+        http.authorizeRequests()
+            .antMatchers("/login/**").permitAll()
+            .antMatchers(HttpMethod.POST, "/**").access("hasRole('ADMIN')") // or @permission.hasPermission(domainObject,'OWNER')")
             .antMatchers(HttpMethod.DELETE, "/user/*").hasRole("ADMIN")
-            .antMatchers(HttpMethod.POST, "/user/*").access("hasAuthority('ROLE_ADMIN') or hasPermission('OWNER')")
+//            .antMatchers(HttpMethod.POST, "/user/*").access("hasRole('ADMIN') or @permission.hasPermission('OWNER')")
             .antMatchers(HttpMethod.GET, "/user/search/*").hasRole("ADMIN")
-            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
-//            .antMatchers(HttpMethod.GET, "/othermaterial/files/**").permitAll()
+            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasRole('ADMIN')") // or @permission.hasPermission(domainObject,'USER')")
             .antMatchers(HttpMethod.OPTIONS).permitAll()
             .antMatchers(HttpMethod.GET).permitAll()
-            .antMatchers("/login/**").permitAll()
             .antMatchers("/actuator/**").permitAll()
             .antMatchers("/explorer/**").permitAll()
             .antMatchers("/health/**").permitAll()
@@ -136,6 +141,8 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
 
     }
+
+
 
     @Throws(Exception::class)
     override fun configure( auth: AuthenticationManagerBuilder){
