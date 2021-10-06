@@ -29,15 +29,15 @@ interface PublicationRepository: BaseArchivedRepository<Publication> {
                 "WHERE ( ps.published = :publishedKind " +
                 "AND ( (:user is null OR p.agency_id = CAST(:principal.principal.agencyId AS uuid))  or 'EXTERNAL_PUBLICATION' = :publishedKind) " +
                 "AND (:publicationStatus is null or ps.label similar to :publicationStatus) " +
-                "OR (:name is null or p.name ILIKE  cast(:name AS text) ) " +
-                "OR (:purpose is null or p.purpose ILIKE cast(:purpose AS text)) ) ",
+                "OR (:name is null or p.name ILIKE  searchStr(:name) ) " +
+                "OR (:purpose is null or p.purpose ILIKE searchStr(:purpose) ) ",
         countQuery = "SELECT count(p.*) FROM publication p " +
                 "LEFT JOIN publication_status ps ON p.status_id = ps.id " +
                 "WHERE ( ps.published = :publishedKind " +
                 "AND ( (:user is null OR p.agency_id = CAST(:principal.principal.agencyId AS uuid))  or 'EXTERNAL_PUBLICATION' = :publishedKind) " +
                 "AND (:publicationStatus is null or ps.label similar to :publicationStatus) " +
-                "OR (:name is null or p.name ILIKE  cast(:name AS text) ) " +
-                "OR (:purpose is null or p.purpose ILIKE cast(:purpose AS text)) )"
+                "OR (:name is null or p.name ILIKE  searchStr(:name) ) " +
+                "OR (:purpose is null or p.purpose ILIKE searchStr(:purpose) ) ",
     )
     fun findByQuery(
         @Param("name") name: String?,

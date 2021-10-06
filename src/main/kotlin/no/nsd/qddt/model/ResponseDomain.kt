@@ -66,7 +66,7 @@ data class ResponseDomain(
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE], targetEntity = Category::class)
+  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE,CascadeType.MERGE], targetEntity = Category::class)
   @JoinColumn(name = "category_id")
   var managedRepresentation: Category = Category().apply { hierarchyLevel = HierarchyLevel.GROUP_ENTITY }
 

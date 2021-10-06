@@ -19,11 +19,17 @@ import java.util.*
 interface InstrumentRepository: BaseArchivedRepository<Instrument> {
 
     @Query(nativeQuery = true,
-        value = ("SELECT c.* FROM instrument c " +
-                "WHERE (  (c.name ILIKE :name or c.description ILIKE :description) ) "),
-        countQuery = ("SELECT count(c.*) FROM instrument c " +
-                "WHERE ( c.change_kind !='BASED_ON' and (c.name ILIKE :name or c.description ILIKE :description) ) "),
+        value = "SELECT c.* FROM instrument c " +
+                "WHERE ( c.change_kind !='BASED_ON' " +
+                "AND ( c.label ILIKE searchStr(:label) or c.name ILIKE searchStr(:name) or c.description ILIKE searchStr(:description)) ",
+        countQuery = "SELECT count(c.*) FROM instrument c " +
+                "WHERE ( c.change_kind !='BASED_ON' " +
+                "AND ( c.label ILIKE searchStr(:label) or c.name ILIKE searchStr(:name) or c.description ILIKE searchStr(:description)) ",
     )
-    fun findByQuery(@Param("name") name:String?, @Param("description") description:String?, pageable: Pageable?): Page<Instrument>?
+    fun findByQuery(
+        @Param("label") label:String?,
+        @Param("name") name:String?,
+        @Param("description") description:String?,
+        pageable: Pageable?): Page<Instrument>?
 
 }

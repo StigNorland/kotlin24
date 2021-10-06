@@ -26,14 +26,12 @@ interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T
 
 
         @Query(
-            name = "findByQuery", nativeQuery = true,
             value = "SELECT cc.* FROM CONTROL_CONSTRUCT cc " +
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
                     "WHERE cc.control_construct_kind = cast(:constructKind AS text) " +
                     "AND cc.xml_lang ILIKE :xmlLang " +
                     "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
-                    "OR (:name is null OR cc.name ILIKE cast(:name AS text)) " +
-                    "OR (:description is null OR cc.description ILIKE cast(:description AS text)) " +
+                    "AND ( cc.label ILIKE searchStr(:label) or cc.name ILIKE searchStr(:name) or cc.description ILIKE searchStr(:description)) " +
                     "OR (:questionName is null OR qi.name ILIKE cast(:questionName AS text)) " +
                     "OR (:questionText is null OR qi.question ILIKE cast(:questionText AS text)) " +
                     ") ",
@@ -42,15 +40,16 @@ interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T
                     "WHERE cc.control_construct_kind =  cast(:constructKind AS text) " +
                     " AND cc.xml_lang ILIKE :xmlLang " +
                     " AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
-                    " OR (:name is null OR cc.name ILIKE cast(:name AS text)) " +
-                    " OR (:description is null OR cc.description ILIKE cast(:description AS text)) " +
+                    " AND ( cc.label ILIKE searchStr(:label) or cc.name ILIKE searchStr(:name) or cc.description ILIKE searchStr(:description)) " +
                     " OR (:questionName is null OR qi.name ILIKE cast(:questionName AS text)) " +
                     " OR (:questionText is null OR qi.question ILIKE cast(:questionText AS text)) " +
-                    " ) "
+                    " ) ",
+            nativeQuery = true
         )
         fun <S : ControlConstruct?> findByQuery(
             @Param("constructKind") constructKind: String,
             @Param("superKind") superKind: String?,
+            @Param("label") label: String?,
             @Param("name") name: String?,
             @Param("description") desc: String?,
             @Param("questionName") questionName: String?,

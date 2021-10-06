@@ -29,22 +29,24 @@ interface ConceptRepository: BaseArchivedRepository<Concept> {
     
     @Query( nativeQuery = true,
         value = "SELECT c.* FROM concept_hierarchy c " +
-                " WHERE c.change_kind !='BASED_ON' " +
-                " AND class_kind='CONCEPT' " +
-                " AND ( " +
-                " (:name is null OR c.name ILIKE cast(:name AS text)) " +
-                " OR  (:description is null OR c.description ILIKE cast(:description AS text)) " +
-                " ) "
+                "WHERE c.change_kind !='BASED_ON' " +
+                "AND class_kind='CONCEPT' " +
+                "AND ( c.label ILIKE searchStr(:label) " +
+                "OR c.name  ILIKE searchStr(:name) " +
+                "OR c.description ILIKE searchStr(:description)))"
         ,
         countQuery = "SELECT count(c.*) FROM concept_hierarchy c " +
                 " WHERE c.change_kind !='BASED_ON' " +
                 " AND class_kind='CONCEPT' " +
-                " AND ( " +
-                " (:name is null OR c.name ILIKE cast(:name AS text)) " +
-                " OR  (:description is null OR c.description ILIKE cast(:description AS text)) " +
-                " ) "
+                "AND ( c.label ILIKE searchStr(:label) " +
+                "OR c.name  ILIKE searchStr(:name) " +
+                "OR c.description ILIKE searchStr(:description)))"
     )
-    fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<Concept>
+    fun findByQuery(
+        @Param("label") label:String,
+        @Param("name") name:String,
+        @Param("description") description:String,
+        pageable:Pageable):Page<Concept>
 
 
 //    /**

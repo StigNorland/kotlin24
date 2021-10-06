@@ -14,32 +14,31 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
  */
 @RepositoryRestResource(path = "category", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
 interface CategoryRepository : BaseMixedRepository<Category>  {
+
     @Query(
         value = "SELECT ca.* FROM category ca WHERE " +
                 "( ca.xml_lang ILIKE :xmlLang " +
-                "AND (:categoryType is null OR ca.category_kind = cast(:categoryType AS text)) " +
+                "AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) " +
                 "AND (:hierarchyLevel is null OR ca.hierarchy_level ILIKE cast(:hierarchyLevel AS text)) " +
-                "AND (:label is null OR ca.label ILIKE cast(:label AS text)) " +
-                "AND (:name is null OR ca.name ILIKE cast(:name AS text)) " +
-                "AND (:description is null OR ca.description ILIKE cast(:description AS text)) )"
-        ,
+                "AND ( ca.label ILIKE searchStr(:label) " +
+                "OR ca.name  ILIKE searchStr(:name) " +
+                "OR ca.description ILIKE searchStr(:description)))" ,
         countQuery = "SELECT count(ca.*) FROM category ca WHERE " +
                 "( ca.xml_lang ILIKE :xmlLang " +
-                "AND (:categoryType is null OR ca.category_kind = cast(:categoryType AS text)) " +
+                "AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) " +
                 "AND (:hierarchyLevel is null OR ca.hierarchy_level ILIKE cast(:hierarchyLevel AS text)) " +
-                "AND (:label is null OR ca.label ILIKE cast(:label AS text)) " +
-                "AND (:name is null OR ca.name ILIKE cast(:name AS text)) " +
-                "AND (:description is null OR ca.description ILIKE cast(:description AS text)) )"
-                ,
+                "AND ( ca.label ILIKE searchStr(:label) " +
+                "OR ca.name  ILIKE searchStr(:name) " +
+                "OR ca.description ILIKE searchStr(:description)))" ,
         nativeQuery = true
     )
     fun findByQuery(
-        @Param("categoryType") categoryType: String?,
-        @Param("hierarchyLevel") hierarchyLevel: String?,
-        @Param("name") name: String?,
-        @Param("label") label: String?,
-        @Param("description") description: String?,
         @Param("xmlLang") xmlLang: String?,
+        @Param("categoryKind") categoryKind: String?,
+        @Param("hierarchyLevel") hierarchyLevel: String?,
+        @Param("label") label: String?,
+        @Param("name") name: String?,
+        @Param("description") description: String?,
         pageable: Pageable?
     ): Page<Category?>?
 }

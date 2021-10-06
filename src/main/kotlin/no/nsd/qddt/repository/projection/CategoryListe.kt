@@ -7,6 +7,9 @@ import org.springframework.data.rest.core.config.Projection
 @Projection(name = "categoryListe", types = [Category::class])
 interface CategoryListe: IAbstractEntityViewList {
 
+    val label: String?
+
+    val description: String?
 
     @Value(value = "#{target.categoryKind?.toString() }")
     fun getCategoryKind(): String?
