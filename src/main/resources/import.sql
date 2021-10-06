@@ -371,11 +371,14 @@ UNION
     tgom.original_name AS name
    FROM audit.concept_hierarchy_other_material_aud tgom;
 
+CREATE FUNCTION searchStr(text default '%') RETURNS text AS $$
+SELECT REPLACE($1,'*','%')
+$$ LANGUAGE SQL;
 
 --Add primary agency
-INSERT INTO public.agency (id, modified, name) VALUES('1359ded1-9f18-11e5-8994-feff819cdc9f','2018-01-01', 'Admin-qddt');
-INSERT INTO public.agency (id, modified, name) VALUES('1359ded2-9f18-11e5-8994-feff819cdc9f','2018-01-01', 'int.esseric');
-INSERT INTO public.agency (id, modified, name) VALUES('1359ded3-9f18-11e5-8994-feff819cdc9f','2018-01-01', 'Guest');
+INSERT INTO public.agency (id, modified, name, xml_lang ) VALUES('1359ded1-9f18-11e5-8994-feff819cdc9f','2018-01-01', 'Admin-qddt','en-GB');
+INSERT INTO public.agency (id, modified, name, xml_lang) VALUES('1359ded2-9f18-11e5-8994-feff819cdc9f','2018-01-01', 'int.esseric','en-GB');
+INSERT INTO public.agency (id, modified, name, xml_lang) VALUES('1359ded3-9f18-11e5-8994-feff819cdc9f','2018-01-01', 'Guest','en-GB');
 
 --Add two demo accounts
 --admin:password & user:password (bcrypt(10) passwords)
