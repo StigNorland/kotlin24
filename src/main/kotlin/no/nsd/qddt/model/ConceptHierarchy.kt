@@ -46,6 +46,9 @@ abstract class ConceptHierarchy(
     @OneToMany(mappedBy = "parentId")
 //    var instruments: MutableSet<Instrument> = mutableSetOf()
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
+    get() {
+        return mutableListOf()
+    }
 
 
     override fun addChild(entity: ConceptHierarchy): ConceptHierarchy {

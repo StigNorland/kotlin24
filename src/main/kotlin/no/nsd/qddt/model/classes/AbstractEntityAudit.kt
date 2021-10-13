@@ -22,10 +22,9 @@ import java.util.stream.Collectors
 import javax.persistence.*
 import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
 
-
 /**
- * @author Dag Østgulen Heradstveit
  * @author Stig Norland
+ * @author Dag Østgulen Heradstveit
  */
 @Audited
 @MappedSuperclass
@@ -54,11 +53,6 @@ abstract class AbstractEntityAudit(
      * I am essential to creation, and I surround every place.
      * What am I?
      */
-
-//    @Column(updatable = false, insertable = false)
-//    override var rev: Int? = null
-
-
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agencyId")

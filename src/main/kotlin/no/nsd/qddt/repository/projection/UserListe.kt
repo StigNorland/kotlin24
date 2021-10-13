@@ -14,9 +14,5 @@ interface UserListe {
     @Value(value = "#{target.username }")
     fun getName(): String
     var email : String
-    var agencyId: UUID?
-    @Value(value = "#{target.getAuthority() }")
-    fun getAuthoriy():String
-
 }
 

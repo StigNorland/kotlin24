@@ -32,6 +32,7 @@ abstract class AbstractEntity(
     var modifiedById: UUID? = null,
 
     @Version
+    @JsonSerialize
     var modified: Timestamp?=null
 ) {
 

@@ -56,6 +56,29 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 //    @Autowired
 //    private  lateinit var permission: PermissionEvaluatorImpl
 
+    @Bean
+    fun authenticationTokenFilterBean(): AuthTokenFilter {
+        return AuthTokenFilter()
+    }
+
+    @Bean
+    fun bCryptPasswordEncoderBean(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+
+    @Bean
+    fun corsFilter(): CorsFilter {
+        val source = UrlBasedCorsConfigurationSource()
+        val config = CorsConfiguration()
+        logger.info(origin)
+        config.allowCredentials = true
+        config.allowedOriginPatterns =  listOf("https://*.nsd.no","http://localhost","http://localhost:4200" )
+        config.addAllowedHeader("*")
+        config.allowedMethods = listOf("*") // listOf("GET", "DELETE", "POST", "OPTIONS")
+        source.registerCorsConfiguration("/**", config)
+        return CorsFilter(source)
+    }
+
     @Bean(AUTHENTICATION_MANAGER)
     @Throws(Exception::class)
     override fun authenticationManagerBean(): AuthenticationManager {
@@ -75,29 +98,14 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     }
 
 
-    @Bean
-    fun authenticationTokenFilterBean(): AuthTokenFilter {
-        return AuthTokenFilter()
-    }
-
-    @Bean
-    fun bCryptPasswordEncoderBean(): PasswordEncoder {
-        return BCryptPasswordEncoder()
+    @Throws(Exception::class)
+    override fun configure( auth: AuthenticationManagerBuilder){
+        auth
+            .userDetailsService(authUserDetailsService)
+            .passwordEncoder(bCryptPasswordEncoderBean())
     }
 
 
-    @Bean
-    fun corsFilter(): CorsFilter {
-        val source = UrlBasedCorsConfigurationSource()
-        val config = CorsConfiguration()
-        logger.info(origin)
-        config.allowCredentials = true
-        config.allowedOriginPatterns =  listOf("https://*.nsd.no","http://localhost","http://localhost:4200" )
-        config.addAllowedHeader("*")
-        config.allowedMethods = listOf("*") // listOf("GET", "DELETE", "POST", "OPTIONS")
-        source.registerCorsConfiguration("/**", config)
-        return CorsFilter(source)
-    }
 
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
@@ -135,20 +143,9 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
             .antMatchers("/browser/**").permitAll()
             .anyRequest().authenticated()
 
-//            .antMatchers(HttpMethod.PATCH, "/user/resetpassword").access("hasAuthority('ROLE_ADMIN') or hasPermission('USER')")
-
         // Add JWT token filter
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter::class.java)
 
-    }
-
-
-
-    @Throws(Exception::class)
-    override fun configure( auth: AuthenticationManagerBuilder){
-        auth
-            .userDetailsService(authUserDetailsService)
-            .passwordEncoder(bCryptPasswordEncoderBean())
     }
 
 }
