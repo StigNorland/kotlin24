@@ -16,26 +16,26 @@ import org.springframework.web.bind.annotation.PathVariable
 //@RepositoryRestController
 @BasePathAwareController
 class SurveyProgramController(@Autowired repository: SurveyProgramRepository): AbstractRestController<SurveyProgram>(repository) {
-
+// https://docs.spring.io/spring-hateoas/docs/current/reference/html/#fundamentals.representation-models
 
     @GetMapping("/surveyprogram/{uri}", produces = ["application/hal+json"] )
     override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<SurveyProgram>> {
         return super.getById(uri)
     }
 
-    @GetMapping("/surveyprogram/{uri}/revisions", produces = ["application/hal+json"] )
+    @GetMapping("/revisions/{uri}", produces = ["application/hal+json"] )
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<SurveyProgram>>> {
         return super.getRevisions(uri, pageable)
     }
 
 
-    @GetMapping("/api/surveyprogram/{uri}/pdf", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("get pdf controller...")
         return super.getPdf(uri)
     }
 
-    @GetMapping("/surveyprogram/{uri}/xml", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return  super.getXml(uri)
     }

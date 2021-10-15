@@ -24,7 +24,9 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
     @ResponseBody
     open fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<T>> {
         logger.debug("getById : {}" , uri)
-        return ResponseEntity.ok(EntityModel.of(getByUri(uri)))
+        val model = EntityModel.of(getByUri(uri))
+//            .addIf()
+        return ResponseEntity.ok(model)
     }
 
     @ResponseBody

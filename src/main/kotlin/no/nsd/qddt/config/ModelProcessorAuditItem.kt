@@ -29,15 +29,15 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val entity = model.content!!
         val linkBuilder = entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder
 
+//        model.addIf(
+//            !model.hasLink("revisions")
+//        ) { linkBuilder.slash(entity.id).slash("revisions").withRel("revisions") }
         model.addIf(
-            !model.hasLink("agency")
-        ) { linkBuilder.slash(entity.id).slash("agency").withRel("agency") }
+            !model.hasLink("xml")
+        ) { linkBuilder.slash(entity.id).slash("xml").withRel("xml") }
         model.addIf(
-            !model.hasLink("modifiedBy")
-        ) { linkBuilder.slash(entity.id).slash("modifiedBy").withRel("modifiedBy") }
-        model.addIf(
-            !model.hasLink("revisions")
-        ) { linkBuilder.slash(entity.id).slash("revisions").withRel("revisions") }
+            !model.hasLink("pdf")
+        ) { linkBuilder.slash(entity.id).slash("pdf").withRel("pdf") }
 
         if (entity is IHaveChilden<*>) {
             logger.debug("entity is IHaveChilden {}", entity.name )
