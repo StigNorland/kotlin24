@@ -1,6 +1,6 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.repository.handler.AgentAuditTrailListener
 import org.hibernate.annotations.Where
 import java.sql.Timestamp
@@ -21,12 +21,12 @@ data class Agency( var name: String="?") : Comparable<Agency> {
 
     var xmlLang:String="en-GB"
 
-    @JsonIgnore
+    @JsonIgnoreProperties("agency")
     @Where(clause = "class_kind='SURVEY_PROGRAM'")
     @OneToMany(mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableSet<SurveyProgram> = mutableSetOf()
 
-    @JsonIgnore
+    @JsonIgnoreProperties("agency")
     @OneToMany(mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var users: MutableSet<User> = mutableSetOf()
 

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.5.4"
+	id("org.springframework.boot") version "2.5.5"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	kotlin("jvm") version "1.5.21"
 	kotlin("plugin.spring") version "1.5.21"
@@ -33,7 +33,7 @@ dependencies {
 	implementation("org.springframework.data:spring-data-rest-hal-explorer:3.5.4")
 	implementation("org.springframework.boot:spring-boot-starter-hateoas:2.5.4")
 	implementation("org.springframework.data:spring-data-envers:2.5.4")
-	implementation("org.hibernate:hibernate-envers:5.5.7.Final")
+	implementation("org.hibernate:hibernate-envers:5.4.32.Final")
 
 	implementation("org.apache.httpcomponents:httpclient:4.5.13")
 	implementation("org.apache.httpcomponents:httpclient-cache:4.5.13")

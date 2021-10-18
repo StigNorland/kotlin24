@@ -23,7 +23,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
     }
 
     @GetMapping("/study/{uri}/revisions", produces = ["application/hal+json"] )
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<Study>>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<Study>> {
         return super.getRevisions(uri, pageable)
     }
 

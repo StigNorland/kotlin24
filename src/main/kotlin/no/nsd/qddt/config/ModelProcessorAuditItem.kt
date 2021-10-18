@@ -28,10 +28,11 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val baseUri = BasicLinkBuilder.linkToCurrentMapping().toString()
         val entity = model.content!!
         val linkBuilder = entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder
-
-//        model.addIf(
-//            !model.hasLink("revisions")
-//        ) { linkBuilder.slash(entity.id).slash("revisions").withRel("revisions") }
+        model.addIf(
+            !model.hasLink("revisions")
+        ) {
+            linkBuilder.slash("revisions").slash(entity.id).withRel("revisions")
+        }
         model.addIf(
             !model.hasLink("xml")
         ) { linkBuilder.slash(entity.id).slash("xml").withRel("xml") }

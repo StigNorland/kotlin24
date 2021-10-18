@@ -21,7 +21,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     }
 
     @GetMapping("/questionitem/{uri}/revisions", produces = ["application/hal+json"] )
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<QuestionItem>>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<QuestionItem>> {
         return super.getRevisions(uri, pageable)
     }
 

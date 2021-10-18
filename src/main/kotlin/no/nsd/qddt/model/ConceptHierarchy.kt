@@ -1,9 +1,6 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonManagedReference
+import com.fasterxml.jackson.annotation.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.interfaces.*
@@ -34,13 +31,14 @@ abstract class ConceptHierarchy(
     @Column(insertable = false, updatable = false)
     override var parentIdx: Int? = null
 
-    @JsonBackReference
+    @JsonIgnoreProperties("children")
     @ManyToOne
     @JoinColumn(name="parentId", insertable = false, updatable = false )
     override var parent: ConceptHierarchy? = null
 
 //    @JsonIgnore
 //    @JsonIdentityReference
+    @JsonIgnoreProperties("parent")
     @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
     @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parentId")

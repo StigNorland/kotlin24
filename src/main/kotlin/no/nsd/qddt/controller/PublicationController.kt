@@ -63,7 +63,7 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
     }
 
     @GetMapping("/publication/{uri}/revisions", produces = ["application/hal+json"] )
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<Publication>>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<Publication>> {
         return super.getRevisions(uri, pageable)
     }
 

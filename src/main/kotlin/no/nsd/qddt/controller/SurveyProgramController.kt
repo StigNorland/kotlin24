@@ -23,12 +23,6 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         return super.getById(uri)
     }
 
-    @GetMapping("/revisions/{uri}", produces = ["application/hal+json"] )
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<SurveyProgram>>> {
-        return super.getRevisions(uri, pageable)
-    }
-
-
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("get pdf controller...")
@@ -38,5 +32,10 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return  super.getXml(uri)
+    }
+
+    @GetMapping("/surveyprogram/revisions/{uri}", produces = ["application/hal+json"] )
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
+        return super.getRevisions(uri, pageable)
     }
 }

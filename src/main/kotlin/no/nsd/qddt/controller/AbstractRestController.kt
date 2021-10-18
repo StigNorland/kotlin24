@@ -30,7 +30,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
     }
 
     @ResponseBody
-    open fun getRevisions(@PathVariable uri: String, pageable: Pageable): ResponseEntity<Page<EntityModel<T>>> {
+    open fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<T>> {
 
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
              PageRequest.of(pageable.pageNumber, pageable.pageSize,Sort.Direction.DESC,"modified")
@@ -44,7 +44,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         logger.debug("getRevisions 2: {}" , result.totalElements)
         val entities = result.content.map {
             it.entity.rev = it.revisionNumber.get()
-            Hibernate.initialize(it.entity.agency)
+//            Hibernate.initialize(it.entity.agency)
             if (it.entity.modifiedBy == null) {
                 logger.debug("NULL HULL")
             }
@@ -52,13 +52,13 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         }
         logger.debug("getRevisions 3: {}" , entities.size)
         val page: Page<EntityModel<T>> = PageImpl(entities, result.pageable, result.totalElements )
-//        result.|let { page ->
-//            page.map {
-//                it.entity.rev = it.revisionNumber.get()
-//                EntityModel.of(it.entity)
-//            }
-//        }
-        return ResponseEntity.ok(page)
+        result.let { page ->
+            page.map {
+                it.entity.rev = it.revisionNumber.get()
+                EntityModel.of(it.entity)
+            }
+        }
+        return page
     }
 
 
