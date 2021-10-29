@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import java.util.*
 
 
 //@RepositoryRestController
@@ -18,23 +19,23 @@ import org.springframework.web.bind.annotation.PathVariable
 class SurveyProgramController(@Autowired repository: SurveyProgramRepository): AbstractRestController<SurveyProgram>(repository) {
 // https://docs.spring.io/spring-hateoas/docs/current/reference/html/#fundamentals.representation-models
 
-    @GetMapping("/surveyprogram/{uri}", produces = ["application/hal+json"] )
-    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<SurveyProgram>> {
-        return super.getById(uri)
-    }
+//    @GetMapping("/surveyprogram/{uri}/{rev}", produces = ["application/hal+json"] )
+//    fun getById(@PathVariable uri: UUID,@PathVariable rev: Long ): ResponseEntity<EntityModel<SurveyProgram>> {
+//        return super.getById("$uri:$rev")
+//    }
 
-    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    @GetMapping("/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    fun getPdf(@PathVariable uri: UUID,@PathVariable rev: Long): ByteArray {
         logger.debug("get pdf controller...")
-        return super.getPdf(uri)
+        return super.getPdf("$uri:$rev")
     }
 
-    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
-        return  super.getXml(uri)
+    @GetMapping("/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_XML_VALUE])
+    fun getXml(@PathVariable uri: UUID,@PathVariable rev: Long): ResponseEntity<String> {
+        return  super.getXml("$uri:$rev")
     }
 
-    @GetMapping("/surveyprogram/revisions/{uri}", produces = ["application/hal+json"] )
+    @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"] )
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
         return super.getRevisions(uri, pageable)
     }

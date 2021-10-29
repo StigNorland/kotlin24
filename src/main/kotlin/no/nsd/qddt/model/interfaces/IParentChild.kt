@@ -22,7 +22,7 @@ interface IHaveChilden<T:IBasedOn>  {
 //    @OneToMany(mappedBy = "parentId" ,  cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
     var children: MutableList<T>
 
-    abstract fun addChild(entity:T ): T
+    fun addChild(entity:T ): T
 
 //    children.add(entity)
 //    entity.parent = this

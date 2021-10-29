@@ -29,9 +29,9 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val entity = model.content!!
         val linkBuilder = entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder
         model.addIf(
-            !model.hasLink("revisions")
+            !model.hasLink("revisions2")
         ) {
-            linkBuilder.slash("revisions").slash(entity.id).withRel("revisions")
+            linkBuilder.slash("revisions").slash(entity.id).withRel("revisions2")
         }
         model.addIf(
             !model.hasLink("xml")
@@ -43,10 +43,11 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         if (entity is IHaveChilden<*>) {
             logger.debug("entity is IHaveChilden {}", entity.name )
             model.addIf(
-                !model.hasLink("children")
+                !model.hasLink("children2")
             ) {
-                (entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder).slash(entity.id).slash("children")
-                    .withRel("children")
+                (entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder)
+                    .slash(entity.id).slash("children")
+                    .withRel("children2")
             }
         }
 

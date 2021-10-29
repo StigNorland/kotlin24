@@ -23,26 +23,26 @@ repositories {
 
 dependencies {
 
-	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("org.springframework.boot:spring-boot-starter-security:2.5.5")
+	implementation("org.springframework.boot:spring-boot-starter-actuator:2.5.5")
 
-	implementation("org.springframework.boot:spring-boot-starter-data-rest")
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
+	implementation("org.springframework.boot:spring-boot-starter-data-rest:2.5.5")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.5") {
 		exclude("org.apache.tomcat:tomcat-jdbc")
 	}
 	implementation("org.springframework.data:spring-data-rest-hal-explorer:3.5.4")
-	implementation("org.springframework.boot:spring-boot-starter-hateoas:2.5.4")
+	implementation("org.springframework.boot:spring-boot-starter-hateoas:2.5.5")
 	implementation("org.springframework.data:spring-data-envers:2.5.4")
 	implementation("org.hibernate:hibernate-envers:5.4.32.Final")
 
 	implementation("org.apache.httpcomponents:httpclient:4.5.13")
 	implementation("org.apache.httpcomponents:httpclient-cache:4.5.13")
 
-	implementation("com.fasterxml.jackson.core:jackson-core:2.12.5")
-	implementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+	implementation("com.fasterxml.jackson.core:jackson-core:2.13.0")
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.13.0")
 
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
-	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 

@@ -32,7 +32,7 @@ abstract class AbstractEntity(
     var modifiedById: UUID? = null,
 
     @Version
-    @JsonSerialize
+    @Column(insertable = false, updatable = false)
     var modified: Timestamp?=null
 ) {
 

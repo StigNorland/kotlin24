@@ -17,6 +17,7 @@ import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
 import java.io.Serializable
+import java.sql.Timestamp
 import java.util.*
 import java.util.stream.Collectors
 import javax.persistence.*
@@ -44,6 +45,7 @@ abstract class AbstractEntityAudit(
     @Embedded
     override var version: EmbeddedVersion = EmbeddedVersion(),
 
+    override var modified: Timestamp? = null,
     var xmlLang: String = "en-GB"
 
 ) : AbstractEntity(), IWebMenuPreview, IBasedOn,  Serializable {
@@ -54,12 +56,13 @@ abstract class AbstractEntityAudit(
      * What am I?
      */
 
+
+
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agencyId")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     override lateinit var agency : Agency
-
-    // override lateinit var agency : Agency
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

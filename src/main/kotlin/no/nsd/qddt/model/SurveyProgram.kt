@@ -36,7 +36,7 @@ import javax.persistence.Entity
 @Entity
 @DiscriminatorValue("SURVEY_PROGRAM")
 //@AttributeOverride(name ="parentId", column = Column(name = "PARENT_ID"))
-data class SurveyProgram(override var name: String = "") : ConceptHierarchy(), IAuthorSet {
+data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null

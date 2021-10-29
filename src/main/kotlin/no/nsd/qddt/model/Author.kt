@@ -6,10 +6,7 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
-import javax.persistence.Transient
+import javax.persistence.*
 
 /**
  * @author Stig Norland
@@ -37,6 +34,9 @@ data class Author(var email: String? = "") : AbstractEntity() {
     @JsonSerialize
     @JsonDeserialize
     val xmlLang = "none"
+
+    @ManyToMany
+    var conceptReferences: MutableSet<ConceptHierarchy> = mutableSetOf()
 
     override fun xmlBuilder(): AbstractXmlBuilder? { return null }
 

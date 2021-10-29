@@ -31,22 +31,16 @@ abstract class ConceptHierarchy(
     @Column(insertable = false, updatable = false)
     override var parentIdx: Int? = null
 
-    @JsonIgnoreProperties("children")
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="parentId", insertable = false, updatable = false )
     override var parent: ConceptHierarchy? = null
 
-//    @JsonIgnore
-//    @JsonIdentityReference
     @JsonIgnoreProperties("parent")
-    @OrderColumn(name = "parentIdx",  updatable = false, insertable = false)
+    @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parentId")
-//    var instruments: MutableSet<Instrument> = mutableSetOf()
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
-    get() {
-        return mutableListOf()
-    }
 
 
     override fun addChild(entity: ConceptHierarchy): ConceptHierarchy {
@@ -57,10 +51,10 @@ abstract class ConceptHierarchy(
         return entity
     }
 
-    @ManyToMany
-    @JoinTable(
-        joinColumns = [JoinColumn(name = "parentId")],
-        inverseJoinColumns = [JoinColumn(name = "authorId")])
+    @ManyToMany(mappedBy = "conceptReferences")
+//    @JoinTable(name = "concept_hierarchy_authors",
+//        joinColumns = [JoinColumn(name = "parentId")],
+//        inverseJoinColumns = [JoinColumn(name = "authorId")])
     var authors: MutableSet<Author> = mutableSetOf()
 
 
