@@ -8,9 +8,6 @@ plugins {
 	kotlin("plugin.jpa") version "1.5.21"
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.useIR = true
-
 
 group = "no.nsd"
 version = "0.9.1-SNAPSHOT"
@@ -30,10 +27,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.5") {
 		exclude("org.apache.tomcat:tomcat-jdbc")
 	}
-	implementation("org.springframework.data:spring-data-rest-hal-explorer:3.5.4")
+	implementation("org.springframework.data:spring-data-rest-hal-explorer:3.5.5")
 	implementation("org.springframework.boot:spring-boot-starter-hateoas:2.5.5")
-	implementation("org.springframework.data:spring-data-envers:2.5.4")
-	implementation("org.hibernate:hibernate-envers:5.4.32.Final")
+	implementation("org.springframework.data:spring-data-envers:2.5.5")
+//	implementation("org.hibernate:hibernate-envers:5.3.11.Final")
 
 	implementation("org.apache.httpcomponents:httpclient:4.5.13")
 	implementation("org.apache.httpcomponents:httpclient-cache:4.5.13")
@@ -68,14 +65,14 @@ dependencies {
 
 	// kapt("org.springframework.boot:spring-boot-configuration-processor")
 
-	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+	testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.5") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 		exclude(module = "mockito-core")
 	}
-	testImplementation("org.junit.jupiter:junit-jupiter-api")
-	testImplementation("com.ninja-squad:springmockk:1.1.3")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+	testImplementation("com.ninja-squad:springmockk:3.0.1")
 
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 
 }
 	

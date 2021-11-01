@@ -12,7 +12,7 @@ import java.util.stream.Collectors
 /**
 * @author Stig Norland
 */
-class FragmentBuilderManageRep(entity: Category, degreeSlopeFromHorizontal:String):XmlDDIFragmentBuilder<Category>(entity) {
+class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHorizontal: String):XmlDDIFragmentBuilder<Category>(entity) {
   protected val LOG = LoggerFactory.getLogger(this.javaClass)
 
   private val xmlScaleMan = (
@@ -76,8 +76,6 @@ class FragmentBuilderManageRep(entity: Category, degreeSlopeFromHorizontal:Strin
 
   private val children:List<AbstractXmlBuilder>
 
-  private val degreeSlopeFromHorizontal:String = degreeSlopeFromHorizontal
-
   override val xmlFragment:String
   get() {
     return if (entity.categoryKind === CategoryType.LIST)
@@ -117,7 +115,7 @@ class FragmentBuilderManageRep(entity: Category, degreeSlopeFromHorizontal:Strin
 
   private val missingCodeURN:String
   get() {
-    return String.format(xmlURN, entity.agency?.name, entity.name, entity.version!!.toDDIXml())
+    return String.format(xmlURN, entity.agency?.name ?: "?", entity.name, entity.version.toDDIXml())
   }
 
   init{

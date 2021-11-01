@@ -1,4 +1,4 @@
-package no.nsd.qddt.model;
+package no.nsd.qddt.model
 
 import no.nsd.qddt.model.builder.UniverseFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
@@ -6,6 +6,7 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
 import org.hibernate.envers.Audited
+import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Table
@@ -29,8 +30,8 @@ class Universe(override var name: String = ""):AbstractEntityAudit() {
       set(value) {
         field = value
         if (IsNullOrTrimEmpty(name)) {
-          val max25 = minOf(description.length,25)
-          name = description.substring(0,max25).toUpperCase().replace(' ','_')
+            val max25 = minOf(description.length, 25)
+            name = description.substring(0, max25).uppercase(Locale.getDefault()).replace(' ', '_')
         }
       }
 

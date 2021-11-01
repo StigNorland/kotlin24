@@ -1,5 +1,8 @@
 package no.nsd.qddt.utils
 
+import no.nsd.qddt.config.SecurityConfig
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -11,6 +14,14 @@ import java.util.stream.Collectors
  * @author Stig Norland
  */
 object FilterTool {
+
+    val logger: Logger = LoggerFactory.getLogger(FilterTool::class.java)
+
+    val wildify : String = { value:String? ->  {
+        logger.info("fsddsfas");
+        logger.info(value);
+        value?:"*".replace("*","%")
+    } }.toString()
 
     fun defaultSort(pageable: Pageable, vararg args: String): PageRequest {
         return PageRequest.of(

@@ -32,7 +32,7 @@ class OtherMaterial():Cloneable, Serializable {
 
   set(value) {
   field = value
-  this.fileName = value.toUpperCase().replace(' ', '_').replace('.', '_') + "00"
+  this.fileName = value.uppercase(Locale.getDefault()).replace(' ', '_').replace('.', '_') + "00"
   }
 
   var size:Long = 0
@@ -61,7 +61,7 @@ class OtherMaterial():Cloneable, Serializable {
       "",
       "<r:URN type=\"URN\" typeOfIdentifier=\"Canonical\">urn:ddi:" + getUrnId(entity) + "</r:URN>",
       ElementKind.getEnum(entity.classKind).className,
-      entity.id.toString() + ":" + entity.version!!.toDDIXml(),
+      entity.id.toString() + ":" + entity.version.toDDIXml(),
       description,
       entity.id.toString() + '/'.toString() + this.fileName,
       fileType
@@ -69,7 +69,7 @@ class OtherMaterial():Cloneable, Serializable {
   }
 
   fun getUrnId(entity:AbstractEntityAudit):String {
-    return String.format("%1\$s:%2\$s:%3\$s", entity.agency?.name, entity.id, this.fileName)
+    return String.format("%1\$s:%2\$s:%3\$s", entity.agency?.name ?: "?", entity.id, this.fileName)
   }
   
   companion object {

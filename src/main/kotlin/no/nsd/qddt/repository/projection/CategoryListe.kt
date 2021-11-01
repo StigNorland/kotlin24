@@ -18,7 +18,6 @@ interface CategoryListe: IAbstractEntityViewList {
     fun  getHierarchyLevel(): String?
 
     @Value(value = "#{target.children }")
-    fun  getChildren() : MutableList<Category>
-
+    fun  getChildren() : MutableList<CategoryListe>
 
 }

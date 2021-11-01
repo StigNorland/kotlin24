@@ -30,7 +30,7 @@ interface SurveyProgramRepository: BaseArchivedRepository<SurveyProgram> {
         countQuery ="SELECT count(c.*) FROM concept_hierarchy c " +
                     "WHERE ( c.change_kind !='BASED_ON' and class_kind='SURVEY_PROGRAM' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
     )
-    fun findByQuery(@Param("name") name:String, @Param("description") description:String, pageable:Pageable):Page<SurveyProgram>
+    fun findByQuery(@Param("name") name:String?, @Param("description") description:String?, pageable:Pageable):Page<SurveyProgram>
 
     // @RestResource(rel = "all", path = "list")
     fun findByAgency_Id( id: UUID, pageable:Pageable?): Page<SurveyProgram>

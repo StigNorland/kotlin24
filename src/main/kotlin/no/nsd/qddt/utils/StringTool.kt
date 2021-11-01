@@ -1,12 +1,14 @@
 package no.nsd.qddt.utils
 
+import java.util.*
+
 /**
  * @author Stig Norland
  */
 object StringTool {
     fun CapString(input: String?): String {
         return if (input != null && input.length > 1) input.substring(0, 1)
-            .toUpperCase() + input.substring(1) else input!!
+            .uppercase(Locale.getDefault()) + input.substring(1) else input!!
     }
 
     fun IsNullOrEmpty(input: String?): Boolean {

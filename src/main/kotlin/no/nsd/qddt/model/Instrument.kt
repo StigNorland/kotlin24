@@ -38,8 +38,8 @@ class Instrument(
     var label: String = ""
         protected set(value) {
             field = value
-            if (name.isNullOrBlank()) {
-                name = value.toUpperCase()
+            if (name.isBlank()) {
+                name = value.uppercase(Locale.getDefault())
             }
         }
 

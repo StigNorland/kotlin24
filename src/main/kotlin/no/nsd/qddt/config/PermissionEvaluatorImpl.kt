@@ -11,6 +11,7 @@ import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetails
 import java.io.Serializable
+import java.util.*
 
 
 /**
@@ -37,7 +38,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
         return hasPrivilege(
             auth.details as UserDetails,
             targetDomainObject,
-            permission.toUpperCase()
+            permission.uppercase(Locale.getDefault())
         )
     }
 
@@ -61,7 +62,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     }
 
     private fun isOwner(user: User, entity: AbstractEntity): Boolean {
-        return user.id == entity.modifiedBy.id
+        return (user.id == entity.modifiedBy?.id)
     }
 
     // entity is a User entity
@@ -70,8 +71,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     }
 
     private fun isMemberOfAgency(agency: Agency, entity: IDomainObject): Boolean {
-        if (agency.id == entity.agencyId) return true
-        logger.info(agency.id.toString() + " != " + entity.agencyId)
-        return false
+        logger.info(agency.id.toString() + " != " + (entity.agency?.id ?: "?"))
+        return (agency.id == entity.agency?.id)
     }
 }

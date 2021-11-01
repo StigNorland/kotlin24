@@ -27,7 +27,6 @@ data class User(
 
     @Id  @GeneratedValue lateinit var id: UUID
 
-    @JsonIgnore
     @Version
     lateinit var modified: Timestamp
 
@@ -52,7 +51,6 @@ data class User(
         return true
     }
 
-    @JsonIgnore
     private var isEnabled: Boolean = false
     override fun isEnabled(): Boolean {
         return isEnabled
@@ -81,9 +79,9 @@ data class User(
     lateinit var agency : Agency
 
 
-//    override fun toString(): String {
-//        return "User(email='$email', id=$id, modified=$modified, agencyId=${agencyId?:"?"}, authority=${getAuthority()}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
-//    }
+    override fun toString(): String {
+        return "User(email='$email', id=$id, modified=$modified, authority=${getAuthority()}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
+    }
 
     fun getAuthority(): String {
         return authorities.joinToString { it.authority }

@@ -24,13 +24,13 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
 //        return super.getById("$uri:$rev")
 //    }
 
-    @GetMapping("/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/pdf/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getPdf(@PathVariable uri: UUID,@PathVariable rev: Long): ByteArray {
         logger.debug("get pdf controller...")
         return super.getPdf("$uri:$rev")
     }
 
-    @GetMapping("/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/xml/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_XML_VALUE])
     fun getXml(@PathVariable uri: UUID,@PathVariable rev: Long): ResponseEntity<String> {
         return  super.getXml("$uri:$rev")
     }

@@ -17,5 +17,6 @@ interface CommentListe {
 
     @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency.name  }")
     fun getModifiedBy(): String?
-
+    @Value(value = "#{target.modifiedBy.email }")
+    fun getModifiedEmail(): String?
 }

@@ -35,8 +35,8 @@ data class Author(var email: String? = "") : AbstractEntity() {
     @JsonDeserialize
     val xmlLang = "none"
 
-    @ManyToMany
-    var conceptReferences: MutableSet<ConceptHierarchy> = mutableSetOf()
+//    @ManyToMany
+//    var conceptReferences: MutableSet<ConceptHierarchy> = mutableSetOf()
 
     override fun xmlBuilder(): AbstractXmlBuilder? { return null }
 

@@ -7,6 +7,7 @@ import no.nsd.qddt.model.interfaces.*
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import org.hibernate.envers.RelationTargetAuditMode
 import java.lang.Exception
 import java.util.*
 import javax.persistence.*
@@ -18,8 +19,6 @@ import javax.persistence.*
 @Table(name = "CONCEPT_HIERARCHY")
 abstract class ConceptHierarchy(
 
-    var label: String="",
-
     @Column(length = 20000)
     var description: String="",
 
@@ -27,6 +26,10 @@ abstract class ConceptHierarchy(
     override var parentId: UUID? = null
 
 ) : AbstractEntityAudit(), IArchived, IHaveChilden<ConceptHierarchy>, IHaveParent<ConceptHierarchy> {
+
+    var label: String? = null
+        get() { return field?:name }
+
 
     @Column(insertable = false, updatable = false)
     override var parentIdx: Int? = null
@@ -51,10 +54,11 @@ abstract class ConceptHierarchy(
         return entity
     }
 
-    @ManyToMany(mappedBy = "conceptReferences")
-//    @JoinTable(name = "concept_hierarchy_authors",
-//        joinColumns = [JoinColumn(name = "parentId")],
-//        inverseJoinColumns = [JoinColumn(name = "authorId")])
+    @ManyToMany
+    @JoinTable(name = "concept_hierarchy_authors",
+        joinColumns = [JoinColumn(name = "parentId")],
+        inverseJoinColumns = [JoinColumn(name = "authorId")])
+    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     var authors: MutableSet<Author> = mutableSetOf()
 
 

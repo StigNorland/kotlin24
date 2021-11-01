@@ -11,6 +11,7 @@ import org.springframework.data.domain.*
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 
@@ -28,7 +29,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
 //            .addIf()
         return ResponseEntity.ok(model)
     }
-
+//    @Transactional
     @ResponseBody
     open fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<T>> {
 
@@ -44,10 +45,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         logger.debug("getRevisions 2: {}" , result.totalElements)
         val entities = result.content.map {
             it.entity.rev = it.revisionNumber.get()
-//            Hibernate.initialize(it.entity.agency)
-            if (it.entity.modifiedBy == null) {
-                logger.debug("NULL HULL")
-            }
             EntityModel.of(it.entity)
         }
         logger.debug("getRevisions 3: {}" , entities.size)

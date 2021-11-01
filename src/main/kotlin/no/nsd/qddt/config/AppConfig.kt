@@ -1,5 +1,6 @@
 package no.nsd.qddt.config
 
+import no.nsd.qddt.utils.FilterTool.wildify
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -25,8 +26,11 @@ import org.springframework.web.filter.OncePerRequestFilter
 class AppConfig {
     @Bean
     fun customAuditProvider(): AuditAwareImpl {
+//        val test = wildify
         return AuditAwareImpl()
     }
+
+
 
     @Bean
     fun forwardedHeaderFilter(): FilterRegistrationBean<ForwardedHeaderFilter> {

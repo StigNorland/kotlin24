@@ -67,7 +67,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     override var name: String = ""
         get() {
             if (field.isBlank())
-                field = label.toUpperCase()
+                field = label.uppercase(Locale.getDefault())
             return field
         }
     /*
@@ -81,7 +81,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
             field =  StringTool.CapString(value)
         }
         get() {
-            if (field.isNullOrEmpty())
+            if (field.isEmpty())
                 field = categoryKind.description
             return field
         }
@@ -177,7 +177,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     }
 
     override fun compareTo(other: Category): Int {
-        var i = this.agency.compareTo(other.agency) ?:0
+        var i = other.agency?.let { this.agency?.compareTo(it) ?: 0 } ?:0
         if (i != 0) return i
         i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i

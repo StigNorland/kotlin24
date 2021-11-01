@@ -23,11 +23,11 @@ data class Agency( var name: String="?") : Comparable<Agency> {
 
     @JsonIgnoreProperties("agency")
     @Where(clause = "class_kind='SURVEY_PROGRAM'")
-    @OneToMany(mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    @OneToMany(mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var surveyPrograms: MutableSet<SurveyProgram> = mutableSetOf()
 
     @JsonIgnoreProperties("agency")
-    @OneToMany(mappedBy = "agencyId", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
+    @OneToMany(mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
     var users: MutableSet<User> = mutableSetOf()
 
     override fun compareTo(other: Agency): Int {

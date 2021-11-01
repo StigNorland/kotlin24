@@ -1,6 +1,8 @@
 package no.nsd.qddt.model.classes
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.io.source.ByteArrayOutputStream
@@ -36,6 +38,11 @@ abstract class AbstractEntityAudit(
     @Column(insertable = false, updatable = false)
     override var agencyId: UUID? = null,
 
+    @Column(insertable = false, updatable = false)
+    @JsonFormat
+        (shape = JsonFormat.Shape.NUMBER_INT)
+    override var modified: Timestamp? = null,
+
     @Column(name="based_on_object",updatable = false)
     override var basedOnObject: UUID? = null,
 
@@ -45,7 +52,6 @@ abstract class AbstractEntityAudit(
     @Embedded
     override var version: EmbeddedVersion = EmbeddedVersion(),
 
-    override var modified: Timestamp? = null,
     var xmlLang: String = "en-GB"
 
 ) : AbstractEntity(), IWebMenuPreview, IBasedOn,  Serializable {
@@ -56,13 +62,10 @@ abstract class AbstractEntityAudit(
      * What am I?
      */
 
-
-
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agencyId")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    override lateinit var agency : Agency
+    override var agency : Agency? = null
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

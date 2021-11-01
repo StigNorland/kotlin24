@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.classes
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -40,7 +41,7 @@ abstract class AbstractEntity(
     @ManyToOne
     @JoinColumn(name = "modifiedById")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    lateinit var modifiedBy: User
+    var modifiedBy: User? = null
 
     abstract fun xmlBuilder(): AbstractXmlBuilder?
 

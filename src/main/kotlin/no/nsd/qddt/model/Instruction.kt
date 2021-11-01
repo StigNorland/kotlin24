@@ -7,6 +7,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import org.hibernate.envers.Audited
+import java.util.*
 import javax.persistence.*
 
 /**
@@ -22,7 +23,7 @@ import javax.persistence.*
         name = "UNQ_INSTRUCTION_NAME"
     )]
 )
-data class Instruction(override var name: String = "") : AbstractEntityAudit() {
+class Instruction(override var name: String = "") : AbstractEntityAudit() {
 
     @Column(length = 2000, nullable = false)
     var description: String? = null
@@ -30,7 +31,7 @@ data class Instruction(override var name: String = "") : AbstractEntityAudit() {
         field = value
         if (name.isBlank() && value.isNullOrBlank()) {
             val max25 = if (value!!.length > 25) 25 else value.length
-            name = value.toUpperCase().replace(' ', '_').substring(0, max25)
+            name = value.uppercase(Locale.getDefault()).replace(' ', '_').substring(0, max25)
         }
     }
 
