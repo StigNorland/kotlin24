@@ -34,7 +34,7 @@ class AgentAuditTrailListener{
     @PostLoad
     private fun afterLoad(entity: Agency) {
         log.debug("UNTOUCHED - {} : {} : {}", "Agency" , entity.id, entity.name)
-        val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
+//        val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
     }
 
     companion object {

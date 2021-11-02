@@ -21,8 +21,8 @@ interface SurveyProgramListe {
 
     var version: Version
 
-    @Value(value = "#{target.children }")
-    fun getChildren(): Set<StudyListe>
+//    @Value(value = "#{target.children }")
+//    fun getChildren(): Set<StudyListe>
     var isArchived: Boolean
 }
 

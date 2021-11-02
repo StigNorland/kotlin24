@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository.handler
 
-import no.nsd.qddt.model.User
-import no.nsd.qddt.model.interfaces.RepLoaderService
+import no.nsd.qddt.model.Author
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,24 +10,24 @@ import javax.persistence.PostPersist
 import javax.persistence.PostRemove
 import javax.persistence.PostUpdate
 
-class UserAuditTrailListener {
+class AuthorAuditTrailListener {
     @Autowired
     private val applicationContext: ApplicationContext? = null
 
     @PostPersist
     @PostUpdate
     @PostRemove
-    private fun afterAnyUpdate(entity: User) {
+    private fun afterAnyUpdate(entity: Author) {
         log.debug("Add/update/delete complete for entity: {}" , entity.id)
     }
 
     @PostLoad
-    private fun afterLoad(entity: User) {
-        log.debug("UNTOUCHED - {} : {} : {}", "User" , entity.username, entity.agency.name)
+    private fun afterLoad(entity: Author) {
+        log.debug("UNTOUCHED - {} : {} : {}", "Agency" , entity.id, entity.name)
 //        val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(UserAuditTrailListener::class.java)
+        private val log: Logger = LoggerFactory.getLogger(AuthorAuditTrailListener::class.java)
     }
 }

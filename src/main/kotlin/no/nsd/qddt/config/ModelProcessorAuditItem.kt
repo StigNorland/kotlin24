@@ -31,7 +31,9 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         model.addIf(
             !model.hasLink("revisions2")
         ) {
-            linkBuilder.slash("revisions").slash(entity.id).withRel("revisions2")
+            logger.debug(linkBuilder.toUri().fragment)
+            Link.of("$baseUri/revisions/questionitem/$entity.id", "revisions2")
+//            linkBuilder.slash("revisions").slash(entity.id).withRel("revisions2")
         }
         model.addIf(
             !model.hasLink("xml")
@@ -40,16 +42,16 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
             !model.hasLink("pdf")
         ) { linkBuilder.slash(entity.id).slash("pdf").withRel("pdf") }
 
-        if (entity is IHaveChilden<*>) {
-            logger.debug("entity is IHaveChilden {}", entity.name )
-            model.addIf(
-                !model.hasLink("children2")
-            ) {
-                (entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder)
-                    .slash(entity.id).slash("children")
-                    .withRel("children2")
-            }
-        }
+//        if (entity is IHaveChilden<*>) {
+//            logger.debug("entity is IHaveChilden {}", entity.name )
+//            model.addIf(
+//                !model.hasLink("children2")
+//            ) {
+//                (entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder)
+//                    .slash(entity.id).slash("children")
+//                    .withRel("children2")
+//            }
+//        }
 
         return when (entity) {
             is QuestionConstruct -> {

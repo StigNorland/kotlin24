@@ -20,6 +20,6 @@ interface StudyListe {
 
     var version: Version
 
-    var children: List<TopicGroupListe>
+//    var children: List<TopicGroupListe>
     var isArchived: Boolean
 }

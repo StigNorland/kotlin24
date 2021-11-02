@@ -10,7 +10,7 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@JsonPropertyOrder( *["id","label","name","isArchived"])
+@JsonPropertyOrder("id", "label", "name", "isArchived")
 @Projection(name = "topicGroupListe", types = [TopicGroup::class])
 interface TopicGroupListe {
 
@@ -30,7 +30,7 @@ interface TopicGroupListe {
 
     var version: Version
 
-    var children: List<ConceptListe>
+//    var children: List<ConceptListe>
 
 }
 

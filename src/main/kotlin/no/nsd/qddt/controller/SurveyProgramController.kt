@@ -1,10 +1,11 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.SurveyProgram
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
+import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.*
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.MediaType
@@ -37,6 +38,32 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
 
     @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"] )
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
-        return super.getRevisions(uri, pageable)
+        val qPage: Pageable = if (pageable.sort.isUnsorted) {
+            PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC,"modified")
+        } else {
+            pageable
+        }
+        logger.debug("getRevisions 1: {}" , qPage)
+
+
+        val result = repository.findRevisions(UriId.fromAny(uri).id, qPage )
+        logger.debug("getRevisions 2: {}" , result.totalElements)
+        val entities = result.content.map {
+//            Hibernate.initialize(it.entity.agency)
+//            Hibernate.initialize(it.entity.modifiedBy)
+//            Hibernate.initialize(it.entity.children)
+//            Hibernate.initialize(it.entity.authors)
+            it.entity.rev = it.revisionNumber.get()
+            EntityModel.of(it.entity)
+        }
+        logger.debug("getRevisions 3: {}" , entities.size)
+        val page: Page<EntityModel<SurveyProgram>> = PageImpl(entities, result.pageable, result.totalElements )
+        result.let { page ->
+            page.map {
+                it.entity.rev = it.revisionNumber.get()
+                EntityModel.of(it.entity)
+            }
+        }
+        return page
     }
 }

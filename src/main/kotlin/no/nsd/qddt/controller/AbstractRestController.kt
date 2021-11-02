@@ -44,6 +44,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         val result = repository.findRevisions(UriId.fromAny(uri).id, qPage )
         logger.debug("getRevisions 2: {}" , result.totalElements)
         val entities = result.content.map {
+//            Hibernate.initialize(it.entity.agency)
+//            Hibernate.initialize(it.entity.modifiedBy)
             it.entity.rev = it.revisionNumber.get()
             EntityModel.of(it.entity)
         }

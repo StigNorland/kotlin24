@@ -1,6 +1,5 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.utils.FilterTool.wildify
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -29,7 +28,6 @@ class AppConfig {
 //        val test = wildify
         return AuditAwareImpl()
     }
-
 
 
     @Bean

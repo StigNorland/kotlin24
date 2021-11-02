@@ -25,5 +25,7 @@ interface ConceptListe {
 
     var version: Version
 
-    var children: List<ConceptListe>
+    @Value(value = "#{target.children }")
+    fun getChildren(): List<ConceptListe>
+
 }
