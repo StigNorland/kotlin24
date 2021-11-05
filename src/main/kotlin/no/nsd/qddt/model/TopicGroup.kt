@@ -47,6 +47,9 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("TOPIC_GROUP")
 data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
+  fun getModified() : Long {
+    return super.modified!!.time
+  }
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
 

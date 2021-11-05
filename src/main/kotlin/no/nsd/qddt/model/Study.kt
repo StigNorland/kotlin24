@@ -43,6 +43,10 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("STUDY")
 data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IArchived {
+
+    fun getModified() : Long {
+        return super.modified!!.time
+    }
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 

@@ -33,6 +33,10 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("CONCEPT")
 data class Concept(override var name: String ="?") : ConceptHierarchy() {
+    fun getModified() : Long {
+        return super.modified!!.time
+    }
+
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
