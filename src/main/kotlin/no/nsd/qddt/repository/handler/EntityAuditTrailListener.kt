@@ -191,7 +191,7 @@ class EntityAuditTrailListener{
     private fun beforeStudyRemove(entity: Study) {
         with(entity) {
             log.debug("Study pre remove " + parent?.name)
-            parent?.children?.removeIf { it.id == this.id }
+//            parent?.?.removeIf { it.id == this.id }
             authors.clear()
             instruments.clear()
         }

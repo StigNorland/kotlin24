@@ -1,13 +1,18 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
+import no.nsd.qddt.model.interfaces.IBasedOn
+import org.hibernate.Hibernate
+import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import javax.persistence.AttributeOverride
-import javax.persistence.Column
-import javax.persistence.DiscriminatorValue
-import javax.persistence.Entity
+import java.util.*
+import javax.persistence.*
 
 
 /**
@@ -35,8 +40,15 @@ import javax.persistence.Entity
 @Audited
 @Entity
 @DiscriminatorValue("SURVEY_PROGRAM")
-//@AttributeOverride(name ="parentId", column = Column(name = "PARENT_ID"))
 data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
+    @Column(insertable = false, updatable = false)
+    var parentIdx: Int? = null
+
+
+    @OrderColumn(name = "parentIdx")
+    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
+    @OneToMany(mappedBy = "parentId")
+    var children: MutableList<Study> = mutableListOf()
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
@@ -53,5 +65,25 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
             study.fillDoc(pdfReport, counter + (i + 1))
         }
     }
+    override var isArchived = false
+        set(value) {
+            try {
+                field = value
+                if (value) {
+                    changeKind = IBasedOn.ChangeKind.ARCHIVED
 
+                    if (Hibernate.isInitialized(children))
+                        logger.debug("Children isInitialized. ")
+                    else
+                        Hibernate.initialize(children)
+
+                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
+                }
+            } catch (ex: Exception) {
+                logger.error("setArchived", ex)
+                StackTraceFilter.filter(ex.stackTrace).stream()
+                    .map { a -> a.toString() }
+                    .forEach(logger::info)
+            }
+        }
 }

@@ -1,13 +1,20 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
+import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IOtherMaterialList
+import org.hibernate.Hibernate
+import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
@@ -40,7 +47,22 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("TOPIC_GROUP")
 data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
+  @Column(insertable = false, updatable = false)
+  var parentIdx: Int? = null
 
+  @Column(insertable = false, updatable = false)
+  var parentId: UUID? = null
+
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name="parentId",insertable = false, updatable = false )
+  var parent: Study? = null
+
+
+  @OrderColumn(name = "parentIdx")
+  @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
+  @OneToMany(mappedBy = "parent")
+  var children: MutableList<Concept> = mutableListOf()
 
 //  @OrderColumn(name = "ownerIdx")
   @ElementCollection(fetch = FetchType.EAGER)
@@ -70,6 +92,27 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
       logger.debug("QuestionItem not inserted, match found")
   }
 
+  override var isArchived = false
+    set(value) {
+      try {
+        field = value
+        if (value) {
+          changeKind = IBasedOn.ChangeKind.ARCHIVED
+
+          if (Hibernate.isInitialized(children))
+            logger.debug("Children isInitialized. ")
+          else
+            Hibernate.initialize(children)
+
+          children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
+        }
+      } catch (ex: Exception) {
+        logger.error("setArchived", ex)
+        StackTraceFilter.filter(ex.stackTrace).stream()
+          .map { a -> a.toString() }
+          .forEach(logger::info)
+      }
+    }
 
   override fun xmlBuilder():AbstractXmlBuilder {
     return TopicGroupFragmentBuilder(this)
@@ -104,12 +147,15 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
         }
     }
 
-    pdfReport.addPadding()
-
-    // var i = 0
-    // concepts.forEach {
-    //     it.fillDoc(pdfReport, counter + "." + ++i)
-    // }
+//    pdfReport.addPadding()
+//    var teller = if (counter.isNotEmpty()) "$counter." else counter
+//    for ((i, concept) in concepts.withIndex()) {
+//      concept.fillDoc(pdfReport, teller + (i + 1))
+//    }
+     var i = 0
+    children.forEach {
+         it.fillDoc(pdfReport, counter + "." + ++i)
+     }
   }
   
 //  @PreRemove

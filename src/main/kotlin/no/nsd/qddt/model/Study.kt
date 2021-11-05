@@ -1,10 +1,17 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
+import no.nsd.qddt.model.interfaces.IBasedOn
+import org.hibernate.Hibernate
+import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import java.util.*
 import javax.persistence.*
 
 /**
@@ -36,10 +43,24 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("STUDY")
 data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IArchived {
+    @Column(insertable = false, updatable = false)
+    var parentIdx: Int? = null
 
+    @Column(insertable = false, updatable = false)
+    var parentId: UUID? = null
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="parentId",insertable = false, updatable = false )
+    var parent: SurveyProgram? = null
+
+
+    @OrderColumn(name = "parentIdx")
+    @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
+    @OneToMany(mappedBy = "parent")
+    var children: MutableList<TopicGroup> = mutableListOf()
 
     @OneToMany( mappedBy="studyId")
-//    @PrimaryKeyJoinColumn
     var instruments: MutableSet<Instrument> = mutableSetOf()
 
 
@@ -59,7 +80,27 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
              topic.fillDoc(pdfReport, teller + (i + 1))
          }
     }
+    override var isArchived = false
+        set(value) {
+            try {
+                field = value
+                if (value) {
+                    changeKind = IBasedOn.ChangeKind.ARCHIVED
 
+                    if (Hibernate.isInitialized(children))
+                        logger.debug("Children isInitialized. ")
+                    else
+                        Hibernate.initialize(children)
+
+                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
+                }
+            } catch (ex: Exception) {
+                logger.error("setArchived", ex)
+                StackTraceFilter.filter(ex.stackTrace).stream()
+                    .map { a -> a.toString() }
+                    .forEach(logger::info)
+            }
+        }
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null

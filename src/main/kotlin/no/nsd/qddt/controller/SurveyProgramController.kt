@@ -5,6 +5,7 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.annotation.Transient
 import org.springframework.data.domain.*
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
@@ -36,6 +37,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         return  super.getXml("$uri:$rev")
     }
 
+    @Transient
     @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"] )
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
         val qPage: Pageable = if (pageable.sort.isUnsorted) {

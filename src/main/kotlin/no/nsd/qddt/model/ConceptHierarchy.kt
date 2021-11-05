@@ -12,11 +12,12 @@ import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
+import java.util.*
 import javax.persistence.*
 
 @Audited
 @Entity
-@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
+//@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "CLASS_KIND")
 @Table(name = "CONCEPT_HIERARCHY")
@@ -25,24 +26,18 @@ abstract class ConceptHierarchy(
     @Column(length = 20000)
     var description: String=""
 
-) : AbstractEntityAudit(), IArchived, IHaveChilden<ConceptHierarchy>, IHaveParent<ConceptHierarchy> {
+) : AbstractEntityAudit(), IArchived {
 
     var label: String? = null
         get() { return field?:name }
 
 
-    @Column(insertable = false, updatable = false)
-    override var parentIdx: Int? = null
 
-    @JsonIgnore
-    @ManyToOne
-//    @JoinColumn(insertable = false, updatable = false )
-    override var parent: ConceptHierarchy? = null
+//    @JsonIgnore
+//    @ManyToOne
+////    @JoinColumn(insertable = false, updatable = false )
+//    var parent: ConceptHierarchy? = null
 
-    @OrderColumn(name = "parentIdx")
-    @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent")
-    override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
 
 //    override fun addChild(entity: ConceptHierarchy): ConceptHierarchy {
@@ -61,25 +56,5 @@ abstract class ConceptHierarchy(
     var authors: MutableSet<Author> = mutableSetOf()
 
 
-    override var isArchived = false
-        set(value) {
-            try {
-                field = value
-                if (value) {
-                    changeKind = IBasedOn.ChangeKind.ARCHIVED
 
-                     if (Hibernate.isInitialized(children))
-                         logger.debug("Children isInitialized. ")
-                     else
-                         Hibernate.initialize(children)
-
-                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
-                }
-            } catch (ex: Exception) {
-                logger.error("setArchived", ex)
-                StackTraceFilter.filter(ex.stackTrace).stream()
-                        .map { a -> a.toString() }
-                        .forEach(logger::info)
-            }
-        }
 }
