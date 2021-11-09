@@ -23,17 +23,17 @@ import org.springframework.web.bind.annotation.ResponseBody
 class ResponseDomainController(@Autowired repository: ResponseDomainRepository): AbstractRestController<ResponseDomain>(repository) {
 
 
-    @GetMapping("/responsedomain/{uri}",produces = ["application/hal+json"])
-    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<ResponseDomain>> {
-        return super.getById(uri).also {
-            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
+//    @GetMapping("/responsedomain/{uri}",produces = ["application/hal+json"])
+//    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<ResponseDomain>> {
+//        return super.getById(uri).also {
 //            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
-//            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
-
-//            it.body.content.managedRepresentation.id
-//            it.body?.add(linkTo<BaseMixedRepository<Category>> { getById(uri) }.withSelfRel())
-        }
-    }
+////            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
+////            it.body?.add(linkTo<ResponseDomainController> { getById(uri) }.withSelfRel())
+//
+////            it.body.content.managedRepresentation.id
+////            it.body?.add(linkTo<BaseMixedRepository<Category>> { getById(uri) }.withSelfRel())
+//        }
+//    }
 
     @GetMapping("/responsedomain/{uri}/revisions",produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<ResponseDomain>> {

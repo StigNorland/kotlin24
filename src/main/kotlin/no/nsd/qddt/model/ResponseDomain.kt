@@ -66,9 +66,14 @@ data class ResponseDomain(
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE,CascadeType.MERGE], targetEntity = Category::class)
+  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE,CascadeType.MERGE,CascadeType.PERSIST], targetEntity = Category::class)
   @JoinColumn(name = "category_id")
-  var managedRepresentation: Category = Category().apply { hierarchyLevel = HierarchyLevel.GROUP_ENTITY }
+  var managedRepresentation: Category? = null
+    get() =  field ?:  initManagedRepresentation()
+    set(value) {
+      field = value ?: initManagedRepresentation()
+      field!!.name = this.name
+    }
 
 
   override fun fillDoc(pdfReport: PdfReport, counter: String) {
@@ -110,7 +115,6 @@ data class ResponseDomain(
   override fun xmlBuilder():XmlDDIFragmentBuilder<ResponseDomain> {
     return ResponseDomainFragmentBuilder(this)
   }
-  
 
   protected fun getFlatManagedRepresentation(current: Category?):List<Category> {
     var retval = mutableListOf<Category>()
@@ -124,7 +128,14 @@ data class ResponseDomain(
     }
   }
 
-}
+   fun getAnchors(): Collection<Pair<String, String>> {
+    return this.getFlatManagedRepresentation(this.managedRepresentation).filter { it.code != null }.map{ it.label to (it.code?.value ?: "0") }
+  }
+
+  private fun initManagedRepresentation() = Category().apply { categoryKind = CategoryType.SCALE ; name = this.name }
+
+
+  }
 //    if (field == null)
 //    responseCardinality = managedRepresentation.inputLimit
 //    if (managedRepresentation.categoryType === CategoryType.MIXED)

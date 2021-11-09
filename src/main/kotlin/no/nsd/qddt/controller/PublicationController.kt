@@ -8,6 +8,7 @@ import no.nsd.qddt.repository.PublicationStatusRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.*
 import org.springframework.data.history.Revision
+import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.data.rest.webmvc.RepositoryRestController
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import java.security.Principal
 
-@RepositoryRestController
+@BasePathAwareController
 class PublicationController(@Autowired repository: PublicationRepository): AbstractRestController<Publication>(repository) {
 
     @Autowired
@@ -49,18 +50,18 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
         return ResponseEntity.ok(EntityModel.of(page))
     }
 
-    @GetMapping("/publication",produces = ["application/hal+json"])
-    fun getAllBy(@CurrentSecurityContext(expression = "authentication") authentication: Authentication,
-        pageable: Pageable?): ResponseEntity<EntityModel<Page<Publication>>> {
-            val details =  authentication.principal as User
-            val page = repository.findAll(pageable?: Pageable.unpaged())
-            return ResponseEntity.ok(EntityModel.of(page))
-    }
+//    @GetMapping("/publication",produces = ["application/hal+json"])
+//    fun getAllBy(@CurrentSecurityContext(expression = "authentication") authentication: Authentication,
+//        pageable: Pageable?): ResponseEntity<EntityModel<Page<Publication>>> {
+//            val details =  authentication.principal as User
+//            val page = repository.findAll(pageable?: Pageable.unpaged())
+//            return ResponseEntity.ok(EntityModel.of(page))
+//    }
 
-    @GetMapping("/publication/{uri}",produces = ["application/hal+json"])
-    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<Publication>> {
-        return super.getById(uri)
-    }
+//    @GetMapping("/publication/{uri}",produces = ["application/hal+json"])
+//    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<Publication>> {
+//        return super.getById(uri)
+//    }
 
     @GetMapping("/publication/{uri}/revisions", produces = ["application/hal+json"] )
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<Publication>> {

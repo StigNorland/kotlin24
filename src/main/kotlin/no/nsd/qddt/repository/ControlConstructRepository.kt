@@ -30,20 +30,24 @@ interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
                     "WHERE cc.control_construct_kind = cast(:constructKind AS text) " +
                     "AND cc.xml_lang ILIKE :xmlLang " +
-                    "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
-                    "AND ( cc.label ILIKE searchStr(:label) or cc.name ILIKE searchStr(:name) or cc.description ILIKE searchStr(:description)) " +
-                    "OR (:questionName is null OR qi.name ILIKE cast(:questionName AS text)) " +
-                    "OR (:questionText is null OR qi.question ILIKE cast(:questionText AS text)) " +
-                    ") ",
+                    "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text)) " +
+                    "AND ( cc.label ILIKE searchStr(cast(:label AS text)) " +
+                    "OR cc.name ILIKE searchStr(cast(:name AS text)) " +
+                    "OR cc.description ILIKE searchStr(cast(:description AS text)) " +
+                    "OR qi.name ILIKE searchStr(cast(:questionName AS text)) " +
+                    "OR qi.question ILIKE searchStr(cast(:questionText AS text)) " +
+                    ") )",
             countQuery = "SELECT count(cc.*) FROM CONTROL_CONSTRUCT cc " +
                     "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
                     "WHERE cc.control_construct_kind =  cast(:constructKind AS text) " +
-                    " AND cc.xml_lang ILIKE :xmlLang " +
-                    " AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text))  " +
-                    " AND ( cc.label ILIKE searchStr(:label) or cc.name ILIKE searchStr(:name) or cc.description ILIKE searchStr(:description)) " +
-                    " OR (:questionName is null OR qi.name ILIKE cast(:questionName AS text)) " +
-                    " OR (:questionText is null OR qi.question ILIKE cast(:questionText AS text)) " +
-                    " ) ",
+                    "AND cc.xml_lang ILIKE :xmlLang " +
+                    "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text)) " +
+                    "AND ( cc.label ILIKE searchStr(cast(:label AS text)) " +
+                    "or cc.name ILIKE searchStr(cast(:name AS text)) " +
+                    "or cc.description ILIKE searchStr(cast(:description AS text)) " +
+                    "OR qi.name ILIKE searchStr(cast(:questionName AS text)) " +
+                    "OR qi.question ILIKE searchStr(cast(:questionText AS text)) " +
+                    ") )",
             nativeQuery = true
         )
         fun <S : ControlConstruct?> findByQuery(

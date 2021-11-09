@@ -1,5 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
+import java.util.*
+
 interface  IHaveParent<T:IBasedOn>: IBasedOn {
 
 //    @Column(insertable = false, updatable = false)
@@ -20,7 +22,7 @@ interface IHaveChilden<T:IBasedOn>  {
 //    @OneToMany(mappedBy = "parentId" ,  cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
     var children: MutableList<T>
 
-//    fun addChild(entity:T ): T
+    fun addChild(entity:T ): T
 
 //    children.add(entity)
 //    entity.parent = this

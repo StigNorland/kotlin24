@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.PathVariable
 @RepositoryRestController
 class QuestionItemController(@Autowired repository: QuestionItemRepository): AbstractRestController<QuestionItem>(repository) {
 
-    @GetMapping("/questionitem/{uri}",produces = ["application/hal+json"])
-    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<QuestionItem>> {
-        return super.getById(uri)
-    }
+//    @GetMapping("/questionitem/{uri}",produces = ["application/hal+json"])
+//    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<QuestionItem>> {
+//        return super.getById(uri)
+//    }
 
     @GetMapping("/questionitem/{uri}/revisions", produces = ["application/hal+json"] )
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<QuestionItem>> {

@@ -1,6 +1,7 @@
 package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.Category
+import no.nsd.qddt.model.embedded.Code
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 
@@ -19,5 +20,9 @@ interface CategoryListe: IAbstractEntityViewList {
 
     @Value(value = "#{target.children }")
     fun  getChildren() : MutableList<CategoryListe>
+
+    @Value(value = "#{target.code }")
+    fun  getCode() : Code
+
 
 }

@@ -136,7 +136,9 @@ class EntityAuditTrailListener{
                 }
             }
             is QuestionItem -> {
+                log.debug("After load of Qi: {}" , entity.name)
                 if (entity.responseDomain == null && entity.responseId?.id != null) {
+                    log.debug("After load of Qi -> loading RD")
 
                     val repository =  bean.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
                     entity.responseDomain = loadRevisionEntity(entity.responseId!!,repository)

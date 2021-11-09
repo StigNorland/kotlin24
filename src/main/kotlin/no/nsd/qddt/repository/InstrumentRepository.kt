@@ -21,10 +21,14 @@ interface InstrumentRepository: BaseArchivedRepository<Instrument> {
     @Query(nativeQuery = true,
         value = "SELECT c.* FROM instrument c " +
                 "WHERE ( c.change_kind !='BASED_ON' " +
-                "AND ( c.label ILIKE searchStr(:label) or c.name ILIKE searchStr(:name) or c.description ILIKE searchStr(:description)) ",
+                "AND (c.name ILIKE searchStr(cast(:name AS text)) " +
+                "OR c.label ILIKE searchStr(cast(:label AS text)) " +
+                "OR c.description ILIKE searchStr(cast(:description AS text)) )) ",
         countQuery = "SELECT count(c.*) FROM instrument c " +
                 "WHERE ( c.change_kind !='BASED_ON' " +
-                "AND ( c.label ILIKE searchStr(:label) or c.name ILIKE searchStr(:name) or c.description ILIKE searchStr(:description)) ",
+                "AND (c.name ILIKE searchStr(cast(:name AS text)) " +
+                "OR c.label ILIKE searchStr(cast(:label AS text)) " +
+                "OR c.description ILIKE searchStr(cast(:description AS text)) )) ",
     )
     fun findByQuery(
         @Param("label") label:String?,

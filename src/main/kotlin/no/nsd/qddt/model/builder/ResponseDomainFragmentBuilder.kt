@@ -48,10 +48,10 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
   
   init{
     val children:List<Category> = if (entity.responseKind == ResponseKind.MIXED)  {
-      responseDomain.managedRepresentation.children
+      responseDomain.managedRepresentation!!.children
     } else{
       mutableListOf<Category>().also {
-        it.add(responseDomain.managedRepresentation)
+        it.add(responseDomain.managedRepresentation!!)
       }
     }
     manRep = children.stream().map {
@@ -65,7 +65,7 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
     return when {
         entity.responseKind === ResponseKind.MIXED -> String.format(xmlMixedRef, getInMixedRef(depth))
         entity.responseKind === ResponseKind.LIST -> String.format(xmlCodeDomRef, getTabs(depth),
-          entity.managedRepresentation.classificationLevel?.name,
+          entity.managedRepresentation!!.classificationLevel?.name,
           getResponseCardinality(depth),
           String.format(xmlRef, entity.responseKind.ddiRepresentation, getXmlURN(entity), getTabs(depth + 1)))
         else -> String.format(xmlRef, entity.responseKind.ddiName, getXmlURN(entity), getTabs(depth))
@@ -84,7 +84,7 @@ class ResponseDomainFragmentBuilder(responseDomain: ResponseDomain):XmlDDIFragme
 //    return String.format(xmlFooter, instance.getClass().getSimpleName())
 //  }
   private fun getInMixedRef(depth:Int):String {
-    return entity.managedRepresentation.children.stream().map {
+    return entity.managedRepresentation!!.children.stream().map {
         ref -> String.format(xmlInMixed, ref.xmlBuilder().getXmlEntityRef(depth + 2))
       }.collect(Collectors.joining())
   }

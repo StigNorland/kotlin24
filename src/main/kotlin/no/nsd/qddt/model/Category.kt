@@ -63,13 +63,19 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
      *   labels with differing length limitations or of different types or applications.
      */
     var label: String = ""
+        set(value) {
+            field = value
+            if (name.isBlank() && value.isNotBlank())
+                name = value.uppercase(Locale.getDefault())
+        }
 
     override var name: String = ""
-        get() {
-            if (field.isBlank())
-                field = label.uppercase(Locale.getDefault())
-            return field
+        set(value) {
+            field = value
+            if (label.isBlank() && value.isNotBlank())
+                label = value.lowercase(Locale.getDefault())
         }
+
     /*
      *   A description of the content and purpose of the category.
      *   May be expressed in multiple languages and supports the use of structured content.
@@ -139,7 +145,10 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     var children: MutableList<Category> =  mutableListOf()
     get() {
         return if (categoryKind == CategoryType.SCALE) {
-            if (field.isEmpty()) logger.error("getChildren() is 0/NULL")
+            if (field.isEmpty()) {
+                logger.warn("getChildren() is 0/NULL")
+                return mutableListOf()
+            }
             field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
                 .sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") })
                 .toList() as MutableList<Category>

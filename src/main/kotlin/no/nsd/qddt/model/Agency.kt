@@ -10,7 +10,6 @@ import javax.persistence.*
 @Cacheable
 @Entity
 @EntityListeners(value = [AgentAuditTrailListener::class])
-//@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
 data class Agency( var name: String="?") : Comparable<Agency> {
 
     @Id @GeneratedValue
@@ -19,6 +18,8 @@ data class Agency( var name: String="?") : Comparable<Agency> {
 
     @Version
     lateinit var modified : Timestamp
+
+    var description: String = ""
 
     var xmlLang:String="en-GB"
 

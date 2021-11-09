@@ -1,5 +1,7 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.ConceptHierarchy
+import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
@@ -11,6 +13,7 @@ import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import java.util.*
@@ -25,6 +28,17 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
 //    fun getById(@PathVariable uri: UUID,@PathVariable rev: Long ): ResponseEntity<EntityModel<SurveyProgram>> {
 //        return super.getById("$uri:$rev")
 //    }
+
+    @GetMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
+    @Transactional
+    fun getStudies(@PathVariable uri: UUID): ResponseEntity<List<EntityModel<Study>>> {
+        logger.debug("get studies controller...")
+        val result = repository.findById(uri).get().children
+        val entities = result.map {
+            EntityModel.of(it)
+        }
+        return ResponseEntity.ok(entities)
+    }
 
     @GetMapping("/pdf/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun getPdf(@PathVariable uri: UUID,@PathVariable rev: Long): ByteArray {
