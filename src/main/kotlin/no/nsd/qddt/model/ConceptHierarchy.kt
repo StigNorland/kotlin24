@@ -1,18 +1,9 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
-import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.model.interfaces.IHaveChilden
-import no.nsd.qddt.model.interfaces.IHaveParent
-import org.hibernate.Hibernate
-import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
-import java.util.*
 import javax.persistence.*
 
 @Audited

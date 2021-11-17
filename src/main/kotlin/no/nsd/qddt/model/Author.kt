@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
+import no.nsd.qddt.repository.handler.AuthorAuditTrailListener
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
 import javax.persistence.*
@@ -13,6 +14,7 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "AUTHOR")
+@EntityListeners(value = [AuthorAuditTrailListener::class])
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 data class Author(var email: String? = "") : AbstractEntity() {
     //--------------------------------------------------------------------------------

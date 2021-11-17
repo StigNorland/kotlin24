@@ -34,7 +34,7 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
     }
 
     override fun convert(source: Serializable): UriId? {
-        return Companion.fromAny(source)
+        return fromAny(source)
     }
 
     companion object {

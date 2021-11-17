@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.repository.handler.AgentAuditTrailListener
 import no.nsd.qddt.repository.handler.UserAuditTrailListener
 import org.springframework.security.core.GrantedAuthority
@@ -16,6 +17,7 @@ import javax.persistence.*
 @Entity
 @Table(name="user_account")
 @EntityListeners(value = [UserAuditTrailListener::class])
+//@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
 data class User(
 
     private var username : String = "?",

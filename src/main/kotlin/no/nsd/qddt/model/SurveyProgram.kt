@@ -1,20 +1,17 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IArchived
-import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import java.sql.Timestamp
-import java.util.*
-import javax.persistence.*
+import javax.persistence.DiscriminatorValue
+import javax.persistence.Entity
+import javax.persistence.OneToMany
+import javax.persistence.OrderColumn
 
 
 /**
@@ -43,8 +40,6 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("SURVEY_PROGRAM")
 data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
-    @Column(insertable = false, updatable = false)
-    var parentIdx: Int? = null
 
     fun getModified() : Long {
         return super.modified!!.time
