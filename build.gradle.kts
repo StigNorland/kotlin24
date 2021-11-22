@@ -42,9 +42,9 @@ dependencies {
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+//	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
 
-	implementation("com.google.code.gson:gson:2.8.8")
-//	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+	implementation("com.google.code.gson:gson:2.8.9")
 
 	implementation("net.logstash.logback:logstash-logback-encoder:6.6")
 

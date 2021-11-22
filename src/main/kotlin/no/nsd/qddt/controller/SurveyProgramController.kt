@@ -2,12 +2,17 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
+import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.*
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -36,52 +41,61 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     }
 
     @GetMapping("/pdf/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    fun getPdf(@PathVariable uri: UUID,@PathVariable rev: Long): ByteArray {
+    fun getPdf(@PathVariable uri: UUID, @PathVariable rev: Long): ByteArray {
         logger.debug("get pdf controller...")
         return super.getPdf("$uri:$rev")
     }
 
     @GetMapping("/xml/surveyprogram/{uri}/{rev}", produces = [MediaType.APPLICATION_XML_VALUE])
-    fun getXml(@PathVariable uri: UUID,@PathVariable rev: Long): ResponseEntity<String> {
-        return  super.getXml("$uri:$rev")
+    fun getXml(@PathVariable uri: UUID, @PathVariable rev: Long): ResponseEntity<String> {
+        return super.getXml("$uri:$rev")
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"] )
-//    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
-//        val qPage: Pageable = if (pageable.sort.isUnsorted) {
-//            PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC,"modified")
-//        } else {
-//            pageable
-//        }
-//        logger.debug("getRevisions 1: {}" , qPage)
-//
-//
-//        val result = repository.findRevisions(UriId.fromAny(uri).id, qPage )
-//        logger.debug("getRevisions 2: {}" , result.totalElements)
-//        val entities = result.content.map {
-//            initializeAndUnproxy(it.entity.agency)
-//            initializeAndUnproxy(it.entity.modifiedBy)
-//            initializeAndUnproxy(it.entity.authors)
-//            it.entity.rev = it.revisionNumber.get()
-//            EntityModel.of(it.entity)
-//        }
-//        logger.debug("getRevisions 3: {}" , entities.size)
-//        val page: Page<EntityModel<SurveyProgram>> = PageImpl(entities, result.pageable, result.totalElements )
-//        result.let { page ->
-//            page.map {
-//                it.entity.rev = it.revisionNumber.get()
-//                EntityModel.of(it.entity)
-//            }
-//        }
-//        return try {
-//            page
-//        } catch (ex:Exception){
-//            logger.error(ex.localizedMessage)
-//            Page.empty()
-//        }
-//    }
-//
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
+        val uriId = UriId.fromAny(uri)
+        val qPage: Pageable = if (pageable.sort.isUnsorted) {
+            PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC, "RevisionNumber")
+        } else {
+            pageable
+        }
+        val  result =
+            if (uriId.rev != null) {
+                repository.findRevision(uriId.id, uriId.rev!!).map { rev ->
+                    rev.entity.version.rev = rev.revisionNumber.get()
+                    val item = EntityModel.of<SurveyProgram>(
+                        rev.entity,
+                        Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}", "self")
+                    )
+                    val page = PageImpl(mutableListOf(item), pageable, 1)
+                    page
+                }.orElseThrow()
+            } else {
+                repository.findRevisions(uriId.id, qPage).map {
+                    it.entity.version.rev = it.revisionNumber.get()
+                    EntityModel.of<SurveyProgram>(
+                        it.entity,
+                        Link.of("/api/revisions/surveyprogram/${it.entity.id}:${it.entity.version.rev}", "self")
+                    )
+                }
+            }
+        return try {
+          result!!.map {
+            it.content?.children?.size
+            it.content?.authors?.size
+            Hibernate.initialize(it.content?.agency)
+            Hibernate.initialize(it.content?.modifiedBy)
+            it
+          }
+
+        } catch (ex: Exception) {
+            with(logger) { error(ex.localizedMessage) }
+            Page.empty()
+        }
+    }
+
+
 //    fun <T> initializeAndUnproxy(entity: T?): T? {
 //        var entity: T? = entity ?: return null
 //        Hibernate.initialize(entity)

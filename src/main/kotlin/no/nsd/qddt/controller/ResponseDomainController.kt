@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 
 
 @BasePathAwareController
+
 class ResponseDomainController(@Autowired repository: ResponseDomainRepository): AbstractRestController<ResponseDomain>(repository) {
 
 

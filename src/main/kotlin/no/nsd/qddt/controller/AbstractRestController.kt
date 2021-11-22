@@ -1,5 +1,6 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
@@ -8,8 +9,10 @@ import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.*
+import org.springframework.data.history.Revision
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PathVariable
@@ -29,9 +32,9 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
 //            .addIf()
         return ResponseEntity.ok(model)
     }
-//    @Transactional
     @ResponseBody
-    open fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<T>> {
+    open fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<T>>
+    {
 
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
              PageRequest.of(pageable.pageNumber, pageable.pageSize,Sort.Direction.DESC,"modified")
@@ -41,23 +44,22 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         logger.debug("getRevisions 1: {}" , qPage)
 
 
-        val result = repository.findRevisions(UriId.fromAny(uri).id, qPage )
-        logger.debug("getRevisions 2: {}" , result.totalElements)
-        val entities = result.content.map {
-//            Hibernate.initialize(it.entity.agency)
-//            Hibernate.initialize(it.entity.modifiedBy)
-            it.entity.rev = it.revisionNumber.get()
-            EntityModel.of(it.entity)
+        val result = repository.findRevisions(UriId.fromAny(uri).id, qPage ).map {
+            Hibernate.initialize(it.entity.agency)
+            Hibernate.initialize(it.entity.modifiedBy)
+            it.entity.version.rev = it.revisionNumber.get()
+            EntityModel.of<T>(it.entity)
         }
-        logger.debug("getRevisions 3: {}" , entities.size)
-        val page: Page<EntityModel<T>> = PageImpl(entities, result.pageable, result.totalElements )
-        result.let { page ->
-            page.map {
-                it.entity.rev = it.revisionNumber.get()
-                EntityModel.of(it.entity)
-            }
-        }
-        return page
+        return result
+//        logger.debug("getRevisions 3: {}" , entities.size)
+//        val page: Page<EntityModel<T>> = PageImpl(entities, result.pageable, result.totalElements )
+//        result.let { page ->
+//            page.map {
+//                it.entity.rev = it.revisionNumber.get()
+//                EntityModel.of(it.entity)
+//            }
+//        }
+//        return page
     }
 
 
@@ -80,7 +82,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
 
     private fun getByUri(uri: UriId): T {
         return if (uri.rev != null)
-            repository.findRevision(uri.id, uri.rev!!).map { it.entity.rev = it.revisionNumber.get(); it.entity }.get()
+            repository.findRevision(uri.id, uri.rev!!).map { it.entity.version.rev = it.revisionNumber.get(); it.entity }.get()
         else
             repository.findById(uri.id).get()
     }

@@ -39,12 +39,12 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
-    @Column(insertable = false, updatable = false)
-    var parentId: UUID? = null
+//    @Column(insertable = false, updatable = false)
+//    var parentId: UUID? = null
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parentId",insertable = false, updatable = false )
+//    @JoinColumn(name="parentId",insertable = false, updatable = false )
     var parent: ConceptHierarchy? = null
 
     @OrderColumn(name = "parentIdx")
@@ -59,7 +59,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
 
     @OrderColumn(name="parentIdx")
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
+    @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
     var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
     fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {

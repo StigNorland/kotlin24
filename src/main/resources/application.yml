@@ -8,7 +8,6 @@ spring:
       base-path: /
   datasource:
     driver-class-name: org.postgresql.Driver
-    initialization-mode: embedded
     continue-on-error: true
     hikari.connectionTimeout: 20000
     hikari.maximumPoolSize: 5
@@ -23,7 +22,7 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy

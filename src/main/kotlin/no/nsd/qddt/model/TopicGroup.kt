@@ -51,12 +51,12 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
 
-  @Column(insertable = false, updatable = false)
-  var parentId: UUID? = null
+//  @Column(insertable = false, updatable = false)
+//  var parentId: UUID? = null
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name="parentId",insertable = false, updatable = false )
+//  @JoinColumn(name="parentId",insertable = false, updatable = false )
   var parent: Study? = null
 
 
@@ -81,7 +81,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
 
   @OrderColumn(name="parentIdx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parentId")])
+  @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parent_id")])
   var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
 
   fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {

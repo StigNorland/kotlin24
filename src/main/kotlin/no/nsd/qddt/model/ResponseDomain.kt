@@ -35,7 +35,7 @@ data class ResponseDomain(
  * Can't have two responsedomain with the same template and the same name, unless they are based on
  */
 
-  override var name: String = ""
+  override var name: String = "?"
     get() =  CapString(field)
 
 
@@ -112,6 +112,16 @@ data class ResponseDomain(
   }
   
 
+  fun getAnchorLabels(): String {
+    return try {
+      this.getFlatManagedRepresentation(this.managedRepresentation)
+        .filter { it.code != null }
+        .joinToString(" + ") { it.label }
+    } catch (ex:Exception) {
+      logger.error(ex.localizedMessage)
+      return ""
+    }
+  }
   protected fun getFlatManagedRepresentation(current: Category?):List<Category> {
     var retval = mutableListOf<Category>()
     return when (current) {

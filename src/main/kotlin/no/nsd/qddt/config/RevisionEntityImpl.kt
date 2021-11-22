@@ -16,13 +16,10 @@ import javax.persistence.Table
 @Entity
 @Table( name = "revinfo")
 @RevisionEntity(AuditRevisionListener::class)
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 class RevisionEntityImpl : DefaultRevisionEntity() {
 
     @ManyToOne
-    @LastModifiedBy
     lateinit var modifiedBy: User
 
-    @LastModifiedDate
     lateinit var modified: Timestamp
 }

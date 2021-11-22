@@ -24,16 +24,16 @@ abstract class AbstractEntity(
     @Column(updatable = false, nullable = false)
     var id: UUID? = null,
 
-    @Transient
-    @JsonSerialize
-    @Column(columnDefinition="default 0",  nullable = false)
-    var rev: Int = 0,
+//    @Transient
+//    @JsonSerialize
+//    @Column(columnDefinition="default 0",  nullable = false)
+//    var rev: Int = 0,
 
     @Column(insertable = false, updatable = false)
     var modifiedById: UUID? = null,
 
     @Version
-    @Column(insertable = false, updatable = false)
+//    @Column(insertable = false, updatable = false)
     var modified: Timestamp?=null
 ) {
 
@@ -41,7 +41,7 @@ abstract class AbstractEntity(
     @ManyToOne
     @JoinColumn(name = "modifiedById")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    var modifiedBy: User? = null
+    lateinit var modifiedBy: User
 
     abstract fun xmlBuilder(): AbstractXmlBuilder?
 

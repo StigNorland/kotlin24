@@ -9,8 +9,9 @@ import javax.persistence.*
 
 @Cacheable
 @Entity
-@EntityListeners(value = [AgentAuditTrailListener::class])
-//@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
+@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
+
+//@EntityListeners(value = [AgentAuditTrailListener::class])
 data class Agency( var name: String="?") : Comparable<Agency> {
 
     @Id @GeneratedValue

@@ -49,12 +49,8 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
-    @Column(insertable = false, updatable = false)
-    var parentId: UUID? = null
-
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name="parentId",insertable = false, updatable = false )
     var parent: SurveyProgram? = null
 
 

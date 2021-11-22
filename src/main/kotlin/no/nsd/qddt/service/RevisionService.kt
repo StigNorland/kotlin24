@@ -4,22 +4,28 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.RepLoaderService
+import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.*
 import org.springframework.data.history.Revision
 import org.springframework.hateoas.EntityModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.ResponseBody
 import java.util.*
 
 /**
  * @author Stig Norland
  */
 @Service("revisionService")
+@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 class RevisionService(val repLoaderService: RepLoaderService) {
     internal val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun <T: AbstractEntityAudit> getRevisions(uri: UriId, elementKind: ElementKind, pageable: Pageable): Page<EntityModel<T>> {
+    @ResponseBody
+    fun <T: AbstractEntityAudit> getRevisions(uri: UriId, elementKind: ElementKind, pageable: Pageable): Page<Revision<Int, T>> {
 
         val repository = repLoaderService.getRepository<T>(elementKind)
 
@@ -28,36 +34,28 @@ class RevisionService(val repLoaderService: RepLoaderService) {
         } else {
             pageable
         }
-        val result = repository.findRevisions(uri.id, qPage )
-
-        val entities = result.content.map {
-
-//            Hibernate.initialize(it.entity.agency)
-//            Hibernate.initialize(it.entity.modifiedBy)
-            it.entity.rev = it.revisionNumber.get()
-            EntityModel.of(it.entity)
+        return repository.findRevisions(uri.id, qPage ).map {
+            Hibernate.initialize(it.entity.agency)
+            Hibernate.initialize(it.entity.modifiedBy)
+            it.entity.version.rev = it.revisionNumber.get()
+            it
         }
-        logger.debug("getRevisions 3: {}" , entities.size)
-        val page: Page<EntityModel<T>> = PageImpl(entities, result.pageable, result.totalElements )
-        result.let { page ->
-            page.map {
-                it.entity.rev = it.revisionNumber.get()
-                EntityModel.of(it.entity)
-            }
-        }
-        return page
+
     }
-
-    fun <T:AbstractEntityAudit> getRevision(uri: UriId, elementKind: ElementKind): EntityModel<Revision<Int, T>>? {
+    @ResponseBody
+    fun <T:AbstractEntityAudit> getRevision(uri: UriId, elementKind: ElementKind): Revision<Int, T>? {
 
         val repository = repLoaderService.getRepository<T>(elementKind)
 
         val result = uri.rev?.let { repository.findRevision(uri.id, it) }
 
         return if (result?.isPresent == true) {
-            EntityModel.of(result.get())
+            logger.debug(result.get().entity.agency.toString())
+            logger.debug(result.get().entity.modifiedBy.toString())
+//            logger.debug(result.get().entity)
+            result.get()
         } else
-            EntityModel.of(repository.findLastChangeRevision(uri.id).get())
+            repository.findLastChangeRevision(uri.id).get()
     }
 
 

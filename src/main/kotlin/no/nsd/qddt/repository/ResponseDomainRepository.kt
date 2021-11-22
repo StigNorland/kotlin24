@@ -1,22 +1,17 @@
 package no.nsd.qddt.repository
 import no.nsd.qddt.model.ResponseDomain
-import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.history.Revision
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
-import org.springframework.data.rest.core.annotation.RestResource
-import org.springframework.stereotype.Repository
-import java.util.*
 
 /**
  * @author Stig Norland
  * @author Dag Østgulen Heradstveit
  *
 */
-@RepositoryRestResource(path = "responsedomain", exported=true,  itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
+@RepositoryRestResource(path = "responsedomain", exported=true,  itemResourceRel = "ResponseDomain") //, excerptProjection = ResponseDomainListe::class)
 interface ResponseDomainRepository:  BaseMixedRepository<ResponseDomain>  {
 
     @Query( nativeQuery = true,

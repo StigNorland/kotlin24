@@ -16,8 +16,8 @@ import javax.persistence.*
 @Cacheable
 @Entity
 @Table(name="user_account")
+@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
 @EntityListeners(value = [UserAuditTrailListener::class])
-//@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
 data class User(
 
     private var username : String = "?",

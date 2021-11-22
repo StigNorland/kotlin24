@@ -46,8 +46,8 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
     }
 
     @OrderColumn(name = "parentIdx")
-    @AuditMappedBy(mappedBy = "parentId", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parentId")
+    @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
+    @OneToMany(mappedBy = "parent")
     var children: MutableList<Study> = mutableListOf()
 
     override fun xmlBuilder(): AbstractXmlBuilder? {

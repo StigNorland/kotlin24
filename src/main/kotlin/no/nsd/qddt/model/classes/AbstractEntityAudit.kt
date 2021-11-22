@@ -15,9 +15,7 @@ import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
-import org.hibernate.envers.Audited
-import org.hibernate.envers.NotAudited
-import org.hibernate.envers.RelationTargetAuditMode
+import org.hibernate.envers.*
 import java.io.Serializable
 import java.sql.Timestamp
 import java.util.*
@@ -61,11 +59,11 @@ abstract class AbstractEntityAudit(
      * I am essential to creation, and I surround every place.
      * What am I?
      */
-
+    @JsonIgnoreProperties("surveyPrograms","users")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agencyId")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    override var agency : Agency? = null
+    override lateinit var agency : Agency
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

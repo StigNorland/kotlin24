@@ -29,11 +29,12 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val entity = model.content!!
         val linkBuilder = entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder
         model.addIf(
-            !model.hasLink("revisions2")
+            !model.hasLink("revisions")
         ) {
             logger.debug(linkBuilder.toUri().fragment)
-            Link.of("$baseUri/revisions/questionitem/$entity.id", "revisions2")
-//            linkBuilder.slash("revisions").slash(entity.id).withRel("revisions2")
+
+            Link.of("$baseUri/revisions/surveyprogram/${entity.id}", "revisions")
+//            linkBuilder.slash(entity.id).slash("revisions").withRel("revisions")
         }
         model.addIf(
             !model.hasLink("xml")
@@ -65,11 +66,9 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
             is ResponseDomain -> {
                 val uri = UriId().also {
                     it.id = entity.id!!
-                    it.rev = entity.rev
+                    it.rev = entity.version.rev
                 }
-                model.add(Link.of("$baseUri/responsedomain/$uri/managedrepresentation", "managedRepresentation"))
-                model.add(Link.of("$baseUri/responsedomain/$uri/xml", "Xml"))
-                model.add(Link.of("$baseUri/responsedomain/$uri/pdf", "Pdf"))
+                model
             }
             else -> {
                 logger.debug("entity not linkified {}", entity.name )

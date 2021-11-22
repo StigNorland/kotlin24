@@ -162,16 +162,16 @@ class EntityAuditTrailListener{
     }
 
 
-    private fun <T: AbstractEntity>loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
+    private fun <T: AbstractEntityAudit>loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
         return with(uri) {
             if (rev != null)
                 repository.findRevision(id,rev!!).map {
-                    it.entity.rev = it.revisionNumber.get()
+                    it.entity.version.rev = it.revisionNumber.get()
                     it.entity
                     }.get()
             else
                 repository.findLastChangeRevision(id).map {
-                    it.entity.rev = it.revisionNumber.get()
+                    it.entity.version.rev = it.revisionNumber.get()
                     it.entity
                 }.get()
         }
