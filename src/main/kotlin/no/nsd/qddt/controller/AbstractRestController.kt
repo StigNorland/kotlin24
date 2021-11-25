@@ -1,6 +1,5 @@
 package no.nsd.qddt.controller
 
-import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
@@ -8,13 +7,13 @@ import no.nsd.qddt.repository.BaseMixedRepository
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.*
-import org.springframework.data.history.Revision
-import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
+import org.springframework.data.web.PagedResourcesAssembler
+import org.springframework.hateoas.*
+import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.hateoas.server.core.EmbeddedWrappers
 import org.springframework.http.ResponseEntity
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 
@@ -24,6 +23,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
 
 //    @Autowired
 //    private val applicationContext: ApplicationContext? = null
+    @Autowired
+    private lateinit var pagedResourcesAssembler: PagedResourcesAssembler<T>
 
     @ResponseBody
     open fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<T>> {
@@ -33,24 +34,36 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         return ResponseEntity.ok(model)
     }
     @ResponseBody
-    open fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<T>>
+    open fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<EntityModel<T>>
     {
-
+        val uriId = UriId.fromAny(uri)
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
              PageRequest.of(pageable.pageNumber, pageable.pageSize,Sort.Direction.DESC,"modified")
         } else {
             pageable
         }
         logger.debug("getRevisions 1: {}" , qPage)
+        var wrappers = EmbeddedWrappers(true)
 
-
-        val result = repository.findRevisions(UriId.fromAny(uri).id, qPage ).map {
-            Hibernate.initialize(it.entity.agency)
-            Hibernate.initialize(it.entity.modifiedBy)
+        val result = repository.findRevisions(uriId.id, qPage ).map {
             it.entity.version.rev = it.revisionNumber.get()
-            EntityModel.of<T>(it.entity)
+
+            var revisionLink = Link.of("/revisons/${it.entity.classKind}/{id}")
+                .expand(uriId)
+                .withRel("revision")
+
+            var additional = arrayOf(it.entity.agency, it.entity.modifiedBy)
+
+            HalModelBuilder.halModel(wrappers)
+                .entity(it.entity)
+                .link(revisionLink)
+                .embed(additional)
+                .build<EntityModel<T>>()
         }
-        return result
+
+
+        return HalModelBuilder.emptyHalModel()
+            .embed(result.stream()).build()
 //        logger.debug("getRevisions 3: {}" , entities.size)
 //        val page: Page<EntityModel<T>> = PageImpl(entities, result.pageable, result.totalElements )
 //        result.let { page ->

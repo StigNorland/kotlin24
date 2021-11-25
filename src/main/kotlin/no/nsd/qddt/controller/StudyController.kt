@@ -11,6 +11,7 @@ import org.springframework.data.history.Revision
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.data.rest.webmvc.RepositoryRestController
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,7 +28,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
 //    @GetMapping("/study/{uri}/revisions", produces = ["application/hal+json"] )
     @GetMapping("/revisions/study/{uri}", produces =  ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<Study>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<EntityModel<Study>> {
         return super.getRevisions(uri, pageable)
     }
 
