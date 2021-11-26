@@ -2,17 +2,17 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
-import no.nsd.qddt.model.classes.ModelRevisionResults
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.*
-import org.springframework.data.rest.core.UriToEntityConverter
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
-import org.springframework.hateoas.server.core.EmbeddedWrapper
 import org.springframework.hateoas.server.core.EmbeddedWrappers
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -57,7 +57,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):  RepresentationModel<EntityModel<SurveyProgram>>{
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):  RepresentationModel<?>{
         val uriId = UriId.fromAny(uri)
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
             PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC, "RevisionNumber")
@@ -69,17 +69,14 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         if (uriId.rev != null) {
             val rev = repository.findRevision(uriId.id, uriId.rev!!).get()
             rev.entity.version.rev = rev.revisionNumber.get()
-            val item = EntityModel.of<SurveyProgram>(
-                rev.entity,
-                Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}", "self")
-            )
             rev.entity.children.size
             rev.entity.authors.size
             rev.entity.comments.size
-                Hibernate.initialize(rev.entity.agency)
-                Hibernate.initialize(rev.entity.modifiedBy)
+            Hibernate.initialize(rev.entity.agency)
+            Hibernate.initialize(rev.entity.modifiedBy)
             return HalModelBuilder.halModel(wrappers)
-                .entity(item)
+                .entity(rev.entity)
+                .link(Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}", "self"))
                 .embed(rev.entity.agency,LinkRelation.of("agecy"))
                 .embed(rev.entity.modifiedBy,LinkRelation.of("modifiedBy"))
                 .embed(rev.entity.comments,LinkRelation.of("comments"))
@@ -101,41 +98,22 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
                     .build<EntityModel<SurveyProgram>>()
 
             }
-            return HalModelBuilder.halModel()
-                .entity(revisions.pageable)
-                .embed(revisions.stream())
-                .build()
+            return PagedModel.wrap(revisions.content, pageMetadataBuilder(revisions))
+//            return HalModelBuilder.halModel()
+//                .entity(revisions.pageable)
+//                .embed(revisions.stream())
+//                .build()
         }
+    }
 
+    private fun linksPageModelBuilder(revisions: Page<RepresentationModel<EntityModel<SurveyProgram>>>): Links  {
+        return Links.NONE
+//        val links = Links.of(revisions.pageable.first().)
+//            .andIf()
+    }
 
-//                Hibernate.initialize(rev.entity.children)
-//                Hibernate.initialize(rev.entity.authors)
-//                Hibernate.initialize(rev.entity.agency)
-//                Hibernate.initialize(rev.entity.modifiedBy)
-
-//
-//elements.add(wrappers.wrap(new Product("Product1a"), LinkRelation.of("all")));
-//elements.add(wrappers.wrap(new Product("Product2a"), LinkRelation.of("purchased")));
-//elements.add(wrappers.wrap(new Product("Product1b"), LinkRelation.of("all")));
-
-
-//        return try {
-//            return HalModelBuilder.emptyHalModel()
-//                .embed(result.stream())
-//                .
-//                .map {
-//
-//                    it.content?.children?.size
-//                    it.content?.authors?.size
-//                    Hibernate.initialize(it.content?.agency)
-//                    Hibernate.initialize(it.content?.modifiedBy)
-//                    it
-//
-//                }).build()
-//        } catch (ex: Exception) {
-//            with(logger) { error(ex.localizedMessage) }
-//            HalModelBuilder.emptyHalModel().build()
-//        }
+    private fun  pageMetadataBuilder(revisions: Page<RepresentationModel<EntityModel<SurveyProgram>>>): PagedModel.PageMetadata {
+        return PagedModel.PageMetadata(revisions.size.toLong(),revisions.pageable.pageNumber.toLong(),revisions.totalElements,revisions.totalPages.toLong())
     }
 
 
