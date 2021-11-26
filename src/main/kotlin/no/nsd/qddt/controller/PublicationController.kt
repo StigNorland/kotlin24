@@ -12,6 +12,7 @@ import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.data.rest.webmvc.RepositoryRestController
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -64,7 +65,7 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
 //    }
 
     @GetMapping("/publication/{uri}/revisions", produces = ["application/hal+json"] )
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<Publication>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<EntityModel<Publication>> {
         return super.getRevisions(uri, pageable)
     }
 

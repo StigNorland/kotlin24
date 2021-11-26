@@ -8,6 +8,7 @@ import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import org.springframework.hateoas.RepresentationModel
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 import javax.persistence.OneToMany

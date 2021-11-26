@@ -9,6 +9,7 @@ import org.springframework.data.history.Revision
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -37,7 +38,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
 //    }
 
     @GetMapping("/responsedomain/{uri}/revisions",produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<ResponseDomain>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<EntityModel<ResponseDomain>> {
         return super.getRevisions(uri, pageable)
     }
 

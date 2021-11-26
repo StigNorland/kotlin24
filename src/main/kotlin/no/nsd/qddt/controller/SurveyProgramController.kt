@@ -6,10 +6,14 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
+import org.springframework.hateoas.*
+import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.hateoas.server.core.EmbeddedWrappers
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
@@ -53,46 +57,63 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/revisions/surveyprogram/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): Page<EntityModel<SurveyProgram>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):  RepresentationModel<?>{
         val uriId = UriId.fromAny(uri)
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
             PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC, "RevisionNumber")
         } else {
             pageable
         }
-        val  result =
-            if (uriId.rev != null) {
-                repository.findRevision(uriId.id, uriId.rev!!).map { rev ->
-                    rev.entity.version.rev = rev.revisionNumber.get()
-                    val item = EntityModel.of<SurveyProgram>(
-                        rev.entity,
-                        Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}", "self")
-                    )
-                    val page = PageImpl(mutableListOf(item), pageable, 1)
-                    page
-                }.orElseThrow()
-            } else {
-                repository.findRevisions(uriId.id, qPage).map {
-                    it.entity.version.rev = it.revisionNumber.get()
-                    EntityModel.of<SurveyProgram>(
-                        it.entity,
-                        Link.of("/api/revisions/surveyprogram/${it.entity.id}:${it.entity.version.rev}", "self")
-                    )
-                }
-            }
-        return try {
-          result!!.map {
-            it.content?.children?.size
-            it.content?.authors?.size
-            Hibernate.initialize(it.content?.agency)
-            Hibernate.initialize(it.content?.modifiedBy)
-            it
-          }
+        var wrappers = EmbeddedWrappers(false)
 
-        } catch (ex: Exception) {
-            with(logger) { error(ex.localizedMessage) }
-            Page.empty()
+        if (uriId.rev != null) {
+            val rev = repository.findRevision(uriId.id, uriId.rev!!).get()
+            rev.entity.version.rev = rev.revisionNumber.get()
+            rev.entity.children.size
+            rev.entity.authors.size
+            rev.entity.comments.size
+            Hibernate.initialize(rev.entity.agency)
+            Hibernate.initialize(rev.entity.modifiedBy)
+            return HalModelBuilder.halModel(wrappers)
+                .entity(rev.entity)
+                .link(Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}", "self"))
+                .embed(rev.entity.agency,LinkRelation.of("agecy"))
+                .embed(rev.entity.modifiedBy,LinkRelation.of("modifiedBy"))
+                .embed(rev.entity.comments,LinkRelation.of("comments"))
+                .embed(rev.entity.authors,LinkRelation.of("authors"))
+                .embed(rev.entity.children, LinkRelation.of("studies"))
+                .link( Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}/children", "studies"))
+                .build()
         }
+        else {
+            val revisions = repository.findRevisions(uriId.id, qPage).map { rev ->
+                rev.entity.version.rev = rev.revisionNumber.get()
+                HalModelBuilder.halModel(wrappers)
+                    .entity(rev.entity)
+                    .link(Link.of("/api/revisions/surveyprogram/${rev.entity.id}:${rev.entity.version.rev}", "self"))
+                    .embed(rev.entity.agency,LinkRelation.of("agnecy"))
+                    .embed(rev.entity.modifiedBy)
+                    .embed(rev.entity.authors)
+                    .embed(rev.entity.children, LinkRelation.of("children"))
+                    .build<EntityModel<SurveyProgram>>()
+
+            }
+            return PagedModel.wrap(revisions.content, pageMetadataBuilder(revisions))
+//            return HalModelBuilder.halModel()
+//                .entity(revisions.pageable)
+//                .embed(revisions.stream())
+//                .build()
+        }
+    }
+
+    private fun linksPageModelBuilder(revisions: Page<RepresentationModel<EntityModel<SurveyProgram>>>): Links  {
+        return Links.NONE
+//        val links = Links.of(revisions.pageable.first().)
+//            .andIf()
+    }
+
+    private fun  pageMetadataBuilder(revisions: Page<RepresentationModel<EntityModel<SurveyProgram>>>): PagedModel.PageMetadata {
+        return PagedModel.PageMetadata(revisions.size.toLong(),revisions.pageable.pageNumber.toLong(),revisions.totalElements,revisions.totalPages.toLong())
     }
 
 
