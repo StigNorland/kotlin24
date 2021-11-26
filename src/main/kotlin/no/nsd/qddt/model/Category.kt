@@ -9,6 +9,7 @@ import no.nsd.qddt.model.builder.CategoryFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.classes.RevisionId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryRelationCodeType
@@ -177,7 +178,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     }
 
     override fun compareTo(other: Category): Int {
-        var i = other.agency?.let { this.agency?.compareTo(it) ?: 0 } ?:0
+        var i = other.agency.let { this.agency.compareTo(it) }
         if (i != 0) return i
         i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i
@@ -205,7 +206,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
             children = children
             code = code
             description = description
-            basedOnObject = id
+            basedOn = RevisionId(id)
             changeKind = IBasedOn.ChangeKind.NEW_COPY
             changeComment = "Copy of [$name]"
         }

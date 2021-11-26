@@ -1,6 +1,7 @@
 package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
@@ -33,6 +34,8 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
 @EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
 
+
+    @JsonIgnore
     @Column(insertable = false, updatable = false)
     override var agencyId: UUID? = null,
 
@@ -41,12 +44,16 @@ abstract class AbstractEntityAudit(
         (shape = JsonFormat.Shape.NUMBER_INT)
     override var modified: Timestamp? = null,
 
-    @Column(name="based_on_object",updatable = false)
-    override var basedOnObject: UUID? = null,
+    @AttributeOverrides(
+        AttributeOverride(name = "id",column = Column(name = "based_on_object")),
+        AttributeOverride(name = "rev",column = Column(name = "based_on_revision"))
+    )
+    @Embedded
+    override var basedOn: RevisionId ?=null,
 
-    @Column(name="based_on_revision", updatable = false)
-    override var basedOnRevision: Int? = null,
-
+    @AttributeOverrides(
+        AttributeOverride(name = "rev",column = Column(name = "rev"))
+    )
     @Embedded
     override var version: EmbeddedVersion = EmbeddedVersion(),
 

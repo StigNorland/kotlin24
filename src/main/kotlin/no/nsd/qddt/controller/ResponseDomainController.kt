@@ -38,7 +38,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
 //    }
 
     @GetMapping("/responsedomain/{uri}/revisions",produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<EntityModel<ResponseDomain>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 

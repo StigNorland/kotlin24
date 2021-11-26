@@ -44,8 +44,8 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
             field = value?.also {
                 elementId = it.id
                 name = it.name
-                elementRevision = it.version!!.rev
-                version = it.version!!
+                elementRevision = it.version.rev
+                version = it.version
                 if (version.rev == 0)
                     version.rev = elementRevision?:0
             }

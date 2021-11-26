@@ -69,7 +69,7 @@ class OtherMaterial():Cloneable, Serializable {
   }
 
   fun getUrnId(entity:AbstractEntityAudit):String {
-    return String.format("%1\$s:%2\$s:%3\$s", entity.agency?.name ?: "?", entity.id, this.fileName)
+    return String.format("%1\$s:%2\$s:%3\$s", entity.agency.name, entity.id, this.fileName)
   }
   
   companion object {

@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.classes
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
@@ -29,6 +30,7 @@ abstract class AbstractEntity(
 //    @Column(columnDefinition="default 0",  nullable = false)
 //    var rev: Int = 0,
 
+    @JsonIgnore
     @Column(insertable = false, updatable = false)
     var modifiedById: UUID? = null,
 

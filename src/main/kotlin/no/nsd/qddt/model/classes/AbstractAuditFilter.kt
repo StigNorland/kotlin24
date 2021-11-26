@@ -31,7 +31,7 @@ abstract class AbstractAuditFilter<N, T : AbstractEntityAudit?> where N : Number
             Stream.concat(
                 Stream.of(revisions.latestRevision)
                     .map { c: Revision<N, T> ->
-                        c.entity!!.version!!.versionLabel = "Latest version"
+                        c.entity!!.version.versionLabel = "Latest version"
                         c
                     },
                 revisions.reverse().content.stream()

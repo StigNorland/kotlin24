@@ -44,10 +44,10 @@ data class Version( var versionLabel: String = "") : Comparable<Version>, Serial
 
 
 
-    constructor(major: Int, minor: Int, revision: Int?=null, versionLabel: String?=null) : this() {
+    constructor(major: Int, minor: Int, revision: Long?=null, versionLabel: String?=null) : this() {
         this.major = major
         this.minor = minor
-        this.rev = revision?:0
+        this.rev = (revision?:0) as Int
         this.versionLabel = versionLabel?:""
         isModified = false
     }

@@ -14,6 +14,8 @@ import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 
@@ -27,8 +29,9 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 //    }
 
 //    @GetMapping("/study/{uri}/revisions", produces = ["application/hal+json"] )
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/revisions/study/{uri}", produces =  ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<EntityModel<Study>> {
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
@@ -40,6 +43,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
     }
 
 //    @GetMapping("/study/{uri}/xml", produces = [MediaType.APPLICATION_XML_VALUE])
+
     @GetMapping("/xml/study/{uri}/{rev}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return  super.getXml(uri)

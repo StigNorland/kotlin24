@@ -18,7 +18,7 @@ class ConceptFactory: IEntityFactory<Concept> {
       label = source.label
       name = source.name
       children = source.children.stream()
-        .map{  copy(it as Concept, basedOnRevision) }
+        .map{  copy(it as Concept, basedOn?.rev) }
         .collect(Collectors.toList())
       questionItems = source.questionItems.stream()
         .map{ it.clone()  }

@@ -194,7 +194,7 @@ class EntityAuditTrailListener{
         with(entity) {
             log.debug("Study pre remove " + parent?.name)
 //            parent?.?.removeIf { it.id == this.id }
-            authors?.clear()
+            authors.clear()
             instruments.clear()
         }
     }

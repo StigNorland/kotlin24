@@ -32,7 +32,7 @@ class Parameter(
 
 
     fun toDDIXml(entity: AbstractEntityAudit, tabs: String?): String {
-        return String.format(PARAM_FORMAT, (entity.agency?.name ?: "?") + ":" + entity.version!!.toDDIXml(), name, tabs)
+        return String.format(PARAM_FORMAT, entity.agency.name + ":" + entity.version.toDDIXml(), name, tabs)
     }
 
     override fun compareTo(other: Parameter): Int {
