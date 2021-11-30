@@ -2,6 +2,7 @@ package no.nsd.qddt.model
 
 // import com.fasterxml.jackson.annotation.JsonBackReference
 // import no.nsd.qddt.model.classes.ParentRef
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -31,6 +32,7 @@ class Instrument(
     @Column(insertable = false, updatable = false)
     var studyId: UUID? = null
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="studyId")
     var study: Study? = null

@@ -33,7 +33,7 @@ class ElementRefResponseDomain() : IElementRef<ResponseDomain> , Serializable {
             value?.let {
                 elementId = it.id
                 name = it.name
-                version = it.version!!
+                version = it.version
             }
             if (value == null) {
                 name = ""

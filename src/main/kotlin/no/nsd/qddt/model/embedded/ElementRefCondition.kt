@@ -47,8 +47,8 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
         set(value) {
             field = value?.also {
                 elementId = it.id
-                name = it.label?:it.name
-                version = it.version!!
+                name = it.label
+                version = it.version
                 if (version.rev == 0)
                     version.rev = elementRevision?:0
             }

@@ -3,6 +3,7 @@ package no.nsd.qddt.config
 import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IHaveChilden
@@ -22,17 +23,16 @@ import org.springframework.stereotype.Component
 class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<AbstractEntityAudit>> {
 
     @Autowired
-    private val entityLinks: RepositoryEntityLinks? = null
+    lateinit var entityLinks: RepositoryEntityLinks
 
     override fun process(model: EntityModel<AbstractEntityAudit>): EntityModel<AbstractEntityAudit> {
-        val baseUri = BasicLinkBuilder.linkToCurrentMapping().toString()
+        val baseUri = BasicLinkBuilder.linkToCurrentMapping()
         val entity = model.content!!
-        val linkBuilder = entityLinks?.linkFor(entity::class.java) as RepositoryLinkBuilder
+        val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
         model.addIf(
             !model.hasLink("revisions")
         ) {
-            logger.debug(linkBuilder.toUri().fragment)
-
+            logger.debug("${baseUri}:${linkBuilder.toUri().fragment}")
             Link.of("$baseUri/revisions/surveyprogram/${entity.id}", "revisions")
 //            linkBuilder.slash(entity.id).slash("revisions").withRel("revisions")
         }
@@ -70,8 +70,13 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
                 }
                 model
             }
+            is Study -> {
+                return model.add(
+                    linkBuilder.slash(entity.id).slash("topics").withRel("topics"),
+                    linkBuilder.slash(entity.id).slash("instruments").withRel("instruments"))
+            }
             else -> {
-                logger.debug("entity not linkified {}", entity.name )
+                logger.debug("FYI the entity not linkified (OK) {}", entity.name )
                 model
             }
         }

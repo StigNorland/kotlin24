@@ -68,7 +68,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
             field = value
             value?.let {
                 elementId = it.id
-                version = it.version!!
+                version = it.version
                 when (it) {
                     is QuestionItem -> (it.name + " ➫ " + it.question).also { name = it }
                     is StatementItem -> (it.name + " ➫ " + it.statement).also { name = it }

@@ -12,7 +12,7 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 interface IEntityFactory<T : AbstractEntityAudit> {
     fun create(): T
     fun copyBody(source: T, dest: T): T
-    fun copy(source: T, revision: Long?): T {
+    fun copy(source: T, revision: Int?): T {
         val rev = when {
             source.isNewCopy() -> null
             else -> revision
@@ -20,7 +20,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
         return copyBody(source,makeNewCopy(source, rev))
     }
 
-    fun makeNewCopy(source: T, revision: Long?): T {
+    fun makeNewCopy(source: T, revision: Int?): T {
         
         return if (revision != null) {
             create().apply {

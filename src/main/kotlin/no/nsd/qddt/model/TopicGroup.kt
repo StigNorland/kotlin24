@@ -1,6 +1,8 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
@@ -51,15 +53,12 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
 
-//  @Column(insertable = false, updatable = false)
-//  var parentId: UUID? = null
-
+  @JsonBackReference
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name="parentId",insertable = false, updatable = false )
   var parent: Study? = null
 
-
+  @JsonManagedReference
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
   @OneToMany(mappedBy = "parent")

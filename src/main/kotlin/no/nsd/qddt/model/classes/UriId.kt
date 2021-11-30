@@ -22,11 +22,11 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
         return id.toString()
     }
 
-    override fun compareTo(other: UriId):Int {
+    override fun compareTo(other: UriId): Int {
         return try
         {
             val i = id.compareTo(other.id)
-            return if (i != 0) i else rev?:0.compareTo(other.rev?:0)
+            return if (i != 0) i else (rev?:0).compareTo(other.rev?:0)
         }
         catch (nfe:NumberFormatException) {
           id.compareTo(id)
@@ -35,6 +35,13 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
 
     override fun convert(source: Serializable): UriId? {
         return fromAny(source)
+    }
+
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (rev?.hashCode() ?: 0)
+        return result
     }
 
     companion object {

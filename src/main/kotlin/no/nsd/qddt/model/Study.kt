@@ -1,6 +1,8 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -49,11 +51,12 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
+    @JsonBackReference
     @JsonIgnore
-    @ManyToOne
-    var parent: SurveyProgram? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    lateinit var parent: SurveyProgram
 
-
+    @JsonManagedReference
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent")

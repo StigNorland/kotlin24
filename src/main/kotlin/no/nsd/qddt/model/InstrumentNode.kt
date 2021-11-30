@@ -135,7 +135,7 @@ class InstrumentNode<T : ControlConstruct> : AbstractElementRef<T>, Iterable<Ins
             is QuestionConstruct -> println("ignorerer set value")
             else -> {
                 elementKind = ElementKind.getEnum(element.classKind)
-                version = element.version!!
+                version = element.version
             }
         }
         return this

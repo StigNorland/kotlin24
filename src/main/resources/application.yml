@@ -93,27 +93,6 @@ logging:
     web: DEBUG
 
 
-#  management:
-#    endpoints:
-#      web:
-#        exposure:
-#          include: health,prometheus
-#        path-mapping:
-#          health: health
-#          prometheus: metrics
-#      cors:
-#        allowed-headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization
-#        allowed-origins: https://*.nsd.no, https://*.nsd.no/api/, http://localhost:5001
-#  header: Authorization
-#  expires: 86400
-#  secret: some-random-secret
-#  expiration-time: 86400
-# JWT Auth
-#auth:
-#  expires: 86400
-#  header: Authorization
-#  secret: some-random-secret
-
 ---
 spring:
   config:

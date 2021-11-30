@@ -16,6 +16,6 @@ interface BaseArchivedRepository<T: AbstractEntityAudit> :BaseMixedRepository<T>
         name= "hasArchive", nativeQuery = true,
         value = "select count(*) from project_archived_hierarchy as pah  where is_archived and  pah.ancestors  @> ARRAY[CAST(:entityId AS uuid)];",
     )
-    fun hasArchive(@Param("entityId") entityId: String): Long
+    fun hasArchive(@Param("entityId") entityId: String): Int
 
 }

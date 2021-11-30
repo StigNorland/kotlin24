@@ -1,5 +1,6 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -9,10 +10,7 @@ import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import org.springframework.hateoas.RepresentationModel
-import javax.persistence.DiscriminatorValue
-import javax.persistence.Entity
-import javax.persistence.OneToMany
-import javax.persistence.OrderColumn
+import javax.persistence.*
 
 
 /**
@@ -46,10 +44,16 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
         return super.modified!!.time
     }
 
+    @JsonManagedReference
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var children: MutableList<Study> = mutableListOf()
+
+    fun addChildren(study: Study){
+        study.parent = this
+        children.add(study)
+    }
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null

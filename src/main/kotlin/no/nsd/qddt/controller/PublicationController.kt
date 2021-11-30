@@ -31,7 +31,7 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
 
     @GetMapping("/publication/status",produces = ["application/json"])
     fun getHierarchy(): ResponseEntity<MutableList<PublicationStatus>> {
-        val args = mutableListOf<Long>(0, 1, 2)
+        val args = mutableListOf<Int>(0, 1, 2)
 
         return ResponseEntity.ok(publicationStatusRepository.findAllById(args))
     }

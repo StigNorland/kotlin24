@@ -10,5 +10,5 @@ class RevisionId (
     @Column(updatable = false)
     var id:UUID?=null,
     @Column(updatable = false)
-    var rev:Long?=null
+    var rev:Int?=null
     ) :Serializable

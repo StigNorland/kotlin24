@@ -33,7 +33,7 @@
 //
 //    @GetMapping("/revisions/surveyprogram/{uuid}/{rev}", produces = ["application/hal+json"] )
 //    @ResponseBody
-//    fun getRevisions(@PathVariable uuid: UUID, @PathVariable rev:Long ): Revision<Int, SurveyProgram>? {
+//    fun getRevisions(@PathVariable uuid: UUID, @PathVariable rev:Int ): Revision<Int, SurveyProgram>? {
 //        val result =  revisionService.getRevision<SurveyProgram>(UriId.fromAny("${uuid}:${rev}"),ElementKind.SURVEY_PROGRAM)
 //        return  result
 //    }
