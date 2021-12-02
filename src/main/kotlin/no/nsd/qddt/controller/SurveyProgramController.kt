@@ -20,45 +20,18 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import java.util.*
 
-
+@Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
 class SurveyProgramController(@Autowired repository: SurveyProgramRepository): AbstractRestController<SurveyProgram>(repository) {
 // https://docs.spring.io/spring-hateoas/docs/current/reference/html/#fundamentals.representation-models
 
-//    @GetMapping("/surveyprogram/{uri}/{rev}", produces = ["application/hal+json"] )
-//    fun getById(@PathVariable uri: UUID,@PathVariable rev: Int ): ResponseEntity<EntityModel<SurveyProgram>> {
-//        return super.getById("$uri:$rev")
-//    }
-
-    @GetMapping("/surveyprogram/study/{uri}", produces = ["application/prs.hal-forms+json"])
-    @Transactional
-    fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
-        logger.debug("get studies SurveyProgramController...")
-        val result = super.getByUri(uri).children.map {
-            entityModelBuilder(it)
-        }
-        return CollectionModel.of(result)
-
-    }
-
-    @PutMapping("/surveyprogram/study/{uri}", produces = ["application/hal+json"])
-    @Transactional
-    fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): ResponseEntity<List<EntityModel<Study>>> {
-        logger.debug("put studies SurveyProgramController...")
-        val result =  repository.findById(uri).orElseThrow()
-        result.addChildren(study)
-        repository.saveAndFlush(result)
-        if (result.children.size > 0)
-            return ResponseEntity.ok(
-                result.children.map {
-                    EntityModel.of(it,Link.of("studies"))
-                })
-        throw NoSuchElementException("No studies")
+    @GetMapping("/surveyprogram/revision/{uri}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):RepresentationModel<*> {
+        return super.getRevisions(uri, pageable)
     }
 
     @GetMapping("/surveyprogram/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
-        logger.debug("get pdf controller...")
         return super.getPdf(uri)
     }
 
@@ -67,16 +40,38 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         return super.getXml(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/surveyprogram/revision/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
-      return super.getRevisions(uri, pageable)
+
+
+    @GetMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
+    fun getStudies(@PathVariable uri: String): ResponseEntity<List<RepresentationModel<EntityModel<Study>>>> {
+        logger.debug("get studies from SurveyProgramController...")
+
+        val result = super.getByUri(uri).children.map {
+            entityModelBuilder(it)
+//            EntityModel.of(it,Link.of("studies"))
+        }
+        return ResponseEntity.ok(result)
+//        return CollectionModel.of(result)
+
     }
 
-
+    @PutMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
+    fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): ResponseEntity<List<EntityModel<Study>>> {
+        logger.debug("put studies from SurveyProgramController...")
+        val result =  repository.findById(uri).orElseThrow()
+        result.addChildren(study)
+        repository.saveAndFlush(result)
+        if (result.children.size > 0)
+//            return CollectionModel.of(result)
+            return ResponseEntity.ok(
+                result.children.map {
+                    EntityModel.of(it,Link.of("studies"))
+                })
+        throw NoSuchElementException("No studies")
+    }
     private fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
-
-        entity.children.size
+        logger.debug("entityModelBuilder SurveyProgram Study: {}" , entity.id)
+//        entity.children.size
         entity.authors.size
         entity.comments.size
         entity.instruments.size
@@ -93,6 +88,12 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     }
 
     override fun entityModelBuilder(entity: SurveyProgram): RepresentationModel<EntityModel<SurveyProgram>> {
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder SurveyProgram : {}" , uriId)
+        val baseUrl = if(uriId.rev != null)
+            "${baseUri}/surveyprorgam/revision/${uriId}"
+        else
+            "${baseUri}/surveyprorgam/${uriId.id}"
         entity.children.size
         entity.authors.size
         entity.comments.size
@@ -100,7 +101,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity)
-            .link(Link.of("${baseUri}/surveyprorgam/${entity.id}", "self"))
+            .link(Link.of(baseUrl))
             .embed(entity.agency,LinkRelation.of("agency"))
             .embed(entity.modifiedBy,LinkRelation.of("modifiedBy"))
             .embed(entity.comments,LinkRelation.of("comments"))

@@ -3,6 +3,7 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Concept
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.StudyRepository
 import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
@@ -26,22 +27,22 @@ import java.util.*
 @BasePathAwareController
 class TopicController(@Autowired repository: TopicGroupRepository): AbstractRestController<TopicGroup>(repository) {
 
-    @GetMapping("/revision/topicgroup/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/topicgroup/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
-    @GetMapping("/pdf/topicgroup/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/topicgroup/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/xml/topicgroup/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/topicgroup/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
-    @GetMapping("children/topicgroup/{uri}", produces = ["application/prs.hal-forms+json"])
+    @GetMapping("/topicgroup/concepts/{uri}", produces = ["application/prs.hal-forms+json"])
     fun getConcept(@PathVariable uri: String): RepresentationModel<*> {
         logger.debug("get studies SurveyProgramController...")
         val result = getByUri(uri).children.map {
@@ -51,7 +52,7 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
 
     }
 
-    @PutMapping("/children/topicgroup/{uri}", produces = ["application/hal+json"])
+    @PutMapping("/topicgroup/concepts/{uri}", produces = ["application/hal+json"])
     fun putConcept(@PathVariable uri: UUID, @RequestBody concept: Concept): ResponseEntity<List<EntityModel<Concept>>> {
         logger.debug("put concept TopicController...")
         val result =  repository.findById(uri).orElseThrow()
@@ -79,23 +80,37 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
             .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(it.comments, LinkRelation.of("comments"))
             .embed(it.authors, LinkRelation.of("authors"))
+            .embed(it.children, LinkRelation.of("children"))
             .build()
     }
 
 
     override fun entityModelBuilder(entity: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder TopicController : {}" , uriId)
+        val baseUrl = if(uriId.rev != null)
+            "${baseUri}/topicgroup/revision/${uriId}"
+        else
+            "${baseUri}/topicgroup/${uriId.id}"
         entity.children.size
         entity.authors.size
         entity.comments.size
+        entity.otherMaterials
+        entity.questionItems
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity)
-            .link(Link.of("${baseUri}/topicgroup/${entity.id}"))
+            .link(Link.of(baseUrl))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))
+            .embed(entity.otherMaterials, LinkRelation.of("otherMaterials"))
+            .embed(entity.questionItems, LinkRelation.of("questionItems"))
+            .embed(entity.children.map {
+                entityModelBuilder(it)
+            }, LinkRelation.of("concepts"))
             .build()
     }
 }

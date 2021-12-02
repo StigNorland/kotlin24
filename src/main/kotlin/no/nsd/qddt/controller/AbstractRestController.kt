@@ -1,6 +1,5 @@
 package no.nsd.qddt.controller
 
-import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
@@ -8,13 +7,11 @@ import no.nsd.qddt.repository.BaseMixedRepository
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.history.Revision
-import org.springframework.data.web.PagedResourcesAssembler
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
@@ -76,7 +73,10 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
     protected fun getByUri(uri: UriId): T {
         logger.debug("_getByUri : {}" , uri)
         return if (uri.rev != null)
-            repository.findRevision(uri.id, uri.rev!!).map { it.entity.version.rev = it.revisionNumber.get(); it.entity }.orElseThrow()
+            repository.findRevision(uri.id, uri.rev!!).map {
+                it.entity.version.rev = it.revisionNumber.get()
+                it.entity
+            }.orElseThrow()
         else
             repository.findById(uri.id).orElseThrow()
     }

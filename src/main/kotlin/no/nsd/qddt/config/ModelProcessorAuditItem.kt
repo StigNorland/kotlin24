@@ -1,9 +1,6 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.model.QuestionConstruct
-import no.nsd.qddt.model.QuestionItem
-import no.nsd.qddt.model.ResponseDomain
-import no.nsd.qddt.model.Study
+import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IHaveChilden
@@ -58,8 +55,12 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
             }
             is Study -> {
                 return model.add(
-                    linkBuilder.slash("topic").slash(entity.id).withRel("topics"),
-                    linkBuilder.slash("instrument").slash(entity.id).withRel("instruments"))
+                    linkBuilder.slash("topics").slash(entity.id).withRel("topics"),
+                    linkBuilder.slash("instruments").slash(entity.id).withRel("instruments"))
+            }
+            is TopicGroup -> {
+                return model.add(
+                    linkBuilder.slash("concepts").slash(entity.id).withRel("topics"))
             }
             else -> {
                 logger.debug("FYI the entity not linkified (OK) {}", entity.name )

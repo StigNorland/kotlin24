@@ -3,7 +3,6 @@ package no.nsd.qddt.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
-import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.envers.AuditJoinTable
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
@@ -37,7 +36,7 @@ abstract class ConceptHierarchy(
         joinColumns = [JoinColumn(name = "parent_id")],
         inverseJoinColumns = [JoinColumn(name = "authorId")])
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    @AuditJoinTable()
+    @AuditJoinTable
     var authors: MutableSet<Author> = mutableSetOf()
 
 

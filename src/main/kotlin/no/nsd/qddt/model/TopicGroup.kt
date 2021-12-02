@@ -60,13 +60,13 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
 
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-  @OneToMany(mappedBy = "parent")
+  @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
   var children: MutableList<Concept> = mutableListOf()
 
   fun addChildren(entity: Concept): Concept {
     entity.parent = this
     children.add(entity)
-    changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+    changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
     changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
     return entity
   }
@@ -81,7 +81,6 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
       changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
       if (changeComment.isBlank())
         changeComment ="Other material added"
-
     }
   }
 
@@ -104,7 +103,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
       try {
         field = value
         if (value) {
-          changeKind = IBasedOn.ChangeKind.ARCHIVED
+          changeKind = ChangeKind.ARCHIVED
 
           if (Hibernate.isInitialized(children))
             logger.debug("Children isInitialized. ")

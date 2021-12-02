@@ -49,7 +49,7 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
             val parts = source.toString().split(":")
             return UriId().apply {
                 id = UUID.fromString(parts[0])
-                if (parts.size==2)
+                if (parts.size==2 && parts[1].toInt() > 0)
                     rev = parts[1].toInt()
             }
 

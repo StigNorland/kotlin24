@@ -57,8 +57,8 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent")
-    var children: MutableList<TopicGroup> = mutableListOf()
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    var children = mutableListOf<TopicGroup>()
 
     @OneToMany( mappedBy="studyId")
     var instruments: MutableSet<Instrument> = mutableSetOf()
