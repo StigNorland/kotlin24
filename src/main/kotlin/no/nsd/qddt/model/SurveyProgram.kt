@@ -6,6 +6,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.model.interfaces.IHaveChilden
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
@@ -40,19 +41,18 @@ import javax.persistence.*
 @DiscriminatorValue("SURVEY_PROGRAM")
 data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
 
-    fun getModified() : Long {
-        return super.modified!!.time
-    }
 
-    @JsonManagedReference
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var children: MutableList<Study> = mutableListOf()
 
-    fun addChildren(study: Study){
+    fun addChildren(study: Study): Study {
         study.parent = this
         children.add(study)
+        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment = String.format("{} [ {} ] added", study.classKind, study.name)
+        return study
     }
 
     override fun xmlBuilder(): AbstractXmlBuilder? {

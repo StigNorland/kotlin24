@@ -45,18 +45,16 @@ import javax.persistence.*
 @DiscriminatorValue("STUDY")
 data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IArchived {
 
-    fun getModified() : Long {
-        return super.modified!!.time
-    }
+
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
-    @JsonBackReference
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     lateinit var parent: SurveyProgram
 
-    @JsonManagedReference
+
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent")
@@ -106,6 +104,14 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
+    }
+
+    fun addChildren(entity: TopicGroup): TopicGroup {
+        entity.parent = this
+        children.add(entity)
+        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+        return entity
     }
 
 }

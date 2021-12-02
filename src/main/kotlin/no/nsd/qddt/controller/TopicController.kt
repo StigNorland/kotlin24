@@ -1,8 +1,10 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.Concept
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.repository.StudyRepository
+import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -22,25 +24,25 @@ import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
-class StudyController(@Autowired repository: StudyRepository): AbstractRestController<Study>(repository) {
+class TopicController(@Autowired repository: TopicGroupRepository): AbstractRestController<TopicGroup>(repository) {
 
-    @GetMapping("/revision/study/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):RepresentationModel<*> {
+    @GetMapping("/revision/topicgroup/{uri}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
-    @GetMapping("/pdf/study/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/pdf/topicgroup/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/xml/study/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/xml/topicgroup/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
-    @GetMapping("/children/study/{uri}", produces = ["application/prs.hal-forms+json"])
-    fun getTopicGroups(@PathVariable uri: String): RepresentationModel<*> {
+    @GetMapping("children/topicgroup/{uri}", produces = ["application/prs.hal-forms+json"])
+    fun getConcept(@PathVariable uri: String): RepresentationModel<*> {
         logger.debug("get studies SurveyProgramController...")
         val result = getByUri(uri).children.map {
             entityModelBuilder(it)
@@ -49,22 +51,22 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
     }
 
-    @PutMapping("/children/study/{uri}", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup): ResponseEntity<List<EntityModel<TopicGroup>>> {
-        logger.debug("put studies StudyController...")
+    @PutMapping("/children/topicgroup/{uri}", produces = ["application/hal+json"])
+    fun putConcept(@PathVariable uri: UUID, @RequestBody concept: Concept): ResponseEntity<List<EntityModel<Concept>>> {
+        logger.debug("put concept TopicController...")
         val result =  repository.findById(uri).orElseThrow()
-        result.addChildren(topicGroup)
+        result.addChildren(concept)
         repository.saveAndFlush(result)
         if (result.children.size > 0)
             return ResponseEntity.ok(
                 result.children.map {
-                    EntityModel.of(it,Link.of("topicgroups"))
+                    EntityModel.of(it, Link.of("concepts"))
                 })
-        throw NoSuchElementException("No studies")
+        throw NoSuchElementException("No concepts")
     }
 
 
-    fun entityModelBuilder(it: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
+    fun entityModelBuilder(it: Concept): RepresentationModel<EntityModel<Concept>> {
         it.children.size
         it.authors.size
         it.comments.size
@@ -72,7 +74,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         Hibernate.initialize(it.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(it)
-            .link(Link.of("${baseUri}/topicgroup/${it.id}"))
+            .link(Link.of("${baseUri}/concept/${it.id}"))
             .embed(it.agency, LinkRelation.of("agency"))
             .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(it.comments, LinkRelation.of("comments"))
@@ -81,16 +83,15 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
     }
 
 
-    override fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
+    override fun entityModelBuilder(entity: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
         entity.children.size
         entity.authors.size
         entity.comments.size
-        entity.instruments.size
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity)
-            .link(Link.of("${baseUri}/study/${entity.id}"))
+            .link(Link.of("${baseUri}/topicgroup/${entity.id}"))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))

@@ -47,22 +47,29 @@ import javax.persistence.*
 @Entity
 @DiscriminatorValue("TOPIC_GROUP")
 data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
-  fun getModified() : Long {
-    return super.modified!!.time
-  }
+
+
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
 
-  @JsonBackReference
+
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   var parent: Study? = null
 
-  @JsonManagedReference
+
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
   @OneToMany(mappedBy = "parent")
   var children: MutableList<Concept> = mutableListOf()
+
+  fun addChildren(entity: Concept): Concept {
+    entity.parent = this
+    children.add(entity)
+    changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+    changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+    return entity
+  }
 
 //  @OrderColumn(name = "ownerIdx")
   @ElementCollection(fetch = FetchType.EAGER)
@@ -157,12 +164,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
          it.fillDoc(pdfReport, counter + "." + ++i)
      }
   }
-  
-//  @PreRemove
-//  fun preRemove() {
-//    logger.debug("Topic pre remove")
-//    authors.clear()
-//    otherMaterials.clear()
-//  }
+
+
 
 }

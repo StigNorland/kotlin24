@@ -31,11 +31,7 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
         model.addIf(
             !model.hasLink("revisions")
-        ) {
-            logger.debug("${baseUri}:${linkBuilder.toUri().fragment}")
-            Link.of("$baseUri/revisions/surveyprogram/${entity.id}", "revisions")
-//            linkBuilder.slash(entity.id).slash("revisions").withRel("revisions")
-        }
+        ) { linkBuilder.slash("revision").slash(entity.id).withRel("revisions") }
         model.addIf(
             !model.hasLink("xml")
         ) { linkBuilder.slash(entity.id).slash("xml").withRel("xml") }
@@ -43,16 +39,6 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
             !model.hasLink("pdf")
         ) { linkBuilder.slash(entity.id).slash("pdf").withRel("pdf") }
 
-//        if (entity is IHaveChilden<*>) {
-//            logger.debug("entity is IHaveChilden {}", entity.name )
-//            model.addIf(
-//                !model.hasLink("children2")
-//            ) {
-//                (entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder)
-//                    .slash(entity.id).slash("children")
-//                    .withRel("children2")
-//            }
-//        }
 
         return when (entity) {
             is QuestionConstruct -> {
@@ -72,8 +58,8 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
             }
             is Study -> {
                 return model.add(
-                    linkBuilder.slash(entity.id).slash("topics").withRel("topics"),
-                    linkBuilder.slash(entity.id).slash("instruments").withRel("instruments"))
+                    linkBuilder.slash("topic").slash(entity.id).withRel("topics"),
+                    linkBuilder.slash("instrument").slash(entity.id).withRel("instruments"))
             }
             else -> {
                 logger.debug("FYI the entity not linkified (OK) {}", entity.name )

@@ -52,7 +52,7 @@ internal class OtherMaterialServiceImpl : OtherMaterialService {
  return absolute path to save folder, creates folder if not exists
  */
   private fun getFolder(ownerId:String):String {
-    val directory = File(fileRoot + ownerId.toLowerCase())
+    val directory = File(fileRoot + ownerId.lowercase(Locale.getDefault()))
     if (!directory.exists())
     {
       directory.mkdirs()

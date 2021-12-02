@@ -20,13 +20,12 @@ interface IHaveChilden<T:IBasedOn>  {
 //    @OneToMany(mappedBy = "parentId" ,  cascade = [CascadeType.REMOVE, CascadeType.PERSIST] )
     var children: MutableList<T>
 
-//    fun addChild(entity:T ): T
-
-//    children.add(entity)
-//    entity.parent = this
-//    changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-//    changeComment =  String.format("{} [ {} ] added", entity.classKind, entity.name)
-//    return entity
-
+//    fun addChild(entity:T ): T {
+//        children.add(entity)
+//        entity.parent = this
+//        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+//        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+//        return entity
+//    }
 }
 

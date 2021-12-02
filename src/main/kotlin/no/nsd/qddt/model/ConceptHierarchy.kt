@@ -3,6 +3,7 @@ package no.nsd.qddt.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
+import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.envers.AuditJoinTable
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
@@ -25,22 +26,11 @@ abstract class ConceptHierarchy(
     var label: String? = null
         get() { return field?:name }
 
+    fun getModified() : Long {
+        return super.modified!!.time
+    }
 
 
-//    @JsonIgnore
-//    @ManyToOne
-////    @JoinColumn(insertable = false, updatable = false )
-//    var parent: ConceptHierarchy? = null
-
-
-
-//    override fun addChild(entity: ConceptHierarchy): ConceptHierarchy {
-//        children.add(entity)
-//        entity.parent = this
-//        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-//        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
-//        return entity
-//    }
 
     @ManyToMany
     @JoinTable(name = "concept_hierarchy_authors",
