@@ -1,15 +1,14 @@
 package no.nsd.qddt.model.interfaces
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.model.classes.RevisionId
-import java.util.*
+import no.nsd.qddt.model.embedded.RevisionId
 
 /**
  * @author Stig Norland
  */
 interface IBasedOn:IDomainObject {
 
-    var basedOn: RevisionId?
+    var basedOn: RevisionId
 
     var changeKind: ChangeKind
     var changeComment: String

@@ -3,13 +3,11 @@ package no.nsd.qddt.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
 import no.nsd.qddt.model.builder.CategoryFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
-import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.RevisionId
+import no.nsd.qddt.model.embedded.RevisionId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryRelationCodeType

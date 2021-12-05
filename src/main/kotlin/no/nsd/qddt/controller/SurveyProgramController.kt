@@ -50,23 +50,23 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
             entityModelBuilder(it)
 //            EntityModel.of(it,Link.of("studies"))
         }
-        return ResponseEntity.ok(result)
+        return  ResponseEntity.ok().body(result)
 //        return CollectionModel.of(result)
 
     }
 
-    @PutMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): ResponseEntity<List<EntityModel<Study>>> {
+    @PutMapping("/surveyprogram/{uri}/children", produces = ["application/hal+json"])
+    fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): RepresentationModel<*> {
         logger.debug("put studies from SurveyProgramController...")
         val result =  repository.findById(uri).orElseThrow()
         result.addChildren(study)
         repository.saveAndFlush(result)
         if (result.children.size > 0)
-//            return CollectionModel.of(result)
-            return ResponseEntity.ok(
-                result.children.map {
-                    EntityModel.of(it,Link.of("studies"))
-                })
+            return CollectionModel.of(result)
+//            return ResponseEntity.ok(
+//                result.children.map {
+//                    entityModelBuilder(it)
+//                })
         throw NoSuchElementException("No studies")
     }
     private fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
@@ -91,9 +91,9 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
         logger.debug("entityModelBuilder SurveyProgram : {}" , uriId)
         val baseUrl = if(uriId.rev != null)
-            "${baseUri}/surveyprorgam/revision/${uriId}"
+            "${baseUri}/surveyprogram/revision/${uriId}"
         else
-            "${baseUri}/surveyprorgam/${uriId.id}"
+            "${baseUri}/surveyprogram/${uriId.id}"
         entity.children.size
         entity.authors.size
         entity.comments.size

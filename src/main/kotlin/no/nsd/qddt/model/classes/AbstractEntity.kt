@@ -32,7 +32,7 @@ abstract class AbstractEntity(
 
     @JsonIgnore
     @Column(insertable = false, updatable = false)
-    var modifiedById: UUID? = null,
+    protected var modifiedById: UUID? = null,
 
     @Version
 //    @Column(insertable = false, updatable = false)

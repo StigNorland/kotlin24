@@ -21,25 +21,29 @@ import org.springframework.web.bind.annotation.RequestBody
 import java.util.*
 
 
-@Transactional(propagation = Propagation.REQUIRED)
+
 @BasePathAwareController
 class StudyController(@Autowired repository: StudyRepository): AbstractRestController<Study>(repository) {
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable):RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/topicgroups/{uri}", produces = ["application/hal+json"])
     fun getStudies(@PathVariable uri: String): ResponseEntity<List<EntityModel<TopicGroup>>> {
         logger.debug("get topicgroups StudyController...")
@@ -61,18 +65,19 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 //        return CollectionModel.of(result)
 //
 //    }
-
-    @PutMapping("/children/study/{uri}", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup): ResponseEntity<List<EntityModel<TopicGroup>>> {
+    @Transactional(propagation = Propagation.NESTED)
+    @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])
+    fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup): RepresentationModel<*> {
         logger.debug("put studies StudyController...")
-        val result =  repository.findById(uri).orElseThrow()
+        var result =  repository.findById(uri).orElseThrow()
         result.addChildren(topicGroup)
-        repository.saveAndFlush(result)
+        result = repository.save(result)
         if (result.children.size > 0)
-            return ResponseEntity.ok(
-                result.children.map {
-                    EntityModel.of(it,Link.of("topicgroups"))
-                })
+            return CollectionModel.of(result.children)
+//            return ResponseEntity.ok(
+//                result.children.map {
+//                    EntityModel.of(it,Link.of("topicgroups"))
+//                })
         throw NoSuchElementException("No studies")
     }
 

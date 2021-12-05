@@ -29,7 +29,7 @@ class CommentTrailListener{
     private fun onInsert(entity: Comment) {
         log.debug("About to insert entity: {}" , entity.id)
         val user = SecurityContextHolder.getContext().authentication.principal as User
-        entity.modifiedById = user.id
+        entity.modifiedBy = user
         entity.modified = Timestamp.from(Instant.now())
 // TODO check children..
 //        entity.parent?.comments?.size

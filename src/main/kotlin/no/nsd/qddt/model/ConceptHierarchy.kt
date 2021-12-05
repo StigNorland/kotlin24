@@ -1,11 +1,13 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
 import org.hibernate.envers.AuditJoinTable
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
+import java.util.*
 import javax.persistence.*
 
 @Audited
@@ -21,6 +23,11 @@ abstract class ConceptHierarchy(
     var description: String=""
 
 ) : AbstractEntityAudit(), IArchived {
+
+    @JsonIgnore
+    @Column(insertable = false, updatable = false)
+    protected var parentId: UUID? = null
+
 
     var label: String? = null
         get() { return field?:name }

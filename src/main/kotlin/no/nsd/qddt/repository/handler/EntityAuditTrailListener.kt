@@ -1,16 +1,16 @@
 package no.nsd.qddt.repository.handler
 
 import no.nsd.qddt.model.*
-import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.RevisionId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IArchived
-import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -42,11 +42,11 @@ class EntityAuditTrailListener{
 
     @PrePersist
     private fun onInsert(entity: AbstractEntityAudit) {
-        log.debug("About to insert entity: {}" , entity.id)
+        log.debug("About to insert entity: {}" , entity.name)
         val user = SecurityContextHolder.getContext().authentication.principal as User
         entity.agency = user.agency
         entity.modifiedBy = user
-         if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
+        if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
         when (entity) {
             is Category -> {
                 beforeCategoryInsert(entity)
@@ -70,31 +70,34 @@ class EntityAuditTrailListener{
             var change = changeKind
 
             // it is illegal to update an entity with "Creator statuses" (CREATED...BASEDON)
-            if ( (change.ordinal <= IBasedOn.ChangeKind.REFERENCED.ordinal)  and !ver!!.isModified) {
-                change = IBasedOn.ChangeKind.IN_DEVELOPMENT
+            if ( (change.ordinal <= ChangeKind.REFERENCED.ordinal)  and !ver!!.isModified) {
+                change = ChangeKind.IN_DEVELOPMENT
                 changeKind = change
             }
             if (changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
                 changeComment = change.description
             when (change) {
-                IBasedOn.ChangeKind.CREATED
+                ChangeKind.CREATED
                 -> if (changeComment == "") changeComment = change.description
-                IBasedOn.ChangeKind.BASED_ON, IBasedOn.ChangeKind.NEW_COPY, IBasedOn.ChangeKind.TRANSLATED
-                -> ver = Version()
-                IBasedOn.ChangeKind.REFERENCED, IBasedOn.ChangeKind.TO_BE_DELETED
+                ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED
+                -> {
+                    ver = Version()
+                    entity.basedOn = RevisionId(entity.id, entity.version.rev)
+                }
+                ChangeKind.REFERENCED, ChangeKind.TO_BE_DELETED
                 -> {}
-                IBasedOn.ChangeKind.UPDATED_PARENT, IBasedOn.ChangeKind.UPDATED_CHILD, IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+                ChangeKind.UPDATED_PARENT, ChangeKind.UPDATED_CHILD, ChangeKind.UPDATED_HIERARCHY_RELATION
                 -> ver.versionLabel = ""
-                IBasedOn.ChangeKind.IN_DEVELOPMENT -> ver.versionLabel = IBasedOn.ChangeKind.IN_DEVELOPMENT.name
-                IBasedOn.ChangeKind.TYPO -> {
+                ChangeKind.IN_DEVELOPMENT -> ver.versionLabel = ChangeKind.IN_DEVELOPMENT.name
+                ChangeKind.TYPO -> {
                     ver.minor++
                     ver.versionLabel = ""
                 }
-                IBasedOn.ChangeKind.CONCEPTUAL, IBasedOn.ChangeKind.EXTERNAL, IBasedOn.ChangeKind.OTHER, IBasedOn.ChangeKind.ADDED_CONTENT -> {
+                ChangeKind.CONCEPTUAL, ChangeKind.EXTERNAL, ChangeKind.OTHER, ChangeKind.ADDED_CONTENT -> {
                     ver.major++
                     ver.versionLabel =""
                 }
-                IBasedOn.ChangeKind.ARCHIVED -> {
+                ChangeKind.ARCHIVED -> {
                     (this as IArchived).isArchived =true
                     ver.versionLabel =""
                 }
@@ -157,6 +160,7 @@ class EntityAuditTrailListener{
             }
             else -> {
                 log.debug("UNTOUCHED - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)
+                log.debug(entity.modified.toString())
             }
         }
     }
@@ -201,23 +205,13 @@ class EntityAuditTrailListener{
 
     private fun beforeStudyUpdate(entity: Study) {
         with(entity) {
-            log.info("Study beforeUpdate")
-//            if (surveyIdx == null) {
-//                log.info("Setting surveyIdx")
-//                surveyIdx = surveyProgram?.studies?.indexOf(this)
-//            }
+            log.info("Study beforeUpdate {} - {}",entity.name, entity.id)
         }
     }
 
     private fun beforeStudyInsert(entity: Study) {
          with(entity) {
-             log.info("Study beforeInsert")
-//             if (surveyProgram != null && surveyIdx == null) {
-//                 log.info("Setting surveyIdx")
-//                 surveyIdx = surveyProgram!!.studies.indexOf(this)
-//             } else {
-//                 log.debug("no survey reference, cannot add..")
-//             }
+             log.info("Study beforeInsert {}", entity.name)
          }
     }
 

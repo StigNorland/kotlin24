@@ -41,12 +41,13 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentId")
     var parent: ConceptHierarchy? = null
 
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var children: MutableList<Concept> = mutableListOf()
 
 //    @OrderColumn(name="parentIdx")

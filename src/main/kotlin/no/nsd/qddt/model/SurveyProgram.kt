@@ -1,16 +1,13 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.model.interfaces.IHaveChilden
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import org.springframework.hateoas.RepresentationModel
 import javax.persistence.*
 
 

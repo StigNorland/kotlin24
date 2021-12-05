@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.RevisionId
+import no.nsd.qddt.model.embedded.RevisionId
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 
 

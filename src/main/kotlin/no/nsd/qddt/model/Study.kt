@@ -52,12 +52,13 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentId")
     lateinit var parent: SurveyProgram
 
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     var children = mutableListOf<TopicGroup>()
 
     @OneToMany( mappedBy="studyId")
@@ -108,7 +109,13 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
 
     fun addChildren(entity: TopicGroup): TopicGroup {
         entity.parent = this
-        children.add(entity)
+        if (entity.parentIdx!=null) {
+            children.add(entity.parentIdx!!, entity)
+            children.forEachIndexed { index, topicGroup ->  topicGroup.parentIdx = index }
+        } else {
+            children.add(entity)
+            entity.parentIdx = children.size-1
+        }
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
         changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
         return entity

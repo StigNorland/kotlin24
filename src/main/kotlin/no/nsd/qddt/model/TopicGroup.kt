@@ -52,21 +52,26 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
 
+  @JsonIgnore
+  @Column(insertable = false, updatable = false)
+  override var parentId: UUID? = null
 
   @JsonIgnore
+  @AuditMappedBy(mappedBy = "parent")
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parentId")
   var parent: Study? = null
 
 
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-  @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
   var children: MutableList<Concept> = mutableListOf()
 
   fun addChildren(entity: Concept): Concept {
     entity.parent = this
     children.add(entity)
-    changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
+    changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
     changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
     return entity
   }
@@ -81,6 +86,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
       changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
       if (changeComment.isBlank())
         changeComment ="Other material added"
+
     }
   }
 
@@ -103,7 +109,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
       try {
         field = value
         if (value) {
-          changeKind = ChangeKind.ARCHIVED
+          changeKind = IBasedOn.ChangeKind.ARCHIVED
 
           if (Hibernate.isInitialized(children))
             logger.debug("Children isInitialized. ")

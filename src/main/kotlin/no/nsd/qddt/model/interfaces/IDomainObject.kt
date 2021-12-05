@@ -14,7 +14,6 @@ interface IDomainObject : IWebMenuPreview, IXmlBuilder {
     // var version: Version
     var modified: Timestamp?
     var modifiedBy: User
-    var agencyId: UUID?
     var agency: Agency
     var classKind: String
     // fun xmlBuilder(): AbstractXmlBuilder?

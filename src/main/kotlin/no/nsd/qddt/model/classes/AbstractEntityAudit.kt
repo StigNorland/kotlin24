@@ -3,7 +3,6 @@ package no.nsd.qddt.model.classes
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.io.source.ByteArrayOutputStream
@@ -11,6 +10,7 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.embedded.RevisionId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
@@ -37,7 +37,7 @@ abstract class AbstractEntityAudit(
 
     @JsonIgnore
     @Column(insertable = false, updatable = false)
-    override var agencyId: UUID? = null,
+    protected var agencyId: UUID? = null,
 
     @Column(insertable = false, updatable = false)
     @JsonFormat
@@ -49,7 +49,8 @@ abstract class AbstractEntityAudit(
         AttributeOverride(name = "rev",column = Column(name = "based_on_revision"))
     )
     @Embedded
-    override var basedOn: RevisionId ?=null,
+    @JsonSerialize
+    override var basedOn: RevisionId = RevisionId(),
 
     @AttributeOverrides(
         AttributeOverride(name = "rev",column = Column(name = "rev"))
