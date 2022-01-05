@@ -21,4 +21,26 @@ class ChangeFeedKey(
     @Enumerated(EnumType.ORDINAL)
     @Column(columnDefinition = "int2")
     protected var refAction: ActionKind? = null
-) :Serializable
+
+
+) :Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ChangeFeedKey
+
+        if (refId != other.refId) return false
+        if (refRev != other.refRev) return false
+        if (refAction != other.refAction) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = refId?.hashCode() ?: 0
+        result = 31 * result + (refRev ?: 0)
+        result = 31 * result + (refAction?.hashCode() ?: 0)
+        return result
+    }
+}

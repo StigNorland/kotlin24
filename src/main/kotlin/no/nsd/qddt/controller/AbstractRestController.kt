@@ -42,9 +42,11 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         logger.debug("getRevisions 1: {}" , qPage)
 
         return if (uriId.rev != null) {
+            logger.debug("getRevisions entityRevisionModelBuilder: {}" , qPage)
             val rev = repository.findRevision(uriId.id, uriId.rev!!).orElse( repository.findLastChangeRevision(uriId.id).orElseThrow())
             entityRevisionModelBuilder(rev)
         } else {
+            logger.debug("getRevisions PagedModel: {}" , qPage)
             val revisions = repository.findRevisions(uriId.id, qPage).map { rev -> entityRevisionModelBuilder(rev) }
             PagedModel.wrap(revisions.content, pageMetadataBuilder(revisions))
         }
@@ -74,6 +76,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         logger.debug("_getByUri : {}" , uri)
         return if (uri.rev != null)
             repository.findRevision(uri.id, uri.rev!!).map {
+                logger.debug("_getByUri : {}" , it.entity.version.rev)
                 it.entity.version.rev = it.revisionNumber.get()
                 it.entity
             }.orElseThrow()
@@ -81,7 +84,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
             repository.findById(uri.id).orElseThrow()
     }
 
-    private fun pageMetadataBuilder(revisions: Page<RepresentationModel<EntityModel<T>>>): PagedModel.PageMetadata {
+    protected fun pageMetadataBuilder(revisions: Page<RepresentationModel<EntityModel<T>>>): PagedModel.PageMetadata {
         return PagedModel.PageMetadata(revisions.size.toLong(),revisions.pageable.pageNumber.toLong(),revisions.totalElements,revisions.totalPages.toLong())
     }
 
@@ -92,6 +95,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         entity.comments.size
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
+//        Hibernate.initialize(entity.parent)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of("${baseUri}/study/${entity.id}"))

@@ -1,8 +1,6 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
@@ -14,7 +12,6 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -38,17 +35,23 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentId")
-    var parent: ConceptHierarchy? = null
+    override lateinit var parent: ConceptHierarchy
 
 
+    //    @JsonManagedReference
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    var children: MutableList<Concept> = mutableListOf()
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
+    override var children: MutableList<ConceptHierarchy> = mutableListOf()
+
+    fun addChildren(entity: Concept): Concept {
+        children.add(entity)
+        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+        return entity
+    }
 
 //    @OrderColumn(name="parentIdx")
 //    @ElementCollection(fetch = FetchType.EAGER)
@@ -69,27 +72,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
             logger.debug("QuestionItem not inserted, match found")
     }
 
-    override var isArchived = false
-        set(value) {
-            try {
-                field = value
-                if (value) {
-                    changeKind = IBasedOn.ChangeKind.ARCHIVED
 
-                    if (Hibernate.isInitialized(children))
-                        logger.debug("Children isInitialized. ")
-                    else
-                        Hibernate.initialize(children)
-
-                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
-                }
-            } catch (ex: Exception) {
-                logger.error("setArchived", ex)
-                StackTraceFilter.filter(ex.stackTrace).stream()
-                    .map { a -> a.toString() }
-                    .forEach(logger::info)
-            }
-        }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         try {
@@ -135,12 +118,5 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
         return ConceptFragmentBuilder(this)
     }
 
-    fun addChildren(entity: Concept): Concept {
-        entity.parent = this
-        children.add(entity)
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
-        return entity
-    }
 
 }

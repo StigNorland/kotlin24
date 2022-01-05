@@ -4,7 +4,6 @@ import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
-import no.nsd.qddt.model.embedded.RevisionId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.ElementKind
@@ -82,7 +81,7 @@ class EntityAuditTrailListener{
                 ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED
                 -> {
                     ver = Version()
-                    entity.basedOn = RevisionId(entity.id, entity.version.rev)
+                    entity.basedOn =  UriId.fromAny("${entity.id}:${entity.version.rev}")
                 }
                 ChangeKind.REFERENCED, ChangeKind.TO_BE_DELETED
                 -> {}
@@ -196,7 +195,7 @@ class EntityAuditTrailListener{
 
     private fun beforeStudyRemove(entity: Study) {
         with(entity) {
-            log.debug("Study pre remove " + parent?.name)
+//            log.debug("Study pre remove " + parent?.name)
 //            parent?.?.removeIf { it.id == this.id }
             authors.clear()
             instruments.clear()

@@ -7,6 +7,8 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.ParentId
+import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
@@ -14,10 +16,15 @@ import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IOtherMaterialList
 import org.hibernate.Hibernate
+import org.hibernate.envers.AuditJoinTable
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import org.hibernate.envers.RelationTargetAuditMode
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
 import java.util.*
 import javax.persistence.*
+
 
 /**
  * <ul class="inheritance">
@@ -48,28 +55,19 @@ import javax.persistence.*
 @DiscriminatorValue("TOPIC_GROUP")
 data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IOtherMaterialList {
 
-
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
 
   @JsonIgnore
-  @Column(insertable = false, updatable = false)
-  override var parentId: UUID? = null
-
-  @JsonIgnore
-  @AuditMappedBy(mappedBy = "parent")
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "parentId")
-  var parent: Study? = null
-
+  override lateinit var parent: ConceptHierarchy
 
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-  @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-  var children: MutableList<Concept> = mutableListOf()
+  @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
+  override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
   fun addChildren(entity: Concept): Concept {
-    entity.parent = this
     children.add(entity)
     changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
     changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
@@ -77,9 +75,12 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
   }
 
 //  @OrderColumn(name = "ownerIdx")
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "ownerId")])
-  override var otherMaterials: MutableSet<OtherMaterial> = mutableSetOf()
+  @ElementCollection()
+  @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
+
+//  @OneToMany
+//  @JoinTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
+  override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
 
   override fun addOtherMaterial(otherMaterial: OtherMaterial): OtherMaterial {
     return super.addOtherMaterial(otherMaterial).apply {
@@ -104,27 +105,6 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
       logger.debug("QuestionItem not inserted, match found")
   }
 
-  override var isArchived = false
-    set(value) {
-      try {
-        field = value
-        if (value) {
-          changeKind = IBasedOn.ChangeKind.ARCHIVED
-
-          if (Hibernate.isInitialized(children))
-            logger.debug("Children isInitialized. ")
-          else
-            Hibernate.initialize(children)
-
-          children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
-        }
-      } catch (ex: Exception) {
-        logger.error("setArchived", ex)
-        StackTraceFilter.filter(ex.stackTrace).stream()
-          .map { a -> a.toString() }
-          .forEach(logger::info)
-      }
-    }
 
   override fun xmlBuilder():AbstractXmlBuilder {
     return TopicGroupFragmentBuilder(this)

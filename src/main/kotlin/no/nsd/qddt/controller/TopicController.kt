@@ -1,10 +1,8 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.repository.StudyRepository
 import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,11 +40,11 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
         return super.getXml(uri)
     }
 
-    @GetMapping("/topicgroup/concepts/{uri}", produces = ["application/prs.hal-forms+json"])
+    @GetMapping("/topicgroup/concepts/{uri}",produces = ["application/hal+json"])
     fun getConcept(@PathVariable uri: String): RepresentationModel<*> {
-        logger.debug("get studies SurveyProgramController...")
+        logger.debug("get concepts TopicGroupController...")
         val result = getByUri(uri).children.map {
-            entityModelBuilder(it)
+            entityModelBuilder(it as Concept)
         }
         return CollectionModel.of(result)
 
@@ -61,7 +59,7 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
         if (result.children.size > 0)
             return ResponseEntity.ok(
                 result.children.map {
-                    EntityModel.of(it, Link.of("concepts"))
+                    EntityModel.of(it as Concept, Link.of("concepts"))
                 })
         throw NoSuchElementException("No concepts")
     }
@@ -95,8 +93,8 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
         entity.children.size
         entity.authors.size
         entity.comments.size
-        entity.otherMaterials
-        entity.questionItems
+        entity.otherMaterials.size
+        entity.questionItems.size
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
@@ -109,7 +107,7 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
             .embed(entity.otherMaterials, LinkRelation.of("otherMaterials"))
             .embed(entity.questionItems, LinkRelation.of("questionItems"))
             .embed(entity.children.map {
-                entityModelBuilder(it)
+                entityModelBuilder(it as Concept)
             }, LinkRelation.of("concepts"))
             .build()
     }

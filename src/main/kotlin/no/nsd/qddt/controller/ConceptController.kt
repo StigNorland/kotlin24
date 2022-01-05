@@ -46,7 +46,7 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
     fun getConcept(@PathVariable uri: String): RepresentationModel<*> {
         logger.debug("get studies SurveyProgramController...")
         val result = getByUri(uri).children.map {
-            entityModelBuilder(it)
+            entityModelBuilder(it as Concept)
         }
         return CollectionModel.of(result)
 
@@ -61,7 +61,7 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
         if (result.children.size > 0)
             return ResponseEntity.ok(
                 result.children.map {
-                    EntityModel.of(it, Link.of("concepts"))
+                    EntityModel.of(it as Concept, Link.of("concepts"))
                 })
         throw NoSuchElementException("No concepts")
     }

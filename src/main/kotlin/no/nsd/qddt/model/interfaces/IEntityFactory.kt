@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.embedded.RevisionId
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 
 
@@ -24,7 +24,7 @@ interface IEntityFactory<T : AbstractEntityAudit> {
         
         return if (revision != null) {
             create().apply {
-            basedOn = RevisionId(source.id, revision)
+            basedOn = UriId.fromAny("${source.id}:${revision}")
             changeKind = ChangeKind.BASED_ON
             changeComment = when (source.changeComment) {
                     "" -> "based on " + source.name

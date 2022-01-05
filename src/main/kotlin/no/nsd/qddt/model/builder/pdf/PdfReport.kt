@@ -126,10 +126,10 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
         } catch (ex: Exception) {
             LOG.error("createToc", ex)
         }
-        //        LOG.info( String.join( ", ", getPageLabels() ) );
+        LOG.info( pageLabels.joinToString(", "))
         getPage(1).setPageLabel(PageLabelNumberingStyle.LOWERCASE_ROMAN_NUMERALS, null, 1)
         getPage(tocPages + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS, "Page ", 1)
-        getPage(startToc + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS,"Page ",startToc - tocPages + 1)
+//        getPage(startToc + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS,"Page ",startToc - tocPages + 1)
         document.flush()
         close()
     }

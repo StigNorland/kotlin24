@@ -26,6 +26,7 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val baseUri = BasicLinkBuilder.linkToCurrentMapping()
         val entity = model.content!!
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
+        logger.debug(entity.version.rev.toString())
         model.addIf(
             !model.hasLink("revisions")
         ) { linkBuilder.slash("revision").slash(entity.id).withRel("revisions") }
@@ -55,12 +56,12 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
             }
             is Study -> {
                 return model.add(
-                    linkBuilder.slash("topics").slash(entity.id).withRel("topics"),
+                    linkBuilder.slash("topics").slash(entity.id).withRel("topicGroups"),
                     linkBuilder.slash("instruments").slash(entity.id).withRel("instruments"))
             }
             is TopicGroup -> {
                 return model.add(
-                    linkBuilder.slash("concepts").slash(entity.id).withRel("topics"))
+                    linkBuilder.slash("concepts").slash(entity.id).withRel("concepts"))
             }
             else -> {
                 logger.debug("FYI the entity not linkified (OK) {}", entity.name )

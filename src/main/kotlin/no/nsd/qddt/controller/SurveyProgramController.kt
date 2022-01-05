@@ -3,6 +3,7 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,7 +48,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         logger.debug("get studies from SurveyProgramController...")
 
         val result = super.getByUri(uri).children.map {
-            entityModelBuilder(it)
+            entityModelBuilder(it as Study)
 //            EntityModel.of(it,Link.of("studies"))
         }
         return  ResponseEntity.ok().body(result)
@@ -59,7 +60,10 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): RepresentationModel<*> {
         logger.debug("put studies from SurveyProgramController...")
         val result =  repository.findById(uri).orElseThrow()
-        result.addChildren(study)
+        result.children.add(study.apply {
+            changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+            changeComment = String.format("{} [ {} ] added", study.classKind, study.name)
+        })
         repository.saveAndFlush(result)
         if (result.children.size > 0)
             return CollectionModel.of(result)
@@ -107,7 +111,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
             .embed(entity.comments,LinkRelation.of("comments"))
             .embed(entity.authors,LinkRelation.of("authors"))
             .embed(entity.children.map {
-                entityModelBuilder(it)
+                entityModelBuilder(it as Study)
             }, LinkRelation.of("studies"))
             .build()
     }

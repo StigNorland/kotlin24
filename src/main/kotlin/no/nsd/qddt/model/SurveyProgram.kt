@@ -1,5 +1,6 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -38,23 +39,29 @@ import javax.persistence.*
 @DiscriminatorValue("SURVEY_PROGRAM")
 data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
 
+    @Column(insertable = false, updatable = false)
+    var parentIdx: Int? = null
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    override lateinit var parent: ConceptHierarchy
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    var children: MutableList<Study> = mutableListOf()
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Study::class)
+    override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
-    fun addChildren(study: Study): Study {
-        study.parent = this
-        children.add(study)
+    fun addChildren(entity: Study): Study {
+        children.add(entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = String.format("{} [ {} ] added", study.classKind, study.name)
-        return study
+        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+        return entity
     }
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
     }
+
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addHeader(this, "Survey")
@@ -67,25 +74,4 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
             study.fillDoc(pdfReport, counter + (i + 1))
         }
     }
-    override var isArchived = false
-        set(value) {
-            try {
-                field = value
-                if (value) {
-                    changeKind = IBasedOn.ChangeKind.ARCHIVED
-
-                    if (Hibernate.isInitialized(children))
-                        logger.debug("Children isInitialized. ")
-                    else
-                        Hibernate.initialize(children)
-
-                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
-                }
-            } catch (ex: Exception) {
-                logger.error("setArchived", ex)
-                StackTraceFilter.filter(ex.stackTrace).stream()
-                    .map { a -> a.toString() }
-                    .forEach(logger::info)
-            }
-        }
 }

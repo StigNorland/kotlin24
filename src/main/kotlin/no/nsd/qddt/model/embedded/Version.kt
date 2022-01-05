@@ -29,7 +29,6 @@ data class Version( var versionLabel: String = "") : Comparable<Version>, Serial
 
     @Transient
     @JsonSerialize
-    @Column(name="rev", insertable = false, updatable = false)
     var rev: Int = 0
 
     @Transient

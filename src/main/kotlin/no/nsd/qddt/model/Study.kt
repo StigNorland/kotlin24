@@ -1,8 +1,6 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonManagedReference
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -12,7 +10,6 @@ import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -45,21 +42,24 @@ import javax.persistence.*
 @DiscriminatorValue("STUDY")
 data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSet, IArchived {
 
-
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
 
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentId")
-    lateinit var parent: SurveyProgram
-
+    override lateinit var parent: ConceptHierarchy
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    var children = mutableListOf<TopicGroup>()
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = TopicGroup::class)
+    override var children: MutableList<ConceptHierarchy> = mutableListOf()
+
+    fun addChildren(entity: TopicGroup): TopicGroup {
+        children.add(entity)
+        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+        return entity
+    }
 
     @OneToMany( mappedBy="studyId")
     var instruments: MutableSet<Instrument> = mutableSetOf()
@@ -81,44 +81,11 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
              topic.fillDoc(pdfReport, teller + (i + 1))
          }
     }
-    override var isArchived = false
-        set(value) {
-            try {
-                field = value
-                if (value) {
-                    changeKind = IBasedOn.ChangeKind.ARCHIVED
-
-                    if (Hibernate.isInitialized(children))
-                        logger.debug("Children isInitialized. ")
-                    else
-                        Hibernate.initialize(children)
-
-                    children.forEach{  with (it as IArchived){ if (!it.isArchived) it.isArchived = true }}
-                }
-            } catch (ex: Exception) {
-                logger.error("setArchived", ex)
-                StackTraceFilter.filter(ex.stackTrace).stream()
-                    .map { a -> a.toString() }
-                    .forEach(logger::info)
-            }
-        }
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
     }
 
-    fun addChildren(entity: TopicGroup): TopicGroup {
-        entity.parent = this
-        if (entity.parentIdx!=null) {
-            children.add(entity.parentIdx!!, entity)
-            children.forEachIndexed { index, topicGroup ->  topicGroup.parentIdx = index }
-        } else {
-            children.add(entity)
-            entity.parentIdx = children.size-1
-        }
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
-        return entity
-    }
+
 
 }

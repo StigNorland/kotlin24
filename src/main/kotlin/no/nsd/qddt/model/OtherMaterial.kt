@@ -5,6 +5,8 @@ import no.nsd.qddt.model.enums.ElementKind
 import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
 import java.io.Serializable
+import java.sql.Timestamp
+import java.time.Instant
 import java.util.*
 import javax.persistence.Embeddable
 
@@ -26,6 +28,8 @@ class OtherMaterial():Cloneable, Serializable {
 
   lateinit var fileType:String
 
+  var fileDate: Timestamp? = null
+
   var description:String? = ""
 
   var originalName: String =""
@@ -42,6 +46,7 @@ class OtherMaterial():Cloneable, Serializable {
     this.originalName = file.originalFilename.toString()
     this.fileType = file.contentType.toString()
     this.size = file.size
+    this.fileDate = Timestamp.from(Instant.ofEpochMilli(file.resource.lastModified()))
   }
   constructor(originalName:String, fileType:String, size:Long, description:String?) : this() {
     this@OtherMaterial.originalName = originalName

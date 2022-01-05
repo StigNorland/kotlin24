@@ -6,7 +6,9 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.StudyRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -44,15 +46,17 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/topicgroups/{uri}", produces = ["application/hal+json"])
-    fun getStudies(@PathVariable uri: String): ResponseEntity<List<EntityModel<TopicGroup>>> {
+    @GetMapping("/study/topics/{uri}", produces = ["application/hal+json"])
+    fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
         logger.debug("get topicgroups StudyController...")
 
-        val result = super.getByUri(uri).children.map {
-//            entityModelBuilder(it)
-            EntityModel.of(it,Link.of("studies"))
+        val revisions = super.getByUri(uri).children.map {
+            entityModelBuilder(it as TopicGroup)
+//            EntityModel.of(it)
         }
-        return ResponseEntity.ok(result)
+
+        return PagedModel.wrap(revisions, PagedModel.PageMetadata())
+
 //        return CollectionModel.of(result)
 
     }
@@ -88,6 +92,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         it.comments.size
         it.otherMaterials.size
         it.questionItems.size
+        it.children.size
         Hibernate.initialize(it.agency)
         Hibernate.initialize(it.modifiedBy)
         return HalModelBuilder.halModel()
@@ -129,7 +134,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
             .embed(entity.instruments, LinkRelation.of("instruments"))
             .embed(entity.authors, LinkRelation.of("authors"))
             .embed(entity.children.map {
-                entityModelBuilder(it)
+                entityModelBuilder(it as TopicGroup)
             }, LinkRelation.of("topicGroups"))
             .build()
     }

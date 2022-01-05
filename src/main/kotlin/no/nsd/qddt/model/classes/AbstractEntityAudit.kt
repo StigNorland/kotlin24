@@ -10,7 +10,6 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.builder.pdf.PdfReport
-import no.nsd.qddt.model.embedded.RevisionId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
@@ -44,13 +43,16 @@ abstract class AbstractEntityAudit(
         (shape = JsonFormat.Shape.NUMBER_INT)
     override var modified: Timestamp? = null,
 
-    @AttributeOverrides(
-        AttributeOverride(name = "id",column = Column(name = "based_on_object")),
-        AttributeOverride(name = "rev",column = Column(name = "based_on_revision"))
-    )
     @Embedded
     @JsonSerialize
-    override var basedOn: RevisionId = RevisionId(),
+    @AttributeOverrides(
+        AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true)),
+        AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true)),
+    )
+    override var basedOn:  UriId? = null,
+
+//    @Column(name = "rev", insertable = false, updatable = false)
+//    var revTest: Long?=null,
 
     @AttributeOverrides(
         AttributeOverride(name = "rev",column = Column(name = "rev"))
