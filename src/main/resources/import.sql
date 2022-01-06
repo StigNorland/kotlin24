@@ -1,3 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS audit AUTHORIZATION qddt;
+
 DROP TABLE IF EXISTS public.project_archived;
 DROP VIEW IF  EXISTS public.project_archived;
 

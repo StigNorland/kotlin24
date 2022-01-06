@@ -55,7 +55,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 //            EntityModel.of(it)
         }
 
-        return PagedModel.wrap(revisions, PagedModel.PageMetadata())
+        return PagedModel.wrap(revisions) //, PagedModel.PageMetadata())
 
 //        return CollectionModel.of(result)
 
