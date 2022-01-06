@@ -5,9 +5,14 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.BaseMixedRepository
 import org.hibernate.Hibernate
+import org.hibernate.envers.AuditReaderFactory
+import org.hibernate.envers.query.AuditEntity
+import org.hibernate.envers.query.AuditQuery
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -15,9 +20,11 @@ import org.springframework.data.history.Revision
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
+import javax.persistence.EntityManager
 
 
 //@BasePathAwareController
@@ -26,6 +33,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
     val baseUri
     get() = BasicLinkBuilder.linkToCurrentMapping()
 
+    @Autowired
+    private val entityManager: EntityManager? = null
 
 //    @Autowired
 //    private lateinit var pagedResourcesAssembler: PagedResourcesAssembler<T>
@@ -52,6 +61,28 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
         }
     }
 
+    @ResponseBody
+    open fun getRevisionByParent(@PathVariable uri: String,ofClass: Class<T>): RepresentationModel<*>{
+        val uriId = UriId.fromAny(uri)
+//        val qPage: Pageable = if (pageable==null) {
+//            Pageable.ofSize(100)
+//        }
+//        else if (pageable.sort.isUnsorted) {
+//            PageRequest.of(pageable.pageNumber, pageable.pageSize,Sort.Direction.DESC,"modified")
+//        } else {
+//            pageable
+//        }
+        logger.debug("getRevisionByParent 1: {}" , uriId)
+        val auditReader = AuditReaderFactory.get(entityManager)
+
+        val query: AuditQuery = auditReader.createQuery().forEntitiesAtRevision(ofClass,uriId.rev)
+            .add(AuditEntity.property("parent_id").eq(uriId.id))
+        val result = query.resultList.map { rev -> entityModelBuilder(rev as T) }
+        return PagedModel.wrap(result)
+//        val revisions =  PageImpl(result,qPage, result.size.toLong())
+//        return PagedModel.wrap(revisions.content, pageMetadataBuilder(revisions))
+
+    }
 
 
     open fun getPdf(@PathVariable uri: String): ByteArray {

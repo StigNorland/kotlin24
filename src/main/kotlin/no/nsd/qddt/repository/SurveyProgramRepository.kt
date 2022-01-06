@@ -5,6 +5,7 @@ import no.nsd.qddt.repository.projection.SurveyProgramListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.history.Revision
+import org.springframework.data.history.Revisions
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.history.RevisionRepository
@@ -20,6 +21,10 @@ interface SurveyProgramRepository: BaseArchivedRepository<SurveyProgram> {
 
     // @RestResource(rel = "revision", path = "rev")
     override fun findRevisions(id: UUID, pageable: Pageable): Page<Revision<Int, SurveyProgram>>
+
+    override fun findRevisions(id: UUID): Revisions<Int, SurveyProgram> {
+        TODO("Not yet implemented")
+    }
 
     override fun findAll(pageable: Pageable ): Page<SurveyProgram>
 

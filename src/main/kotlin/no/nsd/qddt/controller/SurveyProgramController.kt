@@ -42,19 +42,19 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     }
 
 
-
-    @GetMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
-    fun getStudies(@PathVariable uri: String): ResponseEntity<List<RepresentationModel<EntityModel<Study>>>> {
-        logger.debug("get studies from SurveyProgramController...")
-
-        val result = super.getByUri(uri).children.map {
-            entityModelBuilder(it as Study)
-//            EntityModel.of(it,Link.of("studies"))
-        }
-        return  ResponseEntity.ok().body(result)
-//        return CollectionModel.of(result)
-
-    }
+//
+//    @GetMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
+//    fun getStudies(@PathVariable uri: String): ResponseEntity<List<RepresentationModel<EntityModel<Study>>>> {
+//        logger.debug("get studies from SurveyProgramController...")
+//
+//        val result = super.getByUri(uri).children.map {
+//            entityModelBuilder(it as Study)
+////            EntityModel.of(it,Link.of("studies"))
+//        }
+//        return  ResponseEntity.ok().body(result)
+////        return CollectionModel.of(result)
+//
+//    }
 
     @PutMapping("/surveyprogram/{uri}/children", produces = ["application/hal+json"])
     fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): RepresentationModel<*> {

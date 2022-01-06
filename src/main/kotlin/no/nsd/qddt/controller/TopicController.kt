@@ -1,11 +1,13 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -40,14 +42,11 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
         return super.getXml(uri)
     }
 
-    @GetMapping("/topicgroup/concepts/{uri}",produces = ["application/hal+json"])
-    fun getConcept(@PathVariable uri: String): RepresentationModel<*> {
-        logger.debug("get concepts TopicGroupController...")
-        val result = getByUri(uri).children.map {
-            entityModelBuilder(it as Concept)
-        }
-        return CollectionModel.of(result)
-
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/topicgroup/revision/byparent/{uri}", produces = ["application/hal+json"])
+    fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
+        logger.debug("get Study by parent rev...")
+        return super.getRevisionByParent(uri, TopicGroup::class.java)
     }
 
     @PutMapping("/topicgroup/concepts/{uri}", produces = ["application/hal+json"])

@@ -6,9 +6,7 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.StudyRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
+import org.springframework.data.domain.*
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -46,29 +44,12 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/topics/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/revision/study/byparent/{uri}", produces = ["application/hal+json"])
     fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
-        logger.debug("get topicgroups StudyController...")
-
-        val revisions = super.getByUri(uri).children.map {
-            entityModelBuilder(it as TopicGroup)
-//            EntityModel.of(it)
-        }
-
-        return PagedModel.wrap(revisions) //, PagedModel.PageMetadata())
-
-//        return CollectionModel.of(result)
-
+        logger.debug("get Study by parent rev...")
+        return super.getRevisionByParent(uri,Study::class.java)
     }
-//    @GetMapping("/children/study/{uri}", produces = ["application/prs.hal-forms+json"])
-//    fun getTopicGroups(@PathVariable uri: String): RepresentationModel<*> {
-//        logger.debug("get studies SurveyProgramController...")
-//        val result = getByUri(uri).children.map {
-//            entityModelBuilder(it)
-//        }
-//        return CollectionModel.of(result)
-//
-//    }
+
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])
     fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup): RepresentationModel<*> {
@@ -88,6 +69,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
     fun entityModelBuilder(it: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
         logger.debug("entityModelBuilder Study TopicGroup : {}" , it.id)
+        // uses size() to initialize and fetch collections
         it.authors.size
         it.comments.size
         it.otherMaterials.size
@@ -126,7 +108,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .link(Link.of("${baseUri}/study/topicgroups/${uriId}","topicgroups"))
+            .link(Link.of("${baseUri}/study/topics/${uriId}","topics"))
 
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))

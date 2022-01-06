@@ -8,6 +8,7 @@ import no.nsd.qddt.repository.StudyRepository
 import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -27,7 +28,7 @@ import java.util.*
 @BasePathAwareController
 class ConceptController(@Autowired repository: ConceptRepository): AbstractRestController<Concept>(repository) {
 
-    @GetMapping("/revision/concept/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/concept/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
@@ -40,6 +41,13 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
     @GetMapping("/xml/concept/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/concept/revision/byparent/{uri}", produces = ["application/hal+json"])
+    fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
+        logger.debug("get Study by parent rev...")
+        return super.getRevisionByParent(uri, Concept::class.java)
     }
 
     @GetMapping("/concept/children/{uri}", produces = ["application/prs.hal-forms+json"])
