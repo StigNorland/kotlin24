@@ -1,13 +1,14 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.config.exception.StackTraceFilter
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn
-import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -55,14 +56,23 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
     fun addChildren(entity: TopicGroup): TopicGroup {
-        children.add(entity)
+        entity.parent = this
+        children.add(children.size,entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+        changeComment = String.format("$1 [ $2 ] added", entity.classKind, entity.name)
         return entity
     }
 
-    @OneToMany( mappedBy="studyId")
-    var instruments: MutableSet<Instrument> = mutableSetOf()
+    @JsonIgnore
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "CONCEPT_HIERARCHY_INSTRUMENT" )
+    @AttributeOverrides(AttributeOverride(name = "rev",column = Column(name = "revision", nullable =true)))
+    var instrumentUriIds : MutableSet<UriId> = mutableSetOf()
+
+
+    @Transient
+    @JsonSerialize
+    var instruments: MutableSet<ElementRefEmbedded<Instrument>> = mutableSetOf()
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
@@ -85,7 +95,6 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null
     }
-
 
 
 }

@@ -11,6 +11,7 @@ interface StudyListe {
     var id: UUID
     var label: String
     var name: String
+//    var description: String
 
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long

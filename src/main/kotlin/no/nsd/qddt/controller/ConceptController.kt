@@ -1,14 +1,9 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.Study
-import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.repository.ConceptRepository
-import no.nsd.qddt.repository.StudyRepository
-import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -28,26 +23,41 @@ import java.util.*
 @BasePathAwareController
 class ConceptController(@Autowired repository: ConceptRepository): AbstractRestController<Concept>(repository) {
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revision/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
+    override fun getRevision(@PathVariable uri: String):RepresentationModel<*> {
+        return super.getRevision(uri)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/concept/revisions/{uri}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable):RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
-    @GetMapping("/pdf/concept/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/concept/revisions/byparent/{uri}", produces = ["application/hal+json"])
+    fun getParent(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*>{
+        logger.debug("get Study by parent rev...")
+        return super.getRevisionsByParent(uri, Concept::class.java, pageable)
+    }
+
+
+    @GetMapping("/concept/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/xml/concept/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/concept/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revision/byparent/{uri}", produces = ["application/hal+json"])
-    fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
+    fun getStudies(@PathVariable uri: String, pageable: Pageable?): RepresentationModel<*> {
         logger.debug("get Study by parent rev...")
-        return super.getRevisionByParent(uri, Concept::class.java)
+        return super.getRevisionsByParent(uri, Concept::class.java,pageable)
     }
 
     @GetMapping("/concept/children/{uri}", produces = ["application/prs.hal-forms+json"])

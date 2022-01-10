@@ -24,7 +24,7 @@ interface IHaveChilden<T:IBasedOn>  {
 //        children.add(entity)
 //        entity.parent = this
 //        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-//        changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+//        changeComment =  String.format("$1 [ $2 ] added", entity.classKind, entity.name)
 //        return entity
 //    }
 }

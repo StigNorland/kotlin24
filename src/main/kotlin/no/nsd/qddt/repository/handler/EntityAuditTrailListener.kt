@@ -4,6 +4,7 @@ import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.ElementKind
@@ -126,7 +127,11 @@ class EntityAuditTrailListener{
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
         log.debug("After load of entity: {}" , entity.id)
-
+//        entity.comments.size
+//        entity.comments.forEach {
+//            log.debug("initialize it.modifiedBy")
+//            Hibernate.initialize(it.modifiedBy)
+//        }
         val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
         when (entity) {
             is QuestionConstruct -> {
@@ -157,12 +162,20 @@ class EntityAuditTrailListener{
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
 
             }
+            is Study -> {
+                val repository =  bean.getRepository<Instrument>(ElementKind.INSTRUMENT)
+                entity.instrumentUriIds.forEach {
+                    val instrument = loadRevisionEntity(it,repository)
+                    entity.instruments.add(ElementRefEmbedded(instrument))
+                }
+            }
             else -> {
                 log.debug("UNTOUCHED - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)
                 log.debug(entity.modified.toString())
             }
         }
     }
+
 
 
     private fun <T: AbstractEntityAudit>loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
@@ -223,6 +236,7 @@ class EntityAuditTrailListener{
         current.children.forEach {  tmpList.addAll(harvestCatCodes(it)) }
         return tmpList
     }
+
 
     private fun populateCatCodes(current: Category?, _index: Int,  codes: List<Code>): Int {
         if (current == null) return _index

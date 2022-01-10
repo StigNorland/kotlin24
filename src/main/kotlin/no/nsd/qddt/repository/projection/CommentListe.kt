@@ -7,16 +7,15 @@ import java.util.*
 
 @Projection(name = "commentListe", types = [Comment::class])
 interface CommentListe {
-    var comment: String
-    var comments: List<Comment>
     val id: UUID
+    var comment: String
     var isPublic: Boolean
-
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long
-
     @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency.name  }")
     fun getModifiedBy(): String?
     @Value(value = "#{target.modifiedBy.email }")
     fun getModifiedEmail(): String?
+
+    var comments: List<CommentListe>
 }

@@ -24,5 +24,7 @@ interface SurveyProgramListe {
 //    @Value(value = "#{target.children }")
 //    fun getChildren(): Set<StudyListe>
     var isArchived: Boolean
+
+    var parentIdx: Long
 }
 

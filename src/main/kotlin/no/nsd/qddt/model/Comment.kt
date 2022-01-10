@@ -3,6 +3,7 @@ package no.nsd.qddt.model
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDICommentsBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 import javax.persistence.*
 
@@ -19,7 +20,7 @@ import javax.persistence.*
  */
 //@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Entity
-@Cacheable(false)
+@Cacheable(true)
 @Table(name = "comment")
 class Comment(
     @Column(length = 10000)
@@ -53,4 +54,9 @@ class Comment(
         return XmlDDICommentsBuilder(this)
     }
 
+    @PreUpdate
+    @PrePersist
+    private fun onInsertComment() {
+        modifiedBy = SecurityContextHolder.getContext().authentication.principal as User
+    }
 }

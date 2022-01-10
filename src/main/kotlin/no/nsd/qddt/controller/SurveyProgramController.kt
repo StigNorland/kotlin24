@@ -3,7 +3,6 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,56 +25,49 @@ import java.util.*
 class SurveyProgramController(@Autowired repository: SurveyProgramRepository): AbstractRestController<SurveyProgram>(repository) {
 // https://docs.spring.io/spring-hateoas/docs/current/reference/html/#fundamentals.representation-models
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/surveyprogram/revision/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):RepresentationModel<*> {
+    override fun getRevision(@PathVariable uri: String):RepresentationModel<*> {
+        return super.getRevision(uri)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/surveyprogram/revisions/{uri}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable):RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
-    @GetMapping("/surveyprogram/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    @GetMapping("/surveyprogram/revisions/byparent/{uri}", produces = ["application/hal+json"])
+//    fun getStudies(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*>{
+//        logger.debug("get Study by parent rev...")
+//        return super.getRevisionsByParent(uri,Study::class.java, pageable)
+//    }
+    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/surveyprogram/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
-
-//
-//    @GetMapping("/surveyprogram/studies/{uri}", produces = ["application/hal+json"])
-//    fun getStudies(@PathVariable uri: String): ResponseEntity<List<RepresentationModel<EntityModel<Study>>>> {
-//        logger.debug("get studies from SurveyProgramController...")
-//
-//        val result = super.getByUri(uri).children.map {
-//            entityModelBuilder(it as Study)
-////            EntityModel.of(it,Link.of("studies"))
-//        }
-//        return  ResponseEntity.ok().body(result)
-////        return CollectionModel.of(result)
-//
-//    }
-
     @PutMapping("/surveyprogram/{uri}/children", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): RepresentationModel<*> {
+    fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): ResponseEntity<RepresentationModel<EntityModel<Study>>> {
         logger.debug("put studies from SurveyProgramController...")
-        val result =  repository.findById(uri).orElseThrow()
-        result.children.add(study.apply {
-            changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-            changeComment = String.format("{} [ {} ] added", study.classKind, study.name)
-        })
-        repository.saveAndFlush(result)
-        if (result.children.size > 0)
-            return CollectionModel.of(result)
-//            return ResponseEntity.ok(
-//                result.children.map {
-//                    entityModelBuilder(it)
-//                })
-        throw NoSuchElementException("No studies")
+        val survey =  repository.findById(uri).orElseThrow()
+        study.parent = survey
+        survey.children.add(survey.children.size,study)
+        val studySaved = repository.saveAndFlush(survey).children.last() as Study
+
+        return ResponseEntity.ok(entityModelBuilder(studySaved))
+
+//        throw NoSuchElementException("No studies")
     }
     private fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
         logger.debug("entityModelBuilder SurveyProgram Study: {}" , entity.id)
-//        entity.children.size
+        entity.children.size
         entity.authors.size
         entity.comments.size
         entity.instruments.size
@@ -101,6 +93,10 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         entity.children.size
         entity.authors.size
         entity.comments.size
+        entity.comments.forEach {
+            logger.debug("initialize(it")
+            Hibernate.initialize(it.modifiedBy)
+        }
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()

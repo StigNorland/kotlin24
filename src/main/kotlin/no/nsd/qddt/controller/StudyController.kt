@@ -27,28 +27,35 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revision/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: String, pageable: Pageable):RepresentationModel<*> {
+    override fun getRevision(@PathVariable uri: String):RepresentationModel<*> {
+        return super.getRevision(uri)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/study/revisions/{uri}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable):RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/study/revisions/byparent/{uri}", produces = ["application/hal+json"])
+    fun getStudies(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*>{
+        logger.debug("get Study by parent rev...")
+        return super.getRevisionsByParent(uri,Study::class.java, pageable)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/study/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/study/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/revision/study/byparent/{uri}", produces = ["application/hal+json"])
-    fun getStudies(@PathVariable uri: String): RepresentationModel<*> {
-        logger.debug("get Study by parent rev...")
-        return super.getRevisionByParent(uri,Study::class.java)
-    }
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])
@@ -108,7 +115,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .link(Link.of("${baseUri}/study/topics/${uriId}","topics"))
+//            .link(Link.of("${baseUri}/study/topics/${uriId}","topics"))
 
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))

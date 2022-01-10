@@ -10,4 +10,4 @@ services:
       POSTGRES_USER: qddt
       POSTGRES_PASSWORD: qddt
     volumes:
-      - c:\docker-data      
+#      - c:\docker-data

@@ -1,9 +1,12 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.model.*
+import no.nsd.qddt.model.ConceptHierarchy
+import no.nsd.qddt.model.QuestionConstruct
+import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.interfaces.IHaveChilden
+import no.nsd.qddt.model.enums.ElementKind
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,15 +30,38 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val entity = model.content!!
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
         logger.debug(entity.version.rev.toString())
+        if (entity is ConceptHierarchy && entity.classKind != "SURVEY_PROGRAM") {
+           when (ElementKind.valueOf(entity.parent.classKind)) {
+                ElementKind.SURVEY_PROGRAM -> model.addIf(!model.hasLink("parent")) {
+                    val ref = String.format("${baseUri}/surveyprogram/${entity.parentId}")
+                    Link.of(ref,"parent")
+                }
+                ElementKind.STUDY -> model.addIf(!model.hasLink("parent")) {
+                    val ref = String.format("${baseUri}/study/${entity.parentId}")
+                    Link.of(ref,"parent")
+                }
+                ElementKind.TOPIC_GROUP -> model.addIf(!model.hasLink("parent")) {
+                    val ref = String.format("${baseUri}/topicgroup/${entity.parentId}")
+                    Link.of(ref,"parent")
+                }
+                ElementKind.CONCEPT -> model.addIf(!model.hasLink("parent")) {
+                    val ref = String.format("${baseUri}/concept/${entity.parentId}")
+                    Link.of(ref,"parent")
+                }
+               else -> {
+                   logger.debug("didn't add parent")
+               }
+            }
+        }
         model.addIf(
             !model.hasLink("revisions")
-        ) { linkBuilder.slash("revision").slash(entity.id).withRel("revisions") }
+        ) { linkBuilder.slash("revisions").slash(entity.id).withRel("revisions") }
         model.addIf(
             !model.hasLink("xml")
-        ) { linkBuilder.slash(entity.id).slash("xml").withRel("xml") }
+        ) { linkBuilder.slash(entity.id).withRel("xml") }
         model.addIf(
             !model.hasLink("pdf")
-        ) { linkBuilder.slash(entity.id).slash("pdf").withRel("pdf") }
+        ) { linkBuilder.slash(entity.id).withRel("pdf") }
 
 
         return when (entity) {
@@ -54,15 +80,15 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
                 }
                 model
             }
-            is Study -> {
-                return model.add(
-                    linkBuilder.slash("topics").slash(entity.id).withRel("topicGroups"),
-                    linkBuilder.slash("instruments").slash(entity.id).withRel("instruments"))
-            }
-            is TopicGroup -> {
-                return model.add(
-                    linkBuilder.slash("concepts").slash(entity.id).withRel("concepts"))
-            }
+//            is Study -> {
+//                return model.add(
+//                    linkBuilder.slash("topics").slash(entity.id).withRel("topicGroups"),
+//                    linkBuilder.slash("instruments").slash(entity.id).withRel("instruments"))
+//            }
+//            is TopicGroup -> {
+//                return model.add(
+//                    linkBuilder.slash("concepts").slash(entity.id).withRel("concepts"))
+//            }
             else -> {
                 logger.debug("FYI the entity not linkified (OK) {}", entity.name )
                 model

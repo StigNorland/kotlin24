@@ -1,28 +1,16 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonManagedReference
-import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.ParentId
-import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
-import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IOtherMaterialList
-import org.hibernate.Hibernate
-import org.hibernate.envers.AuditJoinTable
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import org.hibernate.envers.RelationTargetAuditMode
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
-import java.util.*
 import javax.persistence.*
 
 
@@ -68,9 +56,10 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
   override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
   fun addChildren(entity: Concept): Concept {
-    children.add(entity)
+    entity.parent = this
+    children.add(children.size,entity)
     changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-    changeComment = String.format("{} [ {} ] added", entity.classKind, entity.name)
+    changeComment =  String.format("$1 [ $2 ] added", entity.classKind, entity.name)
     return entity
   }
 

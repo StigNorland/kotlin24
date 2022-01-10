@@ -6,6 +6,7 @@ import no.nsd.qddt.repository.UserRepository
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import java.util.*
 
 
 /**
@@ -16,7 +17,7 @@ class AuthUserDetailsService(private val userRepository: UserRepository) : UserD
 
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(name: String): User? {
-        return userRepository.findByEmailIgnoreCase(name.toLowerCase().trim())
+        return userRepository.findByEmailIgnoreCase(name.lowercase(Locale.getDefault()).trim())
     }
 }
 
