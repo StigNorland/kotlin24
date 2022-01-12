@@ -55,6 +55,7 @@ class EntityAuditTrailListener{
                 entity.codes = harvestCatCodes(entity.managedRepresentation)
             }
             is Study -> {
+                entity.parentIdx
                 beforeStudyInsert(entity)
             }
         }
@@ -163,11 +164,11 @@ class EntityAuditTrailListener{
 
             }
             is Study -> {
-                val repository =  bean.getRepository<Instrument>(ElementKind.INSTRUMENT)
-                entity.instrumentUriIds.forEach {
-                    val instrument = loadRevisionEntity(it,repository)
-                    entity.instruments.add(ElementRefEmbedded(instrument))
-                }
+//                val repository =  bean.getRepository<Instrument>(ElementKind.INSTRUMENT)
+//                entity.instrumentUriIds.forEach {
+//                    val instrument = loadRevisionEntity(it,repository)
+//                    entity.instruments.add(ElementRefEmbedded(instrument))
+//                }
             }
             else -> {
                 log.debug("UNTOUCHED - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)

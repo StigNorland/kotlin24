@@ -29,13 +29,17 @@ class Instrument(
 
 ) : AbstractEntityAudit() {
 
-    @Column(insertable = false, updatable = false)
-    var studyId: UUID? = null
+//    @Column(insertable = false, updatable = false)
+//    var studyId: UUID? = null
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name="studyId")
-    var study: Study? = null
+    @ManyToOne(fetch = FetchType.LAZY)
+    lateinit var study: Study
+
+//    @JsonIgnore
+//    @ManyToOne
+//    @JoinColumn(name="studyId")
+//    var study: Study? = null
 
     var label: String = ""
         protected set(value) {

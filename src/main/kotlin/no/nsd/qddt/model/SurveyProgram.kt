@@ -36,8 +36,7 @@ import javax.persistence.*
 @DiscriminatorValue("SURVEY_PROGRAM")
 data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
 
-    @Column(insertable = false, updatable = false)
-    var parentIdx: Int? = null
+    var parentIdx: Int? = 0
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,7 +51,7 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
         entity.parent = this
         children.add(children.size,entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("$1 [ $2 ] added", entity.classKind, entity.name)
+        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
         return entity
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.repository.handler.AgentAuditTrailListener
 import org.hibernate.annotations.Where
+import org.hibernate.envers.AuditMappedBy
 import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*
@@ -26,9 +27,11 @@ data class Agency( var name: String="?") : Comparable<Agency> {
 
     @JsonIgnore
     @JsonIgnoreProperties("agency","children")
+    @OrderColumn(name = "parentIdx")
+    @AuditMappedBy(mappedBy = "agency", positionMappedBy = "parentIdx")
+    @OneToMany(mappedBy = "agency", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @Where(clause = "class_kind='SURVEY_PROGRAM'")
-    @OneToMany(mappedBy = "agency", cascade = [CascadeType.REMOVE, CascadeType.PERSIST])
-    var surveyPrograms: MutableSet<SurveyProgram> = mutableSetOf()
+    var surveyPrograms: MutableList<SurveyProgram> = mutableListOf()
 
     @JsonIgnore
     @JsonIgnoreProperties("agency")

@@ -37,7 +37,6 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
     override lateinit var parent: ConceptHierarchy
 
 
-    //    @JsonManagedReference
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
@@ -47,7 +46,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
         entity.parent = this
         children.add(children.size,entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("$1 [ $2 ] added", entity.classKind, entity.name)
+        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
         return entity
     }
 

@@ -28,6 +28,11 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
     override fun process(model: EntityModel<AbstractEntityAudit>): EntityModel<AbstractEntityAudit> {
         val baseUri = BasicLinkBuilder.linkToCurrentMapping()
         val entity = model.content!!
+        val uri = UriId().also {
+            it.id = entity.id!!
+            it.rev = entity.version.rev
+        }
+
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
         logger.debug(entity.version.rev.toString())
         if (entity is ConceptHierarchy && entity.classKind != "SURVEY_PROGRAM") {
@@ -58,10 +63,10 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         ) { linkBuilder.slash("revisions").slash(entity.id).withRel("revisions") }
         model.addIf(
             !model.hasLink("xml")
-        ) { linkBuilder.slash(entity.id).withRel("xml") }
+        ) { linkBuilder.slash(uri).withRel("xml") }
         model.addIf(
             !model.hasLink("pdf")
-        ) { linkBuilder.slash(entity.id).withRel("pdf") }
+        ) { linkBuilder.slash(uri).withRel("pdf") }
 
 
         return when (entity) {
@@ -74,10 +79,6 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
                 return model.add(Link.of("$baseUri/responsedomain/$uri", "responseDomain"))
             }
             is ResponseDomain -> {
-                val uri = UriId().also {
-                    it.id = entity.id!!
-                    it.rev = entity.version.rev
-                }
                 model
             }
 //            is Study -> {

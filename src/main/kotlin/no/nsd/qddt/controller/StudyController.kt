@@ -59,18 +59,13 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup): RepresentationModel<*> {
+    fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup):  ResponseEntity<RepresentationModel<EntityModel<TopicGroup>>> {
         logger.debug("put studies StudyController...")
-        var result =  repository.findById(uri).orElseThrow()
-        result.addChildren(topicGroup)
-        result = repository.save(result)
-        if (result.children.size > 0)
-            return CollectionModel.of(result.children)
-//            return ResponseEntity.ok(
-//                result.children.map {
-//                    EntityModel.of(it,Link.of("topicgroups"))
-//                })
-        throw NoSuchElementException("No studies")
+
+        var study =  repository.findById(uri).orElseThrow()
+        study.addChildren(topicGroup)
+        val topicSaved = repository.saveAndFlush(study).children.last() as TopicGroup
+        return ResponseEntity.ok(entityModelBuilder(topicSaved))
     }
 
 

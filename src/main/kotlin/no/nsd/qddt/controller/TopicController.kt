@@ -1,9 +1,12 @@
 package no.nsd.qddt.controller
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.Concept
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.TopicGroupRepository
+import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -17,16 +20,16 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 
 @Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
-class TopicController(@Autowired repository: TopicGroupRepository): AbstractRestController<TopicGroup>(repository) {
+class TopicController(@Autowired repository: TopicGroupRepository,
+                      @Autowired val otherMaterialService: OtherMaterialService
+): AbstractRestController<TopicGroup>(repository) {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/topicgroup/revision/{uri}", produces = ["application/hal+json"])
@@ -58,22 +61,40 @@ class TopicController(@Autowired repository: TopicGroupRepository): AbstractRest
         return super.getXml(uri)
     }
 
-
-
-    @PutMapping("/topicgroup/concepts/{uri}", produces = ["application/hal+json"])
-    fun putConcept(@PathVariable uri: UUID, @RequestBody concept: Concept): ResponseEntity<List<EntityModel<Concept>>> {
+    @Transactional(propagation = Propagation.NESTED)
+    @PutMapping("/topicgroup/{uri}/children", produces = ["application/hal+json"])
+    fun putStudies(@PathVariable uri: UUID, @RequestBody  concept: Concept):  ResponseEntity<RepresentationModel<EntityModel<Concept>>> {
         logger.debug("put concept TopicController...")
-        val result =  repository.findById(uri).orElseThrow()
-        result.addChildren(concept)
-        repository.saveAndFlush(result)
-        if (result.children.size > 0)
-            return ResponseEntity.ok(
-                result.children.map {
-                    EntityModel.of(it as Concept, Link.of("concepts"))
-                })
-        throw NoSuchElementException("No concepts")
+
+        var topic =  repository.findById(uri).orElseThrow()
+        topic.addChildren(concept)
+        val conceptSaved = repository.saveAndFlush(topic).children.last() as Concept
+        return ResponseEntity.ok(entityModelBuilder(conceptSaved))
     }
 
+    @Transactional(propagation = Propagation.NESTED)
+    @PostMapping("/topicgroup/createfile",
+        headers = ["content-type=multipart/form-data"],
+        produces = ["application/hal+json"]
+    )
+    fun createWithFile(
+        @RequestParam("files") multipartFiles: Array<MultipartFile>?,
+        @RequestParam("topicgroup") jsonString: String?): ResponseEntity<TopicGroup>
+    {
+        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        val topicGroup = mapper.readValue(jsonString, TopicGroup::class.java)
+        if (multipartFiles != null && multipartFiles.isNotEmpty()) {
+            logger.info("got new files!!!")
+            if (topicGroup.id == null) {
+                topicGroup.id = UUID.randomUUID()
+            }
+            for (file in multipartFiles) {
+                logger.info(file.name)
+                topicGroup.addOtherMaterial(otherMaterialService.saveFile(file, topicGroup.id!!))
+            }
+        }
+        return ResponseEntity.ok(repository.save(topicGroup))
+    }
 
     fun entityModelBuilder(it: Concept): RepresentationModel<EntityModel<Concept>> {
         it.children.size

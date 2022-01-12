@@ -59,20 +59,19 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
         entity.parent = this
         children.add(children.size,entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = String.format("$1 [ $2 ] added", entity.classKind, entity.name)
+        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
         return entity
     }
+//
+//    @JsonIgnore
+//    @ElementCollection(fetch = FetchType.EAGER)
+//    @CollectionTable(name = "CONCEPT_HIERARCHY_INSTRUMENT" )
+//    @AttributeOverrides(AttributeOverride(name = "rev",column = Column(name = "revision", nullable =true)))
+//    var instrumentUriIds : MutableSet<UriId> = mutableSetOf()
 
-    @JsonIgnore
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "CONCEPT_HIERARCHY_INSTRUMENT" )
-    @AttributeOverrides(AttributeOverride(name = "rev",column = Column(name = "revision", nullable =true)))
-    var instrumentUriIds : MutableSet<UriId> = mutableSetOf()
-
-
-    @Transient
-    @JsonSerialize
-    var instruments: MutableSet<ElementRefEmbedded<Instrument>> = mutableSetOf()
+    @AuditMappedBy(mappedBy = "study")
+    @OneToMany(mappedBy = "study", cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    var instruments: MutableSet<Instrument> = mutableSetOf()
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {

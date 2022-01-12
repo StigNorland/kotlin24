@@ -59,7 +59,7 @@ data class TopicGroup(override var name: String = "") : ConceptHierarchy(), IAut
     entity.parent = this
     children.add(children.size,entity)
     changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-    changeComment =  String.format("$1 [ $2 ] added", entity.classKind, entity.name)
+    changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
     return entity
   }
 

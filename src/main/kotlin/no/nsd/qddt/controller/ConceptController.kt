@@ -53,35 +53,16 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
         return super.getXml(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/concept/revision/byparent/{uri}", produces = ["application/hal+json"])
-    fun getStudies(@PathVariable uri: String, pageable: Pageable?): RepresentationModel<*> {
-        logger.debug("get Study by parent rev...")
-        return super.getRevisionsByParent(uri, Concept::class.java,pageable)
-    }
 
-    @GetMapping("/concept/children/{uri}", produces = ["application/prs.hal-forms+json"])
-    fun getConcept(@PathVariable uri: String): RepresentationModel<*> {
-        logger.debug("get studies SurveyProgramController...")
-        val result = getByUri(uri).children.map {
-            entityModelBuilder(it as Concept)
-        }
-        return CollectionModel.of(result)
+    @Transactional(propagation = Propagation.NESTED)
+    @PutMapping("/concept/{uri}/children", produces = ["application/hal+json"])
+    fun putStudies(@PathVariable uri: UUID, @RequestBody  concept: Concept):  ResponseEntity<RepresentationModel<EntityModel<Concept>>> {
+        logger.debug("put concept TopicController...")
 
-    }
-
-    @PutMapping("/concept/children/{uri}", produces = ["application/hal+json"])
-    fun putConcept(@PathVariable uri: UUID, @RequestBody concept: Concept): ResponseEntity<List<EntityModel<Concept>>> {
-        logger.debug("put concept ConceptController...")
-        val result = repository.findById(uri).orElseThrow()
-        result.addChildren(concept)
-        repository.saveAndFlush(result)
-        if (result.children.size > 0)
-            return ResponseEntity.ok(
-                result.children.map {
-                    EntityModel.of(it as Concept, Link.of("concepts"))
-                })
-        throw NoSuchElementException("No concepts")
+        var parent =  repository.findById(uri).orElseThrow()
+        parent.addChildren(concept)
+        val conceptSaved = repository.saveAndFlush(parent).children.last() as Concept
+        return ResponseEntity.ok(entityModelBuilder(conceptSaved))
     }
 
     override fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
@@ -97,6 +78,7 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))
+            .embed(entity.children, LinkRelation.of("children"))
             .build()
     }
 }

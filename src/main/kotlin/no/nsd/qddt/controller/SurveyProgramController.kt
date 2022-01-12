@@ -12,6 +12,7 @@ import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.GetMapping
@@ -53,12 +54,21 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         return super.getXml(uri)
     }
 
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    @GetMapping("/surveyprogram", produces = ["application/json"])
+//    fun getAllByAgency(): ResponseEntity<List<SurveyProgram>> {
+//        val user = SecurityContextHolder.getContext().authentication.principal as no.nsd.qddt.model.User
+//
+//        return ResponseEntity.ok((repository as SurveyProgramRepository).findByAgency(user.agency))
+////            .map {entityModelBuilder(it)}
+//    }
+
+
     @PutMapping("/surveyprogram/{uri}/children", produces = ["application/hal+json"])
     fun putStudies(@PathVariable uri: UUID, @RequestBody study: Study): ResponseEntity<RepresentationModel<EntityModel<Study>>> {
         logger.debug("put studies from SurveyProgramController...")
         val survey =  repository.findById(uri).orElseThrow()
-        study.parent = survey
-        survey.children.add(survey.children.size,study)
+        survey.addChildren(study)
         val studySaved = repository.saveAndFlush(survey).children.last() as Study
 
         return ResponseEntity.ok(entityModelBuilder(studySaved))
