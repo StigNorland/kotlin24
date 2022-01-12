@@ -1,9 +1,18 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDICommentsBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
+import org.hibernate.Hibernate
+import org.hibernate.envers.AuditMappedBy
+import org.hibernate.envers.Audited
+import org.hibernate.envers.RelationTargetAuditMode
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.annotation.LastModifiedBy
 import org.springframework.security.core.context.SecurityContextHolder
+import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*
 
@@ -19,10 +28,11 @@ import javax.persistence.*
  * @author Stig Norland
  */
 //@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@Audited
 @Entity
 @Cacheable(true)
 @Table(name = "comment")
-class Comment(
+data class Comment(
     @Column(length = 10000)
     var comment: String? = null,
 
@@ -33,6 +43,7 @@ class Comment(
     var ownerId: UUID? = null,
 
     @OrderColumn(name = "ownerIdx")
+    @AuditMappedBy(mappedBy = "ownerId", positionMappedBy = "ownerIdx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf(),
 
@@ -40,6 +51,25 @@ class Comment(
     var isPublic: Boolean = true
 ) : AbstractEntity() {
 
+
+    @Column(insertable = false, updatable = false)
+    @JsonFormat (shape = JsonFormat.Shape.NUMBER_INT)
+    override var modified: Timestamp? = null
+
+    @JsonSerialize
+    fun modifiedEmail(): String
+        {
+            return when (super.modifiedBy) {
+                null -> "?"
+                else -> super.modifiedBy.email
+            }
+        }
+    @JsonSerialize
+    fun modifiedBy() {
+    "${super.modifiedBy.username}@${super.modifiedBy.agency.name}"
+    }
+
+    @JsonSerialize
     fun size(): Int {
         return when {
             comments.isEmpty() -> 0
