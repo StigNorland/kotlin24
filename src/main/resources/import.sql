@@ -415,7 +415,7 @@ INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83
 INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83d4c314-4ff9-11e5-885d-feff819cdc9f', '9bec2d6b-4ff9-11e5-885d-feff819cdc9f');
 INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83d4c315-4ff9-11e5-885d-feff819cdc9f', '9bec2d6b-4ff9-11e5-885d-feff819cdc9f');
 INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83d4c316-4ff9-11e5-885d-feff819cdc9f', '9bec2d6b-4ff9-11e5-885d-feff819cdc9f');
-INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83d4c317-4ff9-11e5-885d-feff819cdc9f', '9bec2d6b-4ff9-11e5-885d-feff819cdc9f');
+INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83d4c317-4ff9-11e5-885d-feff819cdc9f', '9bec2d6a-4ff9-11e5-885d-feff819cdc9f');
 --Conceptua
 INSERT INTO public.user_account_authorities (user_id, authorities_id) VALUES('83d4c318-4ff9-11e5-885d-feff819cdc9f', '9bec2d6c-4ff9-11e5-885d-feff819cdc9f');
 --Viewer

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.repository.query.ExtensionAwareQueryMethodEvaluationContextProvider
+import org.springframework.data.spel.spi.EvaluationContextExtension
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.authentication.AuthenticationManager
@@ -20,7 +22,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.config.web.server.ServerHttpSecurity.http
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -65,7 +66,11 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     fun bCryptPasswordEncoderBean(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
-
+//
+//    @Bean
+//    fun securityExtension(): EvaluationContextExtension? {
+//        return ExtensionAwareQueryMethodEvaluationContextProvider.DEFAULT
+//    }
     @Bean
     fun corsFilter(): CorsFilter {
         val source = UrlBasedCorsConfigurationSource()
@@ -130,6 +135,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         // Set permissions on endpoints
         http.authorizeRequests()
             .antMatchers("/login/**").permitAll()
+//            .antMatchers(HttpMethod.GET, "/surveyprogram/*").access("@permission.hasPermission(#instance,'AGENCY')")
             .antMatchers(HttpMethod.POST, "/**").access("hasRole('ADMIN')") // or @permission.hasPermission(domainObject,'OWNER')")
             .antMatchers(HttpMethod.PUT, "/**").access("hasRole('ADMIN')") // or @permission.hasPermission(domainObject,'OWNER')")
             .antMatchers(HttpMethod.PATCH, "/**").access("hasRole('ADMIN')") // or @permission.hasPermission(domainObject,'OWNER')")

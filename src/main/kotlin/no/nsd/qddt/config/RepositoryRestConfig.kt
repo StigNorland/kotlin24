@@ -27,6 +27,7 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(Author::class.java)
         config.exposeIdsFor(Category::class.java)
         config.exposeIdsFor(Concept::class.java)
+        config.exposeIdsFor(Comment::class.java)
         config.exposeIdsFor(ConditionConstruct::class.java)
         config.exposeIdsFor(QuestionConstruct::class.java)
         config.exposeIdsFor(QuestionItem::class.java)

@@ -27,7 +27,6 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     protected val logger: Logger = LoggerFactory.getLogger(PermissionEvaluatorImpl::class.java)
 
 
-
     override fun hasPermission(auth: Authentication, targetDomainObject: Any, permission: Any): Boolean {
         if (permission !is String || targetDomainObject !is AbstractEntity
         ) {
