@@ -100,9 +100,9 @@ abstract class AbstractEntityAudit(
         try { ElementKind.getEnum(this.javaClass.simpleName).toString() }
         catch (e: Exception) {this.javaClass.simpleName}
 
+    @NotAudited
     @OrderColumn(name = "ownerIdx")
-    @AuditMappedBy(mappedBy = "ownerId", positionMappedBy = "ownerIdx")
-    @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.ALL], fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
 
 // TODO : moce these to PrePersist class

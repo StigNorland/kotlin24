@@ -21,6 +21,8 @@ interface ConceptListe {
 
     var isArchived: Boolean
 
+    var classKind: String
+
     @Value(value = "#{target.questionItems }")
     fun getQuestionItems(): MutableList<ElementRefEmbedded<QuestionItem>>
 

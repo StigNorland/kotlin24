@@ -190,6 +190,9 @@ class EntityAuditTrailListener{
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
 
             }
+            is Concept ->{
+                entity.questionItems.size
+            }
             is Study -> {
 //                val repository =  bean.getRepository<Instrument>(ElementKind.INSTRUMENT)
 //                entity.instrumentUriIds.forEach {

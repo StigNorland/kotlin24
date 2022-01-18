@@ -1,6 +1,7 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.ConceptRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -66,19 +67,30 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
     }
 
     override fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
-        entity.children.size
-        entity.authors.size
-        entity.comments.size
-        Hibernate.initialize(entity.agency)
-        Hibernate.initialize(entity.modifiedBy)
-        return HalModelBuilder.halModel()
-            .entity(entity)
-            .link(Link.of("${baseUri}/concept/${entity.id}"))
-            .embed(entity.agency, LinkRelation.of("agency"))
-            .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(entity.comments, LinkRelation.of("comments"))
-            .embed(entity.authors, LinkRelation.of("authors"))
-            .embed(entity.children, LinkRelation.of("children"))
-            .build()
-    }
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder ConceptController : {}" , uriId)
+        val baseUrl = if(uriId.rev != null)
+            "${baseUri}/concept/revision/${uriId}"
+        else
+            "${baseUri}/concept/${uriId.id}"
+
+            entity.children.size
+            entity.authors.size
+            entity.comments.size
+            entity.questionItems.size
+            Hibernate.initialize(entity.agency)
+            Hibernate.initialize(entity.modifiedBy)
+            return HalModelBuilder.halModel()
+                .entity(entity)
+                .link(Link.of("${baseUri}/concept/${entity.id}"))
+                .embed(entity.agency, LinkRelation.of("agency"))
+                .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
+                .embed(entity.comments, LinkRelation.of("comments"))
+                .embed(entity.authors, LinkRelation.of("authors"))
+                .embed(entity.questionItems, LinkRelation.of("questionItems"))
+                .embed(entity.children.map {
+                    entityModelBuilder(it as Concept)
+                }, LinkRelation.of("children"))
+                .build()
+        }
 }

@@ -39,12 +39,6 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         return super.getRevisions(uri, pageable)
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    @GetMapping("/surveyprogram/revisions/byparent/{uri}", produces = ["application/hal+json"])
-//    fun getStudies(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*>{
-//        logger.debug("get Study by parent rev...")
-//        return super.getRevisionsByParent(uri,Study::class.java, pageable)
-//    }
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
@@ -54,26 +48,6 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
-
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    @GetMapping("/surveyprogram", produces = ["application/json"])
-//    fun getAllByAgency(): ResponseEntity<List<SurveyProgram>> {
-//        try {
-//            val user = SecurityContextHolder.getContext().authentication.principal as no.nsd.qddt.model.User
-//            val surveys = (repository as SurveyProgramRepository).findByAgency(user.agency)
-//            surveys.forEach {
-//                it.authors.size
-//                it.children.size
-//                it.comments.size
-//            }
-//
-//            return ResponseEntity.ok(surveys)
-//                //.map {entityModelBuilder(it)})
-//        } catch (ex: Exception) {
-//            logger.error(ex.localizedMessage)
-//            return ResponseEntity(HttpStatus.NO_CONTENT)
-//        }
-//    }
 
 
     @PutMapping("/surveyprogram/{uri}/children", produces = ["application/hal+json"])

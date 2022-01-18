@@ -36,23 +36,23 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
         logger.debug(entity.version.rev.toString())
         if (entity is ConceptHierarchy && entity.classKind != "SURVEY_PROGRAM") {
-           when (ElementKind.valueOf(entity.parent.classKind)) {
-                ElementKind.SURVEY_PROGRAM -> model.addIf(!model.hasLink("parent")) {
+           when (ElementKind.valueOf(entity.classKind)) {
+                ElementKind.STUDY -> model.addIf(!model.hasLink("parent")) {
                     val ref = String.format("${baseUri}/surveyprogram/${entity.parentId}")
                     Link.of(ref,"parent")
                 }
-                ElementKind.STUDY -> model.addIf(!model.hasLink("parent")) {
+                ElementKind.TOPIC_GROUP -> model.addIf(!model.hasLink("parent")) {
                     val ref = String.format("${baseUri}/study/${entity.parentId}")
                     Link.of(ref,"parent")
                 }
-                ElementKind.TOPIC_GROUP -> model.addIf(!model.hasLink("parent")) {
+                ElementKind.CONCEPT -> model.addIf(!model.hasLink("parent")) {
                     val ref = String.format("${baseUri}/topicgroup/${entity.parentId}")
                     Link.of(ref,"parent")
                 }
-                ElementKind.CONCEPT -> model.addIf(!model.hasLink("parent")) {
-                    val ref = String.format("${baseUri}/concept/${entity.parentId}")
-                    Link.of(ref,"parent")
-                }
+//                ElementKind.CONCEPT -> model.addIf(!model.hasLink("parent")) {
+//                    val ref = String.format("${baseUri}/concept/${entity.parentId}")
+//                    Link.of(ref,"parent")
+//                }
                else -> {
                    logger.debug("didn't add parent")
                }

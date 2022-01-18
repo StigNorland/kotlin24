@@ -97,9 +97,11 @@ class TopicController(@Autowired repository: TopicGroupRepository,
     }
 
     fun entityModelBuilder(it: Concept): RepresentationModel<EntityModel<Concept>> {
+        logger.debug("entityModelBuilder TopicController : Concept")
         it.children.size
         it.authors.size
         it.comments.size
+        it.questionItems.size
         Hibernate.initialize(it.agency)
         Hibernate.initialize(it.modifiedBy)
         return HalModelBuilder.halModel()
@@ -109,7 +111,10 @@ class TopicController(@Autowired repository: TopicGroupRepository,
             .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(it.comments, LinkRelation.of("comments"))
             .embed(it.authors, LinkRelation.of("authors"))
-            .embed(it.children, LinkRelation.of("children"))
+            .embed(it.questionItems, LinkRelation.of("questionItems"))
+            .embed(it.children.map {
+                entityModelBuilder(it as Concept)
+            }, LinkRelation.of("children"))
             .build()
     }
 
@@ -139,7 +144,7 @@ class TopicController(@Autowired repository: TopicGroupRepository,
             .embed(entity.questionItems, LinkRelation.of("questionItems"))
             .embed(entity.children.map {
                 entityModelBuilder(it as Concept)
-            }, LinkRelation.of("concepts"))
+            }, LinkRelation.of("children"))
             .build()
     }
 }

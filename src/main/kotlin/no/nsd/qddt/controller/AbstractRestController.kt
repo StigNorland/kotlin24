@@ -62,7 +62,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
 
         logger.debug("getRevisions PagedModel: {}" , qPage)
         val revisions = repository.findRevisions(uri, qPage).map { rev -> entityRevisionModelBuilder(rev) }
-        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions), Link.of("revisions"))
+        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions))
     }
 
     @ResponseBody
@@ -76,7 +76,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
             .add(AuditEntity.property("parent_id").eq(uriId.id))
 
         val result = query.resultList.map { rev -> entityModelBuilder(rev as T) }
-        return PagedModel.wrap(result, PagedModel.PageMetadata(result.size.toLong(),1L, result.size.toLong()))
+//        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions))
+        return PagedModel.of(result, PagedModel.PageMetadata(result.size.toLong(),1L, result.size.toLong()))
 
     }
 
