@@ -39,7 +39,7 @@ data class Comment(
     @Column(updatable = false, nullable = false)
     var ownerIdx: Int? = 0,
 
-    @Column(updatable = false, nullable = false)
+    @Column(name = "OWNER_ID", updatable = false, nullable = false)
     var ownerId: UUID? = null,
 
     @OrderColumn(name = "ownerIdx")

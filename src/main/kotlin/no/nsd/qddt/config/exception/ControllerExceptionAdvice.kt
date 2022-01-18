@@ -1,6 +1,6 @@
 package no.nsd.qddt.config.exception
 
-import net.logstash.logback.encoder.org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -35,7 +35,7 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleResourceNotFound(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.localizedMessage
         )
         logger.error("EntityModeL not found: $message")
@@ -56,7 +56,7 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleUserByEmailNotFound(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.localizedMessage
         )
         logger.error("User not found: $message")
@@ -96,8 +96,8 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleConcurencyCheckedFailed(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
-            (e as ObjectOptimisticLockingFailureException).getMostSpecificCause().message
+            req.requestURL.toString(),
+            (e as ObjectOptimisticLockingFailureException).mostSpecificCause.message
         )
         logger.error("ConcurencyCheckedFailed: $e")
         return message
@@ -117,8 +117,8 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleRetrievalFailure(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
-            (e as JpaObjectRetrievalFailureException).getMostSpecificCause().message
+            req.requestURL.toString(),
+            (e as JpaObjectRetrievalFailureException).mostSpecificCause.message
         )
         if (message.exceptionMessage!!.contains("Category") && message.url.contains("responsedomain")) {
             message.userfriendlyMessage =
@@ -145,7 +145,7 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleRefInUseFailure(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.message
         )
         message.userfriendlyMessage =
@@ -165,10 +165,10 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleAccessDeniedException(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = getRootCauseMessage(e.cause)
+        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         logger.error(e.javaClass.simpleName, e)
         return message
     }
@@ -185,10 +185,10 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleInvalidPasswordException(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = getRootCauseMessage(e.cause)
+        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         logger.error(e.javaClass.simpleName, e)
         return message
     }
@@ -205,10 +205,10 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun handleDescendantsArchivedException(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = getRootCauseMessage(e.cause)
+        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         return message
     }
 
@@ -224,12 +224,12 @@ class ControllerExceptionAdvice {
     @ResponseBody
     fun defaultErrorHandler(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
-            req.getRequestURL().toString(),
+            req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = getRootCauseMessage(e.cause)
+        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         logger.error(e.javaClass.simpleName, e)
-        logger.error(req.getRequestURI())
+        logger.error(req.requestURI)
         logger.error("stacktrace", e.fillInStackTrace())
         return message
     }

@@ -19,7 +19,7 @@ import java.util.UUID
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "publication", itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
+@RepositoryRestResource(path = "publication",  exported = false ,itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
 interface PublicationRepository: BaseArchivedRepository<Publication> {
 
     @RestResource(rel = "findByAgencyId", path = "byAgency")
@@ -28,22 +28,27 @@ interface PublicationRepository: BaseArchivedRepository<Publication> {
     @Query( nativeQuery = true,
         value = "SELECT p.*  FROM publication p " +
                 "LEFT JOIN publication_status ps ON p.status_id = ps.id " +
-                "WHERE ( ps.published = :criteria.publishedKind " +
-                "AND ( p.agency_id = CAST(:criteria.principal.agencyId AS uuid)  or 'EXTERNAL_PUBLICATION' = :criteria.publishedKind) " +
-                "AND (:criteria.publicationStatus is null or ps.label similar to :criteria.publicationStatus) " +
-                "OR (:criteria.name is null or p.name ILIKE  searchStr(:criteria.name) ) " +
-                "OR (:criteria.purpose is null or p.purpose ILIKE searchStr(:criteria.purpose) ) )",
+                "WHERE ps.published = cast(:publishedKind as text) AND xml_lang ILIKE :xmlLang " +
+                "AND ( p.agency_id = :agencyId  or 'EXTERNAL_PUBLICATION' = cast(:publishedKind as text)) " +
+                "AND ( ps.label similar to cast(:publicationStatus AS text) " +
+                "OR p.name ILIKE  searchStr(cast(:name as text))  " +
+                "OR p.purpose ILIKE searchStr(cast(:purpose as text)) )",
         countQuery = "SELECT count(p.*) FROM publication p " +
                 "LEFT JOIN publication_status ps ON p.status_id = ps.id " +
-                "WHERE ( ps.published = :publishedKind " +
-                "AND ( p.agency_id = CAST(:criteria.principal.agencyId AS uuid)  or 'EXTERNAL_PUBLICATION' = :criteria.publishedKind) " +
-                "AND (:criteria.publicationStatus is null or ps.label similar to :criteria.publicationStatus) " +
-                "OR (:criteria.name is null or p.name ILIKE  searchStr(:criteria.name) ) " +
-                "OR (:criteria.purpose is null or p.purpose ILIKE searchStr(:criteria.purpose) ) )",
+                "WHERE ps.published = cast(:publishedKind as text) AND xml_lang ILIKE :xmlLang " +
+                "AND ( p.agency_id = :agencyId  or 'EXTERNAL_PUBLICATION' = cast(:publishedKind as text)) " +
+                "AND ( ps.label similar to cast(:publicationStatus AS text) " +
+                "OR p.name ILIKE  searchStr(cast(:name as text))  " +
+                "OR p.purpose ILIKE searchStr(cast(:purpose as text)) )"
     )
     fun findByQuery(
-        @ModelAttribute("criteria") criteria: PublicationCriteria,
-        @Param("pageable") pageable: Pageable?
+        @Param("publishedKind") publishedKind:String,
+        @Param("publicationStatus") publicationStatus:String,
+        @Param("purpose") purpose:String,
+        @Param("xmlLang") xmlLang:String,
+        @Param("name") name:String,
+        @Param("agencyId") agencyId:UUID,
+        pageable: Pageable?
     ): Page<Publication>
-
+//    ILIKE searchStr(cast(:label AS text)
 }

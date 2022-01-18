@@ -4,9 +4,8 @@ import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.repository.projection.ControlConstructListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import java.util.*
@@ -63,14 +62,16 @@ interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T
         ): Page<S>?
 
 
+        @Modifying
         @Query(
-            name = "removeInstruction", nativeQuery = true,
+            nativeQuery = true,
             value = "DELETE FROM control_construct_instruction cci WHERE cci.control_construct_id = :controlConstructId"
         )
         fun removeInstruction(@Param("controlConstructId") controlConstructId: UUID?)
 
+        @Modifying
         @Query(
-            name = "removeUniverse", nativeQuery = true,
+            nativeQuery = true,
             value = "DELETE FROM control_construct_universe ccu WHERE ccu.question_construct_id = :controlConstructId"
         )
         fun removeUniverse(@Param("controlConstructId") controlConstructId: UUID?)

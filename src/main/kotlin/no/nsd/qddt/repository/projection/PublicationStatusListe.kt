@@ -11,5 +11,8 @@ interface PublicationStatusListe {
     var description: String
     @Value(value = "#{target.published.toString() }")
     fun getPublished(): String?
+
+    @Value(value = "#{target.children }")
+    fun getChildren(): List<PublicationStatusListe>
 }
 

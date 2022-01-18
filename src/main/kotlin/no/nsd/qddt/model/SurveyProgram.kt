@@ -6,6 +6,8 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.interfaces.IBasedOn
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import org.springframework.security.access.prepost.PostAuthorize
+import org.springframework.security.access.prepost.PreAuthorize
 import javax.persistence.*
 
 

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.history.Revision
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.hateoas.server.core.EmbeddedWrapper
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
@@ -61,7 +62,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: 
 
         logger.debug("getRevisions PagedModel: {}" , qPage)
         val revisions = repository.findRevisions(uri, qPage).map { rev -> entityRevisionModelBuilder(rev) }
-        return PagedModel.wrap(revisions.content, pageMetadataBuilder(revisions))
+        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions), Link.of("revisions"))
     }
 
     @ResponseBody

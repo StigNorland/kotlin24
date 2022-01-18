@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.repository.query.ExtensionAwareQueryMethodEvaluationContextProvider
 import org.springframework.data.spel.spi.EvaluationContextExtension
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.PermissionEvaluator
@@ -66,6 +65,11 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     fun bCryptPasswordEncoderBean(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
+
+//    @Bean
+//    fun securityExtension(): EvaluationContextExtension? {
+//        return SecurityEvaluationContextExtension()
+//    }
 //
 //    @Bean
 //    fun securityExtension(): EvaluationContextExtension? {

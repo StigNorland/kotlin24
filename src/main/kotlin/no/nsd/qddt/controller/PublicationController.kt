@@ -1,66 +1,32 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Publication
-import no.nsd.qddt.model.PublicationStatus
+import no.nsd.qddt.model.Study
+import no.nsd.qddt.model.SurveyProgram
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.PublicationRepository
-import no.nsd.qddt.repository.PublicationStatusRepository
+import no.nsd.qddt.repository.criteria.PublicationCriteria
+import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.data.web.PagedResourcesAssembler
+import org.springframework.hateoas.*
+import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import java.security.Principal
+import org.springframework.web.bind.annotation.*
 import java.util.*
+
 
 @BasePathAwareController
 class PublicationController(@Autowired repository: PublicationRepository): AbstractRestController<Publication>(repository) {
 
-    @Autowired
-    lateinit var publicationStatusRepository: PublicationStatusRepository
-
-    @GetMapping("/publication/status",produces = ["application/json"])
-    fun getHierarchy(): ResponseEntity<MutableList<PublicationStatus>> {
-        val args = mutableListOf<Int>(0, 1, 2)
-
-        return ResponseEntity.ok(publicationStatusRepository.findAllById(args))
-    }
-
-    @GetMapping("/publication/status/flat",produces = ["application/json"])
-    fun getAllStatus(): ResponseEntity<MutableList<PublicationStatus>> {
-        return ResponseEntity.ok(publicationStatusRepository.findAll(Sort.by("id")))
-    }
-
-
-    @GetMapping("/publication/test",produces = ["application/hal+json"])
-    fun getAllByTest(user: Principal,
-                     pageable: Pageable?): ResponseEntity<EntityModel<Page<Publication>>> {
-        val details =  user as UsernamePasswordAuthenticationToken
-        logger.debug(details.principal.toString())
-        val page = repository.findAll(pageable?: Pageable.unpaged())
-        return ResponseEntity.ok(EntityModel.of(page))
-    }
-
-//    @GetMapping("/publication",produces = ["application/hal+json"])
-//    fun getAllBy(@CurrentSecurityContext(expression = "authentication") authentication: Authentication,
-//        pageable: Pageable?): ResponseEntity<EntityModel<Page<Publication>>> {
-//            val details =  authentication.principal as User
-//            val page = repository.findAll(pageable?: Pageable.unpaged())
-//            return ResponseEntity.ok(EntityModel.of(page))
-//    }
-
-//    @GetMapping("/publication/{uri}",produces = ["application/hal+json"])
-//    override fun getById(@PathVariable uri: String): ResponseEntity<EntityModel<Publication>> {
-//        return super.getById(uri)
-//    }
+//    @Autowired
+//    private lateinit var pagedResourcesAssembler: PagedResourcesAssembler<RepresentationModel<EntityModel<Publication>>>
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/publication/revision/{uri}", produces = ["application/hal+json"])
@@ -84,4 +50,58 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return  super.getXml(uri)
     }
+
+    @ResponseBody
+    @PostMapping("/publication", produces = ["application/hal+json"])
+    fun save(@RequestBody publication: Publication): ResponseEntity<RepresentationModel<EntityModel<Publication>>> {
+        return ResponseEntity.ok(entityModelBuilder(repository.save(publication)))
+    }
+
+    @ResponseBody
+    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/publication/search/findByQuery", produces = ["application/hal+json"])
+    fun getByQuery(publicationCriteria: PublicationCriteria,pageable: Pageable?): RepresentationModel<*> {
+
+        if (publicationCriteria == null)
+            throw Exception("no criteria")
+
+        logger.debug(publicationCriteria.toString())
+        val entities =  (repository as PublicationRepository).findByQuery(
+            publicationCriteria.publishedKind!!,
+            publicationCriteria.publicationStatus!!,
+            publicationCriteria.purpose!!,
+            publicationCriteria.xmlLang!!,
+            publicationCriteria.name!!,
+            publicationCriteria.getAngencyId(),pageable).map {
+            entityModelBuilder(it)
+        }
+
+        return PagedModel.of(entities.content,pageMetadataBuilder(entities), Link.of("publications"))
+    }
+
+    override fun entityModelBuilder(entity: Publication): RepresentationModel<EntityModel<Publication>> {
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder Publication : {}" , uriId)
+        val baseUrl = if(uriId.rev != null)
+            "${baseUri}/publication/revision/${uriId}"
+        else
+            "${baseUri}/publication/${uriId.id}"
+        entity.comments.size
+        entity.comments.forEach {
+            logger.debug("initialize(comments.modifiedBy)")
+            Hibernate.initialize(it.modifiedBy)
+        }
+        Hibernate.initialize(entity.agency)
+        Hibernate.initialize(entity.modifiedBy)
+        Hibernate.initialize(entity.status)
+        return HalModelBuilder.halModel()
+            .entity(entity)
+            .link(Link.of(baseUrl))
+            .embed(entity.agency,LinkRelation.of("agency"))
+            .embed(entity.modifiedBy,LinkRelation.of("modifiedBy"))
+            .embed(entity.comments,LinkRelation.of("comments"))
+            .embed(entity.status,LinkRelation.of("status"))
+            .build()
+    }
+
 }

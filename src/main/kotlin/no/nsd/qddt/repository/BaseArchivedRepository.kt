@@ -13,7 +13,7 @@ import org.springframework.data.rest.core.annotation.RestResource
 interface BaseArchivedRepository<T: AbstractEntityAudit> :BaseMixedRepository<T> {
     //    @Query(value = "select count(*) from project_archived_hierarchy as pah  where is_archived and  pah.ancestors  = ANY(:idUser) "
     @Query(
-        name= "hasArchive", nativeQuery = true,
+        nativeQuery = true,
         value = "select count(*) from project_archived_hierarchy as pah  where is_archived and  pah.ancestors  @> ARRAY[CAST(:entityId AS uuid)];",
     )
     fun hasArchive(@Param("entityId") entityId: String): Int

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -57,10 +58,21 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    @GetMapping("/surveyprogram", produces = ["application/json"])
 //    fun getAllByAgency(): ResponseEntity<List<SurveyProgram>> {
-//        val user = SecurityContextHolder.getContext().authentication.principal as no.nsd.qddt.model.User
+//        try {
+//            val user = SecurityContextHolder.getContext().authentication.principal as no.nsd.qddt.model.User
+//            val surveys = (repository as SurveyProgramRepository).findByAgency(user.agency)
+//            surveys.forEach {
+//                it.authors.size
+//                it.children.size
+//                it.comments.size
+//            }
 //
-//        return ResponseEntity.ok((repository as SurveyProgramRepository).findByAgency(user.agency))
-////            .map {entityModelBuilder(it)}
+//            return ResponseEntity.ok(surveys)
+//                //.map {entityModelBuilder(it)})
+//        } catch (ex: Exception) {
+//            logger.error(ex.localizedMessage)
+//            return ResponseEntity(HttpStatus.NO_CONTENT)
+//        }
 //    }
 
 
@@ -77,7 +89,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
     }
     private fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
         logger.debug("entityModelBuilder SurveyProgram Study: {}" , entity.id)
-        entity.children.size
+//        entity.children.size
         entity.authors.size
         entity.comments.size
         entity.instruments.size
@@ -104,7 +116,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
         entity.authors.size
         entity.comments.size
         entity.comments.forEach {
-            logger.debug("initialize(it")
+            logger.debug("initialize(comments.modifiedBy)")
             Hibernate.initialize(it.modifiedBy)
         }
         Hibernate.initialize(entity.agency)
@@ -118,7 +130,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository): A
             .embed(entity.authors,LinkRelation.of("authors"))
             .embed(entity.children.map {
                 entityModelBuilder(it as Study)
-            }, LinkRelation.of("studies"))
+            }, LinkRelation.of("children"))
             .build()
     }
 

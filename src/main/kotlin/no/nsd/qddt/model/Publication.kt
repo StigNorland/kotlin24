@@ -7,6 +7,7 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.PublicationElement
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
+import java.sql.Timestamp
 import javax.persistence.*
 
 /**
@@ -20,6 +21,10 @@ class Publication(
     var purpose: String =""
 ) :
     AbstractEntityAudit() {
+
+    fun getModified() : Long {
+        return super.modified?.time ?: 0
+    }
 
     @Column(insertable = false, updatable = false)
     private var statusId: Long? = null

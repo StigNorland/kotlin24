@@ -42,12 +42,12 @@ class QuestionConstruct: ControlConstruct() {
     )
     var questionId: UriId? = null
   
-    // @AttributeOverrides(
-    //     AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
-    //     AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
-    //     AttributeOverride(name = "id",column = Column(name = "questionitem_id")),
-    //     AttributeOverride(name = "rev",column = Column(name = "questionitem_revision"))
-    // )
+//     @AttributeOverrides(
+//         AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
+//         AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
+//         AttributeOverride(name = "id",column = Column(name = "questionitem_id")),
+//         AttributeOverride(name = "rev",column = Column(name = "questionitem_revision"))
+//     )
     @Transient
     @JsonSerialize
     var questionItem: QuestionItem? = null

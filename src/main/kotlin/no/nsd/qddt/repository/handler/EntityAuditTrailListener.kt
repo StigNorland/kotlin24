@@ -12,6 +12,7 @@ import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.RepLoaderService
+import no.nsd.qddt.utils.StringTool
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,6 +20,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
+import java.util.stream.Collectors.joining
 import javax.persistence.*
 
 
@@ -52,7 +54,32 @@ class EntityAuditTrailListener{
                 beforeCategoryInsert(entity)
             }
             is ResponseDomain -> {
-                entity.codes = harvestCatCodes(entity.managedRepresentation)
+                with(entity.managedRepresentation) {
+                    entity.responseCardinality = this.inputLimit
+                    if (this.categoryKind === CategoryType.MIXED) {
+                        this.name = (String.format(
+                            "Mixed [%s]",
+                            this.children.joinToString { it.label }
+                        ))
+                    }
+                    if (label.isBlank())
+                        label = entity.name
+
+                    name = categoryKind.name + "[" + (if (id != null) id.toString() else entity.name) + "]"
+
+                    description =
+                        if (this.hierarchyLevel === HierarchyLevel.GROUP_ENTITY)
+                        this.categoryKind.description else entity.description
+
+                    this.changeComment = entity.changeComment
+                    this.changeKind = entity.changeKind
+                    this.xmlLang = entity.xmlLang
+                    if (!version.isModified) {
+                        log.debug("onUpdate not run yet ♣♣♣ ")
+                    }
+                    version = entity.version
+                    entity.codes = harvestCatCodes(entity.managedRepresentation)
+                }
             }
             is Study -> {
                 entity.parentIdx

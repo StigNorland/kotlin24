@@ -19,10 +19,8 @@ data class PublicationStatus(
     @Id
     var id: Long? = null
 
-
     @Enumerated(EnumType.STRING)
     var published: Published = Published.NOT_PUBLISHED
-
 
     var description: String? = null
 
@@ -35,7 +33,7 @@ data class PublicationStatus(
 //    @JsonIgnore
     val parentId: Int? = null
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "parentIdx")
     @JoinColumn(name = "parentId")
     var children: MutableList<PublicationStatus> = mutableListOf()

@@ -9,6 +9,7 @@ import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.repository.PublicationStatusRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.data.rest.webmvc.RepositoryRestController
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,7 +19,7 @@ import java.io.IOException
 import java.util.*
 
 
-@RepositoryRestController
+@BasePathAwareController
 class ControlConstructController (@Autowired repository: ControlConstructRepository<ControlConstruct>): AbstractRestController<ControlConstruct>(repository) {
 
     @Autowired

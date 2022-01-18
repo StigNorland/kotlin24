@@ -4,6 +4,7 @@ import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.repository.QuestionItemRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
+import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.data.rest.webmvc.RepositoryRestController
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.http.MediaType
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import java.util.*
 
-@RepositoryRestController
+@BasePathAwareController
 class QuestionItemController(@Autowired repository: QuestionItemRepository): AbstractRestController<QuestionItem>(repository) {
 
 //    @GetMapping("/questionitem/{uri}",produces = ["application/hal+json"])

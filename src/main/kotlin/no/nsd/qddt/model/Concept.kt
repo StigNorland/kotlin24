@@ -5,6 +5,7 @@ import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.hibernate.envers.AuditMappedBy
@@ -54,7 +55,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
 //    @ElementCollection(fetch = FetchType.EAGER)
 //    @CollectionTable(joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
 //    var questionItems: MutableList<ElementRefQuestionItem> = mutableListOf()
-
+//
     @OrderColumn(name="parentIdx")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
@@ -68,8 +69,6 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
         } else
             logger.debug("QuestionItem not inserted, match found")
     }
-
-
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         try {
