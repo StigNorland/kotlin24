@@ -9,5 +9,5 @@ services:
       POSTGRES_DB: qddt-dev
       POSTGRES_USER: qddt
       POSTGRES_PASSWORD: qddt
-    volumes:
+    # volumes:
 #      - c:\docker-data
