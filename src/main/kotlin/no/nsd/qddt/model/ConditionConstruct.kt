@@ -6,6 +6,7 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.enums.ConditionKind
 import no.nsd.qddt.model.interfaces.IConditionNode
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import javax.persistence.*
 
@@ -15,9 +16,11 @@ import javax.persistence.*
 @Entity
 @Audited
 @DiscriminatorValue("CONDITION_CONSTRUCT")
-class ConditionConstruct : ControlConstruct(), IConditionNode {
+data class ConditionConstruct(
     @Column(name = "description")
     override var condition: String? = null
+) : ControlConstruct(), IConditionNode {
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "CONTROL_CONSTRUCT_SUPER_KIND")
@@ -38,5 +41,20 @@ class ConditionConstruct : ControlConstruct(), IConditionNode {
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         TODO("Not yet implemented")
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as ConditionConstruct
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
     }
 }

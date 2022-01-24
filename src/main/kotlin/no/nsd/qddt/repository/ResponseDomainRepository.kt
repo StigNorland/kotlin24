@@ -1,5 +1,6 @@
 package no.nsd.qddt.repository
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
@@ -11,7 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
  * @author Dag Østgulen Heradstveit
  *
 */
-@RepositoryRestResource(path = "responsedomain", exported=true,  itemResourceRel = "ResponseDomain") //, excerptProjection = ResponseDomainListe::class)
+@RepositoryRestResource(path = "responsedomain", exported=true,  itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
 interface ResponseDomainRepository:  BaseMixedRepository<ResponseDomain>  {
 
     @Query( nativeQuery = true,

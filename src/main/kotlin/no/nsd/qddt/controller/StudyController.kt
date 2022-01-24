@@ -82,7 +82,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         return HalModelBuilder.halModel()
             .entity(it)
             .link(Link.of("${baseUri}/topicgroup/${it.id}"))
-            .link(Link.of("${baseUri}/topicgroup/concepts/${it.id}","concepts"))
+            .link(Link.of("${baseUri}/topicgroup/${it.id}/children","children"))
             .embed(it.agency, LinkRelation.of("agency"))
             .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(it.comments, LinkRelation.of("comments"))
@@ -101,10 +101,10 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         else
             "${baseUri}/study/${uriId.id}"
 
-        entity.children.size
         entity.authors.size
         entity.comments.size
         entity.instruments.size
+        entity.children.size
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
@@ -119,7 +119,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
             .embed(entity.authors, LinkRelation.of("authors"))
             .embed(entity.children.map {
                 entityModelBuilder(it as TopicGroup)
-            }, LinkRelation.of("topicGroups"))
+            }, LinkRelation.of("children"))
             .build()
     }
 }

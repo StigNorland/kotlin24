@@ -3,6 +3,9 @@ package no.nsd.qddt.model
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDICommentsBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
+import no.nsd.qddt.repository.handler.CommentTrailListener
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
+import org.hibernate.Hibernate
 import org.hibernate.envers.NotAudited
 import java.util.*
 import javax.persistence.*
@@ -21,7 +24,8 @@ import javax.persistence.*
 //@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Entity
 @Table(name = "comment")
-class Comment(
+@EntityListeners(value = [CommentTrailListener::class])
+data class Comment(
     @Column(length = 10000)
     var comment: String? = null,
 
@@ -52,6 +56,21 @@ class Comment(
 
     override fun xmlBuilder(): AbstractXmlBuilder {
         return XmlDDICommentsBuilder(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Comment
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , modified = $modified )"
     }
 
 }

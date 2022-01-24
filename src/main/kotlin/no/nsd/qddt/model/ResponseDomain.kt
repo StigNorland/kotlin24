@@ -14,9 +14,9 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryType
-import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.utils.StringTool.CapString
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import javax.persistence.*
 
@@ -66,9 +66,20 @@ data class ResponseDomain(
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.REMOVE,CascadeType.MERGE,CascadeType.PERSIST], targetEntity = Category::class)
+  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.PERSIST])
   @JoinColumn(name = "category_id")
-  lateinit var managedRepresentation: Category
+  var managedRepresentation: Category? = null
+
+  fun getAnchorLabels(): String {
+    return try {
+      this.getFlatManagedRepresentation(this.managedRepresentation)
+        .filter { it.code != null }
+        .joinToString(" + ") { it.label }
+    } catch (ex:Exception) {
+      logger.error(ex.localizedMessage)
+      return "?"
+    }
+  }
 
 
   override fun fillDoc(pdfReport: PdfReport, counter: String) {
@@ -112,16 +123,6 @@ data class ResponseDomain(
   }
   
 
-  fun getAnchorLabels(): String {
-    return try {
-      this.getFlatManagedRepresentation(this.managedRepresentation)
-        .filter { it.code != null }
-        .joinToString(" + ") { it.label }
-    } catch (ex:Exception) {
-      logger.error(ex.localizedMessage)
-      return ""
-    }
-  }
   protected fun getFlatManagedRepresentation(current: Category?):List<Category> {
     var retval = mutableListOf<Category>()
     return when (current) {
@@ -134,28 +135,19 @@ data class ResponseDomain(
     }
   }
 
-}
-//    if (field == null)
-//    responseCardinality = managedRepresentation.inputLimit
-//    if (managedRepresentation.categoryType === CategoryType.MIXED)
-//    {
-//      setName(String.format("Mixed [%s]", managedRepresentation.getChildren().stream().map(???({ Category.label })).collect(Collectors.joining(" + "))))
-//    }
-//    if (StringTool.IsNullOrTrimEmpty(managedRepresentation.label))
-//    managedRepresentation.setLabel(name)
-//    managedRepresentation.setName(managedRepresentation.categoryType.name + "[" + (if ((getId() != null)) getId().toString() else name) + "]")
-//    if (managedRepresentation.getHierarchyLevel() === HierarchyLevel.GROUP_ENTITY)
-//    managedRepresentation.setDescription(managedRepresentation.categoryType.description)
-//    else
-//    managedRepresentation.setDescription(description)
-//    managedRepresentation.setChangeComment(getChangeComment())
-//    managedRepresentation.setChangeKind(getChangeKind())
-//    managedRepresentation.setXmlLang(xmlLang)
-//    if (!version.isModified())
-//    {
-//      LOG.debug("onUpdate not run yet ♣♣♣ ")
-//    }
-//    managedRepresentation.setVersion(version)
-//    LOG.debug("ResponseDomain PrePersist " + name + " - " + version)
-//  }
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+    other as ResponseDomain
 
+    return id != null && id == other.id
+  }
+
+  override fun hashCode(): Int = javaClass.hashCode()
+
+  @Override
+  override fun toString(): String {
+    return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+  }
+
+}

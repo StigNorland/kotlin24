@@ -1,29 +1,23 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Publication
-import no.nsd.qddt.model.User
-import no.nsd.qddt.repository.criteria.PublicationCriteria
 import no.nsd.qddt.repository.projection.PublicationListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
-import org.springframework.data.rest.core.annotation.RestResource
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.ModelAttribute
-import java.security.Principal
-import java.util.UUID
+import java.util.*
 
 
 /**
  * @author Stig Norland
  */
-@RepositoryRestResource(path = "publication",  exported = false ,itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
+@RepositoryRestResource(path = "publication", itemResourceRel = "Publication", excerptProjection = PublicationListe::class)
 interface PublicationRepository: BaseArchivedRepository<Publication> {
 
-    @RestResource(rel = "findByAgencyId", path = "byAgency")
-    fun findAllByAgencyId(agnecyId: UUID, pageable: Pageable?): Page<Publication>
+//    @RestResource(rel = "findByAgencyId", path = "byAgency")
+//    fun findAllByAgencyId(agnecyId: UUID, pageable: Pageable?): Page<Publication>
 
     @Query( nativeQuery = true,
         value = "SELECT p.*  FROM publication p " +
@@ -50,5 +44,4 @@ interface PublicationRepository: BaseArchivedRepository<Publication> {
         @Param("agencyId") agencyId:UUID,
         pageable: Pageable?
     ): Page<Publication>
-//    ILIKE searchStr(cast(:label AS text)
 }

@@ -13,5 +13,8 @@ import org.springframework.data.rest.core.config.Projection
 interface QuestionItemListe: IAbstractEntityViewList {
     var question: String
     var intent: String
+
+    @Value(value = "#{target.responseDomain?.name}")
+    fun getResponseDomainName(): String
 }
 

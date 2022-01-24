@@ -20,11 +20,11 @@ import java.util.*
 interface TopicGroupRepository : BaseArchivedRepository<TopicGroup> {
 
 
-    @RestResource(rel = "revision", path = "rev")
-    override fun findRevisions(id: UUID, pageable: Pageable): Page<Revision<Int, TopicGroup>>
-
-    @RestResource(rel = "all", path = "list")
-    override fun findAll(pageable: Pageable): Page<TopicGroup>
+//    @RestResource(rel = "revision", path = "rev")
+//    override fun findRevisions(id: UUID, pageable: Pageable): Page<Revision<Int, TopicGroup>>
+//
+//    @RestResource(rel = "all", path = "list")
+//    override fun findAll(pageable: Pageable): Page<TopicGroup>
 
 
     fun findByQuestionItemsElementId(id: UUID): List<TopicGroup>?
@@ -32,9 +32,9 @@ interface TopicGroupRepository : BaseArchivedRepository<TopicGroup> {
 
     @Query( nativeQuery = true,
         value = "SELECT tg.* FROM concept_hierarchy tg " +
-                "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE :name or tg.description ILIKE :description) ) ",
+                "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE searchStr(cast(:name AS text))  or tg.description ILIKE searchStr(cast(:description AS text)) ) ) ",
         countQuery = "SELECT count(tg.*) FROM concept_hierarchy tg " +
-                "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE :name or tg.description ILIKE :description) ) ",
+                "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE searchStr(cast(:name AS text))  or tg.description ILIKE searchStr(cast(:description AS text)) ) ) "
     )
     fun findByQuery(@Param("name") name: String,@Param("description") description: String?,pageable: Pageable): Page<TopicGroup>
 }

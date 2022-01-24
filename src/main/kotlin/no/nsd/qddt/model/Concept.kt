@@ -6,8 +6,11 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+import no.nsd.qddt.model.interfaces.IArchived
+import no.nsd.qddt.model.interfaces.IAuthorSet
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
+import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -28,7 +31,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("CONCEPT")
-data class Concept(override var name: String ="?") : ConceptHierarchy() {
+data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthorSet, IArchived {
 
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
@@ -114,5 +117,19 @@ data class Concept(override var name: String ="?") : ConceptHierarchy() {
         return ConceptFragmentBuilder(this)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Concept
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+    }
 
 }

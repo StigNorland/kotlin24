@@ -18,6 +18,7 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.InstructionRank
 import no.nsd.qddt.model.enums.ElementKind
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.stream.Collectors
 import javax.persistence.*
@@ -29,10 +30,11 @@ import javax.persistence.*
 @Audited
 @DiscriminatorValue("QUESTION_CONSTRUCT")
 //@EntityListeners(value = [QuestionConstructRefAuditTrailer::class])
-class QuestionConstruct: ControlConstruct() {
-
+data class QuestionConstruct(
     @Column(name = "description", length = 1500)
     var description: String = ""
+): ControlConstruct() {
+
 
     @Column(insertable = false, updatable = false)
     @Embedded
@@ -154,4 +156,20 @@ class QuestionConstruct: ControlConstruct() {
 
         pdfReport.addComments(comments)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as QuestionConstruct
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+    }
+
 }

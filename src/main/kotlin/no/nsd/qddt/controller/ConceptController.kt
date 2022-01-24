@@ -39,7 +39,6 @@ class ConceptController(@Autowired repository: ConceptRepository): AbstractRestC
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revisions/byparent/{uri}", produces = ["application/hal+json"])
     fun getParent(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*>{
-        logger.debug("get Study by parent rev...")
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 

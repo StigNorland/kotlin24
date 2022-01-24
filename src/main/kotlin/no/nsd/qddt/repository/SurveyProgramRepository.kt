@@ -44,10 +44,12 @@ interface SurveyProgramRepository: BaseArchivedRepository<SurveyProgram> {
 
     @Query(
         nativeQuery = true,
-        value = "SELECT c.* FROM concept_hierarchy c " +
-                "WHERE ( c.change_kind !='BASED_ON' and class_kind='SURVEY_PROGRAM' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
-        countQuery = "SELECT count(c.*) FROM concept_hierarchy c " +
-                "WHERE ( c.change_kind !='BASED_ON' and class_kind='SURVEY_PROGRAM' and (c.name ILIKE :name or c.description ILIKE :description) ) ",
+        value =
+            "SELECT c.* FROM concept_hierarchy c " +
+            "WHERE ( c.change_kind !='BASED_ON' and class_kind='SURVEY_PROGRAM' and (c.name ILIKE searchStr(cast(:name AS text))  or c.description ILIKE searchStr(cast(:description AS text)) ) ) ",
+        countQuery =
+            "SELECT count(c.*) FROM concept_hierarchy c " +
+            "WHERE ( c.change_kind !='BASED_ON' and class_kind='SURVEY_PROGRAM' and (c.name ILIKE searchStr(cast(:name AS text))  or c.description ILIKE searchStr(cast(:description AS text)) ) ) "
     )
     fun findByQuery(@Param("name") name:String?, @Param("description") description:String?, pageable:Pageable):Page<SurveyProgram>
 

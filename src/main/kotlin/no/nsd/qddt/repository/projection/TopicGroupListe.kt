@@ -10,25 +10,24 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-@JsonPropertyOrder("id", "label", "name", "isArchived")
+//@JsonPropertyOrder("id", "label", "name", "isArchived")
 @Projection(name = "topicGroupListe", types = [TopicGroup::class])
-interface TopicGroupListe {
+interface TopicGroupListe : IAbstractEntityViewList {
 
-    var id: UUID
-
+    override var id: UUID
     var label: String
-
-    var name: String
+    override var name: String
+    override var version: Version
+    override var xmlLang: String
+    override var classKind: String
 
     var isArchived: Boolean
 
     @Value(value = "#{target.modified.getTime() }")
-    fun getModified(): Long
+    override fun getModified(): Long
 
-    @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency?.name }")
-    fun getModifiedBy(): String?
-
-    var version: Version
+//    @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency?.name }")
+//    override fun getModifiedBy(): String?
 
 //    var children: List<ConceptListe>
 

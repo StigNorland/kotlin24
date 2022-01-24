@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
+import org.hibernate.envers.Audited
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
@@ -12,6 +13,7 @@ import javax.persistence.*
  * @author Stig Norland
  */
 //@EntityListeners(value = [QuestionItemRefAuditTrailer::class])
+@Audited
 @Embeddable
 class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
     /**
@@ -21,38 +23,31 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
 
     override var elementId: UUID?=null
 
-    @Embedded
-    @Transient
-    @JsonSerialize
-    override var version: Version = Version()
+    @Enumerated(EnumType.STRING)
+    override lateinit var elementKind: ElementKind
 
+    @Column(name = "element_revision", insertable =false, updatable=false )
     override var elementRevision: Int? = null
 
+    @Column(name = "element_name", length = 500)
     override var name: String? = null
-        set(value) {
-            field = value
-            value?.let {
-                val min = Integer.min(it.length, 24)
-                field = it.substring(0, min)
-            }
-        }
 
+
+    @AttributeOverrides(
+        AttributeOverride(name = "major",       column = Column(name = "element_major")),
+        AttributeOverride(name = "minor",       column = Column(name = "element_minor")),
+        AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
+        AttributeOverride(name = "versionLabel",column = Column(name = "element_version_label"))
+    )
+    @Transient
+    override var version: Version = Version()
+
+    @Transient
     var text: String? = null
-        set(value) {
-            field = value
-            value?.let {
-                val min = Integer.min(it.length, 500)
-                field = it.substring(0, min)
-            }
-        }
         get() {
             return element?.question ?: field
         }
 
-    @Transient
-    @JsonSerialize
-    @Enumerated(EnumType.STRING)
-    override var elementKind = ElementKind.QUESTION_ITEM
 
     @Transient
     @JsonSerialize

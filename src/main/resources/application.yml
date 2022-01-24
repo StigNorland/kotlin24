@@ -61,7 +61,7 @@ spring:
         prometheus:
           enabled: true
   hateoas:
-    use-hal-as-default-json-media-type: false
+    use-hal-as-default-json-media-type: true
 
 
 security:
@@ -105,10 +105,11 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        show_sql: true
-  datasource:
-    initialization-mode: always
-    continue-on-error: true
+        show_sql: false
+  sql:
+    init:
+      mode: never
+      continue-on-error: true
 ---
 spring:
   config:
@@ -117,9 +118,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-  datasource:
-    continue-on-error: false
-
+    properties:
+      hibernate:
+        show_sql: false
+  sql:
+    init:
+      continue-on-error: false
 ---
 spring:
   config:

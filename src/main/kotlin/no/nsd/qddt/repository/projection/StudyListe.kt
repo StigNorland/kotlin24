@@ -7,19 +7,20 @@ import org.springframework.data.rest.core.config.Projection
 import java.util.*
 
 @Projection(name = "studyListe", types = [Study::class])
-interface StudyListe {
-    var id: UUID
+interface StudyListe : IAbstractEntityViewList {
+    override var id: UUID
     var label: String
-    var name: String
-//    var description: String
+    override var name: String
+    override var version: Version
+    override var xmlLang: String
+    override var classKind: String
 
     @Value(value = "#{target.modified.getTime() }")
-    fun getModified(): Long
+    override fun getModified(): Long
 
-    @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency?.name }")
-    fun getModifiedBy(): String?
+//    @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency?.name }")
+//    override fun getModifiedBy(): String?
 
-    var version: Version
 
 //    var children: List<TopicGroupListe>
     var isArchived: Boolean

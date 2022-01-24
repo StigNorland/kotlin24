@@ -4,7 +4,6 @@ import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.ElementKind
@@ -12,7 +11,7 @@ import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.RepLoaderService
-import no.nsd.qddt.utils.StringTool
+import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +19,6 @@ import org.springframework.context.ApplicationContext
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
-import java.util.stream.Collectors.joining
 import javax.persistence.*
 
 
@@ -44,7 +42,7 @@ class EntityAuditTrailListener{
 
     @PrePersist
     private fun onInsert(entity: AbstractEntityAudit) {
-        log.debug("About to insert entity: {}" , entity.name)
+        log.debug("PrePersist [{}] {}", entity.classKind, entity.name)
         val user = SecurityContextHolder.getContext().authentication.principal as User
         entity.agency = user.agency
         entity.modifiedBy = user
@@ -54,31 +52,15 @@ class EntityAuditTrailListener{
                 beforeCategoryInsert(entity)
             }
             is ResponseDomain -> {
-                with(entity.managedRepresentation) {
-                    entity.responseCardinality = this.inputLimit
-                    if (this.categoryKind === CategoryType.MIXED) {
-                        this.name = (String.format(
-                            "Mixed [%s]",
-                            this.children.joinToString { it.label }
-                        ))
-                    }
-                    if (label.isBlank())
-                        label = entity.name
+                entity.managedRepresentation?.let{
+                    beforeCategoryInsert(it)
+                    it.changeComment = entity.changeComment
+                    it.changeKind = entity.changeKind
+                    it.xmlLang = entity.xmlLang
+                    entity.responseCardinality = it.inputLimit
 
-                    name = categoryKind.name + "[" + (if (id != null) id.toString() else entity.name) + "]"
-
-                    description =
-                        if (this.hierarchyLevel === HierarchyLevel.GROUP_ENTITY)
-                        this.categoryKind.description else entity.description
-
-                    this.changeComment = entity.changeComment
-                    this.changeKind = entity.changeKind
-                    this.xmlLang = entity.xmlLang
-                    if (!version.isModified) {
-                        log.debug("onUpdate not run yet ♣♣♣ ")
-                    }
-                    version = entity.version
                     entity.codes = harvestCatCodes(entity.managedRepresentation)
+                    log.debug("PrePersist - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
                 }
             }
             is Study -> {
@@ -88,12 +70,15 @@ class EntityAuditTrailListener{
         }
     }
 
+
     @PreUpdate
     private fun onUpdate(entity: AbstractEntityAudit) {
-        log.debug("About to update entity: {}" , entity.id)
+        log.debug("PreUpdate  [{}] {}" , entity.classKind, entity.id)
         try {
+            val user = SecurityContextHolder.getContext().authentication.principal as User
             with(entity) {
-            entity.modifiedBy = SecurityContextHolder.getContext().authentication.principal as User
+                agency = user.agency
+                modifiedBy = user
             var ver: Version? = version
             var change = changeKind
 
@@ -133,11 +118,15 @@ class EntityAuditTrailListener{
             version = ver
             }
             when (entity) {
+                is Publication -> {
+
+                }
                 is Study -> {
                     beforeStudyUpdate(entity)
                 }
                 is ResponseDomain -> {
                     entity.codes = harvestCatCodes(entity.managedRepresentation)
+                    log.debug("PreUpdate - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
                 }
             }
         } catch (ex: Exception) {
@@ -146,7 +135,6 @@ class EntityAuditTrailListener{
     }
 
     @PostPersist
-    @PostUpdate
     @PostRemove
     private fun afterAnyUpdate(entity: AbstractEntityAudit) {
         log.debug("Add/update/delete complete for entity: {}" , entity.id)
@@ -154,28 +142,24 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        log.debug("After load of entity: {}" , entity.id)
-//        entity.comments.size
-//        entity.comments.forEach {
-//            log.debug("initialize it.modifiedBy")
-//            Hibernate.initialize(it.modifiedBy)
-//        }
-        val bean =  applicationContext?.getBean("repLoaderService") as RepLoaderService
+
+        val repLoaderService =  applicationContext?.getBean("repLoaderService") as RepLoaderService
         when (entity) {
             is QuestionConstruct -> {
+                log.debug("PostLoad  [{}] {} - {}" , entity.classKind, entity.id, entity.modified)
                 if (entity.questionItem == null && entity.questionId?.id != null) {
 
-                    val repository =  bean.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
+                    val repository =  repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
                     entity.questionItem = loadRevisionEntity(entity.questionId!!,repository)
 
                 }
             }
             is QuestionItem -> {
-                log.debug("After load of Qi: {}" , entity.name)
+                log.debug("PostLoad  [{}] {} - {}" , entity.classKind, entity.id, entity.modified)
                 if (entity.responseDomain == null && entity.responseId?.id != null) {
                     log.debug("After load of Qi -> loading RD")
 
-                    val repository =  bean.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
+                    val repository =  repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
                     entity.responseDomain = loadRevisionEntity(entity.responseId!!,repository)
 
                     var _index = 0
@@ -184,29 +168,40 @@ class EntityAuditTrailListener{
                 }
             }
             is ResponseDomain -> {
-                log.debug("POPULATE_CODES - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)
 
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
+                log.debug("PostLoad - populateCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
 
             }
             is Concept ->{
                 entity.questionItems.size
             }
+            is TopicGroup -> {
+                entity.questionItems.size
+                entity.otherMaterials.size
+            }
             is Study -> {
+                entity.instruments.size
 //                val repository =  bean.getRepository<Instrument>(ElementKind.INSTRUMENT)
 //                entity.instrumentUriIds.forEach {
 //                    val instrument = loadRevisionEntity(it,repository)
 //                    entity.instruments.add(ElementRefEmbedded(instrument))
 //                }
             }
+            is Publication -> {
+                entity.publicationElements.forEach {
+                    log.debug(it.toString())
+//                    val repository =  repLoaderService.getRepository<AbstractEntityAudit>(it.elementKind)
+//                    it.element = loadRevisionEntity(UriId.fromAny("${it.elementId}:${it.elementRevision}"),repository)
+                }
+
+            }
             else -> {
-                log.debug("UNTOUCHED - {} : {} : {}", entity.classKind.padEnd(15) , entity.id, entity.name)
-                log.debug(entity.modified.toString())
+                log.debug("Untouched [{}] {}", entity.classKind , entity.id)
             }
         }
     }
-
 
 
     private fun <T: AbstractEntityAudit>loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
@@ -227,6 +222,31 @@ class EntityAuditTrailListener{
     private fun beforeCategoryInsert(entity: Category) {
         with(entity) {
             log.info("Category beforeInsert $name")
+            when {
+                this.categoryKind === CategoryType.MIXED -> {
+                    this.name = (String.format(
+                        "Mixed [%s]",
+                        this.children.joinToString { it.label }
+                    ))
+                }
+                this.categoryKind === CategoryType.SCALE -> {
+                    log.debug(this.toString())
+                }
+            }
+            if (label.isBlank())
+                label = entity.name
+
+            name = categoryKind.name + "[" + (if (id != null) id.toString() else entity.name) + "]"
+
+            description =
+                if (this.hierarchyLevel === HierarchyLevel.GROUP_ENTITY)
+                    this.categoryKind.description else entity.description
+
+            if (!version.isModified) {
+                log.debug("onUpdate not run yet ♣♣♣ ")
+            }
+            version = entity.version
+
             hierarchyLevel = when (categoryKind) {
                 CategoryType.DATETIME, CategoryType.BOOLEAN, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.CATEGORY ->
                     HierarchyLevel.ENTITY
@@ -276,7 +296,7 @@ class EntityAuditTrailListener{
 
         if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
             try {
-                log.debug(codes[index].toString())
+//                log.debug(codes[index].toString())
                 current.code = codes[index++]
             } catch (iob: IndexOutOfBoundsException) {
                 current.code = Code()

@@ -19,6 +19,9 @@ import javax.persistence.*
 @Audited
 @MappedSuperclass
 abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
+
+    constructor()
+
     constructor(entity: T?) {
         entity?.let{
             element = it

@@ -33,14 +33,14 @@ interface ConceptRepository: BaseArchivedRepository<Concept> {
                 "AND class_kind='CONCEPT' " +
                 "AND ( c.label ILIKE searchStr(:label) " +
                 "OR c.name  ILIKE searchStr(:name) " +
-                "OR c.description ILIKE searchStr(:description)))"
+                "OR c.description ILIKE searchStr(:description))"
         ,
         countQuery = "SELECT count(c.*) FROM concept_hierarchy c " +
                 " WHERE c.change_kind !='BASED_ON' " +
                 " AND class_kind='CONCEPT' " +
                 "AND ( c.label ILIKE searchStr(:label) " +
                 "OR c.name  ILIKE searchStr(:name) " +
-                "OR c.description ILIKE searchStr(:description)))"
+                "OR c.description ILIKE searchStr(:description))"
     )
     fun findByQuery(
         @Param("label") label:String,

@@ -15,6 +15,8 @@ import no.nsd.qddt.model.enums.CategoryType
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.utils.StringTool
+import org.hibernate.Hibernate
+import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
 import java.util.stream.Collectors
@@ -51,9 +53,9 @@ import kotlin.streams.toList
 @Cacheable
 @Table(
     name = "CATEGORY",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
+    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agencyId"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
-class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
+data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
 
     /**
@@ -61,7 +63,7 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
      *   Repeat for labels with different content, for example,
      *   labels with differing length limitations or of different types or applications.
      */
-    var label: String = ""
+
 
     override var name: String = ""
         get() {
@@ -69,6 +71,12 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
                 field = label.uppercase(Locale.getDefault())
             return field
         }
+
+    @JsonIgnore
+    @AuditMappedBy(mappedBy = "managedRepresentation")
+    @OneToMany
+    var responseDomain: MutableList<ResponseDomain>  = mutableListOf()
+
     /*
      *   A description of the content and purpose of the category.
      *   May be expressed in multiple languages and supports the use of structured content.
@@ -133,8 +141,8 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     @JsonDeserialize
     var code: Code? = null
 
-    @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "category_idx")
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
     var children: MutableList<Category> =  mutableListOf()
     get() {
         return if (categoryKind == CategoryType.SCALE) {
@@ -153,6 +161,14 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
             CategoryType.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
             else -> value
         }
+    }
+
+
+    fun addChildren(entity: Category): Category {
+        children.add(children.size,entity)
+        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
+        return entity
     }
 
     /**
@@ -230,5 +246,19 @@ class Category : AbstractEntityAudit(), Comparable<Category>, Cloneable {
     }
 
     override fun xmlBuilder() = CategoryFragmentBuilder(this)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Category
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+    }
 
 }

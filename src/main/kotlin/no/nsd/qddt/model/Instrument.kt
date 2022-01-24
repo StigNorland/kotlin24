@@ -8,6 +8,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.enums.InstrumentKind
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
@@ -23,7 +24,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "INSTRUMENT")
-class Instrument(
+data class Instrument(
     override var name: String = "",
     var description: String? = null
 
@@ -83,6 +84,21 @@ class Instrument(
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         pdfReport.addParagraph("Instrument...")
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Instrument
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
     }
 
 }

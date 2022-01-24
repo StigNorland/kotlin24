@@ -6,6 +6,7 @@ import no.nsd.qddt.model.builder.InstructionFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
@@ -23,7 +24,7 @@ import javax.persistence.*
         name = "UNQ_INSTRUCTION_NAME"
     )]
 )
-class Instruction(override var name: String = "") : AbstractEntityAudit() {
+data class Instruction(override var name: String = "") : AbstractEntityAudit() {
 
     @Column(length = 2000, nullable = false)
     var description: String? = null
@@ -110,4 +111,19 @@ class Instruction(override var name: String = "") : AbstractEntityAudit() {
 			</r:Description>
 		</c:Instruction>
 """
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Instruction
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+    }
 }

@@ -16,7 +16,7 @@ import java.util.*
  */
 
 @RepositoryRestResource(path = "publicationstatus",  itemResourceRel = "PublicationStatus", excerptProjection = PublicationStatusListe::class)
-interface PublicationStatusRepository : JpaRepository<PublicationStatus, Long> {
+interface PublicationStatusRepository : JpaRepository<PublicationStatus, Int> {
 
     @RestResource(rel = "hierarchy", path = "/all")
     fun findAllByParentIdIsNull(): List<PublicationStatus>

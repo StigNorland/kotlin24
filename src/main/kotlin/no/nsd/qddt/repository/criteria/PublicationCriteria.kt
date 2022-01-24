@@ -4,7 +4,7 @@ import no.nsd.qddt.model.User
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 
-class PublicationCriteria() {
+class PublicationCriteria {
     var name: String? = null
         get() = field?.replace("*","%")
     var purpose: String? = null

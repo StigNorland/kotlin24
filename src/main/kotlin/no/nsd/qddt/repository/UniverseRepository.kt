@@ -1,4 +1,4 @@
-package no.nsd.qddt.repository;
+package no.nsd.qddt.repository
 
 
 import no.nsd.qddt.model.Universe

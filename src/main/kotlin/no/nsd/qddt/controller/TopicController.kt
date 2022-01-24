@@ -3,8 +3,12 @@ package no.nsd.qddt.controller
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.repository.TopicGroupRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
@@ -25,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 
-@Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
 class TopicController(@Autowired repository: TopicGroupRepository,
                       @Autowired val otherMaterialService: OtherMaterialService
@@ -63,7 +66,7 @@ class TopicController(@Autowired repository: TopicGroupRepository,
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/topicgroup/{uri}/children", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody  concept: Concept):  ResponseEntity<RepresentationModel<EntityModel<Concept>>> {
+    fun putConcept(@PathVariable uri: UUID, @RequestBody  concept: Concept):  ResponseEntity<RepresentationModel<EntityModel<Concept>>> {
         logger.debug("put concept TopicController...")
 
         var topic =  repository.findById(uri).orElseThrow()
@@ -72,6 +75,16 @@ class TopicController(@Autowired repository: TopicGroupRepository,
         return ResponseEntity.ok(entityModelBuilder(conceptSaved))
     }
 
+    @Transactional(propagation = Propagation.NESTED)
+    @PutMapping("/topicgroup/{uri}/questionitems", produces = ["application/hal+json"])
+    fun putQuestionItem(@PathVariable uri: UUID, @RequestBody  questionItem: ElementRefQuestionItem): ResponseEntity<MutableList<ElementRefQuestionItem>> {
+        logger.debug("put concept TopicController...")
+
+        var topic =  repository.findById(uri).orElseThrow()
+        topic.addQuestionItem(questionItem)
+        val questionItemsSaved = repository.saveAndFlush(topic).questionItems
+        return ResponseEntity.ok(questionItemsSaved)
+    }
     @Transactional(propagation = Propagation.NESTED)
     @PostMapping("/topicgroup/createfile",
         headers = ["content-type=multipart/form-data"],
@@ -136,12 +149,11 @@ class TopicController(@Autowired repository: TopicGroupRepository,
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
+            .link(Link.of("${baseUri}/topicgroup/${uriId.id}/questionItems","questionItems"))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))
-            .embed(entity.otherMaterials, LinkRelation.of("otherMaterials"))
-            .embed(entity.questionItems, LinkRelation.of("questionItems"))
             .embed(entity.children.map {
                 entityModelBuilder(it as Concept)
             }, LinkRelation.of("children"))

@@ -27,17 +27,13 @@ import java.util.*
 import javax.persistence.EntityManager
 
 
-//@BasePathAwareController
 abstract class AbstractRestController<T : AbstractEntityAudit>( val repository: BaseMixedRepository<T>) {
 
-    val baseUri
-    get() = BasicLinkBuilder.linkToCurrentMapping()
+    val baseUri get() = BasicLinkBuilder.linkToCurrentMapping()
 
     @Autowired
     private val entityManager: EntityManager? = null
 
-//    @Autowired
-//    private  lateinit var pagedResourcesAssembler: PagedResourcesAssembler<T>
     @ResponseBody
     open fun getRevision(@PathVariable uri: String):  RepresentationModel<*>
     {

@@ -14,23 +14,25 @@ import org.springframework.stereotype.Repository
 interface QuestionItemRepository:  BaseMixedRepository<QuestionItem>  {
 
     @Query(nativeQuery = true,
-    value = "SELECT qi.* FROM QUESTION_ITEM qi " +
-            "LEFT JOIN audit.responsedomain_aud r on qi.responsedomain_id = r.id and qi.responsedomain_revision = r.rev " +
-            "WHERE qi.xml_lang ILIKE :xmlLang " +
-            "AND ( " +
-            "(:name is null OR qi.name ILIKE cast(:name AS text)) " +
-            "OR (:question is null OR qi.question ILIKE cast(:question AS text)) " +
-            "OR (:responseDomain is null OR r.name ILIKE cast(:responseDomain AS text)) " +
-            ")",
-    countQuery = "SELECT count(qi.id) FROM QUESTION_ITEM qi " +
-                " LEFT JOIN audit.responsedomain_aud r on qi.responsedomain_id = r.id and qi.responsedomain_revision = r.rev " +
-                " WHERE qi.xml_lang ILIKE :xmlLang " +
-                " AND ( " +
-                " (:name is null OR qi.name ILIKE cast(:name AS text)) " +
-                " OR (:question is null OR qi.question ILIKE cast(:question AS text)) " +
-                " OR (:responseDomain is null OR r.name ILIKE cast(:responseDomain AS text)) " +
-                " )",
+    value =
+        "SELECT qi.* FROM QUESTION_ITEM qi " +
+        "LEFT JOIN audit.responsedomain_aud r on qi.responsedomain_id = r.id and qi.responsedomain_revision = r.rev " +
+        "WHERE qi.xml_lang ILIKE :xmlLang " +
+        "AND ( " +
+        " qi.name ILIKE searchStr(cast(:name AS text)) " +
+        " or qi.question ILIKE searchStr(cast(:question AS text)) " +
+        " or r.name ILIKE searchStr(cast(:responseDomain AS text)) " +
+        ")",
+    countQuery =
+        "SELECT count(qi.id) FROM QUESTION_ITEM qi " +
+        " LEFT JOIN audit.responsedomain_aud r on qi.responsedomain_id = r.id and qi.responsedomain_revision = r.rev " +
+        " WHERE qi.xml_lang ILIKE :xmlLang " +
+        "AND ( " +
+        " qi.name ILIKE searchStr(cast(:name AS text)) " +
+        " or qi.question ILIKE searchStr(cast(:question AS text)) " +
+        " or r.name ILIKE searchStr(cast(:responseDomain AS text)) " +
+        ")"
     )
-    fun findByQuery(name:String?,question:String?,responseDomain: String?,xmlLang:String?="en-GB",pageable:Pageable?):Page<QuestionItem>?
+    fun findByQuery(name:String?,question:String?,responseDomain: String?,xmlLang:String?,pageable:Pageable?):Page<QuestionItem>?
 
 }

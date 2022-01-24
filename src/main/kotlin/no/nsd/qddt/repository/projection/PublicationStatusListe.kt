@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "publicationStatusListe", types = [PublicationStatus::class])
 interface PublicationStatusListe {
-    var id: Long
+    var id: Int
     var label: String
     var description: String
     @Value(value = "#{target.published.toString() }")

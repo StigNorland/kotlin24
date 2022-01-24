@@ -18,8 +18,8 @@ object FilterTool {
     val logger: Logger = LoggerFactory.getLogger(FilterTool::class.java)
 
     val wildify : String = { value:String? ->  {
-        logger.info("fsddsfas");
-        logger.info(value);
+        logger.info("fsddsfas")
+        logger.info(value)
         value?:"*".replace("*","%")
     } }.toString()
 

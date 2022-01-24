@@ -20,42 +20,33 @@ class CommentTrailListener{
 //    @Autowired
 //    private val applicationContext: ApplicationContext? = null
 
-    @PreRemove
-    private fun beforeAnyUpdate(entity: Comment) {
-        log.debug("About to delete entity: {}" , entity.id)
-    }
+//    @PreRemove
+//    private fun beforeAnyUpdate(entity: Comment) {
+//        log.debug("About to delete entity: {}" , entity.id)
+//    }
 
     @PrePersist
+    @PreUpdate
     private fun onInsert(entity: Comment) {
-        log.debug("About to insert entity: {}" , entity.id)
+        log.debug("PrePersist [COMMENT] {}" , entity.id)
         val user = SecurityContextHolder.getContext().authentication.principal as User
         entity.modifiedBy = user
         entity.modified = Timestamp.from(Instant.now())
-// TODO check children..
-//        entity.parent?.comments?.size
+
     }
 
-    @PreUpdate
-    private fun onUpdate(entity: Comment) {
-        log.debug("About to update entity: {}" , entity.id)
-        try {
 
-        } catch (ex: Exception) {
-            log.error("AbstractEntityAudit::onUpdate", ex)
-        }
-    }
-
-    @PostPersist
-    @PostUpdate
-    @PostRemove
-    private fun afterAnyUpdate(entity: Comment) {
-        log.debug("AFTER_ANY_UPDATE - {} : {} : {}", "COMMENT".padEnd(15) , entity.id, entity.comment?.take(20))
-    }
-
-    @PostLoad
-    private fun afterLoad(entity: Comment) {
-        log.debug("AFTERLOAD - {} : {} : {}", "COMMENT".padEnd(15) , entity.id, entity.comment?.take(20))
-    }
+//    @PostPersist
+//    @PostUpdate
+//    @PostRemove
+//    private fun afterAnyUpdate(entity: Comment) {
+//        log.debug("AFTER_ANY_UPDATE {} {} : {}", "[COMMENT]".padEnd(15) , entity.id, entity.comment?.take(20))
+//    }
+//
+//    @PostLoad
+//    private fun afterLoad(entity: Comment) {
+//        log.debug("Afterload {} {} : {}", "[COMMENT]".padEnd(15) , entity.id, entity.comment?.take(20))
+//    }
 
 
 

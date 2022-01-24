@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.repository.handler.AgentAuditTrailListener
 import no.nsd.qddt.repository.handler.UserAuditTrailListener
+import org.hibernate.Hibernate
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.sql.Timestamp
@@ -81,12 +82,23 @@ data class User(
     lateinit var agency : Agency
 
 
-    override fun toString(): String {
-        return "User(email='$email', id=$id, modified=$modified, authority=${getAuthority()}, hasPassword='${password.isNotBlank()}', username='$username', isEnabled=$isEnabled)"
-    }
-
     fun getAuthority(): String {
         return authorities.joinToString { it.authority }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as User
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , modified = $modified )"
     }
 
 }

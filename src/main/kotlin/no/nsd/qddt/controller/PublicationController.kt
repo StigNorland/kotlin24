@@ -1,19 +1,16 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Publication
-import no.nsd.qddt.model.Study
-import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.PublicationRepository
 import no.nsd.qddt.repository.criteria.PublicationCriteria
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.data.web.PagedResourcesAssembler
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
@@ -21,20 +18,15 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-
+@Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
 class PublicationController(@Autowired repository: PublicationRepository): AbstractRestController<Publication>(repository) {
 
-//    @Autowired
-//    private lateinit var pagedResourcesAssembler: PagedResourcesAssembler<RepresentationModel<EntityModel<Publication>>>
-
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/publication/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String):RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/publication/revisions/{uri}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable):RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
@@ -50,20 +42,22 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return  super.getXml(uri)
     }
+//    @ResponseBody
+//    @GetMapping("/publication/{uri}", produces = ["application/hal+json"])
+//    fun get(@PathVariable uri: UUID):RepresentationModel<*> {
+//        return entityModelBuilder(repository.getById(uri))
+//    }
 
     @ResponseBody
+    @Modifying
     @PostMapping("/publication", produces = ["application/hal+json"])
-    fun save(@RequestBody publication: Publication): ResponseEntity<RepresentationModel<EntityModel<Publication>>> {
-        return ResponseEntity.ok(entityModelBuilder(repository.save(publication)))
+    fun save(@RequestBody publication: Publication): RepresentationModel<*> {
+        return entityModelBuilder(repository.saveAndFlush(publication))
     }
 
     @ResponseBody
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/publication/search/findByQuery", produces = ["application/hal+json"])
     fun getByQuery(publicationCriteria: PublicationCriteria,pageable: Pageable?): RepresentationModel<*> {
-
-        if (publicationCriteria == null)
-            throw Exception("no criteria")
 
         logger.debug(publicationCriteria.toString())
         val entities =  (repository as PublicationRepository).findByQuery(
@@ -94,6 +88,7 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.status)
+        Hibernate.initialize(entity.publicationElements)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))

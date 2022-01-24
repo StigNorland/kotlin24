@@ -34,8 +34,7 @@ data class Version( var versionLabel: String = "") : Comparable<Version>, Serial
     @Transient
     @JsonIgnore
     final var isModified: Boolean = false
-        get() = field
-        private set(value) { field = value}
+        private set
 
 
     @Transient

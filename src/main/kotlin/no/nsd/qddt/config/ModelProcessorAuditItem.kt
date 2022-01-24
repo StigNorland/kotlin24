@@ -34,7 +34,6 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
         }
 
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
-        logger.debug(entity.version.rev.toString())
         if (entity is ConceptHierarchy && entity.classKind != "SURVEY_PROGRAM") {
            when (ElementKind.valueOf(entity.classKind)) {
                 ElementKind.STUDY -> model.addIf(!model.hasLink("parent")) {

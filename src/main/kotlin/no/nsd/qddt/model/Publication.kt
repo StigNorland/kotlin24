@@ -1,13 +1,14 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.model.builder.PublicationFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.PublicationElement
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
-import java.sql.Timestamp
 import javax.persistence.*
 
 /**
@@ -16,22 +17,21 @@ import javax.persistence.*
 @Entity
 @Audited
 @Table(name = "PUBLICATION")
-class Publication(
+@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
+data class Publication(
+
     override var name: String = "",
-    var purpose: String =""
-) :
-    AbstractEntityAudit() {
 
-    fun getModified() : Long {
-        return super.modified?.time ?: 0
-    }
+    var purpose: String ="",
 
-    @Column(insertable = false, updatable = false)
-    private var statusId: Long? = null
+    var statusId: Int = 0
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    @JoinColumn(name = "statusId")
+): AbstractEntityAudit() {
+
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "statusId", updatable = false, insertable = false)
+    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     lateinit var status: PublicationStatus
 
     @OrderColumn(name = "publication_idx")
@@ -64,5 +64,20 @@ class Publication(
 
     override fun xmlBuilder(): AbstractXmlBuilder {
         return PublicationFragmentBuilder(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Publication
+
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
     }
 }

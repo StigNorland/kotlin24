@@ -15,6 +15,8 @@ import javax.persistence.Embeddable
 @Audited
 class ElementRefEmbedded<T : IWebMenuPreview>:AbstractElementRef<T>, Serializable {
 
+    constructor() : super()
+
     constructor(entity: T) : super(entity)
 
     constructor(elementKind: ElementKind, elementId: UUID?, elementRevision: Int?) : super(

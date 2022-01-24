@@ -14,7 +14,7 @@ class ResponseDomainFactory: IEntityFactory<ResponseDomain> {
       displayLayout = source.displayLayout
       // List<Code> codes = source.getCodes();
       codes = source.codes.toCollection(codes)
-      managedRepresentation = source.managedRepresentation.clone()
+      managedRepresentation = source.managedRepresentation?.clone()
       responseKind = source.responseKind
       responseCardinality = source.responseCardinality
     }

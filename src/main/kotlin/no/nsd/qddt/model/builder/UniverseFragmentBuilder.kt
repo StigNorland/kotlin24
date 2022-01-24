@@ -1,4 +1,4 @@
-package no.nsd.qddt.model.builder;
+package no.nsd.qddt.model.builder
 
 import no.nsd.qddt.model.Universe
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder

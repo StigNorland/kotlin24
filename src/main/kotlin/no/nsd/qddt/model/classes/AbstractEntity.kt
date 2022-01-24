@@ -25,11 +25,6 @@ abstract class AbstractEntity(
     @Column(updatable = false, nullable = false)
     var id: UUID? = null,
 
-//    @Transient
-//    @JsonSerialize
-//    @Column(columnDefinition="default 0",  nullable = false)
-//    var rev: Int = 0,
-
     @JsonIgnore
     @Column(insertable = false, updatable = false)
     protected var modifiedById: UUID? = null,

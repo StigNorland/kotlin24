@@ -11,8 +11,11 @@ import java.util.*
 @Projection(name = "userListe", types = [User::class])
 interface UserListe {
     val id: UUID
-    @Value(value = "#{target.username }")
-    fun getName(): String
+    val username: String
     var email : String
+
+    @Value(value = "#{target.username  + '@' + target.agency?.name }")
+    fun getUserAgencyName(): String
+
 }
 

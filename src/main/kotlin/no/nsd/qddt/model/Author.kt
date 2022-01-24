@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.repository.handler.AuthorAuditTrailListener
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
 import javax.persistence.*
@@ -41,6 +42,19 @@ data class Author(var email: String? = "") : AbstractEntity() {
 //    var conceptReferences: MutableSet<ConceptHierarchy> = mutableSetOf()
 
     override fun xmlBuilder(): AbstractXmlBuilder? { return null }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+        other as Author
 
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
+
+    @Override
+    override fun toString(): String {
+        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified )"
+    }
 
 }

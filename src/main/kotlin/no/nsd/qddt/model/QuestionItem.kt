@@ -9,6 +9,7 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
+import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import javax.persistence.*
 
@@ -29,7 +30,6 @@ import javax.persistence.*
 data class QuestionItem(
   override var name: String =""
 ) :AbstractEntityAudit() {
-
 
   @Column(length = 2000)
   var question:String=""
@@ -73,6 +73,21 @@ data class QuestionItem(
       pdfReport.addHeader2("Comments")
       pdfReport.addComments(comments)
     }
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+    other as QuestionItem
+
+    return id != null && id == other.id
+  }
+
+  override fun hashCode(): Int = javaClass.hashCode()
+
+  @Override
+  override fun toString(): String {
+    return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
   }
 
 }
