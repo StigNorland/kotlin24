@@ -17,8 +17,8 @@ interface ResponseDomainListe: IAbstractEntityViewList {
     var description: String
     var responseCardinality: ResponseCardinality
 
-//    @Value(value = "#{target.getAnchorLabels() }")
-//    fun getAnchorLabels(): String
+    @Value(value = "#{target.getAnchorLabels() }")
+    fun getAnchorLabels(): String
 
     @Value(value = "#{target.managedRepresentation }")
     fun getManagedRepresentation(): CategoryListe

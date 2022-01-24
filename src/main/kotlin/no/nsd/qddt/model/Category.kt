@@ -50,7 +50,6 @@ import kotlin.streams.toList
  */
 @Audited
 @Entity
-@Cacheable
 @Table(
     name = "CATEGORY",
     uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agencyId"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
@@ -72,10 +71,10 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
             return field
         }
 
-    @JsonIgnore
-    @AuditMappedBy(mappedBy = "managedRepresentation")
-    @OneToMany
-    var responseDomain: MutableList<ResponseDomain>  = mutableListOf()
+//    @JsonIgnore
+//    @OneToMany
+//    @JoinColumn ( insertable = false, updatable = false )
+//    var responseDomain: MutableList<ResponseDomain>  = mutableListOf()
 
     /*
      *   A description of the content and purpose of the category.
@@ -142,7 +141,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     var code: Code? = null
 
     @OrderColumn(name = "category_idx")
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
+    @ManyToMany(fetch = FetchType.EAGER)
     var children: MutableList<Category> =  mutableListOf()
     get() {
         return if (categoryKind == CategoryType.SCALE) {

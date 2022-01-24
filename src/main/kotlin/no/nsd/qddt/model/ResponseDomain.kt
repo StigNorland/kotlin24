@@ -22,7 +22,6 @@ import javax.persistence.*
 
 @Audited
 @Entity
-@Cacheable
 @Table(name = "RESPONSEDOMAIN", uniqueConstraints =
         [UniqueConstraint(name = "UNQ_RESPONSEDOMAIN_NAME",
           columnNames = ["name","category_id","based_on_object"])]
@@ -69,6 +68,11 @@ data class ResponseDomain(
   @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.PERSIST])
   @JoinColumn(name = "category_id")
   var managedRepresentation: Category? = null
+  get() = field
+  set(value) {
+    field = value
+    logger.debug(value.toString())
+  }
 
   fun getAnchorLabels(): String {
     return try {

@@ -82,18 +82,17 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
                         (applicationContext?.getBean("repLoaderService") as RepLoaderService)
                             .getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
 
-                    loadRevisionEntity<ResponseDomain>(entity.responseId!!,repository)
+                    loadRevisionEntity(entity.responseId!!,repository)
                 }
                 else -> {}
             }
-        entity.responseDomain = response as ResponseDomain
 
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-//            .embed(response,LinkRelation.of("responseDomain") )
+            .embed(response as ResponseDomain,LinkRelation.of("responseDomain") )
             .build()
     }
 

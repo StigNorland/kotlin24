@@ -59,13 +59,20 @@ class EntityAuditTrailListener{
                     it.xmlLang = entity.xmlLang
                     entity.responseCardinality = it.inputLimit
 
-                    entity.codes = harvestCatCodes(entity.managedRepresentation)
+                    entity.codes = harvestCatCodes(it)
                     log.debug("PrePersist - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
                 }
             }
             is Study -> {
                 entity.parentIdx
                 beforeStudyInsert(entity)
+            }
+            else -> {
+                if (entity is ResponseDomain ) {
+                    log.debug("PrePersist - code : {} : {}", entity.name, entity.codes.joinToString { it.value })
+                } else {
+                    log.debug("PrePersist: {}", entity.name)
+                }
             }
         }
     }
@@ -125,6 +132,7 @@ class EntityAuditTrailListener{
                     beforeStudyUpdate(entity)
                 }
                 is ResponseDomain -> {
+                    log.debug("PreUpdate - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
                     entity.codes = harvestCatCodes(entity.managedRepresentation)
                     log.debug("PreUpdate - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
                 }

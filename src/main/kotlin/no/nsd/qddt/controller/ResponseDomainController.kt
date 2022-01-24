@@ -52,20 +52,39 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
         return  super.getXml(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
+    @PutMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
+    fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain): ResponseDomain {
+        responseDomain.codes = harvestCatCodes(responseDomain.managedRepresentation)
+        logger.debug("putResponseDomain - harvestCode : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
+        val saved = repository.save(responseDomain)
+        var _index = 0
+        populateCatCodes(saved.managedRepresentation,_index,saved.codes)
+        logger.debug("putResponseDomain - saved : {} : {}", saved.name, saved.codes.joinToString { it.value })
+
+        return saved
+    }
+
+//    @Transactional
+//    @ResponseBody
+//    @GetMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
+//    fun getResponseDomain(@PathVariable uri: UUID):  RepresentationModel<*> {
+////        logger.debug("getResponseDomain - harvestCode : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
+//        return entityModelBuilder(repository.findById(uri).orElseThrow())
+//    }
+
     @Transactional
     @ResponseBody
     @Modifying
-    @PutMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
-    fun putChildren(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain):  RepresentationModel<*> {
-        responseDomain.codes = harvestCatCodes(responseDomain.managedRepresentation)
-        logger.debug("putChildren - harvestCode : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
+    @PutMapping("/responsedomain/{uri}/managedrepresentation", produces = ["application/hal+json"])
+    fun putManagedRepresentation(@PathVariable uri: UUID, @RequestBody managedRepresentation: Category):  RepresentationModel<*> {
 
-//        var domain =  repository.findById(uri).orElseThrow()
-//        domain.addChildren(category)
-//        val topicSaved = repository.saveAndFlush(domain).children.last() as Category
-        return entityModelBuilder(repository.saveAndFlush(responseDomain))
+        var domain =  repository.findById(uri).orElseThrow()
+        domain.managedRepresentation = managedRepresentation
+        val managedRepresentationSaved = repository.saveAndFlush(domain).managedRepresentation as Category
+        return entityModelBuilder(managedRepresentationSaved)
     }
-
 
     private fun harvestCatCodes(current: Category?): MutableList<Code> {
         val tmpList: MutableList<Code> = mutableListOf()
@@ -88,6 +107,9 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
         entity.managedRepresentation?.children?.size
+        entity.managedRepresentation?.children?.forEach {
+            entityModelBuilder(it)
+        }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
@@ -95,5 +117,45 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository):
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.managedRepresentation?:{},LinkRelation.of("managedRepresentation"))
             .build()
+    }
+
+    fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder Category : {}" , uriId)
+        val baseUrl = if(uriId.rev != null)
+            "${baseUri}/category/revision/${uriId}"
+        else
+            "${baseUri}/category/${uriId.id}"
+        Hibernate.initialize(entity.agency)
+        Hibernate.initialize(entity.modifiedBy)
+        entity.children?.size
+        return HalModelBuilder.halModel()
+            .entity(entity)
+            .link(Link.of(baseUrl))
+            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
+            .build()
+    }
+
+    private fun populateCatCodes(current: Category?, _index: Int,  codes: List<Code>): Int {
+        if (current == null) return _index
+
+        var index = _index
+
+        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
+            try {
+//                log.debug(codes[index].toString())
+                current.code = codes[index++]
+            } catch (iob: IndexOutOfBoundsException) {
+                current.code = Code()
+            } catch (ex: Exception) {
+                logger.error(ex.localizedMessage)
+                current.code = Code()
+            }
+        }
+        current.children.forEach {
+            index = populateCatCodes(it, index, codes)
+        }
+        return index
     }
 }
