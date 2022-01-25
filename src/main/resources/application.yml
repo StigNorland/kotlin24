@@ -102,7 +102,7 @@ spring:
       on-profile: stage
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: false
@@ -117,7 +117,7 @@ spring:
       on-profile: development
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: false
