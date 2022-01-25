@@ -2,13 +2,14 @@ package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.QddtUrl
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.stereotype.Repository
 import java.util.*
 
 /**
  * @author Stig Norland
  */
-@Repository
+@RepositoryRestResource(path = "search",  itemResourceRel = "QddtUrl") //, excerptProjection = CommentListe::class)
 interface SearchRepository : JpaRepository<QddtUrl, UUID> {
     fun findByName(name: String): List<QddtUrl>
     fun findByUserId(userId: UUID): List<QddtUrl> //    @Query(value = "SELECT p.*  FROM publication p " +

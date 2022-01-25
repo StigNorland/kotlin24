@@ -19,8 +19,8 @@ class ChangeFeedKey(
     protected var refRev: Int? = null,
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(columnDefinition = "int2")
-    protected var refAction: ActionKind? = null
+    @Column(name = "ref_action", columnDefinition = "int2")
+    var refAction: ActionKind? = null
 
 
 ) :Serializable {

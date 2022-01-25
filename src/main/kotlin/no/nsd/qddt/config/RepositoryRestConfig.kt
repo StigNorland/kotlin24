@@ -42,6 +42,7 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(User::class.java)
         config.exposeIdsFor(PublicationStatus::class.java)
         config.exposeIdsFor(Publication::class.java)
+//        config.exposeIdsFor(ChangeFeed::class.java)
 
 
 //        config.withEntityLookup().forRepository(AgencyRepository::class.java, Agency::id, AgencyRepository::findById)
