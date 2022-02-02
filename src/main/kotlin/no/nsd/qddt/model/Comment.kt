@@ -4,7 +4,6 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDICommentsBuilder
 import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.repository.handler.CommentTrailListener
-import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
 import org.hibernate.envers.NotAudited
 import java.util.*

@@ -13,7 +13,10 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(path = ["/login"])
@@ -31,17 +34,26 @@ class AuthenticationController {
         return try {
             val authenticate =
                 if (userForm.email != null)
-                    authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userForm.email,userForm.password))
+                    authenticationManager.authenticate(
+                        UsernamePasswordAuthenticationToken(
+                            userForm.email,
+                            userForm.password
+                        )
+                    )
                 else
-                    authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userForm.username,userForm.password))
+                    authenticationManager.authenticate(
+                        UsernamePasswordAuthenticationToken(
+                            userForm.username,
+                            userForm.password
+                        )
+                    )
             val user = authenticate.principal as User
             logger.info("User logged in {}", user.toString())
             SecurityContextHolder.getContext().authentication = authenticate
             ResponseEntity.ok(jwtUtil.generateJwtToken(authenticate))
         } catch (ex: BadCredentialsException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build<Any>()
-        }
-        catch (ex: Exception) {
+        } catch (ex: Exception) {
             logger.error(ex.localizedMessage)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build<Any>()
         }

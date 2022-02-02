@@ -10,14 +10,14 @@ package no.nsd.qddt.model
 // import org.hibernate.envers.Audited
 // import javax.persistence.*
 // import kotlin.streams.toList
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.enums.InstructionRank
 import no.nsd.qddt.model.enums.ElementKind
+import no.nsd.qddt.model.enums.InstructionRank
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.stream.Collectors
@@ -35,8 +35,6 @@ data class QuestionConstruct(
     var description: String = ""
 ): ControlConstruct() {
 
-
-    @Column(insertable = false, updatable = false)
     @Embedded
     @AttributeOverrides(
       AttributeOverride(name = "id",column = Column(name = "questionitem_id", nullable =true)),
@@ -44,21 +42,19 @@ data class QuestionConstruct(
     )
     var questionId: UriId? = null
   
-//     @AttributeOverrides(
-//         AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
-//         AttributeOverride(name = "text",column = Column(name = "question_text", length = 500)),
-//         AttributeOverride(name = "id",column = Column(name = "questionitem_id")),
-//         AttributeOverride(name = "rev",column = Column(name = "questionitem_revision"))
-//     )
     @Transient
     @JsonSerialize
     var questionItem: QuestionItem? = null
-    
-    @ManyToMany(fetch = FetchType.EAGER)
+
+    @JsonSerialize
+    @JsonDeserialize
     @OrderColumn(name = "universe_idx")
+    @ManyToMany(fetch = FetchType.EAGER)
     var universe: MutableList<Universe> = mutableListOf()
 
-    @JsonIgnore
+
+    @JsonSerialize
+    @JsonDeserialize
     @OrderColumn(name = "instruction_idx")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -77,14 +73,15 @@ data class QuestionConstruct(
 //    @MapKeyColumn(name = "instructionRank")
 //    val controlConstructInstructions2: Map<InstructionRank, MutableList<ControlConstructInstruction>> = mutableMapOf()
 
-
-    val preInstructions
+//    @JsonSerialize
+//    @JsonDeserialize
+    private val preInstructions
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == InstructionRank.PRE }
             .map {   it.instruction.description}
             .collect(Collectors.toList())
-            
-    val postInstructions
+
+    private val postInstructions
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == InstructionRank.POST }
             .map {   it.instruction.description}

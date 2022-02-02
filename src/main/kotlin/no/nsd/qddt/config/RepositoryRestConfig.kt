@@ -1,7 +1,6 @@
 package  no.nsd.qddt.config
 
 import no.nsd.qddt.model.*
-import no.nsd.qddt.repository.StudyRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
@@ -22,6 +21,7 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
     override fun configureRepositoryRestConfiguration(config:RepositoryRestConfiguration,  cors: CorsRegistry) {
 
         cors.addMapping("/**").allowedOrigins(origin)
+
 
         config.exposeIdsFor(Agency::class.java)
         config.exposeIdsFor(Author::class.java)

@@ -1,8 +1,10 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.nsd.qddt.repository.handler.AgentAuditTrailListener
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.repository.handler.UserAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.security.core.GrantedAuthority
@@ -23,15 +25,17 @@ data class User(
 
     private var username : String = "?",
 
-    @Column(insertable = false, updatable = false)
-    var agencyId: UUID? = null
+    @Column(nullable = false)
+    var agencyId: UUID? = null,
+
+    @JsonSerialize
+    @JsonFormat
+        (shape = JsonFormat.Shape.NUMBER_INT)    @Version
+    var modified: Timestamp?=null
 
 ):UserDetails {
 
     @Id  @GeneratedValue lateinit var id: UUID
-
-    @Version
-    lateinit var modified: Timestamp
 
     lateinit var email : String
 
@@ -66,7 +70,8 @@ data class User(
     }
 
 
-    @JsonIgnore
+
+    @JsonDeserialize
     @ManyToMany(fetch = FetchType.EAGER)
     private lateinit var authorities: MutableCollection<Authority>
 
@@ -78,7 +83,7 @@ data class User(
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "agencyId")
+    @JoinColumn(name = "agencyId", insertable = false, updatable =  false)
     lateinit var agency : Agency
 
 

@@ -3,7 +3,6 @@ package no.nsd.qddt.model.interfaces
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.User
 import java.sql.Timestamp
-import java.util.*
 
 /**
  * @author Stig Norland

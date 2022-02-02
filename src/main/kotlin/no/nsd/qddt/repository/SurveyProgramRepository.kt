@@ -14,8 +14,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 import org.springframework.data.rest.core.annotation.RestResource
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.bind.annotation.ModelAttribute
-import java.security.Principal
 import java.util.*
 
 /**
@@ -33,7 +31,6 @@ interface SurveyProgramRepository: BaseArchivedRepository<SurveyProgram> {
         get() = SecurityContextHolder.getContext().authentication.principal as User
 
 
-    //    @PreFilter("hasPermission(#instance,'AGENCY')")
 
 //    @Query("select s from SurveyProgram s where s.agencyId = (select u.agencyId from User u where u.id = ?#{getPrincipal.id} as UUID)")
     override fun findAll(pageable: Pageable): Page<SurveyProgram>

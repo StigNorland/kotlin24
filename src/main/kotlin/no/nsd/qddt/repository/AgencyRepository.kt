@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Agency
-import no.nsd.qddt.model.Author
 import no.nsd.qddt.repository.projection.AgencyListe
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page

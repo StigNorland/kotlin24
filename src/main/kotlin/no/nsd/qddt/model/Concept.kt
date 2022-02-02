@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.builder.ConceptFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
-import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
+import no.nsd.qddt.model.interfaces.IParentRef
+import no.nsd.qddt.model.interfaces.IQuestionItemRef
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
@@ -31,7 +31,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("CONCEPT")
-data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthorSet, IArchived {
+data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthorSet, IArchived, IQuestionItemRef {
 
     @Column(insertable = false, updatable = false)
     var parentIdx: Int? = null
@@ -40,38 +40,23 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
     @ManyToOne(fetch = FetchType.LAZY)
     override lateinit var parent: ConceptHierarchy
 
+    @JsonIgnore
+    @Transient
+    override var parentRef: IParentRef? = null
+        get() = ParentRef(parent)
+
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
-    fun addChildren(entity: Concept): Concept {
-        entity.parent = this
-        children.add(children.size,entity)
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
-        return entity
-    }
-
-//    @OrderColumn(name="parentIdx")
-//    @ElementCollection(fetch = FetchType.EAGER)
-//    @CollectionTable(joinColumns = [JoinColumn(name = "parentId", referencedColumnName = "id")])
-//    var questionItems: MutableList<ElementRefQuestionItem> = mutableListOf()
-//
     @OrderColumn(name="parentIdx")
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM", joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
-    var questionItems:MutableList<ElementRefEmbedded<QuestionItem>> = mutableListOf()
-
-    fun addQuestionItem(qef: ElementRefEmbedded<QuestionItem>) {
-        if (this.questionItems.stream().noneMatch { cqi -> cqi == qef }) {
-            questionItems.add(qef)
-            this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-            this.changeComment = "QuestionItem association added"
-        } else
-            logger.debug("QuestionItem not inserted, match found")
-    }
+    @CollectionTable(
+        name = "CONCEPT_HIERARCHY_QUESTION_ITEM",
+        joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
+    override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         try {
@@ -113,7 +98,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
     }
 
     override fun xmlBuilder(): AbstractXmlBuilder {
-        this.children
+        this.children.size
         return ConceptFragmentBuilder(this)
     }
 

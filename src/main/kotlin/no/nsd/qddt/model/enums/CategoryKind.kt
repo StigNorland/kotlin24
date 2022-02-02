@@ -6,7 +6,7 @@ import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
  * @author Stig Norland
  * @see Category
  */
-enum class CategoryType( name: String, val description: String, val ddiComment: String) {
+enum class CategoryKind(name: String, val description: String, val ddiComment: String) {
     /**
      * single USER INPUT Category,
      */
@@ -41,7 +41,7 @@ enum class CategoryType( name: String, val description: String, val ddiComment: 
     MIXED("MixedManRep", "Mixed Mananged representation -> a collection of mananged representations", "");
 
     companion object {
-        fun getEnum(name: String): CategoryType? {
+        fun getEnum(name: String): CategoryKind? {
             if (IsNullOrTrimEmpty(name)) return null
             for (v in values()) if (name.equals(v.toString(), ignoreCase = true) || name.equals(
                     v.name,

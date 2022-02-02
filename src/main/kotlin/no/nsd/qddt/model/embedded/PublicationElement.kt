@@ -21,7 +21,7 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
 
-    @Column(name = "element_revision", insertable =false, updatable=false )
+    @Column(name = "element_revision", nullable = false)
     override var elementRevision: Int? = null
 
     @Column(name = "element_name", length = 500)
@@ -30,7 +30,7 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
     @AttributeOverrides(
         AttributeOverride(name = "major",       column = Column(name = "element_major")),
         AttributeOverride(name = "minor",       column = Column(name = "element_minor")),
-        AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
+        AttributeOverride(name = "rev",         column = Column(name = "element_revision", insertable = false, updatable = false)),
         AttributeOverride(name = "versionLabel",column = Column(name = "element_version_label"))
     )
     @Transient
@@ -44,14 +44,9 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
             field = value?.also {
                 elementId = it.id
                 name = it.name
-                elementRevision = it.version.rev
                 version = it.version
                 if (version.rev == 0)
                     version.rev = elementRevision?:0
-            }
-            if (value == null) {
-                name = null
-                elementRevision = null
             }
         }
 
@@ -59,6 +54,30 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
         return PublicationElement().apply { 
             this.element = element
          }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PublicationElement
+
+        if (elementId != other.elementId) return false
+        if (elementKind != other.elementKind) return false
+        if (elementRevision != other.elementRevision) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = elementId?.hashCode() ?: 0
+        result = 31 * result + elementKind.hashCode()
+        result = 31 * result + (elementRevision ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "PublicationElement(elementId=$elementId, elementKind=$elementKind, elementRevision=$elementRevision?:0)"
     }
 
 }

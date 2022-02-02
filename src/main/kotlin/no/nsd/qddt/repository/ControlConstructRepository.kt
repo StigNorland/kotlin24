@@ -1,6 +1,5 @@
 package no.nsd.qddt.repository
 import no.nsd.qddt.model.ControlConstruct
-import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.repository.projection.ControlConstructListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,13 +14,6 @@ import java.util.*
 */
 @RepositoryRestResource(path = "controlconstruct",  itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
 interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T>{
-
-        /**
-         *
-         * @param questionId
-         * @return
-         */
-        fun findByQuestionIdId(questionId: UUID): List<QuestionConstruct>?
 
 
         @Query(

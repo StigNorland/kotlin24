@@ -3,12 +3,10 @@ package no.nsd.qddt.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.model.interfaces.IParentRef
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
-import org.springframework.security.access.prepost.PostAuthorize
-import org.springframework.security.access.prepost.PreAuthorize
 import javax.persistence.*
 
 
@@ -45,18 +43,15 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
     @ManyToOne(fetch = FetchType.LAZY)
     override lateinit var parent: ConceptHierarchy
 
+    @JsonIgnore
+    @Transient
+    override var parentRef: IParentRef? = null
+
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Study::class)
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
-    fun addChildren(entity: Study): Study {
-        entity.parent = this
-        children.add(children.size,entity)
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
-        return entity
-    }
 
     override fun xmlBuilder(): AbstractXmlBuilder? {
         return null

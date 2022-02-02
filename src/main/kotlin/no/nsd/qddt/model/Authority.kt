@@ -2,10 +2,12 @@ package no.nsd.qddt.model
 
 import org.hibernate.Hibernate
 import java.util.*
+import javax.persistence.Cacheable
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 
+@Cacheable
 @Entity
 data class Authority (
     @Id  @GeneratedValue
@@ -18,7 +20,7 @@ data class Authority (
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
         other as Authority
 
-        return id != null && id == other.id
+        return id == other.id
     }
 
     override fun hashCode(): Int = javaClass.hashCode()

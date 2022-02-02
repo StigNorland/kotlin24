@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 
 
 @Component
-class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<AbstractEntityAudit>> {
+class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<AbstractEntityAudit>> {
 
     @Autowired
     lateinit var entityLinks: RepositoryEntityLinks
@@ -69,13 +69,11 @@ class ModelProcessorAuditItem : RepresentationModelProcessor<EntityModel<Abstrac
 
 
         return when (entity) {
-            is QuestionConstruct -> {
-                val uri = entity.questionId.toString()
-                return model.add(Link.of("$baseUri/questionitem/$uri", "questionItem"))
+            is QuestionConstruct -> with (entity.questionId.toString()){
+                return model.add(Link.of("$baseUri/questionitem/revison/$this", "questionItem"))
             }
-            is QuestionItem -> {
-                val uri = entity.responseId.toString()
-                return model.add(Link.of("$baseUri/responsedomain/$uri", "responseDomain"))
+            is QuestionItem -> with(entity.responseId.toString()) {
+                return model.add(Link.of("$baseUri/responsedomain/revision/$this", "responseDomain"))
             }
             is ResponseDomain -> {
                 model

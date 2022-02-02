@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Comment
-import no.nsd.qddt.model.Universe
 import no.nsd.qddt.repository.projection.CommentListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

@@ -1,6 +1,5 @@
 package no.nsd.qddt.repository.projection
 
-import no.nsd.qddt.model.User
 import no.nsd.qddt.model.embedded.Version
 import org.springframework.beans.factory.annotation.Value
 import java.util.*
@@ -23,7 +22,6 @@ interface IAbstractEntityViewList {
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long
 
-    @Value(value = "#{target.modifiedBy.username  + '@' + target.agency?.name }")
-    fun getUserAgencyName(): String
+
 
 }

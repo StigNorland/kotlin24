@@ -8,7 +8,6 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.PublicationElement
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
-import org.hibernate.envers.RelationTargetAuditMode
 import javax.persistence.*
 
 /**
@@ -24,15 +23,13 @@ data class Publication(
 
     var purpose: String ="",
 
+    @Column(nullable = false)
     var statusId: Int = 0
 
 ): AbstractEntityAudit() {
 
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "statusId", updatable = false, insertable = false)
-    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    lateinit var status: PublicationStatus
+    @Transient
+    var status: PublicationStatus? = null
 
     @OrderColumn(name = "publication_idx")
     @ElementCollection(fetch = FetchType.EAGER)
@@ -44,7 +41,7 @@ data class Publication(
 
 
     val isPublished: Boolean
-        get() = status.published === PublicationStatus.Published.EXTERNAL_PUBLICATION
+        get() = status!!.published === PublicationStatus.Published.EXTERNAL_PUBLICATION
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
@@ -52,7 +49,7 @@ data class Publication(
         pdfReport.addHeader2("Purpose")
         pdfReport.addParagraph(purpose)
         pdfReport.addHeader2("Publication status")
-        pdfReport.addParagraph(status.label!!)
+        pdfReport.addParagraph(status!!.label!!)
         // pdfReport.addPadding();
 
         var i = 0

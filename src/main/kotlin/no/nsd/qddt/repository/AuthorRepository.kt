@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.Author
-import no.nsd.qddt.model.Category
 import no.nsd.qddt.repository.projection.AuthorListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

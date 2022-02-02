@@ -12,7 +12,6 @@ import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -20,15 +19,16 @@ import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
-class PublicationController(@Autowired repository: PublicationRepository): AbstractRestController<Publication>(repository) {
+class PublicationController(@Autowired repository: PublicationRepository) :
+    AbstractRestController<Publication>(repository) {
 
     @GetMapping("/publication/revision/{uri}", produces = ["application/hal+json"])
-    override fun getRevision(@PathVariable uri: String):RepresentationModel<*> {
+    override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
     @GetMapping("/publication/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable):RepresentationModel<*> {
+    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
@@ -39,8 +39,8 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
     }
 
     @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
-        return  super.getXml(uri)
+    override fun getXml(@PathVariable uri: String): String {
+        return super.getXml(uri)
     }
 //    @ResponseBody
 //    @GetMapping("/publication/{uri}", produces = ["application/hal+json"])
@@ -57,26 +57,27 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
 
     @ResponseBody
     @GetMapping("/publication/search/findByQuery", produces = ["application/hal+json"])
-    fun getByQuery(publicationCriteria: PublicationCriteria,pageable: Pageable?): RepresentationModel<*> {
+    fun getByQuery(publicationCriteria: PublicationCriteria, pageable: Pageable?): RepresentationModel<*> {
 
         logger.debug(publicationCriteria.toString())
-        val entities =  (repository as PublicationRepository).findByQuery(
+        val entities = (repository as PublicationRepository).findByQuery(
             publicationCriteria.publishedKind!!,
             publicationCriteria.publicationStatus!!,
             publicationCriteria.purpose!!,
             publicationCriteria.xmlLang!!,
             publicationCriteria.name!!,
-            publicationCriteria.getAngencyId(),pageable).map {
+            publicationCriteria.getAngencyId(), pageable
+        ).map {
             entityModelBuilder(it)
         }
 
-        return PagedModel.of(entities.content,pageMetadataBuilder(entities), Link.of("publications"))
+        return PagedModel.of(entities.content, pageMetadataBuilder(entities), Link.of("publications"))
     }
 
     override fun entityModelBuilder(entity: Publication): RepresentationModel<EntityModel<Publication>> {
         val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder Publication : {}" , uriId)
-        val baseUrl = if(uriId.rev != null)
+        logger.debug("entityModelBuilder Publication : {}", uriId)
+        val baseUrl = if (uriId.rev != null)
             "${baseUri}/publication/revision/${uriId}"
         else
             "${baseUri}/publication/${uriId.id}"
@@ -87,15 +88,14 @@ class PublicationController(@Autowired repository: PublicationRepository): Abstr
         }
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
-        Hibernate.initialize(entity.status)
         Hibernate.initialize(entity.publicationElements)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency,LinkRelation.of("agency"))
-            .embed(entity.modifiedBy,LinkRelation.of("modifiedBy"))
-            .embed(entity.comments,LinkRelation.of("comments"))
-            .embed(entity.status,LinkRelation.of("status"))
+            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
+            .embed(entity.comments, LinkRelation.of("comments"))
+            .embed(entity.status!!, LinkRelation.of("status"))
             .build()
     }
 

@@ -1,6 +1,8 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.layout.borders.DottedBorder
 import com.itextpdf.layout.element.Cell
@@ -13,7 +15,7 @@ import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
-import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.utils.StringTool.CapString
 import org.hibernate.Hibernate
@@ -65,14 +67,16 @@ data class ResponseDomain(
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.PERSIST])
+  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.PERSIST, CascadeType.MERGE])
   @JoinColumn(name = "category_id")
-  var managedRepresentation: Category? = null
-  get() = field
-  set(value) {
-    field = value
-    logger.debug(value.toString())
-  }
+  @JsonSerialize
+  @JsonDeserialize
+  lateinit var managedRepresentation: Category
+//  get() = field
+//  set(value) {
+//    field = value
+//    logger.debug(value.toString())
+//  }
 
   fun getAnchorLabels(): String {
     return try {
@@ -83,6 +87,10 @@ data class ResponseDomain(
       logger.error(ex.localizedMessage)
       return "?"
     }
+  }
+
+  fun getUserAgencyName(): String {
+    return this.modifiedBy.username + '@' + this.agency.name
   }
 
 
@@ -100,7 +108,7 @@ data class ResponseDomain(
         .setTextAlignment(TextAlignment.RIGHT)
         .add(Paragraph(String.format("Version %s", version))))
     for (cat in getFlatManagedRepresentation(managedRepresentation))
-      if (cat.categoryKind === CategoryType.CATEGORY)
+      if (cat.categoryKind === CategoryKind.CATEGORY)
       {
         table.addCell(Cell()
           .setBorder(DottedBorder(ColorConstants.GRAY, 1F)))
@@ -128,7 +136,7 @@ data class ResponseDomain(
   
 
   protected fun getFlatManagedRepresentation(current: Category?):List<Category> {
-    var retval = mutableListOf<Category>()
+    val retval = mutableListOf<Category>()
     return when (current) {
         null -> retval
         else -> {
@@ -151,7 +159,7 @@ data class ResponseDomain(
 
   @Override
   override fun toString(): String {
-    return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+    return this::class.simpleName + "(id = $id , name = $name , classKind = $classKind , modified = $modified )"
   }
 
 }

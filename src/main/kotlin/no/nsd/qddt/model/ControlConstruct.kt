@@ -27,8 +27,6 @@ abstract class ControlConstruct(
     override var name: String = ""
 ) : AbstractEntityAudit() {
 
-
-
     @Transient
     @JsonSerialize
     override var classKind: String = ""

@@ -9,16 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.spel.spi.EvaluationContextExtension
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.BeanIds.AUTHENTICATION_MANAGER
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.AuthenticationException
@@ -37,12 +34,6 @@ import javax.servlet.http.HttpServletResponse
  * @author Stig Norland
  */
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(
-    securedEnabled = true,
-    jsr250Enabled = true,
-    prePostEnabled = true
-)
 class SecurityConfig : WebSecurityConfigurerAdapter() {
 
     protected val logger: Logger = LoggerFactory.getLogger(SecurityConfig::class.java)

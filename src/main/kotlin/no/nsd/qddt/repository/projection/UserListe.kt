@@ -14,7 +14,7 @@ interface UserListe {
     val username: String
     var email : String
 
-    @Value(value = "#{target.username  + '@' + target.agency?.name }")
+    @Value(value = "#{target.username  + '@' + target.agency?.name?:'xxx' }")
     fun getUserAgencyName(): String
 
 }

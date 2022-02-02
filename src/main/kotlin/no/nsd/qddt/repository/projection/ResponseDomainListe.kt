@@ -1,6 +1,5 @@
 package no.nsd.qddt.repository.projection
 
-import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import org.springframework.beans.factory.annotation.Value
@@ -21,8 +20,10 @@ interface ResponseDomainListe: IAbstractEntityViewList {
     fun getAnchorLabels(): String
 
     @Value(value = "#{target.managedRepresentation }")
-    fun getManagedRepresentation(): CategoryListe
+    fun getManagedRepresentation(): ManagedRepresentation
 
+    @Value(value = "#{target.getUserAgencyName() }")
+    fun getUserAgencyName(): String
 }
 
 

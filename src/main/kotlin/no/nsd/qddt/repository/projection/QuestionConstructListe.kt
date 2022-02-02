@@ -12,5 +12,6 @@ interface QuestionConstructListe: IAbstractEntityViewList {
     @Value(value = "#{target.questionItem?.name.toString() }")
     fun getQuestionName(): String?
 
-
+    @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
+    fun getUserAgencyName(): String
 }

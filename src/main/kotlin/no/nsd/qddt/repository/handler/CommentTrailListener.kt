@@ -1,15 +1,14 @@
 package no.nsd.qddt.repository.handler
 
-import no.nsd.qddt.model.*
+import no.nsd.qddt.model.Comment
+import no.nsd.qddt.model.User
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationContext
 import org.springframework.security.core.context.SecurityContextHolder
 import java.sql.Timestamp
 import java.time.Instant
-import java.util.*
-import javax.persistence.*
+import javax.persistence.PrePersist
+import javax.persistence.PreUpdate
 
 
 /**

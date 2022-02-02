@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.builder.TopicGroupFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
-import no.nsd.qddt.model.embedded.PublicationElement
 import no.nsd.qddt.model.interfaces.*
-import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
@@ -42,7 +40,8 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("TOPIC_GROUP")
-data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuthorSet, IArchived, IOtherMaterialList {
+data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuthorSet, IArchived, IOtherMaterialList,
+  IQuestionItemRef {
 
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
@@ -51,58 +50,30 @@ data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuth
   @ManyToOne(fetch = FetchType.LAZY)
   override lateinit var parent: ConceptHierarchy
 
+  @JsonIgnore
+  @Transient
+  override var parentRef: IParentRef? = null
+    get() = ParentRef(parent)
+
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
   @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
   override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
-  fun addChildren(entity: Concept): Concept {
-    entity.parent = this
-    children.add(children.size,entity)
-    changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-    changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
-    return entity
-  }
 
 //  @OrderColumn(name = "ownerIdx")
   @ElementCollection()
   @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
-
-//  @OneToMany
-//  @JoinTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
-
-  override fun addOtherMaterial(otherMaterial: OtherMaterial): OtherMaterial {
-    return super.addOtherMaterial(otherMaterial).apply {
-      changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-      if (changeComment.isBlank())
-        changeComment ="Other material added"
-
-    }
-  }
 
   @OrderColumn(name="parentIdx")
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(
-    name = "CONCEPT_HIERARCHY_QUESTION_ITEM",
-    joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
-  var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
-
-
-  fun addQuestionItem(qef: ElementRefQuestionItem) {
-    if (this.questionItems.stream().noneMatch { cqi -> cqi == qef }) {
-      questionItems.add(qef)
-      this.changeKind = ChangeKind.UPDATED_HIERARCHY_RELATION
-      this.changeComment = "QuestionItem association added"
-    } else
-      logger.debug("QuestionItem not inserted, match found")
-  }
-
+  @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM",joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
+  override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
 
   override fun xmlBuilder():AbstractXmlBuilder {
     return TopicGroupFragmentBuilder(this)
   }
-
 
   override fun fillDoc(pdfReport:PdfReport, counter:String) {
     pdfReport.addHeader(this, "Module $counter")

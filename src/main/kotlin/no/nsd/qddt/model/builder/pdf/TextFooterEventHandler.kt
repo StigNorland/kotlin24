@@ -8,8 +8,6 @@ import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.pdf.PageLabelNumberingStyle
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas
 import com.itextpdf.layout.Document
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 
 /**

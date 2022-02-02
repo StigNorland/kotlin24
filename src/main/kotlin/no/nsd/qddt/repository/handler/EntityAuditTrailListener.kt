@@ -5,17 +5,21 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.Version
-import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
+import no.nsd.qddt.model.interfaces.PublicationStatusService
 import no.nsd.qddt.model.interfaces.RepLoaderService
+import no.nsd.qddt.repository.projection.PublicationStatusItem
+import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
@@ -28,7 +32,15 @@ import javax.persistence.*
 class EntityAuditTrailListener{
 
     @Autowired
-    private val applicationContext: ApplicationContext? = null
+    private var applicationContext: ApplicationContext? = null
+
+
+    @Autowired
+    private var factory: ProjectionFactory? = null
+
+
+    private val publicationStatusService get() = applicationContext?.getBean("publicationStatusService") as PublicationStatusService
+
 
     @PreRemove
     private fun beforeAnyUpdate(entity: AbstractEntityAudit) {
@@ -52,14 +64,14 @@ class EntityAuditTrailListener{
                 beforeCategoryInsert(entity)
             }
             is ResponseDomain -> {
-                entity.managedRepresentation?.let{
+                entity.managedRepresentation.let{
                     beforeCategoryInsert(it)
                     it.changeComment = entity.changeComment
                     it.changeKind = entity.changeKind
                     it.xmlLang = entity.xmlLang
                     entity.responseCardinality = it.inputLimit
 
-                    entity.codes = harvestCatCodes(it)
+                    entity.codes = harvestCatCodes(entity.managedRepresentation)
                     log.debug("PrePersist - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
                 }
             }
@@ -68,11 +80,7 @@ class EntityAuditTrailListener{
                 beforeStudyInsert(entity)
             }
             else -> {
-                if (entity is ResponseDomain ) {
-                    log.debug("PrePersist - code : {} : {}", entity.name, entity.codes.joinToString { it.value })
-                } else {
-                    log.debug("PrePersist: {}", entity.name)
-                }
+                log.debug("PrePersist: {}", entity.name)
             }
         }
     }
@@ -126,10 +134,15 @@ class EntityAuditTrailListener{
             }
             when (entity) {
                 is Publication -> {
-
+                    entity.publicationElements.forEach {
+                         log.debug(it.elementRevision.toString())
+                    }
                 }
                 is Study -> {
                     beforeStudyUpdate(entity)
+                }
+                is Category -> {
+
                 }
                 is ResponseDomain -> {
                     log.debug("PreUpdate - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
@@ -150,28 +163,34 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
+        log.debug("PostLoad  [{}] {} - {}" , entity.classKind, entity.id, entity.modified)
+        entity.comments.size
+        Hibernate.initialize(entity.agency)
+        Hibernate.initialize(entity.modifiedBy)
 
         val repLoaderService =  applicationContext?.getBean("repLoaderService") as RepLoaderService
         when (entity) {
             is QuestionConstruct -> {
-                log.debug("PostLoad  [{}] {} - {}" , entity.classKind, entity.id, entity.modified)
                 if (entity.questionItem == null && entity.questionId?.id != null) {
-
                     val repository =  repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
                     entity.questionItem = loadRevisionEntity(entity.questionId!!,repository)
-
+                    afterLoad(entity.questionItem!!)
                 }
+                entity.universe.size
+                entity.controlConstructInstructions.size
             }
             is QuestionItem -> {
-                log.debug("PostLoad  [{}] {} - {}" , entity.classKind, entity.id, entity.modified)
                 if (entity.responseDomain == null && entity.responseId?.id != null) {
                     log.debug("After load of Qi -> loading RD")
 
                     val repository =  repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN)
                     entity.responseDomain = loadRevisionEntity(entity.responseId!!,repository)
 
-                    var _index = 0
-                    populateCatCodes(entity.responseDomain!!.managedRepresentation,_index, entity.responseDomain!!.codes)
+                    afterLoad(entity.responseDomain!!)
+
+                    entity.responseDomainListe = this.factory!!.createProjection(ResponseDomainListe::class.java,
+                        entity.responseDomain!!
+                    )
 
                 }
             }
@@ -182,8 +201,13 @@ class EntityAuditTrailListener{
                 log.debug("PostLoad - populateCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
 
             }
+            is Category -> {
+                entity.children.size
+                log.debug("PostLoad -  {} : {}", entity.name, entity.children.size)
+            }
             is Concept ->{
                 entity.questionItems.size
+                entity.children.size
             }
             is TopicGroup -> {
                 entity.questionItems.size
@@ -191,17 +215,17 @@ class EntityAuditTrailListener{
             }
             is Study -> {
                 entity.instruments.size
-//                val repository =  bean.getRepository<Instrument>(ElementKind.INSTRUMENT)
-//                entity.instrumentUriIds.forEach {
-//                    val instrument = loadRevisionEntity(it,repository)
-//                    entity.instruments.add(ElementRefEmbedded(instrument))
-//                }
             }
             is Publication -> {
+                entity.status = publicationStatusService.getStatus(entity.statusId)
+                entity.status?.let {
+                    log.debug(
+                    this.factory!!.createProjection(PublicationStatusItem::class.java, it).toString()
+                    )
+                }
+
                 entity.publicationElements.forEach {
                     log.debug(it.toString())
-//                    val repository =  repLoaderService.getRepository<AbstractEntityAudit>(it.elementKind)
-//                    it.element = loadRevisionEntity(UriId.fromAny("${it.elementId}:${it.elementRevision}"),repository)
                 }
 
             }
@@ -231,13 +255,13 @@ class EntityAuditTrailListener{
         with(entity) {
             log.info("Category beforeInsert $name")
             when {
-                this.categoryKind === CategoryType.MIXED -> {
+                this.categoryKind === CategoryKind.MIXED -> {
                     this.name = (String.format(
                         "Mixed [%s]",
                         this.children.joinToString { it.label }
                     ))
                 }
-                this.categoryKind === CategoryType.SCALE -> {
+                this.categoryKind === CategoryKind.SCALE -> {
                     log.debug(this.toString())
                 }
             }
@@ -256,9 +280,9 @@ class EntityAuditTrailListener{
             version = entity.version
 
             hierarchyLevel = when (categoryKind) {
-                CategoryType.DATETIME, CategoryType.BOOLEAN, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.CATEGORY ->
+                CategoryKind.DATETIME, CategoryKind.BOOLEAN, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.CATEGORY ->
                     HierarchyLevel.ENTITY
-                CategoryType.MISSING_GROUP, CategoryType.LIST, CategoryType.SCALE, CategoryType.MIXED ->
+                CategoryKind.MISSING_GROUP, CategoryKind.LIST, CategoryKind.SCALE, CategoryKind.MIXED ->
                     HierarchyLevel.GROUP_ENTITY
             }
             name = name.trim()
@@ -295,7 +319,6 @@ class EntityAuditTrailListener{
         current.children.forEach {  tmpList.addAll(harvestCatCodes(it)) }
         return tmpList
     }
-
 
     private fun populateCatCodes(current: Category?, _index: Int,  codes: List<Code>): Int {
         if (current == null) return _index

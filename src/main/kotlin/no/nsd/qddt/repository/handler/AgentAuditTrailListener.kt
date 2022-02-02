@@ -1,15 +1,10 @@
 package no.nsd.qddt.repository.handler
 
 import no.nsd.qddt.model.Agency
-import no.nsd.qddt.model.classes.AbstractEntity
-import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.interfaces.RepLoaderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.data.repository.history.RevisionRepository
-import java.util.*
 import javax.persistence.PostLoad
 import javax.persistence.PostPersist
 import javax.persistence.PostRemove

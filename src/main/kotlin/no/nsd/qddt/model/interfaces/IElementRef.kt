@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.interfaces
 
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
 import java.io.Serializable
@@ -15,4 +16,8 @@ interface IElementRef<T : IWebMenuPreview> : Cloneable, Serializable {
     var elementRevision: Int?
     var elementKind: ElementKind
     var element: T?
+
+    fun getUri() : UriId {
+        return UriId.fromAny("${elementId}:${elementRevision?:0}")
+    }
 }

@@ -1,14 +1,12 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IAuthorSet
-import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.model.interfaces.IParentRef
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
@@ -51,18 +49,16 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
     @ManyToOne(fetch = FetchType.LAZY)
     override lateinit var parent: ConceptHierarchy
 
+    @JsonIgnore
+    @Transient
+    override var parentRef: IParentRef? = null
+        get() = ParentRef(parent)
+
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = TopicGroup::class)
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
-    fun addChildren(entity: TopicGroup): TopicGroup {
-        entity.parent = this
-        children.add(children.size,entity)
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
-        return entity
-    }
 //
 //    @JsonIgnore
 //    @ElementCollection(fetch = FetchType.EAGER)

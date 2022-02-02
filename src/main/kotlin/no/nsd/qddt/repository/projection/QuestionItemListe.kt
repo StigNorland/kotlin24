@@ -1,7 +1,6 @@
 package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.QuestionItem
-import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 
@@ -16,5 +15,8 @@ interface QuestionItemListe: IAbstractEntityViewList {
 
     @Value(value = "#{target.responseDomain?.name}")
     fun getResponseDomainName(): String
+
+    @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
+    fun getUserAgencyName(): String
 }
 

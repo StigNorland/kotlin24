@@ -11,12 +11,11 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryRelationCodeType
-import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.utils.StringTool
 import org.hibernate.Hibernate
-import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
 import java.util.*
 import java.util.stream.Collectors
@@ -48,6 +47,8 @@ import kotlin.streams.toList
  * @author Stig Norland
  * @author Dag Østgulen Heradstveit
  */
+
+
 @Audited
 @Entity
 @Table(
@@ -71,12 +72,8 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
             return field
         }
 
-//    @JsonIgnore
-//    @OneToMany
-//    @JoinColumn ( insertable = false, updatable = false )
-//    var responseDomain: MutableList<ResponseDomain>  = mutableListOf()
 
-    /*
+    /**
      *   A description of the content and purpose of the category.
      *   May be expressed in multiple languages and supports the use of structured content.
      *   Note that comparison of categories is done using the content of description.
@@ -113,20 +110,20 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
 
 
     @Enumerated(EnumType.STRING)
-    var categoryKind: CategoryType = CategoryType.CATEGORY
+    var categoryKind: CategoryKind = CategoryKind.CATEGORY
         set(value) {
             field = value
             when (value) {
-                CategoryType.MISSING_GROUP,
-                CategoryType.LIST -> {
+                CategoryKind.MISSING_GROUP,
+                CategoryKind.LIST -> {
                     classificationLevel = CategoryRelationCodeType.Nominal
                     hierarchyLevel = HierarchyLevel.GROUP_ENTITY
                 }
-                CategoryType.SCALE -> {
+                CategoryKind.SCALE -> {
                     classificationLevel = CategoryRelationCodeType.Interval
                     hierarchyLevel = HierarchyLevel.GROUP_ENTITY
                 }
-                CategoryType.MIXED -> {
+                CategoryKind.MIXED -> {
                     classificationLevel = CategoryRelationCodeType.Continuous
                     hierarchyLevel = HierarchyLevel.GROUP_ENTITY
                 }
@@ -140,11 +137,15 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @JsonDeserialize
     var code: Code? = null
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "managedRepresentation",  fetch = FetchType.LAZY)
+    private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
+
     @OrderColumn(name = "category_idx")
     @ManyToMany(fetch = FetchType.EAGER)
     var children: MutableList<Category> =  mutableListOf()
     get() {
-        return if (categoryKind == CategoryType.SCALE) {
+        return if (categoryKind == CategoryKind.SCALE) {
             if (field.isEmpty()) logger.error("getChildren() is 0/NULL")
             field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
                 .sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") })
@@ -155,11 +156,11 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
                 .toList() as MutableList<Category>
         }
     set(value) {
-        field =
-        when (categoryKind) {
-            CategoryType.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
-            else -> value
-        }
+        field = value
+//        when (categoryKind) {
+//            CategoryKind.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
+//            else -> value
+//        }
     }
 
 
@@ -170,6 +171,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
         return entity
     }
 
+
     /**
     *  preRec for valid Categories
      */
@@ -177,18 +179,39 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     fun isValid(): Boolean
     {
         return if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
-            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN -> children.size == 0 && inputLimit.valid()
-            CategoryType.CATEGORY -> children.size == 0 && label.trim { it <= ' ' }
+            CategoryKind.DATETIME, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.BOOLEAN -> children.size == 0 && inputLimit.valid()
+            CategoryKind.CATEGORY -> children.size == 0 && label.trim { it <= ' ' }
                 .isNotEmpty() && name.trim { it <= ' ' }
                 .isNotEmpty()
             else -> false
         } else when (categoryKind) {
-            CategoryType.MISSING_GROUP, CategoryType.LIST -> children.size > 0 && inputLimit.valid() && classificationLevel != null
-            CategoryType.SCALE -> children.size >= 2 && inputLimit.valid() && classificationLevel != null
-            CategoryType.MIXED -> children.size >= 2 && classificationLevel != null
+            CategoryKind.MISSING_GROUP, CategoryKind.LIST -> children.size > 0 && inputLimit.valid() && classificationLevel != null
+            CategoryKind.SCALE -> children.size >= 2 && inputLimit.valid() && classificationLevel != null
+            CategoryKind.MIXED -> children.size >= 2 && classificationLevel != null
             else -> false
         }
     }
+
+    override fun fillDoc(pdfReport: PdfReport, counter: String) {
+        val document = pdfReport.getTheDocument()
+        when (categoryKind) {
+            CategoryKind.DATETIME, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.BOOLEAN, CategoryKind.CATEGORY -> {
+                document.add(Paragraph("Category $label"))
+                document.add(Paragraph("Type ${categoryKind.name}"))
+            }
+            CategoryKind.MISSING_GROUP -> {
+            }
+            CategoryKind.LIST -> {
+            }
+            CategoryKind.SCALE -> {
+            }
+            CategoryKind.MIXED -> {
+            }
+        }
+        document.add(Paragraph(" "))
+    }
+
+    override fun xmlBuilder() = CategoryFragmentBuilder(this)
 
     override fun compareTo(other: Category): Int {
         var i = other.agency.let { this.agency.compareTo(it) }
@@ -225,26 +248,6 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
         }
     }
 
-    override fun fillDoc(pdfReport: PdfReport, counter: String) {
-        val document = pdfReport.getTheDocument()
-        when (categoryKind) {
-            CategoryType.DATETIME, CategoryType.TEXT, CategoryType.NUMERIC, CategoryType.BOOLEAN, CategoryType.CATEGORY -> {
-                document.add(Paragraph("Category $label"))
-                document.add(Paragraph("Type ${categoryKind.name}"))
-            }
-            CategoryType.MISSING_GROUP -> {
-            }
-            CategoryType.LIST -> {
-            }
-            CategoryType.SCALE -> {
-            }
-            CategoryType.MIXED -> {
-            }
-        }
-        document.add(Paragraph(" "))
-    }
-
-    override fun xmlBuilder() = CategoryFragmentBuilder(this)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
@@ -257,7 +260,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name , classKind = $classKind , modified = $modified)"
     }
 
 }

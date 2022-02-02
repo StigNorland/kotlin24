@@ -2,7 +2,7 @@ package no.nsd.qddt.model.builder
 
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
-import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.CategoryKind
 
 /**
  * @author Stig Norland
@@ -42,7 +42,7 @@ open class CategoryFragmentBuilder(category: Category) : XmlDDIFragmentBuilder<C
         )
 
     override fun getXmlEntityRef(depth: Int): String {
-        return if (entity.categoryKind == CategoryType.CATEGORY) super.getXmlEntityRef(depth) else if (entity.categoryKind == CategoryType.LIST) String.format(
+        return if (entity.categoryKind == CategoryKind.CATEGORY) super.getXmlEntityRef(depth) else if (entity.categoryKind == CategoryKind.LIST) String.format(
             xmlCodeDomain, getXmlURN(
                 entity
             ), getTabs(depth)

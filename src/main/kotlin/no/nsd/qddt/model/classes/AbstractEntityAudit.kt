@@ -15,7 +15,9 @@ import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
-import org.hibernate.envers.*
+import org.hibernate.envers.Audited
+import org.hibernate.envers.NotAudited
+import org.hibernate.envers.RelationTargetAuditMode
 import java.io.Serializable
 import java.sql.Timestamp
 import java.util.*
@@ -29,7 +31,7 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
  */
 @Audited
 @MappedSuperclass
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true, value = ["hibernateLazyInitializer", "handler"])
 @EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
 

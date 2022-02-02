@@ -6,9 +6,12 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.StudyRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.*
+import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -21,27 +24,26 @@ import org.springframework.web.bind.annotation.RequestBody
 import java.util.*
 
 
-
 @BasePathAwareController
-class StudyController(@Autowired repository: StudyRepository): AbstractRestController<Study>(repository) {
+class StudyController(@Autowired repository: StudyRepository) : AbstractRestController<Study>(repository) {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revision/{uri}", produces = ["application/hal+json"])
-    override fun getRevision(@PathVariable uri: String):RepresentationModel<*> {
+    override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable):RepresentationModel<*> {
+    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisions(uri, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revisions/byparent/{uri}", produces = ["application/hal+json"])
-    fun getStudies(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*>{
+    fun getStudies(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         logger.debug("get Study by parent rev...")
-        return super.getRevisionsByParent(uri,Study::class.java, pageable)
+        return super.getRevisionsByParent(uri, Study::class.java, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -52,25 +54,28 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
+    override fun getXml(@PathVariable uri: String): String {
         return super.getXml(uri)
     }
 
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])
-    fun putStudies(@PathVariable uri: UUID, @RequestBody topicGroup: TopicGroup):  ResponseEntity<RepresentationModel<EntityModel<TopicGroup>>> {
+    fun putStudies(
+        @PathVariable uri: UUID,
+        @RequestBody topicGroup: TopicGroup
+    ): ResponseEntity<RepresentationModel<EntityModel<TopicGroup>>> {
         logger.debug("put studies StudyController...")
 
-        var study =  repository.findById(uri).orElseThrow()
-        study.addChildren(topicGroup)
+        val study = repository.findById(uri).orElseThrow()
+        study.childrenAdd(topicGroup)
         val topicSaved = repository.saveAndFlush(study).children.last() as TopicGroup
         return ResponseEntity.ok(entityModelBuilder(topicSaved))
     }
 
 
     fun entityModelBuilder(it: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
-        logger.debug("entityModelBuilder Study TopicGroup : {}" , it.id)
+        logger.debug("entityModelBuilder Study TopicGroup : {}", it.id)
         // uses size() to initialize and fetch collections
         it.authors.size
         it.comments.size
@@ -82,7 +87,7 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
         return HalModelBuilder.halModel()
             .entity(it)
             .link(Link.of("${baseUri}/topicgroup/${it.id}"))
-            .link(Link.of("${baseUri}/topicgroup/${it.id}/children","children"))
+            .link(Link.of("${baseUri}/topicgroup/${it.id}/children", "children"))
             .embed(it.agency, LinkRelation.of("agency"))
             .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(it.comments, LinkRelation.of("comments"))
@@ -95,8 +100,8 @@ class StudyController(@Autowired repository: StudyRepository): AbstractRestContr
 
     override fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
         val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder Study : {}" , uriId)
-        val baseUrl = if(uriId.rev != null)
+        logger.debug("entityModelBuilder Study : {}", uriId)
+        val baseUrl = if (uriId.rev != null)
             "${baseUri}/study/revision/${uriId}"
         else
             "${baseUri}/study/${uriId.id}"

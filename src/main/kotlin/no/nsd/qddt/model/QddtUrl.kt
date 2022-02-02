@@ -1,10 +1,11 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.enums.ElementKind
 import org.hibernate.annotations.Type
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.Table
 
 /**
  * @author Stig Norland

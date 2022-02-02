@@ -1,11 +1,11 @@
 package no.nsd.qddt.model
-import javax.persistence.Embeddable
-import javax.persistence.Enumerated
 import no.nsd.qddt.model.enums.ActionKind
 import java.io.Serializable
 import java.util.*
 import javax.persistence.Column
+import javax.persistence.Embeddable
 import javax.persistence.EnumType
+import javax.persistence.Enumerated
 
 /**
  * @author Stig Norland

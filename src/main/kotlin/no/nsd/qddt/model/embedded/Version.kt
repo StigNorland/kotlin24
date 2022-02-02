@@ -1,10 +1,8 @@
 package no.nsd.qddt.model.embedded
 
  import com.fasterxml.jackson.annotation.JsonIgnore
- import com.fasterxml.jackson.databind.annotation.JsonDeserialize
  import com.fasterxml.jackson.databind.annotation.JsonSerialize
  import java.io.Serializable
- import javax.persistence.Column
  import javax.persistence.Embeddable
  import javax.persistence.Transient
 
@@ -34,6 +32,7 @@ data class Version( var versionLabel: String = "") : Comparable<Version>, Serial
     @Transient
     @JsonIgnore
     final var isModified: Boolean = false
+        public get
         private set
 
 

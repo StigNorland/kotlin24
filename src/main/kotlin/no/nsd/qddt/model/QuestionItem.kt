@@ -1,5 +1,7 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.layout.element.Paragraph
 import no.nsd.qddt.model.builder.QuestionItemFragmentBuilder
@@ -8,7 +10,7 @@ import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.ParentRef
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.interfaces.IDomainObjectParentRef
+import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -46,13 +48,18 @@ data class QuestionItem(
   )
   var responseId: UriId? = null
 
+  @JsonIgnore
   @Transient
-  @JsonSerialize
   var responseDomain: ResponseDomain? = null
 
   @Transient
   @JsonSerialize
-  var parentRefs: MutableList<ParentRef<IDomainObjectParentRef>> = mutableListOf()
+  @JsonDeserialize
+  var responseDomainListe: ResponseDomainListe? = null
+
+  @Transient
+  @JsonSerialize
+  var parentRefs: MutableList<ParentRef<ConceptHierarchy>> = mutableListOf()
 
   override fun xmlBuilder():AbstractXmlBuilder {
     return QuestionItemFragmentBuilder(this)

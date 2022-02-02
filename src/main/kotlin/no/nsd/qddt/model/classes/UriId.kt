@@ -44,6 +44,18 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
         return result
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as UriId
+
+        if (id != other.id) return false
+        if (rev != other.rev) return false
+
+        return true
+    }
+
     companion object {
         fun fromAny(source: Any): UriId {
             val parts = source.toString().split(":")

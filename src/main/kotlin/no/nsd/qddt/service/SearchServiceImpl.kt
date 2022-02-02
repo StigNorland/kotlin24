@@ -1,10 +1,10 @@
 package no.nsd.qddt.service
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.prepost.PreAuthorize
 import no.nsd.qddt.model.QddtUrl
 import no.nsd.qddt.repository.SearchRepository
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -12,9 +12,8 @@ import java.util.*
  * @author Stig Norland
  */
 @Service("SearchService")
-class SearchServiceImpl @Autowired constructor(repository: SearchRepository) : SearchService {
-    protected val LOG = LoggerFactory.getLogger(this.javaClass)
-    private val repository: SearchRepository
+class SearchServiceImpl(@Autowired val repository: SearchRepository) : SearchService {
+
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
     override fun findPath(id: UUID): QddtUrl {
         return repository.findById(id).get()
@@ -30,7 +29,4 @@ class SearchServiceImpl @Autowired constructor(repository: SearchRepository) : S
         return repository.findByUserId(userId)
     }
 
-    init {
-        this.repository = repository
-    }
 }

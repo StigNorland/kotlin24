@@ -4,7 +4,7 @@ import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.enums.CategoryType
+import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.ElementKind
 import org.slf4j.LoggerFactory
 import java.util.stream.Collectors
@@ -78,7 +78,7 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
 
   override val xmlFragment:String
   get() {
-    return if (entity.categoryKind === CategoryType.LIST)
+    return if (entity.categoryKind === CategoryKind.LIST)
       getXmlCodeList()
     else
       String.format(
@@ -94,7 +94,7 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
   private val xmlRefs:String
   get() {
     when(entity.categoryKind) {
-        CategoryType.SCALE ->
+        CategoryKind.SCALE ->
           return String.format(
             xmlScaleMan,
             degreeSlopeFromHorizontal,
@@ -104,7 +104,7 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
             children.stream()
               .map{ q-> q.getXmlEntityRef(4) }
               .collect(Collectors.joining()))
-        CategoryType.MISSING_GROUP ->
+        CategoryKind.MISSING_GROUP ->
           return String.format(xmlMissingMan, getTabs(3), missingCodeURN, getMissingXmlEntityRef(4))
         else ->
           return children.stream()
@@ -127,11 +127,11 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
   override fun <S : AbstractEntityAudit> getXmlHeader(instance:S):String {
     val ref = instance as Category
     val attr = when {
-        entity.categoryKind === CategoryType.NUMERIC -> String.format(xmlNumeric, ref.format, ref.inputLimit.stepUnit)
-        entity.categoryKind === CategoryType.TEXT -> String.format(xmlText, ref.inputLimit.maximum, ref.inputLimit.minimum)
+        entity.categoryKind === CategoryKind.NUMERIC -> String.format(xmlNumeric, ref.format, ref.inputLimit.stepUnit)
+        entity.categoryKind === CategoryKind.TEXT -> String.format(xmlText, ref.inputLimit.maximum, ref.inputLimit.minimum)
         else -> ""
     }
-    if (entity.categoryKind == CategoryType.LIST)
+    if (entity.categoryKind == CategoryKind.LIST)
       return String.format(
         xmlHeaderMR, "l:" + entity.categoryKind.name,
         getInstanceDate(instance),
@@ -157,7 +157,7 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
 
   override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
     super.addXmlFragments(fragments)
-    if (entity.categoryKind === CategoryType.MISSING_GROUP)
+    if (entity.categoryKind === CategoryKind.MISSING_GROUP)
     (fragments.get(ElementKind.CATEGORY))!!.putIfAbsent(missingCodeURN, getXmlMissingCodeListFragment())
     children.forEach { c -> c.addXmlFragments(fragments) }
   }
@@ -178,9 +178,9 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
 
   private fun getBuilder(category: Category):AbstractXmlBuilder {
     return when (entity.categoryKind) {
-      CategoryType.SCALE -> FragmentBuilderAnchor(category)
-      CategoryType.MISSING_GROUP,
-      CategoryType.LIST -> FragmentBuilderCode(category)
+      CategoryKind.SCALE -> FragmentBuilderAnchor(category)
+      CategoryKind.MISSING_GROUP,
+      CategoryKind.LIST -> FragmentBuilderCode(category)
       else -> {
         LOG.info("getbuilder get default")
         category.xmlBuilder()

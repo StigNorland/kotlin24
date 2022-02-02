@@ -1,19 +1,25 @@
 package no.nsd.qddt.repository.handler
 
 import no.nsd.qddt.model.User
-import no.nsd.qddt.model.interfaces.RepLoaderService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import javax.persistence.PostLoad
-import javax.persistence.PostPersist
-import javax.persistence.PostRemove
-import javax.persistence.PostUpdate
+import java.sql.Timestamp
+import java.time.Instant
+import javax.persistence.*
 
 class UserAuditTrailListener {
-    @Autowired
-    private val applicationContext: ApplicationContext? = null
+//    @Autowired
+//    private val applicationContext: ApplicationContext? = null
+
+
+    @PrePersist
+    @PreUpdate
+    private fun preSave(entity: User) {
+        log.debug("preSave [{}] {}", "USER", entity.username)
+        entity.modified = Timestamp.from(Instant.now())
+    }
 
     @PostPersist
     @PostUpdate
