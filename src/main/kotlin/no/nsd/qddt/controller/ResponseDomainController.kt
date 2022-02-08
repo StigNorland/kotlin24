@@ -5,6 +5,7 @@ import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.repository.CategoryRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
@@ -19,11 +20,10 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.LinkRelation
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -31,6 +31,7 @@ import java.util.*
 
 
 @BasePathAwareController
+@Transactional(propagation = Propagation.REQUIRED)
 class ResponseDomainController(@Autowired repository: ResponseDomainRepository) :
     AbstractRestController<ResponseDomain>(repository) {
 
@@ -40,51 +41,87 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     @Autowired
     private val factory: ProjectionFactory? = null
 
-    @Transactional(propagation = Propagation.REQUIRED)
+//    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
     @ResponseBody
-    fun getRevisions(
+    override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable,ResponseDomain::class.java)
+    ): PagedModel<RepresentationModel<EntityModel<ResponseDomain>>> {
+        return super.getRevisions(uri, pageable)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+//    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/pdf"])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+//    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/xml"])
     override fun getXml(@PathVariable uri: String): String {
         return super.getXml(uri)
     }
 
 //    @Transactional(propagation = Propagation.NESTED)
-    @ResponseBody
-    @PutMapping("/responsedomain/{uri}")
-    fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain) {
 
+    @PutMapping("/responsedomain/{uri}", produces = ["application/hal+json"], consumes = ["application/hal+json","application/json"])
+    fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain):ResponseEntity<*> {
+
+        try {
 //        responseDomain.codes = harvestCatCodes(responseDomain.managedRepresentation)
-        persistManagedRep(responseDomain)
-        logger.debug("harvestedCodes : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
+            persistManagedRep(responseDomain)
+            logger.debug(
+                "harvestedCodes : {} : {}",
+                responseDomain.name,
+                responseDomain.codes.joinToString { it.value })
 
-        val saved = repository.save(responseDomain)
+            val saved = repository.save(responseDomain)
 
-        var index = 0
-        populateCatCodes(saved.managedRepresentation,index, saved.codes)
-        logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
+            var index = 0
+            populateCatCodes(saved.managedRepresentation, index, saved.codes)
+            logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
 
-//        return saved
+            if (saved == null) {
+                return ResponseEntity<ResponseDomain>(HttpStatus.NOT_MODIFIED)
+            }
+            return ResponseEntity<ResponseDomain>( HttpStatus.OK)
+        } catch (e: Exception) {
+            return ResponseEntity<ResponseDomain>( HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    @ResponseBody
+    @Modifying
+    @PostMapping("/responsedomain")
+    fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
+
+        try {
+            persistManagedRep(responseDomain)
+            logger.debug(
+                "harvestedCodes : {} : {}",
+                responseDomain.name,
+                responseDomain.codes.joinToString { it.value })
+
+            val saved = repository.save(responseDomain)
+
+            var index = 0
+            populateCatCodes(saved.managedRepresentation, index, saved.codes)
+            logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
+
+            if (saved == null) {
+                return ResponseEntity<ResponseDomain>(HttpStatus.NO_CONTENT)
+            }
+            return ResponseEntity(null, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            return ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
 //    @Transactional
@@ -95,7 +132,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 //        return entityModelBuilder(repository.findById(uri).orElseThrow())
 //    }
 
-    @Transactional
+//    @Transactional
     @ResponseBody
     @Modifying
     @PutMapping("/responsedomain/{uri}/managedrepresentation", produces = ["application/hal+json"])
@@ -124,7 +161,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         var _index = 0
         populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
-        entity.managedRepresentation.children.forEach {
+        entity.managedRepresentation?.children?.forEach {
             it.children.size
         }
         val user =
@@ -160,20 +197,24 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
     private fun persistManagedRep(entity: ResponseDomain) {
         entity.codes = harvestCatCodes(entity.managedRepresentation)
-        logger.debug("persistManagedRep[0] : {} : {}", entity.managedRepresentation.name, entity.codes.joinToString { it.value })
+        logger.debug("persistManagedRep[0] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
 
-        entity.managedRepresentation.let{ manRep ->
+        entity.managedRepresentation!!.let{ manRep ->
             manRep.name = entity.name
             manRep.changeComment = entity.changeComment
             manRep.changeKind = entity.changeKind
             manRep.xmlLang = entity.xmlLang
             manRep.version = entity.version
             manRep.description = entity.getAnchorLabels()
-            entity.responseCardinality = manRep.inputLimit
+            if (entity.responseKind == ResponseKind.LIST) {
+                manRep.inputLimit = entity.responseCardinality
+            } else {
+                entity.responseCardinality = manRep.inputLimit
+            }
 //            val result = categoryRepository!!.save(manRep)
             manRep
         }
-        logger.debug("persistManagedRep[1] : {} : {}", entity.managedRepresentation.name, entity.codes.joinToString { it.value })
+        logger.debug("persistManagedRep[1] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
 
     }
 

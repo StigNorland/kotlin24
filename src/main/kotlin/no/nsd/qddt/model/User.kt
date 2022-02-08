@@ -71,7 +71,7 @@ data class User(
     }
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private lateinit var authorities: MutableCollection<Authority>
+    private var authorities: MutableCollection<Authority> = mutableListOf()
 
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

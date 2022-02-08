@@ -28,11 +28,11 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     }
 
     @GetMapping("/publication/revisions/{uri}", produces = ["application/hal+json"])
-    fun getRevisions(
+    override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable,Publication::class.java)
+    ): PagedModel<RepresentationModel<EntityModel<Publication>>> {
+        return super.getRevisions(uri, pageable)
     }
 
 

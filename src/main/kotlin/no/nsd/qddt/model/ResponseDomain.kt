@@ -69,7 +69,7 @@ data class ResponseDomain(
   @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE] )
   @JoinColumn(name = "category_id", nullable = false)
   @JsonDeserialize
-  lateinit var managedRepresentation: Category
+  var managedRepresentation: Category ? = null
 
 
   fun getAnchorLabels(): String {

@@ -8,10 +8,7 @@ import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.LinkRelation
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -35,11 +32,11 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revisions/{uri}", produces = ["application/hal+json"])
-    fun getRevisions(
+    override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable,Study::class.java)
+    ): PagedModel<RepresentationModel<EntityModel<Study>>> {
+        return super.getRevisions(uri, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

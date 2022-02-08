@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.LinkRelation
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -46,11 +43,11 @@ class TopicController(
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/topicgroup/revisions/{uri}", produces = ["application/hal+json"])
     @ResponseBody
-    fun getRevisions(
+    override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable,
-    ): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable,TopicGroup::class.java)
+    ): PagedModel<RepresentationModel<EntityModel<TopicGroup>>> {
+        return super.getRevisions(uri, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

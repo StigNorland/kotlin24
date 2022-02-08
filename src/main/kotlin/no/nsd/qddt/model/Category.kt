@@ -142,7 +142,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
 
     @OrderColumn(name = "category_idx")
-    @ManyToMany(fetch = FetchType.EAGER,cascade = [CascadeType.MERGE])
+    @ManyToMany(fetch = FetchType.EAGER)
     var children: MutableList<Category> =  mutableListOf()
 //    get() {
 //        return if (categoryKind == CategoryKind.SCALE) {

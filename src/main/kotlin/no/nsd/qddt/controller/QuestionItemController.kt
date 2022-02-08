@@ -1,30 +1,27 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.QuestionItem
-import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.QuestionItemRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.LinkRelation
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.*
 import java.util.*
+
 
 @BasePathAwareController
 class QuestionItemController(@Autowired repository: QuestionItemRepository) :
     AbstractRestController<QuestionItem>(repository) {
-
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json;charset=UTF-8"])
@@ -33,31 +30,61 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+    @GetMapping("/questionitem/revisions/{uuid}", produces = ["application/hal+json;charset=UTF-8"])
     @ResponseBody
-    fun getRevisions(
-        @PathVariable uri: UUID,
+    override fun getRevisions(
+        @PathVariable uuid: UUID,
         pageable: Pageable
-    ): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable, QuestionItem::class.java)
+    ): PagedModel<RepresentationModel<EntityModel<QuestionItem>>> {
+        return super.getRevisions(uuid, pageable)
     }
 
 
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    @ResponseBody
-//    @GetMapping("/questionitem/{uri}", produces = ["application/hal+json;charset=UTF-8"])
-//    fun getById(@PathVariable uri: UUID): RepresentationModel<*> {
-//        return entityModelBuilder(repository.getById(uri))
-//    }
-
+    @Transactional(propagation = Propagation.REQUIRED)
+    @ResponseBody
+    @GetMapping("/questionitem/{uuid}", produces = ["application/hal+json"])
+    fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
+        return entityModelBuilder(repository.getById(uuid))
+    }
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
-
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): String {
         return super.getXml(uri)
+    }
+    @Transactional(propagation = Propagation.REQUIRED)
+    @ResponseBody
+    @Modifying
+    @PutMapping("/questionitem/{uuid}",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
+    open fun putQuestionItem(@PathVariable uuid: UUID, @RequestBody questionItem: QuestionItem): ResponseEntity<*> {
+
+        try {
+
+            val saved = repository.save(questionItem)
+
+            return ResponseEntity<QuestionItem>( HttpStatus.OK)
+        } catch (e: Exception) {
+            return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+        }
+    }
+    @Transactional(propagation = Propagation.REQUIRED)
+    @ResponseBody
+    @Modifying
+    @PostMapping("/questionitem",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
+    open fun postQuestionItem(@RequestBody questionItem: QuestionItem): ResponseEntity<*> {
+
+        try {
+
+            val saved = repository.save(questionItem)
+
+            return ResponseEntity<QuestionItem>(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            return ResponseEntity<String>(e.localizedMessage, HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     override fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {

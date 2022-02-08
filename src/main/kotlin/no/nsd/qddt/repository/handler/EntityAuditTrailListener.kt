@@ -30,17 +30,21 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
-class EntityAuditTrailListener(
-    @Autowired
+open class EntityAuditTrailListener
+    (
     private var applicationContext: ApplicationContext? = null,
-
-    @Autowired
     private var factory: ProjectionFactory? = null,
-
-    @Autowired
     private var entityManager: EntityManager? = null
+)
+{
+//    @Autowired
+//    var applicationContext: ApplicationContext?=null
+//    @Autowired
+//    var factory: ProjectionFactory?=null
+//    @Autowired
+//    var entityManager: EntityManager?=null
 
-){
+
     private val jpaFactory get() = JpaRepositoryFactory(entityManager!!)
 
     private val publicationStatusService get() = applicationContext?.getBean("publicationStatusService") as PublicationStatusService
@@ -163,7 +167,7 @@ class EntityAuditTrailListener(
                     log.debug("PreUpdate: {}, value = {}", entity.name, entity.code?.value ?: "NIL")
                 }
                 is ResponseDomain -> {
-                    entity.managedRepresentation.version = entity.version
+                    entity.managedRepresentation!!.version = entity.version
 //                    persistManagedRep(entity)
                 }
             }
@@ -205,9 +209,7 @@ class EntityAuditTrailListener(
                     jpaFactory.getRepository(ResponseDomainRepository::class.java).let {
                         entity.response = loadRevisionEntity(entity.responseId!!,it)
                         afterLoad(entity.response!!)
-                        entity.responseDomain = this.factory!!.createProjection(ResponseDomainListe::class.java,
-                            entity.response!!
-                        )
+                        entity.responseDomain = this.factory!!.createProjection(ResponseDomainListe::class.java,entity.response!!)
                     }
                 }
             }

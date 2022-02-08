@@ -1,25 +1,23 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Category
+import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.CategoryRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
-import org.springframework.hateoas.Link
-import org.springframework.hateoas.LinkRelation
-import org.springframework.hateoas.RepresentationModel
+import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 
@@ -34,11 +32,11 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/category/revisions/{uri}", produces = ["application/hal+json"])
-    fun getRevisions(
+    override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable,Category::class.java)
+    ): PagedModel<RepresentationModel<EntityModel<Category>>> {
+        return super.getRevisions(uri, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -60,6 +58,35 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
         return super.getXml(uri)
     }
 
+    @ResponseBody
+    @Modifying
+    @PutMapping("/category/{uuid}",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
+    fun putCategory(@PathVariable uuid: UUID, @RequestBody category: Category): ResponseEntity<*> {
+
+        try {
+
+            val saved = repository.save(category)
+
+            return ResponseEntity<Category>(null, HttpStatus.OK)
+        } catch (e: Exception) {
+            return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+        }
+    }
+
+    @ResponseBody
+    @Modifying
+    @PostMapping("/category",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
+    fun postCategory(@RequestBody category: Category): ResponseEntity<*> {
+
+        try {
+
+            val saved = repository.save(category)
+
+            return ResponseEntity<Category>(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            return ResponseEntity<String>(e.localizedMessage, HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/category/{uri}/children", produces = ["application/hal+json"])
