@@ -11,8 +11,6 @@ interface CategoryListe: IAbstractEntityViewList {
 
     var label: String
 
-//    val children: MutableList<Category>
-
     @Value(value = "#{target.categoryKind?.toString() }")
     fun getCategoryKind(): String?
 
@@ -22,13 +20,10 @@ interface CategoryListe: IAbstractEntityViewList {
     @Value(value = "#{target.inputLimit}")
     fun getInputLimit(): ResponseCardinality
 
-    @Value(value = "#{target.children }")
-    fun  getChildren() : MutableList<CategoryListe>
 
-    @Value(value = "#{target.code }")
-    fun  getCode() : Code
-
-    @Value(value = "#{target.modifiedBy.username }")
+    @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
     fun getUserAgencyName(): String
 
+    @Value(value = "#{target.children }")
+    fun  getChildren() : MutableList<ManagedRepresentationChildren>
 }

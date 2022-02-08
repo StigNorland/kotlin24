@@ -37,8 +37,11 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/surveyprogram/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable)
+    fun getRevisions(
+        @PathVariable uri: UUID,
+        pageable: Pageable
+    ): RepresentationModel<*> {
+        return super.getRevisions(uri, pageable,SurveyProgram::class.java)
     }
 
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])

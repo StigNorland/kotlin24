@@ -140,7 +140,7 @@ data class QuestionConstruct(
 
         pdfReport.addHeader2("Question Item")
         questionItem?.name?.let { pdfReport.addParagraph(it) }
-        questionItem?.responseDomain?.fillDoc(pdfReport, "")
+        questionItem?.response?.fillDoc(pdfReport, "")
 
         if (postInstructions.isNotEmpty())
             pdfReport.addHeader2("Post Instructions")

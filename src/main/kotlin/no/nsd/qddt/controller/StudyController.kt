@@ -35,8 +35,11 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable)
+    fun getRevisions(
+        @PathVariable uri: UUID,
+        pageable: Pageable
+    ): RepresentationModel<*> {
+        return super.getRevisions(uri, pageable,Study::class.java)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

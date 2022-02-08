@@ -6,6 +6,11 @@ import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "statementItemtListe", types = [StatementItem::class])
 interface StatementItemtListe: IAbstractEntityViewList {
+
+    val statement: String
+
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
     fun getUserAgencyName(): String
+
+
 }

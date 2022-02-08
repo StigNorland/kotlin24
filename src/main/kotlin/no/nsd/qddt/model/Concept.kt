@@ -77,7 +77,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
                         if (it != null) {
                             pdfReport.addHeader2(it.name, String.format("Version %s", it.version))
                             pdfReport.addParagraph(it.question)
-                            it.responseDomain?.fillDoc(pdfReport, "")
+                            it.response?.fillDoc(pdfReport, "")
                         }
                     }
             }

@@ -3,26 +3,22 @@ package no.nsd.qddt.repository.projection
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
-import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 import java.util.*
 
-@Projection(name = "managedRepresentation", types = [Category::class])
-interface ManagedRepresentation {
+@Projection(name = "managedRepresentationChildren", types = [Category::class])
+interface ManagedRepresentationChildren {
     var id: UUID
 
     var label: String
 
     var categoryKind: CategoryKind
 
-    var version: Version
-
     var xmlLang: String
 
     var classKind: String
-
 
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long
@@ -33,9 +29,12 @@ interface ManagedRepresentation {
     @Value(value = "#{target.inputLimit}")
     fun getInputLimit(): ResponseCardinality
 
+    @Value(value = "#{target.code }")
+    fun  getCode() : Code
+
+
     @Value(value = "#{target.children }")
     fun  getChildren() : MutableList<ManagedRepresentationChildren>
-
 
 
 }

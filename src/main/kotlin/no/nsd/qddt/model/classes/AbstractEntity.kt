@@ -1,6 +1,8 @@
 package no.nsd.qddt.model.classes
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import org.hibernate.envers.Audited
@@ -28,7 +30,6 @@ abstract class AbstractEntity(
     protected var modifiedById: UUID? = null,
 
     @Version
-//    @Column(insertable = false, updatable = false)
     var modified: Timestamp?=null
 ) {
 

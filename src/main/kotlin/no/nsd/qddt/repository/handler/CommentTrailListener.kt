@@ -30,7 +30,7 @@ class CommentTrailListener{
         log.debug("PrePersist [COMMENT] {}" , entity.id)
         val user = SecurityContextHolder.getContext().authentication.principal as User
         entity.modifiedBy = user
-        entity.modified = Timestamp.from(Instant.now())
+//        entity.modified = Timestamp.from(Instant.now())
 
     }
 

@@ -35,8 +35,11 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
 
     //    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable)
+    fun getRevisions(
+        @PathVariable uri: UUID,
+        pageable: Pageable
+    ): RepresentationModel<*> {
+        return super.getRevisions(uri, pageable,Concept::class.java)
     }
 
     //    @Transactional(propagation = Propagation.REQUIRED)
@@ -86,7 +89,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
             parent.addQuestionItem(questionItem)
 
             val result = repository.saveAndFlush(parent).questionItems.map {
-                it.element = loadRevisionEntity(it.getUri(), qRepository)
+                it.element = Companion.loadRevisionEntity(it.getUri(), qRepository)
                 it
             }.toMutableList()
 
@@ -150,6 +153,9 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
             "${baseUri}/concept/${uriId.id}"
 
         entity.children.size
+        if (entity.children== null) {
+            logger.error("wrf null children")
+        }
         entity.authors.size
         entity.comments.size
         entity.questionItems.size

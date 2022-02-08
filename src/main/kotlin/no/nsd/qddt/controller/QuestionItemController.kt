@@ -1,6 +1,7 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.QuestionItemRepository
 import org.hibernate.Hibernate
@@ -26,23 +27,28 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json;charset=UTF-8"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable)
+    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+    @ResponseBody
+    fun getRevisions(
+        @PathVariable uri: UUID,
+        pageable: Pageable
+    ): RepresentationModel<*> {
+        return super.getRevisions(uri, pageable, QuestionItem::class.java)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    @ResponseBody
-    @GetMapping("/questionitem/{uri}", produces = ["application/hal+json"])
-    fun getById(@PathVariable uri: String): RepresentationModel<*> {
-        return entityModelBuilder(super.getByUri(uri))
-    }
+
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    @ResponseBody
+//    @GetMapping("/questionitem/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+//    fun getById(@PathVariable uri: UUID): RepresentationModel<*> {
+//        return entityModelBuilder(repository.getById(uri))
+//    }
 
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
@@ -70,7 +76,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
             .link(Link.of(baseUrl))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-//            .embed(entity.responseDomainListe!!,LinkRelation.of("responseDomain") )
+//            .embed(entity.responseDomain!!,LinkRelation.of("responseDomain") )
             .build()
     }
 

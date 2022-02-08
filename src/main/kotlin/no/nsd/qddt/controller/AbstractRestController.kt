@@ -1,8 +1,10 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.config.RevisionEntityImpl
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.BaseMixedRepository
 import org.hibernate.Hibernate
@@ -54,17 +56,39 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         }
     }
 
-    @ResponseBody
-    open fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
+
+
+    open fun getRevisions(@PathVariable uuid: UUID, pageable: Pageable, ofClass: Class<T>): PagedModel<RepresentationModel<EntityModel<T>>> {
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
             PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC, "modified")
         } else {
             pageable
         }
 
-        logger.debug("getRevisions PagedModel: {}", qPage)
-        val revisions = repository.findRevisions(uri, qPage).map { rev -> entityRevisionModelBuilder(rev) }
-        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions))
+        val auditReader = AuditReaderFactory.get(entityManager)
+
+        val revQuery: AuditQuery = auditReader.createQuery().forRevisionsOfEntity(ofClass, false)
+            .add(AuditEntity.property("changeKind").ne(IBasedOn.ChangeKind.IN_DEVELOPMENT))
+            .add(AuditEntity.property("id").eq(uuid))
+
+
+
+        val result = revQuery.resultList
+            .filterIndexed { index, _ -> index > qPage.offset && index < qPage.offset + qPage.pageSize }
+            .map {
+            val rev = auditReader.createQuery().forEntitiesAtRevision(ofClass, (it as RevisionEntityImpl).id ).singleResult.apply {
+                (this as T).version.rev =  (it as RevisionEntityImpl).id
+            }
+            entityModelBuilder(rev as T)
+        }
+
+        return PagedModel.of(result, PagedModel.PageMetadata(result.size.toLong(), 1L, result.size.toLong()))
+
+
+
+//        logger.debug("getRevisions PagedModel: {}", qPage)
+//        val revisions = repository.findRevisions(uri, qPage).map { rev -> entityRevisionModelBuilder(rev) }
+//        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions))
     }
 
     @ResponseBody
@@ -124,24 +148,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         return getByUri(UriId.fromAny(uri))
     }
 
-    protected fun <T : AbstractEntityAudit> loadRevisionEntity(
-        uri: UriId,
-        repository: RevisionRepository<T, UUID, Int>
-    ): T {
-        return with(uri) {
-            if (rev != null)
-                repository.findRevision(id, rev!!).map {
-                    it.entity.version.rev = it.revisionNumber.get()
-                    it.entity
-                }.get()
-            else
-                repository.findLastChangeRevision(id).map {
-                    it.entity.version.rev = it.revisionNumber.get()
-                    it.entity
-                }.get()
-        }
-    }
-
     protected fun pageMetadataBuilder(revisions: Page<RepresentationModel<EntityModel<T>>>): PagedModel.PageMetadata {
         return PagedModel.PageMetadata(
             revisions.size.toLong(),
@@ -171,6 +177,20 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
+        fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId,repository: RevisionRepository<T, UUID, Int>): T {
+            return with(uri) {
+                if (rev != null)
+                    repository.findRevision(id, rev!!).map {
+                        it.entity.version.rev = it.revisionNumber.get()
+                        it.entity
+                    }.get()
+                else
+                    repository.findLastChangeRevision(id).map {
+                        it.entity.version.rev = it.revisionNumber.get()
+                        it.entity
+                    }.get()
+            }
+        }
     }
 
 

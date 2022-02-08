@@ -2,7 +2,6 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.layout.borders.DottedBorder
 import com.itextpdf.layout.element.Cell
@@ -67,16 +66,11 @@ data class ResponseDomain(
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @ManyToOne(fetch = FetchType.EAGER , cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-  @JoinColumn(name = "category_id")
-  @JsonSerialize
+  @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE] )
+  @JoinColumn(name = "category_id", nullable = false)
   @JsonDeserialize
   lateinit var managedRepresentation: Category
-//  get() = field
-//  set(value) {
-//    field = value
-//    logger.debug(value.toString())
-//  }
+
 
   fun getAnchorLabels(): String {
     return try {
@@ -87,10 +81,6 @@ data class ResponseDomain(
       logger.error(ex.localizedMessage)
       return "?"
     }
-  }
-
-  fun getUserAgencyName(): String {
-    return this.modifiedBy.username + '@' + this.agency.name
   }
 
 

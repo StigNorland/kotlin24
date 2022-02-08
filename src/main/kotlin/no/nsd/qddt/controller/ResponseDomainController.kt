@@ -5,8 +5,13 @@ import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.repository.CategoryRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.harvestCatCodes
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.populateCatCodes
 import no.nsd.qddt.repository.projection.CategoryListe
+import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,6 +35,9 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     AbstractRestController<ResponseDomain>(repository) {
 
     @Autowired
+    private val categoryRepository: CategoryRepository? = null
+
+    @Autowired
     private val factory: ProjectionFactory? = null
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -39,37 +47,44 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/responsedomain/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable)
+    @GetMapping("/responsedomain/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+    @ResponseBody
+    fun getRevisions(
+        @PathVariable uri: UUID,
+        pageable: Pageable
+    ): RepresentationModel<*> {
+        return super.getRevisions(uri, pageable,ResponseDomain::class.java)
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/pdf"])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/xml"])
     override fun getXml(@PathVariable uri: String): String {
         return super.getXml(uri)
     }
 
-    @Transactional(propagation = Propagation.NESTED)
+//    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    @PutMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
-    fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain): ResponseDomain {
-        responseDomain.codes = harvestCatCodes(responseDomain.managedRepresentation)
-        logger.debug(
-            "putResponseDomain - harvestCode : {} : {}",
-            responseDomain.name,
-            responseDomain.codes.joinToString { it.value })
-        val saved = repository.save(responseDomain)
-        var _index = 0
-        populateCatCodes(saved.managedRepresentation, _index, saved.codes)
-        logger.debug("putResponseDomain - saved : {} : {}", saved.name, saved.codes.joinToString { it.value })
+    @PutMapping("/responsedomain/{uri}")
+    fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain) {
 
-        return saved
+//        responseDomain.codes = harvestCatCodes(responseDomain.managedRepresentation)
+        persistManagedRep(responseDomain)
+        logger.debug("harvestedCodes : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
+
+        val saved = repository.save(responseDomain)
+
+        var index = 0
+        populateCatCodes(saved.managedRepresentation,index, saved.codes)
+        logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
+
+//        return saved
     }
 
 //    @Transactional
@@ -92,18 +107,9 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         val domain = repository.findById(uri).orElseThrow()
         domain.managedRepresentation = managedRepresentation
         val managedRepresentationSaved = repository.saveAndFlush(domain).managedRepresentation
-        return entityModelBuilder(managedRepresentationSaved)
+        return entityModelBuilder(managedRepresentationSaved!!)
     }
 
-    private fun harvestCatCodes(current: Category?): MutableList<Code> {
-        val tmpList: MutableList<Code> = mutableListOf()
-        if (current == null) return tmpList
-        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
-            tmpList.add((current.code ?: Code("")))
-        }
-        current.children.forEach { tmpList.addAll(harvestCatCodes(it)) }
-        return tmpList
-    }
 
     override fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
@@ -115,12 +121,16 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
-        entity.managedRepresentation.children.size
-        var index = 0
-        populateCatCodes(entity.managedRepresentation, index, entity.codes)
-        val user = this.factory?.createProjection<UserListe>(UserListe::class.java, entity.modifiedBy)
+        var _index = 0
+        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
+
+        entity.managedRepresentation.children.forEach {
+            it.children.size
+        }
+        val user =
+            this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
-            this.factory?.createProjection(CategoryListe::class.java, entity.managedRepresentation)
+            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation!!)
 
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -148,25 +158,24 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             .build()
     }
 
-    private fun populateCatCodes(current: Category?, _index: Int, codes: List<Code>): Int {
-        if (current == null) return _index
+    private fun persistManagedRep(entity: ResponseDomain) {
+        entity.codes = harvestCatCodes(entity.managedRepresentation)
+        logger.debug("persistManagedRep[0] : {} : {}", entity.managedRepresentation.name, entity.codes.joinToString { it.value })
 
-        var index = _index
+        entity.managedRepresentation.let{ manRep ->
+            manRep.name = entity.name
+            manRep.changeComment = entity.changeComment
+            manRep.changeKind = entity.changeKind
+            manRep.xmlLang = entity.xmlLang
+            manRep.version = entity.version
+            manRep.description = entity.getAnchorLabels()
+            entity.responseCardinality = manRep.inputLimit
+//            val result = categoryRepository!!.save(manRep)
+            manRep
+        }
+        logger.debug("persistManagedRep[1] : {} : {}", entity.managedRepresentation.name, entity.codes.joinToString { it.value })
 
-        if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
-            try {
-//                log.debug(codes[index].toString())
-                current.code = codes[index++]
-            } catch (iob: IndexOutOfBoundsException) {
-                current.code = Code()
-            } catch (ex: Exception) {
-                logger.error(ex.localizedMessage)
-                current.code = Code()
-            }
-        }
-        current.children.forEach {
-            index = populateCatCodes(it, index, codes)
-        }
-        return index
     }
+
+
 }

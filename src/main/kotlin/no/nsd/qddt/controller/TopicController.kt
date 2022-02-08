@@ -41,10 +41,16 @@ class TopicController(
         return super.getRevision(uri)
     }
 
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/topicgroup/revisions/{uri}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uri: UUID, pageable: Pageable): RepresentationModel<*> {
-        return super.getRevisions(uri, pageable)
+    @ResponseBody
+    fun getRevisions(
+        @PathVariable uri: UUID,
+        pageable: Pageable,
+    ): RepresentationModel<*> {
+        return super.getRevisions(uri, pageable,TopicGroup::class.java)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -104,7 +110,7 @@ class TopicController(
 
             return ResponseEntity.ok(
                 repository.saveAndFlush(parent).questionItems.map {
-                    it.element = loadRevisionEntity(it.getUri(), qRepository)
+                    it.element = Companion.loadRevisionEntity(it.getUri(), qRepository)
                     it
                 }.toMutableList()
             )

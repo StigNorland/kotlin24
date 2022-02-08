@@ -45,14 +45,14 @@ abstract class ConceptHierarchy (
         entity.parent = this
         children.add(children.size, entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment = String.format("${entity.classKind} [ ${entity.name} ] added")
+        changeComment =  String.format("Added [${entity.name}]")
         return entity
     }
 
     fun childrenRemove(entity: ConceptHierarchy) {
         if (children.remove(entity)) {
             this.changeKind = IBasedOn.ChangeKind.UPDATED_CHILD
-            this.changeComment = "entity association removed ${entity.name}"
+            this.changeComment = "Removed [${entity.name}]"
         } else
             logger.debug("entity not found, nothing to do")
     }

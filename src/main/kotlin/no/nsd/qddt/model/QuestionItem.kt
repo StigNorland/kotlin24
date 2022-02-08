@@ -50,12 +50,11 @@ data class QuestionItem(
 
   @JsonIgnore
   @Transient
-  var responseDomain: ResponseDomain? = null
+  var response: ResponseDomain? = null
 
   @Transient
   @JsonSerialize
-  @JsonDeserialize
-  var responseDomainListe: ResponseDomainListe? = null
+  var responseDomain: ResponseDomainListe? = null
 
   @Transient
   @JsonSerialize
@@ -71,8 +70,8 @@ data class QuestionItem(
     if (intent.isNotBlank()) {
       pdfReport.addHeader2("Intent").add(Paragraph(this.intent))
     }
-      
-    responseDomain?.apply {  
+
+    response?.apply {
       fillDoc(pdfReport, "")
     }
 

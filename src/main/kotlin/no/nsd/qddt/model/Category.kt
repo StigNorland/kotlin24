@@ -142,32 +142,36 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
 
     @OrderColumn(name = "category_idx")
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER,cascade = [CascadeType.MERGE])
     var children: MutableList<Category> =  mutableListOf()
-    get() {
-        return if (categoryKind == CategoryKind.SCALE) {
-            if (field.isEmpty()) logger.error("getChildren() is 0/NULL")
-            field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
-                .sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") })
-                .toList() as MutableList<Category>
-        } else
-            field.stream()
-                .filter { obj: Category? -> Objects.nonNull(obj) }
-                .toList() as MutableList<Category>
-        }
-    set(value) {
-        field = value
-//        when (categoryKind) {
-//            CategoryKind.SCALE -> value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
-//            else -> value
+//    get() {
+//        return if (categoryKind == CategoryKind.SCALE) {
+//            if (field.isEmpty()) {
+//                logger.error("getChildren() is 0/NULL")
+//                return field
+//            }
+//            field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
+//                .sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") })
+//                .toList() as MutableList<Category>
+//        } else
+//            field.stream()
+//                .filter { obj: Category? -> Objects.nonNull(obj) }
+//                .toList() as MutableList<Category>
 //        }
-    }
+//    set(value) {
+//        field = when (categoryKind) {
+//            CategoryKind.SCALE ->
+//                value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
+//            else ->
+//                value
+//        }
+//    }
 
 
     fun addChildren(entity: Category): Category {
-        children.add(children.size,entity)
+        children.add(entity)
         changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("${entity.classKind} [ ${entity.name} ] added")
+        changeComment =  String.format("Added [${entity.name}]")
         return entity
     }
 

@@ -22,7 +22,7 @@ interface ResponseDomainListe: IAbstractEntityViewList {
     @Value(value = "#{target.managedRepresentation }")
     fun getManagedRepresentation(): ManagedRepresentation
 
-    @Value(value = "#{target.getUserAgencyName() }")
+    @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
     fun getUserAgencyName(): String
 }
 

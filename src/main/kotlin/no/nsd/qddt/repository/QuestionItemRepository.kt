@@ -4,12 +4,13 @@ import no.nsd.qddt.repository.projection.QuestionItemListe
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
 
 /**
 * @author Stig Norland
 */
-@RepositoryRestResource(path = "questionitem",  exported=true, itemResourceRel = "QuestionItem", excerptProjection = QuestionItemListe::class)
+@RepositoryRestResource(path = "questionitem",  itemResourceRel = "QuestionItem", excerptProjection = QuestionItemListe::class)
 interface QuestionItemRepository:  BaseMixedRepository<QuestionItem>  {
 
     @Query(nativeQuery = true,
@@ -32,6 +33,13 @@ interface QuestionItemRepository:  BaseMixedRepository<QuestionItem>  {
         " or r.name ILIKE searchStr(cast(:responseDomain AS text)) " +
         ")"
     )
-    fun findByQuery(name:String?,question:String?,responseDomain: String?,xmlLang:String?,pageable:Pageable?):Page<QuestionItem>?
+    fun findByQuery(
+        @Param("xmlLang") xmlLang:String,
+        @Param("name") name:String?,
+        @Param("question") question:String?,
+        @Param("responseDomain") responseDomain:String?,
+        pageable:Pageable?
+    ):Page<QuestionItem>
+
 
 }

@@ -44,11 +44,11 @@ interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T
         fun <S : ControlConstruct?> findByQuery(
             @Param("constructKind") constructKind: String,
             @Param("superKind") superKind: String?,
-            @Param("label") label: String?,
-            @Param("name") name: String?,
-            @Param("description") desc: String?,
-            @Param("questionName") questionName: String?,
-            @Param("questionText") questionText: String?,
+            @Param("label") label: String?="%",
+            @Param("name") name: String?="%",
+            @Param("description") desc: String?="%",
+            @Param("questionName") questionName: String?="%",
+            @Param("questionText") questionText: String?="%",
             @Param("xmlLang") xmlLang: String?="%",
             pageable: Pageable?
         ): Page<S>?

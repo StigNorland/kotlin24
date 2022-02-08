@@ -8,6 +8,7 @@ import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -27,29 +28,34 @@ class ControlConstructController(@Autowired repository: ControlConstructReposito
 
 
     @ResponseBody
+    @Modifying
     @PostMapping(value = ["/controlconstruct/condition"])
     fun update(@RequestBody instance: ConditionConstruct): ConditionConstruct {
-        return repository.save(instance)
+        return repository.save<ConditionConstruct>(instance)
     }
 
     @ResponseBody
+    @Modifying
     @PostMapping(value = ["/controlconstruct/question"])
     fun update(@RequestBody instance: QuestionConstruct): QuestionConstruct {
         return repository.save(instance)
     }
 
     @ResponseBody
+    @Modifying
     @PostMapping(value = ["/controlconstruct/sequence"])
     fun update(@RequestBody instance: Sequence): Sequence {
         return repository.save(instance)
     }
 
     @ResponseBody
+    @Modifying
     @PostMapping(value = ["/controlconstruct/statement"])
     fun update(@RequestBody instance: StatementItem): StatementItem {
         return repository.save(instance)
     }
 
+    @Modifying
     @PostMapping(value = ["/controlconstruct/createfile"], headers = ["content-type=multipart/form-data"])
     @Throws(FileUploadException::class, IOException::class)
     fun createWithFile(

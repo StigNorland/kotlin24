@@ -3,6 +3,7 @@ package no.nsd.qddt.model.classes
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.io.source.ByteArrayOutputStream
@@ -35,26 +36,16 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
 @EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
 
-
     @JsonIgnore
     @Column(insertable = false, updatable = false)
     protected var agencyId: UUID? = null,
 
-    @Column(insertable = false, updatable = false)
-    @JsonFormat
-        (shape = JsonFormat.Shape.NUMBER_INT)
-    override var modified: Timestamp? = null,
-
     @Embedded
-    @JsonSerialize
     @AttributeOverrides(
         AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true)),
         AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true)),
     )
     override var basedOn:  UriId? = null,
-
-//    @Column(name = "rev", insertable = false, updatable = false)
-//    var revTest: Long?=null,
 
     @AttributeOverrides(
         AttributeOverride(name = "rev",column = Column(name = "rev"))
@@ -106,6 +97,11 @@ abstract class AbstractEntityAudit(
     @OrderColumn(name = "ownerIdx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
+
+
+    @JsonFormat
+        (shape = JsonFormat.Shape.NUMBER_INT)
+    override var modified: Timestamp? = null
 
 // TODO : moce these to PrePersist class
 

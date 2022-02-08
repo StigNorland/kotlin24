@@ -30,7 +30,8 @@ data class User(
 
     @JsonSerialize
     @JsonFormat
-        (shape = JsonFormat.Shape.NUMBER_INT)    @Version
+        (shape = JsonFormat.Shape.NUMBER_INT)
+    @Version
     var modified: Timestamp?=null
 
 ):UserDetails {
@@ -69,17 +70,20 @@ data class User(
         return password
     }
 
-
-
-    @JsonDeserialize
     @ManyToMany(fetch = FetchType.EAGER)
     private lateinit var authorities: MutableCollection<Authority>
+
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return authorities.map {
             GrantedAuthority { it.authority }
         }.toMutableSet()
     }
+
+//    fun setAuthorites(grantedAuthorities: MutableCollection<out GrantedAuthority>){
+//        authorities = grantedAuthorities.map { it -> it.authority }
+//    }
+
 
     @JsonIgnore
     @ManyToOne
@@ -88,7 +92,7 @@ data class User(
 
 
     fun getAuthority(): String {
-        return authorities.joinToString { it.authority }
+        return authorities.joinToString() { it.authority }
     }
 
     override fun equals(other: Any?): Boolean {

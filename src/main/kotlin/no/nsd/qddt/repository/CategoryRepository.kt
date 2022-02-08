@@ -15,30 +15,28 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 @RepositoryRestResource(path = "category", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
 interface CategoryRepository : BaseMixedRepository<Category>  {
 
-    @Query(
-        value = "SELECT ca.* FROM category ca WHERE " +
-                "( ca.xml_lang ILIKE :xmlLang " +
-                "AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) " +
-                "AND (:hierarchyLevel is null OR ca.hierarchy_level ILIKE cast(:hierarchyLevel AS text)) " +
-                "AND ( ca.label ILIKE searchStr(:label) " +
-                "OR ca.name  ILIKE searchStr(:name) " +
-                "OR ca.description ILIKE searchStr(:description)))" ,
-        countQuery = "SELECT count(ca.*) FROM category ca WHERE " +
-                "( ca.xml_lang ILIKE :xmlLang " +
-                "AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) " +
-                "AND (:hierarchyLevel is null OR ca.hierarchy_level ILIKE cast(:hierarchyLevel AS text)) " +
-                "AND ( ca.label ILIKE searchStr(:label) " +
-                "OR ca.name  ILIKE searchStr(:name) " +
-                "OR ca.description ILIKE searchStr(:description)))" ,
-        nativeQuery = true
+    @Query(nativeQuery = true,
+        value =
+        """SELECT ca.* FROM category ca WHERE 
+            ( ca.xml_lang ILIKE :xmlLang 
+            AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) 
+            AND (ca.name ILIKE searchStr(cast(:name AS text))
+                OR ca.label ILIKE searchStr(cast(:label AS text))
+                OR ca.description ILIKE searchStr(cast(:description AS text)) )) """,
+        countQuery =
+        """SELECT count(ca.*) FROM category ca WHERE 
+            ( ca.xml_lang ILIKE :xmlLang 
+            AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) 
+            AND (ca.name ILIKE searchStr(cast(:name AS text))
+                OR ca.label ILIKE searchStr(cast(:label AS text))
+                OR ca.description ILIKE searchStr(cast(:description AS text)) )) """
     )
     fun findByQuery(
         @Param("xmlLang") xmlLang: String?,
         @Param("categoryKind") categoryKind: String?,
-        @Param("hierarchyLevel") hierarchyLevel: String?,
-        @Param("label") label: String?,
-        @Param("name") name: String?,
-        @Param("description") description: String?,
+        @Param("label") label: String? ="*",
+        @Param("name") name: String? ="*",
+        @Param("description") description: String? ="*",
         pageable: Pageable?
-    ): Page<Category?>?
+    ): Page<Category>
 }
