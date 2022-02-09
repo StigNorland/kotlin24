@@ -35,8 +35,6 @@ import java.util.*
 class ResponseDomainController(@Autowired repository: ResponseDomainRepository) :
     AbstractRestController<ResponseDomain>(repository) {
 
-    @Autowired
-    private val categoryRepository: CategoryRepository? = null
 
     @Autowired
     private val factory: ProjectionFactory? = null

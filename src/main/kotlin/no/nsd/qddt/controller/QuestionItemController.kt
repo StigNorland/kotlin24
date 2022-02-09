@@ -1,12 +1,18 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.QuestionItemRepository
+import no.nsd.qddt.repository.ResponseDomainRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
+import no.nsd.qddt.repository.projection.ManagedRepresentation
+import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -22,6 +28,13 @@ import java.util.*
 @BasePathAwareController
 class QuestionItemController(@Autowired repository: QuestionItemRepository) :
     AbstractRestController<QuestionItem>(repository) {
+
+
+    @Autowired
+    private val factory: ProjectionFactory? = null
+
+    @Autowired
+    private val responseDomainRepository: ResponseDomainRepository? = null
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json;charset=UTF-8"])
@@ -56,11 +69,12 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
     override fun getXml(@PathVariable uri: String): String {
         return super.getXml(uri)
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     @ResponseBody
     @Modifying
     @PutMapping("/questionitem/{uuid}",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
-    open fun putQuestionItem(@PathVariable uuid: UUID, @RequestBody questionItem: QuestionItem): ResponseEntity<*> {
+    fun putQuestionItem(@PathVariable uuid: UUID, @RequestBody questionItem: QuestionItem): ResponseEntity<*> {
 
         try {
 
@@ -71,11 +85,12 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
             return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     @ResponseBody
     @Modifying
     @PostMapping("/questionitem",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
-    open fun postQuestionItem(@RequestBody questionItem: QuestionItem): ResponseEntity<*> {
+    fun postQuestionItem(@RequestBody questionItem: QuestionItem): ResponseEntity<*> {
 
         try {
 
@@ -97,14 +112,46 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
+//        val response =
+//            if (entity.responseId != null && responseDomainRepository!= null)
+//                entityModelBuilder(loadRevisionEntity(entity.responseId!!,responseDomainRepository))
+//            else
+//                null
 
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-//            .embed(entity.responseDomain!!,LinkRelation.of("responseDomain") )
+            .embed(entity.response?.let { entityModelBuilder(it) } ?:"",LinkRelation.of("responseDomain") )
             .build()
     }
 
+    fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder ResponseDomain : {} {}", uriId, entity.codes.joinToString { it.value })
+        val baseUrl = if (uriId.rev != null)
+            "${baseUri}/responsedomain/revision/${uriId}"
+        else
+            "${baseUri}/responsedomain/${uriId.id}"
+        Hibernate.initialize(entity.agency)
+        Hibernate.initialize(entity.modifiedBy)
+        Hibernate.initialize(entity.managedRepresentation)
+
+        entity.managedRepresentation?.children?.forEach {
+            it.children.size
+        }
+        val user =
+            this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
+        val managedRepresentation =
+            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation!!)
+
+        return HalModelBuilder.halModel()
+            .entity(entity)
+            .link(Link.of(baseUrl))
+            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(user!!, LinkRelation.of("modifiedBy"))
+            .embed(managedRepresentation!!, LinkRelation.of("managedRepresentation"))
+            .build()
+    }
 }

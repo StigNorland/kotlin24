@@ -96,8 +96,8 @@ data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuth
             addHeader2(it.name, String.format("Version %s", it.version))
             addParagraph(it.question)
           }
-          if (it.responseDomain != null)
-            it.responseDomain.apply {
+          if (it.response != null)
+            it.response.apply {
               fillDoc(pdfReport, "")
             }
         }

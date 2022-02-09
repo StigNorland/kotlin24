@@ -16,8 +16,8 @@ import javax.persistence.PostUpdate
  */
 class AgentAuditTrailListener{
 
-    @Autowired
-    private val applicationContext: ApplicationContext? = null
+//    @Autowired
+//    private val applicationContext: ApplicationContext? = null
 
     @PostPersist
     @PostUpdate

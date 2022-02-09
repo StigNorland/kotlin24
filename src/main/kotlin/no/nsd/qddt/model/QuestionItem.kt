@@ -54,10 +54,6 @@ data class QuestionItem(
 
   @Transient
   @JsonSerialize
-  var responseDomain: ResponseDomainListe? = null
-
-  @Transient
-  @JsonSerialize
   var parentRefs: MutableList<ParentRef<ConceptHierarchy>> = mutableListOf()
 
   override fun xmlBuilder():AbstractXmlBuilder {

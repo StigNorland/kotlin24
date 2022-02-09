@@ -8,7 +8,6 @@ spring:
       base-path: /
   datasource:
     driver-class-name: org.postgresql.Driver
-    continue-on-error: true
     hikari.connectionTimeout: 20000
     hikari.maximumPoolSize: 5
     username: ${QDDT_DB_USER:qddt}
@@ -62,6 +61,9 @@ spring:
           enabled: true
   hateoas:
     use-hal-as-default-json-media-type: true
+  sql:
+    init:
+      continue-on-error: true
 
 
 security:

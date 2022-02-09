@@ -9,8 +9,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory
 import org.springframework.hateoas.config.EnableHypermediaSupport
+import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.web.filter.ForwardedHeaderFilter
 import org.springframework.web.filter.OncePerRequestFilter
 
@@ -23,7 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @EnableJpaAuditing(auditorAwareRef = "customAuditProvider")
 @EnableHypermediaSupport(type=[EnableHypermediaSupport.HypermediaType.HAL,EnableHypermediaSupport.HypermediaType.HAL_FORMS, EnableHypermediaSupport.HypermediaType.COLLECTION_JSON])
 @EnableJpaRepositories(
-    basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.service", "no.nsd.qddt.config", "no.nsd.qddt.security"],
+    basePackages = ["no.nsd.qddt.repository", "no.nsd.qddt.service", "no.nsd.qddt.config", "no.nsd.qddt.security","no.nsd.qddt.repository.handler"],
     repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -42,6 +44,42 @@ class AppConfig {
     fun projectionFactory(): SpelAwareProxyProjectionFactory? {
         return SpelAwareProxyProjectionFactory()
     }
+
+//    @Autowired
+//    private val env: Environment? = null
+//
+//    @Bean
+//    fun dataSource(): DataSource {
+//       return DriverManagerDataSource().apply {
+//            env?.getProperty("datasource.driverClassName")?.let { setDriverClassName(it) }
+//            env?.getProperty("datasource.url")?.let { url = it }
+//            env?.getProperty("datasource.username")?.let { username = it }
+//            env?.getProperty("datasource.password")?.let { password = it }
+//
+//        }
+//    }
+//
+//    @Bean
+//    fun entityManagerFactory(): EntityManagerFactory? {
+//        return LocalContainerEntityManagerFactoryBean().apply {
+//            setPackagesToScan("no.nsd.qddt.repository")
+//            jpaVendorAdapter = HibernateJpaVendorAdapter().apply {
+//                setGenerateDdl(true)
+//            }
+//            dataSource = dataSource()
+//            afterPropertiesSet()
+//
+//        }.`object`
+//    }
+
+//    @Bean
+//    fun transactionManager(): PlatformTransactionManager? {
+//        return JpaTransactionManager().apply {
+//            entityManagerFactory = entityManagerFactory()
+//        }
+//    }
+
+
 
     @Bean
     fun forwardedHeaderFilter(): FilterRegistrationBean<ForwardedHeaderFilter> {

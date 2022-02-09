@@ -58,7 +58,6 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
 
     companion object {
         fun fromAny(source: Any): UriId {
-            println(source)
             val parts =  source.toString().split(":")
             return UriId().apply {
                 id = UUID.fromString(parts[0])

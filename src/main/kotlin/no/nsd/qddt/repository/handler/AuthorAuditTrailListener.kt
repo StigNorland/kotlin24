@@ -3,16 +3,14 @@ package no.nsd.qddt.repository.handler
 import no.nsd.qddt.model.Author
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationContext
 import javax.persistence.PostLoad
 import javax.persistence.PostPersist
 import javax.persistence.PostRemove
 import javax.persistence.PostUpdate
 
 class AuthorAuditTrailListener {
-    @Autowired
-    private val applicationContext: ApplicationContext? = null
+//    @Autowired
+//    private val applicationContext: ApplicationContext? = null
 
     @PostPersist
     @PostUpdate

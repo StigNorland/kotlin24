@@ -1,6 +1,5 @@
 package no.nsd.qddt.controller
 
-import no.nsd.qddt.config.RevisionEntityImpl
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.UriId
@@ -28,17 +27,18 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 import java.util.*
 import javax.persistence.EntityManager
+import javax.persistence.PersistenceContext
 
 
 abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: BaseMixedRepository<T>) {
 
     val baseUri get() = BasicLinkBuilder.linkToCurrentMapping()
 
-    @Autowired
-    private val entityManager: EntityManager? = null
+    @PersistenceContext
+    protected val entityManager: EntityManager? = null
 
     @Autowired
-    private val applicationContext: ApplicationContext? = null
+    protected val applicationContext: ApplicationContext? = null
 
     val repLoaderService get() = applicationContext?.getBean("repLoaderService") as RepLoaderService
 
@@ -49,7 +49,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         return if (uriId.rev != null) {
             logger.debug("getRevisions entityRevisionModelBuilder")
             val rev = repository.findRevision(uriId.id, uriId.rev!!)
-                .orElse(repository.findLastChangeRevision(uriId.id).orElseThrow())
+                .orElse(repository.findLastChangeRevision(uriId.id)
+                .orElseThrow())
             entityRevisionModelBuilder(rev)
         } else {
             HalModelBuilder.emptyHalModel().build<EntityModel<T>>()
@@ -60,7 +61,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     @ResponseBody
     open fun getRevisions(@PathVariable uuid: UUID, pageable: Pageable): PagedModel<RepresentationModel<EntityModel<T>>> {
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
-            PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC, "modified")
+            PageRequest.of(pageable.pageNumber, pageable.pageSize*2, Sort.Direction.DESC, "modified")
         } else {
             pageable
         }
@@ -91,8 +92,12 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
 
         logger.debug("getRevisions PagedModel: {}", qPage)
-        val revisions = repository.findRevisions(uuid, qPage).map { rev -> entityRevisionModelBuilder(rev) }
-        return PagedModel.of(revisions.content, pageMetadataBuilder(revisions))
+        val revisions = repository.findRevisions(uuid, qPage)
+            .filter {
+                    it.entity.changeKind.ordinal <  IBasedOn.ChangeKind.UPDATED_PARENT.ordinal ||
+                    it.entity.changeKind.ordinal > IBasedOn.ChangeKind.IN_DEVELOPMENT.ordinal }
+            .map { rev -> entityRevisionModelBuilder(rev) }.toList()
+        return PagedModel.of(revisions, PagedModel.PageMetadata(revisions.size.toLong(), 1L, revisions.size.toLong()))
     }
 
     @ResponseBody
@@ -113,6 +118,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
         return PagedModel.of(result, PagedModel.PageMetadata(result.size.toLong(), 1L, result.size.toLong()))
 
+//        return PagedModel.of(null)
     }
 
 
@@ -130,7 +136,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
 
     open fun entityModelBuilder(entity: T): RepresentationModel<EntityModel<T>> {
-        logger.debug("entityModelBuilder : {}", entity.id)
+        logger.debug("entityModelBuilder(T) : {}", entity.name)
         val baseUri = BasicLinkBuilder.linkToCurrentMapping()
 
         entity.comments.size
@@ -161,7 +167,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         )
     }
 
-    private fun entityRevisionModelBuilder(rev: Revision<Int, T>): RepresentationModel<EntityModel<T>> {
+    protected fun entityRevisionModelBuilder(rev: Revision<Int, T>): RepresentationModel<EntityModel<T>> {
         rev.entity.version.rev = rev.revisionNumber.get()
         return entityModelBuilder(rev.entity)
     }
@@ -180,10 +186,12 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
 
     companion object {
+
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
         fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId,repository: RevisionRepository<T, UUID, Int>): T {
             return with(uri) {
-                if (rev != null)
+                if (rev != null && rev != 0)
                     repository.findRevision(id, rev!!).map {
                         it.entity.version.rev = it.revisionNumber.get()
                         it.entity

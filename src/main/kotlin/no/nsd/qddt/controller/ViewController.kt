@@ -11,7 +11,9 @@ import org.springframework.hateoas.PagedModel
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
+import java.util.*
 
 @BasePathAwareController
 class ViewController(@Autowired val changeFeedRepository: ChangeFeedRepository) {
@@ -51,6 +53,7 @@ class ViewController(@Autowired val changeFeedRepository: ChangeFeedRepository) 
 
         return PagedModel.of(entities.content, pageMetadataBuilder(entities), Link.of("changelogs"))
     }
+
 
     protected fun pageMetadataBuilder(revisions: Page<RepresentationModel<out RepresentationModel<*>>>): PagedModel.PageMetadata {
         return PagedModel.PageMetadata(

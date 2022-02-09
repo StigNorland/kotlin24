@@ -1,5 +1,6 @@
 package no.nsd.qddt.repository.handler
 
+import no.nsd.qddt.controller.AbstractRestController
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
@@ -7,12 +8,12 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
-import no.nsd.qddt.repository.QuestionItemRepository
-import no.nsd.qddt.repository.ResponseDomainRepository
+import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.projection.PublicationStatusItem
 import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.hibernate.Hibernate
@@ -20,7 +21,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.data.jpa.repository.support.JpaRepositoryFactory
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
@@ -30,22 +30,16 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
-open class EntityAuditTrailListener
-    (
-    private var applicationContext: ApplicationContext? = null,
-    private var factory: ProjectionFactory? = null,
-    private var entityManager: EntityManager? = null
-)
-{
-//    @Autowired
-//    var applicationContext: ApplicationContext?=null
-//    @Autowired
-//    var factory: ProjectionFactory?=null
-//    @Autowired
-//    var entityManager: EntityManager?=null
+class EntityAuditTrailListener{
 
 
-    private val jpaFactory get() = JpaRepositoryFactory(entityManager!!)
+    @Autowired
+    private val factory: ProjectionFactory? = null
+
+    @Autowired
+    private val applicationContext: ApplicationContext? = null
+
+    private val repLoaderService get() = applicationContext?.getBean("repLoaderService") as RepLoaderService
 
     private val publicationStatusService get() = applicationContext?.getBean("publicationStatusService") as PublicationStatusService
 
@@ -186,54 +180,59 @@ open class EntityAuditTrailListener
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
         log.debug("AfterLoad [{}] {} : ({})" , entity.classKind, entity.name, entity.modified)
-        entity.comments.size
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
         when (entity) {
             is QuestionConstruct -> {
                 if (entity.questionItem == null && entity.questionId?.id != null) {
-                    log.debug("AfterLoad of QC -> loading QI")
-                    jpaFactory.getRepository(QuestionItemRepository::class.java).let {
-                        entity.questionItem = loadRevisionEntity(entity.questionId!!,it)
+                    repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
+                        entity.questionItem =  loadRevisionEntity(entity.questionId!!, it)
                         afterLoad(entity.questionItem!!)
                     }
                 }
                 entity.universe.size
                 entity.controlConstructInstructions.size
+                entity.comments.size
             }
             is QuestionItem -> {
                 if (entity.response == null && entity.responseId?.id != null) {
-                    log.debug("AfterLoad of Qi -> loading RD")
-
-                    jpaFactory.getRepository(ResponseDomainRepository::class.java).let {
-                        entity.response = loadRevisionEntity(entity.responseId!!,it)
+                    repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN).let {
+                        entity.response =  loadRevisionEntity(entity.responseId!!, it)
                         afterLoad(entity.response!!)
-                        entity.responseDomain = this.factory!!.createProjection(ResponseDomainListe::class.java,entity.response!!)
+//                        entity.responseDomain = this.factory!!.createProjection(ResponseDomainListe::class.java,entity.response!!)
                     }
                 }
+                entity.comments.size
+
             }
             is ResponseDomain -> {
+                AbstractRestController.logger.debug("[populateCatCodes] {}", entity.name)
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
-                log.debug("AfterLoad [...] {} : {}", entity.name, entity.codes.joinToString { it.value })
+                entity.comments.size
 
             }
             is Category -> {
-                entity.children.size
+                if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                    entity.children.size
             }
             is Concept ->{
                 entity.questionItems.size
                 entity.children.size
+                entity.comments.size
             }
             is TopicGroup -> {
                 entity.questionItems.size
                 entity.otherMaterials.size
+                entity.comments.size
             }
             is Study -> {
                 entity.instruments.size
+                entity.comments.size
             }
             is Publication -> {
+                entity.comments.size
                 entity.status = publicationStatusService.getStatus(entity.statusId)
                 entity.status?.let {
                     log.debug(
@@ -247,6 +246,7 @@ open class EntityAuditTrailListener
 
             }
             else -> {
+                entity.comments.size
                 log.debug("AfterLoad [{}] {} : (no post loading)", entity.classKind , entity.name)
             }
         }

@@ -16,20 +16,20 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 interface CategoryRepository : BaseMixedRepository<Category>  {
 
     @Query(nativeQuery = true,
-        value =
-        """SELECT ca.* FROM category ca WHERE 
-            ( ca.xml_lang ILIKE :xmlLang 
-            AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) 
-            AND (ca.name ILIKE searchStr(cast(:name AS text))
-                OR ca.label ILIKE searchStr(cast(:label AS text))
-                OR ca.description ILIKE searchStr(cast(:description AS text)) )) """,
-        countQuery =
-        """SELECT count(ca.*) FROM category ca WHERE 
-            ( ca.xml_lang ILIKE :xmlLang 
-            AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) 
-            AND (ca.name ILIKE searchStr(cast(:name AS text))
-                OR ca.label ILIKE searchStr(cast(:label AS text))
-                OR ca.description ILIKE searchStr(cast(:description AS text)) )) """
+        value = """
+    SELECT ca.* FROM category ca 
+    WHERE ( ca.xml_lang ILIKE :xmlLang 
+        AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) 
+        AND (ca.name ILIKE searchStr(cast(:name AS text))
+        OR ca.label ILIKE searchStr(cast(:label AS text))
+        OR ca.description ILIKE searchStr(cast(:description AS text)) )) """,
+        countQuery = """
+    SELECT count(ca.*) FROM category ca 
+    WHERE ( ca.xml_lang ILIKE :xmlLang 
+        AND (:categoryKind is null OR ca.category_kind = cast(:categoryKind AS text)) 
+        AND (ca.name ILIKE searchStr(cast(:name AS text))
+        OR ca.label ILIKE searchStr(cast(:label AS text))
+        OR ca.description ILIKE searchStr(cast(:description AS text)) )) """
     )
     fun findByQuery(
         @Param("xmlLang") xmlLang: String?,
