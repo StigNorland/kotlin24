@@ -29,4 +29,5 @@ object StackTraceFilter {
         }
         return nsdStack().stream().anyMatch(ps)
     }
+
 }

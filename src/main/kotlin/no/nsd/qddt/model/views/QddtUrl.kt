@@ -1,4 +1,4 @@
-package no.nsd.qddt.model
+package no.nsd.qddt.model.views
 
 import org.hibernate.annotations.Type
 import java.util.*

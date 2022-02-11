@@ -39,7 +39,7 @@ class TopicController(
     }
 
 //    @Transactional(propagation = Propagation.REQUIRED)
-//    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+//    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json."])
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/topicgroup/revisions/{uri}", produces = ["application/hal+json"])
     @ResponseBody

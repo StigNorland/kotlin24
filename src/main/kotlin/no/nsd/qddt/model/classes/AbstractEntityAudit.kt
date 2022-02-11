@@ -95,7 +95,7 @@ abstract class AbstractEntityAudit(
 
     @NotAudited
     @OrderColumn(name = "ownerIdx")
-    @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.LAZY, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
 
 

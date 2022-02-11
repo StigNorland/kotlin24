@@ -24,6 +24,5 @@ interface CategoryListe: IAbstractEntityViewList {
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
     fun getUserAgencyName(): String
 
-    @Value(value = "#{target.children }")
-    fun  getChildren() : MutableList<ManagedRepresentationChildren>
+
 }

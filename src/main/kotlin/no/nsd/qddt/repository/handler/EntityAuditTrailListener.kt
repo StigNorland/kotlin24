@@ -1,5 +1,6 @@
 package no.nsd.qddt.repository.handler
 
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.controller.AbstractRestController
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
@@ -186,9 +187,11 @@ class EntityAuditTrailListener{
         when (entity) {
             is QuestionConstruct -> {
                 if (entity.questionItem == null && entity.questionId?.id != null) {
-                    repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
-                        entity.questionItem =  loadRevisionEntity(entity.questionId!!, it)
-                        afterLoad(entity.questionItem!!)
+                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("findById")  } != null) {
+                        repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
+                            entity.questionItem = loadRevisionEntity(entity.questionId!!, it)
+                            afterLoad(entity.questionItem!!)
+                        }
                     }
                 }
                 entity.universe.size
@@ -197,21 +200,19 @@ class EntityAuditTrailListener{
             }
             is QuestionItem -> {
                 if (entity.response == null && entity.responseId?.id != null) {
-                    repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN).let {
-                        entity.response =  loadRevisionEntity(entity.responseId!!, it)
-                        afterLoad(entity.response!!)
-//                        entity.responseDomain = this.factory!!.createProjection(ResponseDomainListe::class.java,entity.response!!)
+                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("findById")  } != null) {
+                        repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN).let {
+                            entity.response = loadRevisionEntity(entity.responseId!!, it)
+                            afterLoad(entity.response!!)
+                        }
                     }
                 }
                 entity.comments.size
-
             }
             is ResponseDomain -> {
-                AbstractRestController.logger.debug("[populateCatCodes] {}", entity.name)
+                log.debug("[populateCatCodes] {}", entity.name)
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
-                entity.comments.size
-
             }
             is Category -> {
                 if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
@@ -246,7 +247,7 @@ class EntityAuditTrailListener{
 
             }
             else -> {
-                entity.comments.size
+//                entity.comments.size
                 log.debug("AfterLoad [{}] {} : (no post loading)", entity.classKind , entity.name)
             }
         }
@@ -322,7 +323,9 @@ class EntityAuditTrailListener{
             if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
                 tmpList.add((current.code?:Code("")))
             }
-            current.children.forEach {  tmpList.addAll(harvestCatCodes(it)) }
+            if (current.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
+                current.children.forEach { tmpList.addAll(harvestCatCodes(it)) }
+            }
             return tmpList
         }
 
@@ -333,7 +336,6 @@ class EntityAuditTrailListener{
 
             if (current.hierarchyLevel == HierarchyLevel.ENTITY) {
                 try {
-//                log.debug(codes[index].toString())
                     current.code = codes[index++]
                 } catch (iob: IndexOutOfBoundsException) {
                     current.code = Code()
@@ -342,8 +344,11 @@ class EntityAuditTrailListener{
                     current.code = Code()
                 }
             }
-            current.children.forEach {
-                index = populateCatCodes(it, index, codes)
+            if (current.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
+                current.children.forEach {
+                    log.debug("popCoding")
+                    index = populateCatCodes(it, index, codes)
+                }
             }
             return index
         }

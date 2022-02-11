@@ -1,8 +1,7 @@
 package no.nsd.qddt.service
 
-import no.nsd.qddt.model.QddtUrl
+import no.nsd.qddt.model.views.QddtUrl
 import no.nsd.qddt.repository.SearchRepository
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service

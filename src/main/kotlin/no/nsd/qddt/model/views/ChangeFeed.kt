@@ -1,5 +1,6 @@
-package no.nsd.qddt.model
+package no.nsd.qddt.model.views
 
+import no.nsd.qddt.model.User
 import no.nsd.qddt.model.enums.ActionKind
 import org.hibernate.annotations.Immutable
 import java.sql.Timestamp

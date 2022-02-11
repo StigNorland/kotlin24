@@ -39,18 +39,16 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     @Autowired
     private val factory: ProjectionFactory? = null
 
-//    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/responsedomain/revision/{uri}", produces = ["application/hal+json"])
+    @ResponseBody
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @GetMapping("/responsedomain/revisions/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+    @GetMapping("/responsedomain/revisions/{uri}", produces = ["application/hal+json."])
     @ResponseBody
-    override fun getRevisions(
-        @PathVariable uri: UUID,
-        pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<ResponseDomain>>> {
+    override fun getRevisions(@PathVariable uri: UUID,pageable: Pageable): PagedModel<RepresentationModel<EntityModel<ResponseDomain>>> {
         return super.getRevisions(uri, pageable)
     }
 
@@ -95,7 +93,6 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         }
     }
 
-    @ResponseBody
     @Modifying
     @PostMapping("/responsedomain")
     fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
@@ -159,9 +156,6 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         var _index = 0
         populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
-        entity.managedRepresentation?.children?.forEach {
-            it.children.size
-        }
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
@@ -183,13 +177,17 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             "${baseUri}/category/revision/${uriId}"
         else
             "${baseUri}/category/${uriId.id}"
-        entity.children.size
+        val children = when (entity.hierarchyLevel) {
+            HierarchyLevel.GROUP_ENTITY -> {
+                entity.children.size
+                entity.children.map { entityModelBuilder(it) }
+            }
+            else -> mutableListOf()
+        }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.children.map {
-                entityModelBuilder(it)
-            }, LinkRelation.of("children"))
+            .embed(children, LinkRelation.of("children"))
             .build()
     }
 

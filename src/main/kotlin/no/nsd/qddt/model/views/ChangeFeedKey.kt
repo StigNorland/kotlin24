@@ -1,4 +1,4 @@
-package no.nsd.qddt.model
+package no.nsd.qddt.model.views
 import no.nsd.qddt.model.enums.ActionKind
 import java.io.Serializable
 import java.util.*

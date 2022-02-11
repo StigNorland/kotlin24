@@ -33,6 +33,7 @@ data class QuestionItem(
   override var name: String =""
 ) :AbstractEntityAudit() {
 
+
   @Column(length = 2000)
   var question:String=""
 

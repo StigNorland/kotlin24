@@ -1,6 +1,6 @@
 package no.nsd.qddt.repository
-import no.nsd.qddt.model.ChangeFeed
-import no.nsd.qddt.model.ChangeFeedKey
+import no.nsd.qddt.model.views.ChangeFeed
+import no.nsd.qddt.model.views.ChangeFeedKey
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

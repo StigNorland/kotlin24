@@ -142,36 +142,18 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
 
     @OrderColumn(name = "category_idx")
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     var children: MutableList<Category> =  mutableListOf()
-//    get() {
-//        return if (categoryKind == CategoryKind.SCALE) {
-//            if (field.isEmpty()) {
-//                logger.error("getChildren() is 0/NULL")
-//                return field
-//            }
-//            field.stream().filter { obj: Category? -> Objects.nonNull(obj) }
-//                .sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") })
-//                .toList() as MutableList<Category>
-//        } else
-//            field.stream()
-//                .filter { obj: Category? -> Objects.nonNull(obj) }
-//                .toList() as MutableList<Category>
-//        }
-//    set(value) {
-//        field = when (categoryKind) {
-//            CategoryKind.SCALE ->
-//                value.stream().sorted(Comparator.comparing { obj: Category -> obj.code?:Code("") }).collect(Collectors.toList())
-//            else ->
-//                value
-//        }
-//    }
+        get() = when(hierarchyLevel){
+            HierarchyLevel.GROUP_ENTITY -> field
+            else -> mutableListOf()
+        }
 
 
     fun addChildren(entity: Category): Category {
-        children.add(entity)
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("Added [${entity.name}]")
+        this.children.add(entity)
+        this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        this.changeComment =  String.format("Added [${entity.name}]")
         return entity
     }
 
@@ -182,16 +164,25 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @JsonIgnore
     fun isValid(): Boolean
     {
-        return if (hierarchyLevel == HierarchyLevel.ENTITY) when (categoryKind) {
-            CategoryKind.DATETIME, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.BOOLEAN -> children.size == 0 && inputLimit.valid()
-            CategoryKind.CATEGORY -> children.size == 0 && label.trim { it <= ' ' }
-                .isNotEmpty() && name.trim { it <= ' ' }
-                .isNotEmpty()
-            else -> false
+        return if (hierarchyLevel == HierarchyLevel.ENTITY) {
+            when (categoryKind) {
+                CategoryKind.DATETIME,
+                CategoryKind.TEXT,
+                CategoryKind.NUMERIC,
+                CategoryKind.BOOLEAN ->
+                    inputLimit.valid()
+                CategoryKind.CATEGORY ->
+                    label.trim { it <= ' ' }.isNotEmpty() && name.trim { it <= ' ' }.isNotEmpty()
+                else -> false
+            }
         } else when (categoryKind) {
-            CategoryKind.MISSING_GROUP, CategoryKind.LIST -> children.size > 0 && inputLimit.valid() && classificationLevel != null
-            CategoryKind.SCALE -> children.size >= 2 && inputLimit.valid() && classificationLevel != null
-            CategoryKind.MIXED -> children.size >= 2 && classificationLevel != null
+            CategoryKind.MISSING_GROUP,
+            CategoryKind.LIST ->
+                children.size > 0 && inputLimit.valid() && classificationLevel != null
+            CategoryKind.SCALE ->
+                children.size >= 2 && inputLimit.valid() && classificationLevel != null
+            CategoryKind.MIXED ->
+                children.size >= 2 && classificationLevel != null
             else -> false
         }
     }
@@ -218,7 +209,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     override fun xmlBuilder() = CategoryFragmentBuilder(this)
 
     override fun compareTo(other: Category): Int {
-        var i = other.agency.let { this.agency.compareTo(it) }
+        var i = other.agencyId.let { this.agencyId?.compareTo(it) ?: 0 }
         if (i != 0) return i
         i = hierarchyLevel.compareTo(other.hierarchyLevel)
         if (i != 0) return i

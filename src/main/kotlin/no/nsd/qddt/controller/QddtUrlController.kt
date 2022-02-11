@@ -1,6 +1,6 @@
 //package no.nsd.qddt.controller
 //
-//import no.nsd.qddt.model.QddtUrl
+//import no.nsd.qddt.model.views.QddtUrl
 //import no.nsd.qddt.service.SearchService
 //import org.springframework.beans.factory.annotation.Autowired
 //import org.springframework.http.HttpStatus

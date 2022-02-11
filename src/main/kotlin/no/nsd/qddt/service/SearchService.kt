@@ -1,6 +1,6 @@
 package no.nsd.qddt.service
 
-import no.nsd.qddt.model.QddtUrl
+import no.nsd.qddt.model.views.QddtUrl
 import java.util.*
 
 /**

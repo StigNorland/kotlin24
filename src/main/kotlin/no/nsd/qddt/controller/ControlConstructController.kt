@@ -4,12 +4,20 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.config.exception.FileUploadException
 import no.nsd.qddt.model.*
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService
+import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
+import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -55,13 +63,14 @@ class ControlConstructController(@Autowired repository: ControlConstructReposito
         return repository.save(instance)
     }
 
+    @ResponseBody
     @Modifying
     @PostMapping(value = ["/controlconstruct/createfile"], headers = ["content-type=multipart/form-data"])
     @Throws(FileUploadException::class, IOException::class)
     fun createWithFile(
         @RequestParam("files") files: Array<MultipartFile>?,
         @RequestParam("controlconstruct") jsonString: String
-    ): ControlConstruct? {
+    ): RepresentationModel<EntityModel<ControlConstruct>> {
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
 
@@ -82,7 +91,35 @@ class ControlConstructController(@Autowired repository: ControlConstructReposito
             if (IBasedOn.ChangeKind.CREATED == instance.changeKind) instance.changeKind =
                 IBasedOn.ChangeKind.TO_BE_DELETED
         }
-        return repository.save(instance)
+        return   entityModelBuilder(repository.save(instance))
     }
+
+    fun entityModelBuilder(entity: QuestionConstruct): RepresentationModel<EntityModel<QuestionConstruct>> {
+        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
+        val baseUrl = if (uriId.rev != null)
+            "${baseUri}/questionitem/revision/${uriId}"
+        else
+            "${baseUri}/questionitem/${uriId.id}"
+        Hibernate.initialize(entity.agency)
+        Hibernate.initialize(entity.modifiedBy)
+
+//        val response =
+//            if (entity.responseId != null && responseDomainRepository!= null)
+//                entityModelBuilder(loadRevisionEntity(entity.responseId!!,responseDomainRepository))
+//            else
+//                null
+
+        return HalModelBuilder.halModel()
+            .entity(entity)
+            .link(Link.of(baseUrl))
+            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
+            .build()
+    }
+//
+//    override fun entityModelBuilder(entity: ControlConstruct): RepresentationModel<EntityModel<ControlConstruct>> {
+//        return super.entityModelBuilder(entity)
+//    }
 
 }

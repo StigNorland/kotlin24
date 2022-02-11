@@ -70,7 +70,7 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
 
         return when (entity) {
             is QuestionConstruct -> with (entity.questionId.toString()){
-                return model.add(Link.of("$baseUri/questionitem/revison/$this", "questionItem"))
+                return model.add(Link.of("$baseUri/questionitem/revision/$this", "questionItem"))
             }
             is QuestionItem -> with(entity.responseId.toString()) {
                 return model.add(Link.of("$baseUri/responsedomain/revision/$this", "responseDomain"))

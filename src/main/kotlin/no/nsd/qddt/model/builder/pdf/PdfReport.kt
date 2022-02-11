@@ -42,7 +42,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
 
     protected val LOG: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    private val toc: MutableList<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<String, Int>>> = ArrayList()
+    private val toc: MutableList<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<String, Int>>> = mutableListOf()
 
 //    private val toc: MutableList<MutableMap<String, MutableMap<String, Int>>> = mutableListOf()
 

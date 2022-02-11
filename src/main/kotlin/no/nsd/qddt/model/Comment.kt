@@ -20,7 +20,6 @@ import javax.persistence.*
  * @author Dag Østgulen Heradstveit
  * @author Stig Norland
  */
-//@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Entity
 @Table(name = "comment")
 @EntityListeners(value = [CommentTrailListener::class])
@@ -44,6 +43,7 @@ data class Comment(
 ) : AbstractEntity() {
 
     fun size(): Int {
+        logger.debug("comment size")
         return when {
             comments.isEmpty() -> 0
             else -> comments.stream()

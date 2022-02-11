@@ -139,7 +139,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         logger.debug("entityModelBuilder(T) : {}", entity.name)
         val baseUri = BasicLinkBuilder.linkToCurrentMapping()
 
-        entity.comments.size
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 //        Hibernate.initialize(entity.parent)
@@ -148,7 +147,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
             .link(Link.of("${baseUri}/study/${entity.id}"))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(entity.comments, LinkRelation.of("comments"))
             .build()
     }
 
@@ -190,6 +188,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
         fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId,repository: RevisionRepository<T, UUID, Int>): T {
+            logger.debug("loadRevisionEntity {}", uri )
             return with(uri) {
                 if (rev != null && rev != 0)
                     repository.findRevision(id, rev!!).map {

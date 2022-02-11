@@ -29,7 +29,6 @@ import javax.persistence.*
 @Entity
 @Audited
 @DiscriminatorValue("QUESTION_CONSTRUCT")
-//@EntityListeners(value = [QuestionConstructRefAuditTrailer::class])
 data class QuestionConstruct(
     @Column(name = "description", length = 1500)
     var description: String = ""
@@ -41,7 +40,14 @@ data class QuestionConstruct(
       AttributeOverride(name = "rev",column = Column(name = "questionitem_revision", nullable =true)),
     )
     var questionId: UriId? = null
-  
+
+    @Column(name = "question_name")
+    var questionName: String? = null
+
+    @Column(name = "question_text")
+    var questionText: String? = null
+
+
     @Transient
     @JsonSerialize
     var questionItem: QuestionItem? = null

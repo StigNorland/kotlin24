@@ -6,10 +6,10 @@ import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "questionConstructListe", types = [QuestionConstruct::class])
 interface QuestionConstructListe: IAbstractEntityViewList {
-    @Value(value = "#{target.questionItem?.question.toString() }")
+    @Value(value = "#{ target.questionText?: target.questionItem?.question }")
     fun getQuestionText(): String?
 
-    @Value(value = "#{target.questionItem?.name.toString() }")
+    @Value(value = "#{ target.questionName?: target.questionItem?.name }")
     fun getQuestionName(): String?
 
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")

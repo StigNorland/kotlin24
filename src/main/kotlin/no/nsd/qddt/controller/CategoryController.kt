@@ -3,6 +3,7 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.CategoryRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
@@ -114,9 +115,13 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
             "${baseUri}/category/revision/${uriId}"
         else
             "${baseUri}/category/${uriId.id}"
-
-        entity.comments.size
-        entity.children.size
+        val children = when (entity.hierarchyLevel) {
+            HierarchyLevel.GROUP_ENTITY -> {
+                entity.children.size
+                entity.children.map { entityModelBuilder(it) }
+            }
+            else -> mutableListOf()
+        }
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
@@ -126,10 +131,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(entity.comments, LinkRelation.of("comments"))
-            .embed(entity.children.map {
-                entityModelBuilder(it)
-            }, LinkRelation.of("children"))
+            .embed(children, LinkRelation.of("children"))
             .build()
     }
 }

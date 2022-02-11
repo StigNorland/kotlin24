@@ -2,6 +2,7 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.layout.borders.DottedBorder
 import com.itextpdf.layout.element.Cell
@@ -15,7 +16,9 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryKind
+import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
+import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.utils.StringTool.CapString
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
@@ -68,7 +71,7 @@ data class ResponseDomain(
   **/
   @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE] )
   @JoinColumn(name = "category_id", nullable = false)
-  @JsonDeserialize
+  @JsonSerialize(contentAs = ManagedRepresentation::class)
   var managedRepresentation: Category ? = null
 
 
@@ -131,7 +134,8 @@ data class ResponseDomain(
         null -> retval
         else -> {
           retval.add(current)
-          current.children.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
+          if (current.hierarchyLevel==HierarchyLevel.GROUP_ENTITY)
+            current.children.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
           retval
         }
     }

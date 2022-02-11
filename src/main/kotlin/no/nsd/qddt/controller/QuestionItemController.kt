@@ -3,9 +3,9 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
-import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
@@ -26,8 +26,7 @@ import java.util.*
 
 
 @BasePathAwareController
-class QuestionItemController(@Autowired repository: QuestionItemRepository) :
-    AbstractRestController<QuestionItem>(repository) {
+class QuestionItemController(@Autowired repository: QuestionItemRepository): AbstractRestController<QuestionItem>(repository) {
 
 
     @Autowired
@@ -37,13 +36,14 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
     private val responseDomainRepository: ResponseDomainRepository? = null
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json;charset=UTF-8"])
+    @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json"])
+    @ResponseBody
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/questionitem/revisions/{uuid}", produces = ["application/hal+json;charset=UTF-8"])
+    @GetMapping("/questionitem/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
     override fun getRevisions(
         @PathVariable uuid: UUID,
@@ -59,11 +59,13 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
         return entityModelBuilder(repository.getById(uuid))
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): String {
@@ -112,18 +114,18 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
-//        val response =
-//            if (entity.responseId != null && responseDomainRepository!= null)
-//                entityModelBuilder(loadRevisionEntity(entity.responseId!!,responseDomainRepository))
-//            else
-//                null
+        val response =
+            if (entity.responseId != null && responseDomainRepository!= null && entity.response == null)
+                loadRevisionEntity(entity.responseId!!,responseDomainRepository)
+            else
+                entity.response
 
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(entity.response?.let { entityModelBuilder(it) } ?:"",LinkRelation.of("responseDomain") )
+            .embed(response?.let { entityModelBuilder(it) }?:"",LinkRelation.of("responseDomain") )
             .build()
     }
 
@@ -139,7 +141,8 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository) :
         Hibernate.initialize(entity.managedRepresentation)
 
         entity.managedRepresentation?.children?.forEach {
-            it.children.size
+            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                it.children.size
         }
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
