@@ -6,6 +6,7 @@ import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
@@ -119,6 +120,8 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
                 loadRevisionEntity(entity.responseId!!,responseDomainRepository)
             else
                 entity.response
+        var _index = 0
+        EntityAuditTrailListener.populateCatCodes(response!!.managedRepresentation, _index, response.codes)
 
         return HalModelBuilder.halModel()
             .entity(entity)

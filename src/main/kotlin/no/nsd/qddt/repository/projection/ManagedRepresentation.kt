@@ -22,8 +22,8 @@ interface ManagedRepresentation {
 
     var classKind: String
 
-
-    fun getTest():String  = "managedRepresentation"
+    @Value(value = "'managedRepresentation'")
+    fun getTest():String
 
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long
