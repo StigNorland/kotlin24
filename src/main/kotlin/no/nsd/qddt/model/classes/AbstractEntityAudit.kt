@@ -40,12 +40,12 @@ abstract class AbstractEntityAudit(
     @Column(insertable = false, updatable = false)
     protected var agencyId: UUID? = null,
 
-    @Embedded
     @AttributeOverrides(
-        AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true)),
-        AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true)),
+        AttributeOverride(name = "id", column = Column(name = "based_on_object", nullable = true)),
+        AttributeOverride(name = "rev", column = Column(name = "based_on_revision", nullable = true)),
     )
-    override var basedOn:  UriId? = null,
+    @Embedded
+    override var basedOn: UriId? = null,
 
     @AttributeOverrides(
         AttributeOverride(name = "rev",column = Column(name = "rev"))
@@ -72,14 +72,14 @@ abstract class AbstractEntityAudit(
     @Column(nullable = false)
     override var changeKind: ChangeKind = ChangeKind.CREATED
         set(value) {
-            if (field == ChangeKind.IN_DEVELOPMENT &&
-                (value == ChangeKind.UPDATED_HIERARCHY_RELATION ||
-                 value == ChangeKind.UPDATED_PARENT ||
-                 value == ChangeKind.UPDATED_CHILD)
-            ) {
-                //BUGFIX https://github.com/DASISH/qddt-client/issues/546
-                return
-            }
+//            if (field == ChangeKind.IN_DEVELOPMENT &&
+//                (value == ChangeKind.UPDATED_HIERARCHY_RELATION ||
+//                 value == ChangeKind.UPDATED_PARENT ||
+//                 value == ChangeKind.UPDATED_CHILD)
+//            ) {
+//                //BUGFIX https://github.com/DASISH/qddt-client/issues/546
+//                return
+//            }
             field = value
         }
 

@@ -17,7 +17,7 @@ interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T
 
 
         @Query( nativeQuery = true,
-                value ="""
+            value ="""
             SELECT cc.*  FROM CONTROL_CONSTRUCT cc
             LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id AND qi.rev = cc.questionItem_revision
             WHERE cc.control_construct_kind = :constructKind 

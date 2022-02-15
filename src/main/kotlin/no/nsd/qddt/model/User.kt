@@ -70,6 +70,7 @@ data class User(
         return password
     }
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     private var authorities: MutableCollection<Authority> = mutableListOf()
 

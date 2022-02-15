@@ -1,7 +1,5 @@
 package no.nsd.qddt.repository.handler
 
-import no.nsd.qddt.config.exception.StackTraceFilter
-import no.nsd.qddt.controller.AbstractRestController
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
@@ -16,7 +14,6 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.projection.PublicationStatusItem
-import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,7 +23,6 @@ import org.springframework.data.projection.ProjectionFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 import javax.persistence.*
-
 
 /**
  * @author Stig Norland
@@ -67,9 +63,9 @@ class EntityAuditTrailListener{
             is Category -> {
                 beforeCategoryInsert(entity)
             }
-//            is ResponseDomain -> {
+            is ResponseDomain -> {
 //                persistManagedRep(entity)
-//            }
+            }
             is Study -> {
                 entity.parentIdx
                 beforeStudyInsert(entity)
@@ -79,27 +75,6 @@ class EntityAuditTrailListener{
             }
         }
     }
-
-//    private fun persistManagedRep(entity: ResponseDomain) {
-//        entity.codes = harvestCatCodes(entity.managedRepresentation)
-//        entity.managedRepresentation.let{ manRep ->
-//            manRep.name = entity.name
-//            manRep.changeComment = entity.changeComment
-//            manRep.changeKind = entity.changeKind
-//            manRep.xmlLang = entity.xmlLang
-//            manRep.version = entity.version
-//            manRep.description = entity.getAnchorLabels()
-//            jpaFactory.getRepository(CategoryRepository::class.java).let {
-//                var result = it.save(manRep)
-//                var _index = 0
-//                populateCatCodes(result, _index,entity.codes)
-//            }
-//            entity.responseCardinality = manRep.inputLimit
-//
-//            log.debug("PrePersist - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
-//        }
-//    }
-
 
     @PreUpdate
     private fun preUpdate(entity: AbstractEntityAudit) {
@@ -162,8 +137,17 @@ class EntityAuditTrailListener{
                     log.debug("PreUpdate: {}, value = {}", entity.name, entity.code?.value ?: "NIL")
                 }
                 is ResponseDomain -> {
-                    entity.managedRepresentation!!.version = entity.version
 //                    persistManagedRep(entity)
+                }
+                is QuestionConstruct -> {
+//                    if (entity.questionId?.rev != null && entity.questionName.isNullOrBlank()){
+//                        repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
+//                            with(loadRevisionEntity(entity.questionId!!, it)) {
+//                                entity.questionName = name
+//                                entity.questionText = question
+//                            }
+//                        }
+//                    }
                 }
             }
             log.debug("PreUpdate [{}] {} : (done)", entity.name, entity.id)
@@ -176,6 +160,8 @@ class EntityAuditTrailListener{
     @PostRemove
     private fun afterAnyUpdate(entity: AbstractEntityAudit) {
         log.debug("Add/update/delete complete for entity: {}" , entity.id)
+        Hibernate.initialize(entity.agency)
+        Hibernate.initialize(entity.modifiedBy)
     }
 
     @PostLoad
@@ -207,6 +193,7 @@ class EntityAuditTrailListener{
                         }
                     }
                 }
+                log.debug(entity.basedOn?.toString())
                 entity.comments.size
             }
             is ResponseDomain -> {
@@ -313,7 +300,20 @@ class EntityAuditTrailListener{
          }
     }
 
-
+//    private fun persistManagedRep(entity: ResponseDomain) {
+//        entity.codes = harvestCatCodes(entity.managedRepresentation)
+//        entity.managedRepresentation?.let{ manRep ->
+//            manRep.name = entity.name
+//            manRep.changeComment = entity.changeComment
+//            manRep.changeKind = entity.changeKind
+//            manRep.xmlLang = entity.xmlLang
+//            manRep.version = entity.version
+//            manRep.description = entity.getAnchorLabels()
+////            entity.responseCardinality = manRep.inputLimit
+//            log.debug("PrePersist - harvestCode : {} : {}", entity.name, entity.codes.joinToString { it.value })
+//            manRep
+//        }
+//    }
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)

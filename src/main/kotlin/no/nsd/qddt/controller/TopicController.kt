@@ -135,8 +135,10 @@ class TopicController(
 
 
     @Transactional(propagation = Propagation.NESTED)
-    @PostMapping(
-        "/topicgroup/createfile", headers = ["content-type=multipart/form-data"], produces = ["application/hal+json"]
+    @PostMapping("/topicgroup/createfile",
+        headers = ["content-type=multipart/form-data"],
+        produces = ["application/hal+json"],
+        consumes = ["multipart/form-data"]
     )
     fun createWithFile(
         @RequestParam("files") multipartFiles: Array<MultipartFile>?,

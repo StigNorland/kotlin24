@@ -202,12 +202,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             manRep.xmlLang = entity.xmlLang
             manRep.version = entity.version
             manRep.description = entity.getAnchorLabels()
-            if (entity.responseKind == ResponseKind.LIST) {
-                manRep.inputLimit = entity.responseCardinality
-            } else {
-                entity.responseCardinality = manRep.inputLimit
-            }
-//            val result = categoryRepository!!.save(manRep)
+//            entity.responseCardinality = manRep.inputLimit
             manRep
         }
         logger.debug("persistManagedRep[1] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })

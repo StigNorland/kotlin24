@@ -1,8 +1,10 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IParentRef
@@ -31,6 +33,9 @@ abstract class ConceptHierarchy (
             return field ?: name
         }
 
+    @JsonSerialize
+    @Embedded
+    override var basedOn: UriId? = null
 
     @Column(name = "parent_id", insertable = false, updatable = false)
     var parentId: UUID? = null
@@ -44,8 +49,8 @@ abstract class ConceptHierarchy (
     fun childrenAdd(entity: ConceptHierarchy): ConceptHierarchy {
         entity.parent = this
         children.add(children.size, entity)
-        changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        changeComment =  String.format("Added [${entity.name}]")
+        super.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+        super.changeComment =  String.format("Added [${entity.name}]")
         return entity
     }
 

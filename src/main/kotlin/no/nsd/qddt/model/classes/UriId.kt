@@ -10,7 +10,7 @@ import javax.persistence.Embeddable
  * @author Stig Norland
  */
 @Embeddable
-class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
+class UriId : Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
 
     lateinit var id: UUID
 

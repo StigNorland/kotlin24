@@ -36,14 +36,14 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     @Autowired
     private val responseDomainRepository: ResponseDomainRepository? = null
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/revision/{uri}", produces = ["application/hal+json"])
     @ResponseBody
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
     override fun getRevisions(
@@ -54,26 +54,26 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @GetMapping("/questionitem/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
         return entityModelBuilder(repository.getById(uuid))
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): String {
         return super.getXml(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @Modifying
     @PutMapping("/questionitem/{uuid}",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
@@ -93,7 +93,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @Modifying
     @PostMapping("/questionitem",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])

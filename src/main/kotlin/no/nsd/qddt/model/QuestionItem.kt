@@ -33,6 +33,9 @@ data class QuestionItem(
   override var name: String =""
 ) :AbstractEntityAudit() {
 
+  @JsonSerialize
+  @Embedded
+  override var basedOn: UriId? = null
 
   @Column(length = 2000)
   var question:String = ""
@@ -49,6 +52,7 @@ data class QuestionItem(
   )
   var responseId: UriId? = null
 
+  @Column(name="responsedomain_name")
   var responseName: String = ""
 
   @JsonIgnore

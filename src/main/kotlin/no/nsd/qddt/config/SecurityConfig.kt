@@ -72,7 +72,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         val config = CorsConfiguration()
         logger.info(origin)
         config.allowCredentials = true
-        config.allowedOriginPatterns =  listOf("https://*.nsd.no","http://localhost","http://localhost:4200" )
+        config.allowedOriginPatterns =  origin.split(",")
         config.addAllowedHeader("*")
         config.allowedMethods = listOf("*") // listOf("GET", "DELETE", "POST", "OPTIONS")
         source.registerCorsConfiguration("/**", config)

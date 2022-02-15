@@ -36,7 +36,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     @ResponseBody
     @GetMapping("/sequence/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
-        return entityModelBuilder(repository.getById(uuid) as Sequence)
+        return entityModelBuilder(repository.getById(uuid))
     }
 
     @ResponseBody
