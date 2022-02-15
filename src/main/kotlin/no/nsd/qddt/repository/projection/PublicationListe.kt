@@ -6,7 +6,6 @@ import org.springframework.data.rest.core.config.Projection
 
 @Projection(name = "publicationListe", types = [Publication::class])
 interface PublicationListe: IAbstractEntityViewList {
-    var label: String
     var statusId: Long
 
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")

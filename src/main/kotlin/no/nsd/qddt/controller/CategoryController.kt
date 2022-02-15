@@ -36,7 +36,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<Category>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uri, pageable)
     }
 

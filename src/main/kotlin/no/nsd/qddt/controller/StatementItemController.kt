@@ -3,7 +3,7 @@ package no.nsd.qddt.controller
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.config.exception.FileUploadException
-import no.nsd.qddt.model.*
+import no.nsd.qddt.model.StatementItem
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.ControlConstructRepository
@@ -12,73 +12,50 @@ import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.util.*
 
 
 @BasePathAwareController
-class ControlConstructController(@Autowired repository: ControlConstructRepository<ControlConstruct>) :
-    AbstractRestController<ControlConstruct>(repository) {
+class StatementItemController(@Autowired repository: ControlConstructRepository<StatementItem>) :
+    AbstractRestController<StatementItem>(repository) {
 
     @Autowired
     lateinit var omService: OtherMaterialService
 
-
+    @Transactional(propagation = Propagation.REQUIRED)
     @ResponseBody
-    @Modifying
-    @PostMapping(value = ["/controlconstruct/condition"])
-    fun update(@RequestBody instance: ConditionConstruct): ConditionConstruct {
-        return repository.save<ConditionConstruct>(instance)
+    @GetMapping("/statementitem/{uuid}", produces = ["application/hal+json"])
+    fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
+        return entityModelBuilder(repository.getById(uuid) as StatementItem)
     }
-
     @ResponseBody
     @Modifying
-    @PostMapping(value = ["/controlconstruct/question"])
-    fun update(@RequestBody instance: QuestionConstruct): QuestionConstruct {
-        return repository.save(instance)
-    }
-
-    @ResponseBody
-    @Modifying
-    @PostMapping(value = ["/controlconstruct/sequence"])
-    fun update(@RequestBody instance: Sequence): Sequence {
-        return repository.save(instance)
-    }
-
-    @ResponseBody
-    @Modifying
-    @PostMapping(value = ["/controlconstruct/statement"])
+    @PostMapping(value = ["/statementitem"])
     fun update(@RequestBody instance: StatementItem): StatementItem {
         return repository.save(instance)
     }
 
     @ResponseBody
     @Modifying
-    @PostMapping(value = ["/controlconstruct/createfile"], headers = ["content-type=multipart/form-data"])
+    @PostMapping(value = ["/statementitem/createfile"], headers = ["content-type=multipart/form-data"])
     @Throws(FileUploadException::class, IOException::class)
     fun createWithFile(
         @RequestParam("files") files: Array<MultipartFile>?,
         @RequestParam("controlconstruct") jsonString: String
-    ): RepresentationModel<EntityModel<ControlConstruct>> {
+    ): RepresentationModel<*> {
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
 
-        val instance: ControlConstruct = if (index > 0) {
-            mapper.readValue(jsonString, QuestionConstruct::class.java)
-        } else {
-            mapper.readValue(jsonString, Sequence::class.java)
-        }
+        val instance = mapper.readValue(jsonString, StatementItem::class.java)
 
         if (files != null && files.isNotEmpty()) {
             logger.info("got new files!!!")
@@ -94,7 +71,8 @@ class ControlConstructController(@Autowired repository: ControlConstructReposito
         return   entityModelBuilder(repository.save(instance))
     }
 
-    fun entityModelBuilder(entity: QuestionConstruct): RepresentationModel<EntityModel<QuestionConstruct>> {
+
+     override fun entityModelBuilder(entity: StatementItem): RepresentationModel<*> {
         val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
         logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
         val baseUrl = if (uriId.rev != null)
@@ -104,11 +82,6 @@ class ControlConstructController(@Autowired repository: ControlConstructReposito
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
-//        val response =
-//            if (entity.responseId != null && responseDomainRepository!= null)
-//                entityModelBuilder(loadRevisionEntity(entity.responseId!!,responseDomainRepository))
-//            else
-//                null
 
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -117,9 +90,6 @@ class ControlConstructController(@Autowired repository: ControlConstructReposito
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
     }
-//
-//    override fun entityModelBuilder(entity: ControlConstruct): RepresentationModel<EntityModel<ControlConstruct>> {
-//        return super.entityModelBuilder(entity)
-//    }
+
 
 }

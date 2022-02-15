@@ -38,15 +38,14 @@ class TopicController(
         return super.getRevision(uri)
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    @GetMapping("/questionitem/revisions/{uri}", produces = ["application/hal+json."])
+
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/topicgroup/revisions/{uri}", produces = ["application/hal+json"])
     @ResponseBody
     override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable,
-    ): PagedModel<RepresentationModel<EntityModel<TopicGroup>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uri, pageable)
     }
 

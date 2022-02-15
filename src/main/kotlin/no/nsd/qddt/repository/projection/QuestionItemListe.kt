@@ -13,7 +13,7 @@ interface QuestionItemListe: IAbstractEntityViewList {
     var question: String
     var intent: String
 
-    @Value(value = "#{target.response?.name}")
+    @Value(value = "#{target.responseName}")
     fun getResponseDomainName(): String
 
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")

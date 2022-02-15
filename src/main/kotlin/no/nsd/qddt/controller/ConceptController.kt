@@ -35,7 +35,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<Concept>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uri, pageable)
     }
 

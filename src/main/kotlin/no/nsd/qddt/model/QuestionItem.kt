@@ -35,10 +35,10 @@ data class QuestionItem(
 
 
   @Column(length = 2000)
-  var question:String=""
+  var question:String = ""
 
   @Column(length = 3000)
-  var intent:String=""
+  var intent:String = ""
 
 
   @Column(insertable = false, updatable = false)
@@ -48,6 +48,8 @@ data class QuestionItem(
     AttributeOverride(name = "rev",column = Column(name = "responsedomain_revision", nullable =true)),
   )
   var responseId: UriId? = null
+
+  var responseName: String = ""
 
   @JsonIgnore
   @Transient

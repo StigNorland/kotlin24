@@ -37,7 +37,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<SurveyProgram>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uri, pageable)
     }
 

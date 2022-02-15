@@ -180,14 +180,14 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        log.debug("AfterLoad [{}] {} : ({})" , entity.classKind, entity.name, entity.modified)
+        log.debug("AfterLoading [{}] {} : ({})" , entity.classKind, entity.name, entity.modified)
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
         when (entity) {
             is QuestionConstruct -> {
                 if (entity.questionItem == null && entity.questionId?.id != null) {
-                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("findById")  } != null) {
+                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
                         repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
                             entity.questionItem = loadRevisionEntity(entity.questionId!!, it)
                             afterLoad(entity.questionItem!!)
@@ -200,7 +200,7 @@ class EntityAuditTrailListener{
             }
             is QuestionItem -> {
                 if (entity.response == null && entity.responseId?.id != null) {
-                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("findById")  } != null) {
+                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
                         repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN).let {
                             entity.response = loadRevisionEntity(entity.responseId!!, it)
                             afterLoad(entity.response!!)
@@ -211,6 +211,7 @@ class EntityAuditTrailListener{
             }
             is ResponseDomain -> {
                 log.debug("[populateCatCodes] {}", entity.name)
+                entity.managedRepresentation?.children?.size
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
             }

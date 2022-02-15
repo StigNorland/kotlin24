@@ -31,7 +31,7 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<Publication>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uri, pageable)
     }
 

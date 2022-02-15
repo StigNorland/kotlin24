@@ -49,7 +49,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     override fun getRevisions(
         @PathVariable uuid: UUID,
         pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<QuestionItem>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
@@ -80,6 +80,10 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     fun putQuestionItem(@PathVariable uuid: UUID, @RequestBody questionItem: QuestionItem): ResponseEntity<*> {
 
         try {
+            if (questionItem.responseName.isBlank() &&(questionItem.responseId != null) && (this.responseDomainRepository != null)) {
+                val response =loadRevisionEntity(questionItem.responseId!!, repository = this.responseDomainRepository)
+                questionItem.responseName = response.name
+            }
 
             val saved = repository.save(questionItem)
 
@@ -96,6 +100,10 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     fun postQuestionItem(@RequestBody questionItem: QuestionItem): ResponseEntity<*> {
 
         try {
+            if (questionItem.responseName.isBlank() &&(questionItem.responseId != null) && (this.responseDomainRepository != null)) {
+                val response =loadRevisionEntity(questionItem.responseId!!, repository = this.responseDomainRepository)
+                questionItem.responseName = response.name
+            }
 
             val saved = repository.save(questionItem)
 
@@ -116,13 +124,16 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
         Hibernate.initialize(entity.modifiedBy)
 
         val response =
-            if (entity.responseId != null && responseDomainRepository!= null && entity.response == null)
-                loadRevisionEntity(entity.responseId!!,responseDomainRepository)
-            else
+            if ((entity.responseId != null) && (this.responseDomainRepository != null) && (entity.response == null)) {
+                loadRevisionEntity(entity.responseId!!, repository = this.responseDomainRepository)
+            } else {
                 entity.response
+            }
         var _index = 0
-        EntityAuditTrailListener.populateCatCodes(response!!.managedRepresentation, _index, response.codes)
-
+        if (response?.managedRepresentation != null) {
+            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
+//            entity.responseName = response.name
+        }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))

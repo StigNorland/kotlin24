@@ -3,15 +3,11 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
-import no.nsd.qddt.repository.CategoryRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
-import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.harvestCatCodes
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.populateCatCodes
-import no.nsd.qddt.repository.projection.CategoryListe
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
@@ -46,10 +42,14 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         return super.getRevision(uri)
     }
 
-    @GetMapping("/responsedomain/revisions/{uri}", produces = ["application/hal+json."])
+//    @Transactional(propagation = Propagation.REQUIRED)
+    @GetMapping("/responsedomain/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
-    override fun getRevisions(@PathVariable uri: UUID,pageable: Pageable): PagedModel<RepresentationModel<EntityModel<ResponseDomain>>> {
-        return super.getRevisions(uri, pageable)
+    override fun getRevisions(
+        @PathVariable uuid: UUID,
+        pageable: Pageable
+    ): RepresentationModel<*>? {
+        return super.getRevisions(uuid, pageable)
     }
 
 //    @Transactional(propagation = Propagation.REQUIRED)
@@ -119,13 +119,13 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         }
     }
 
-//    @Transactional
-//    @ResponseBody
-//    @GetMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
-//    fun getResponseDomain(@PathVariable uri: UUID):  RepresentationModel<*> {
-////        logger.debug("getResponseDomain - harvestCode : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
-//        return entityModelBuilder(repository.findById(uri).orElseThrow())
-//    }
+    @Transactional
+    @ResponseBody
+    @GetMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
+    fun getResponseDomain(@PathVariable uri: UUID):  RepresentationModel<*> {
+//        logger.debug("getResponseDomain - harvestCode : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
+        return entityModelBuilder(repository.findById(uri).orElseThrow())
+    }
 
 //    @Transactional
     @ResponseBody

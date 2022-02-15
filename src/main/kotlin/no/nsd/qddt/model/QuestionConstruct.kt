@@ -10,6 +10,7 @@ package no.nsd.qddt.model
 // import org.hibernate.envers.Audited
 // import javax.persistence.*
 // import kotlin.streams.toList
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
@@ -49,7 +50,7 @@ data class QuestionConstruct(
 
 
     @Transient
-    @JsonSerialize
+    @JsonIgnore
     var questionItem: QuestionItem? = null
 
     @JsonSerialize

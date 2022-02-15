@@ -35,7 +35,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     override fun getRevisions(
         @PathVariable uri: UUID,
         pageable: Pageable
-    ): PagedModel<RepresentationModel<EntityModel<Study>>> {
+    ): RepresentationModel<*>? {
         return super.getRevisions(uri, pageable)
     }
 

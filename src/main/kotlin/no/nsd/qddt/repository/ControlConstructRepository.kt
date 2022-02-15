@@ -16,42 +16,43 @@ import java.util.*
 interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T>{
 
 
-        @Query(
-            value = "SELECT cc.* FROM CONTROL_CONSTRUCT cc " +
-                    "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
-                    "WHERE cc.control_construct_kind = cast(:constructKind AS text) " +
-                    "AND cc.xml_lang ILIKE :xmlLang " +
-                    "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text)) " +
-                    "AND ( cc.label ILIKE searchStr(cast(:label AS text)) " +
-                    "OR cc.name ILIKE searchStr(cast(:name AS text)) " +
-                    "OR cc.description ILIKE searchStr(cast(:description AS text)) " +
-                    "OR qi.name ILIKE searchStr(cast(:questionName AS text)) " +
-                    "OR qi.question ILIKE searchStr(cast(:questionText AS text)) " +
-                    ") )",
-            countQuery = "SELECT count(cc.*) FROM CONTROL_CONSTRUCT cc " +
-                    "LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id  AND  qi.rev = cc.questionItem_revision " +
-                    "WHERE cc.control_construct_kind =  cast(:constructKind AS text) " +
-                    "AND cc.xml_lang ILIKE :xmlLang " +
-                    "AND( (:superKind is null OR cc.control_construct_super_kind = cast(:superKind AS text)) " +
-                    "AND ( cc.label ILIKE searchStr(cast(:label AS text)) " +
-                    "or cc.name ILIKE searchStr(cast(:name AS text)) " +
-                    "or cc.description ILIKE searchStr(cast(:description AS text)) " +
-                    "OR qi.name ILIKE searchStr(cast(:questionName AS text)) " +
-                    "OR qi.question ILIKE searchStr(cast(:questionText AS text)) " +
-                    ") )",
-            nativeQuery = true
+        @Query( nativeQuery = true,
+                value ="""
+            SELECT cc.*  FROM CONTROL_CONSTRUCT cc
+            LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id AND qi.rev = cc.questionItem_revision
+            WHERE cc.control_construct_kind = :constructKind 
+                AND cc.xml_lang ILIKE :xmlLang
+                AND ( :superKind IS NULL OR cc.CONTROL_CONSTRUCT_SUPER_KIND = cast(:superKind as TEXT) )
+                AND ( cc.label ILIKE searchStr(cast(:label AS TEXT))
+                    OR cc.name ILIKE searchStr(cast(:name AS TEXT))
+                    OR cc.description ILIKE searchStr(cast(:description AS TEXT))
+                    OR (qi.name is null or  qi.name ILIKE searchStr(cast(:questionName AS TEXT)))
+                    OR (qi.question is null or qi.question ILIKE searchStr(cast(:questionText AS TEXT))) )                
+""",
+            countQuery = """
+            SELECT count(cc.*) FROM CONTROL_CONSTRUCT cc
+            LEFT JOIN AUDIT.QUESTION_ITEM_AUD qi ON qi.id = cc.questionItem_id AND qi.rev = cc.questionItem_revision
+            WHERE cc.control_construct_kind = :constructKind 
+                AND cc.xml_lang ILIKE :xmlLang
+                AND ( :superKind IS NULL OR cc.control_construct_super_kind = cast(:superKind as TEXT) )
+                AND ( cc.label ILIKE searchStr(cast(:label AS TEXT))
+                    OR cc.name ILIKE searchStr(cast(:name AS TEXT))
+                    OR cc.description ILIKE searchStr(cast(:description AS TEXT))
+                    OR (qi.name is null or  qi.name ILIKE searchStr(cast(:questionName AS TEXT)))
+                    OR (qi.question is null or qi.question ILIKE searchStr(cast(:questionText AS TEXT))) )                
+"""
         )
-        fun <S : ControlConstruct?> findByQuery(
+        fun <S : ControlConstruct> findByQuery(
             @Param("constructKind") constructKind: String,
+            @Param("xmlLang") xmlLang: String,
             @Param("superKind") superKind: String?,
-            @Param("label") label: String?="%",
-            @Param("name") name: String?="%",
-            @Param("description") desc: String?="%",
-            @Param("questionName") questionName: String?="%",
-            @Param("questionText") questionText: String?="%",
-            @Param("xmlLang") xmlLang: String?="%",
-            pageable: Pageable?
-        ): Page<S>?
+            @Param("label") label: String?="*",
+            @Param("name") name: String?="*",
+            @Param("description") description: String?="*",
+            @Param("questionName") questionName: String?="*",
+            @Param("questionText") questionText: String?="*",
+            pageable: Pageable
+        ): Page<S>
 
 
         @Modifying
