@@ -49,7 +49,7 @@ data class Sequence(
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "universe_idx")
     @JoinTable(
-        name = "CONTROL_CONSTRUCT_UNIVERSE",
+        name = "control_construct_universe",
         joinColumns = [JoinColumn(name = "question_construct_id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "universe_id", referencedColumnName = "id")]
     )

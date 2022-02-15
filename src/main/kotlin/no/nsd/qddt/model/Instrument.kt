@@ -30,17 +30,11 @@ data class Instrument(
 
 ) : AbstractEntityAudit() {
 
-//    @Column(insertable = false, updatable = false)
-//    var studyId: UUID? = null
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     lateinit var study: Study
 
-//    @JsonIgnore
-//    @ManyToOne
-//    @JoinColumn(name="studyId")
-//    var study: Study? = null
+
 
     var label: String = ""
         protected set(value) {
@@ -62,7 +56,7 @@ data class Instrument(
     // @JoinColumn(name = "study_id", updatable = false)
 
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE])
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST])
     var root: InstrumentNode<*>? = null
 
 

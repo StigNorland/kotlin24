@@ -15,7 +15,7 @@ class PublicationCriteria {
     var xmlLang: String? = null
 
     fun getAngencyId(): UUID {
-        return (SecurityContextHolder.getContext().authentication.principal as User).agencyId!!
+        return (SecurityContextHolder.getContext().authentication.principal as User).agency.id
     }
 
     override fun toString(): String {

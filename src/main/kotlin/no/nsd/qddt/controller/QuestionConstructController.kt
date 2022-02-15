@@ -24,6 +24,7 @@ import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -132,6 +133,10 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
 
         val instance =  mapper.readValue(jsonString, QuestionConstruct::class.java)
+            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+            instance.modifiedBy = currentuser
+            instance.agency = currentuser.agency
+
 
         if (files != null && files.isNotEmpty()) {
             logger.info("got new files!!!")
@@ -159,6 +164,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         Hibernate.initialize(entity.modifiedBy)
         entity.otherMaterials.size
         entity.controlConstructInstructions.size
+        entity.preInstructions.size
 
          val question =
              if ((entity.questionId != null) && (this.questionItemRepository != null) && (entity.questionItem == null)) {

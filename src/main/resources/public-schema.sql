@@ -89,8 +89,8 @@ ALTER TABLE "control_construct_instruction" ADD CONSTRAINT fkegws5y6wv32bq8km4sm
 ALTER TABLE "control_construct_instruction" ADD CONSTRAINT fkrt0kg76jwks2bkum9l6ejtl08 FOREIGN KEY ("control_construct_id") REFERENCES "control_construct" ("id");
 ALTER TABLE "control_construct_other_material" ADD CONSTRAINT fkrm5bmk1m2hyguvi7f01xfwicv FOREIGN KEY ("owner_id") REFERENCES "control_construct" ("id");
 ALTER TABLE "control_construct_sequence" ADD CONSTRAINT fk4ki52a2v9d8t8dkfl0osih16l FOREIGN KEY ("sequence_id") REFERENCES "control_construct" ("id");
-ALTER TABLE "control_construct_universe" ADD CONSTRAINT fkhhflivw3pqfljmp6t6bst6sqm FOREIGN KEY ("universe_id") REFERENCES "universe" ("id");
-ALTER TABLE "control_construct_universe" ADD CONSTRAINT fkhqaalg4qmeu4tsar2p2jycc1q FOREIGN KEY ("question_construct_id") REFERENCES "control_construct" ("id");
+ALTER TABLE control_construct_universe ADD CONSTRAINT fkhhflivw3pqfljmp6t6bst6sqm FOREIGN KEY ("universe_id") REFERENCES "universe" ("id");
+ALTER TABLE control_construct_universe ADD CONSTRAINT fkhqaalg4qmeu4tsar2p2jycc1q FOREIGN KEY ("question_construct_id") REFERENCES "control_construct" ("id");
 ALTER TABLE "instruction" ADD CONSTRAINT fkbyh6foaxjav1gaqiua3a1rxbf FOREIGN KEY ("modified_by_id") REFERENCES "user_account" ("id");
 ALTER TABLE "instruction" ADD CONSTRAINT fkh6paf8tqhpm4otsttrtue8kpu FOREIGN KEY ("agency_id") REFERENCES "agency" ("id");
 ALTER TABLE "instrument" ADD CONSTRAINT fkcux2jjuie39aa0yddoac1dix6 FOREIGN KEY ("modified_by_id") REFERENCES "user_account" ("id");

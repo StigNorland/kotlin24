@@ -53,7 +53,7 @@ import kotlin.streams.toList
 @Entity
 @Table(
     name = "CATEGORY",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agencyId"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
+    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agency_id"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
 data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
@@ -209,19 +209,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     override fun xmlBuilder() = CategoryFragmentBuilder(this)
 
     override fun compareTo(other: Category): Int {
-        var i = other.agencyId.let { this.agencyId?.compareTo(it) ?: 0 }
-        if (i != 0) return i
-        i = hierarchyLevel.compareTo(other.hierarchyLevel)
-        if (i != 0) return i
-        i = categoryKind.compareTo(other.categoryKind)
-        if (i != 0) return i
-        i = name.compareTo(other.name)
-        if (i != 0) return i
-        i = label.compareTo(other.label)
-        if (i != 0) return i
-        i = description.compareTo(other.description)
-        if (i != 0) return i
-        i = this.id!!.compareTo(other.id)
+        var i = this.id!!.compareTo(other.id)
         return if (i != 0) i else modified?.compareTo(other.modified)?:0
     }
 

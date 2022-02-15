@@ -36,9 +36,9 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
 @EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
 
-    @JsonIgnore
-    @Column(insertable = false, updatable = false)
-    protected var agencyId: UUID? = null,
+//    @JsonIgnore
+//    @Column(insertable = false, updatable = false)
+//    protected var agencyId: UUID? = null,
 
     @Embedded
     @AttributeOverrides(
@@ -64,7 +64,7 @@ abstract class AbstractEntityAudit(
      */
     @JsonIgnoreProperties("surveyPrograms","users")
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "agencyId")
+    @JoinColumn(name = "AGENCY_ID", updatable = false, nullable = false)
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     override lateinit var agency : Agency
 

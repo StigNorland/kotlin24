@@ -1,7 +1,5 @@
 package no.nsd.qddt.repository.handler
 
-import no.nsd.qddt.config.exception.StackTraceFilter
-import no.nsd.qddt.controller.AbstractRestController
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
@@ -16,7 +14,6 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.projection.PublicationStatusItem
-import no.nsd.qddt.repository.projection.ResponseDomainListe
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -45,7 +42,7 @@ class EntityAuditTrailListener{
     private val publicationStatusService get() = applicationContext?.getBean("publicationStatusService") as PublicationStatusService
 
     @PreRemove
-    private fun beforeAnyUpdate(entity: AbstractEntityAudit) {
+    private fun beforeAnyDelete(entity: AbstractEntityAudit) {
         entity.changeKind = ChangeKind.TO_BE_DELETED
         entity.changeComment = "Deleting..."
         when (entity) {
@@ -53,6 +50,7 @@ class EntityAuditTrailListener{
                 beforeStudyRemove(entity)
             }
         }
+
         log.debug("About to delete entity: {}" , entity.id)
     }
 
@@ -107,7 +105,6 @@ class EntityAuditTrailListener{
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
             with(entity) {
-                agency = user.agency
                 modifiedBy = user
                 var ver: Version? = version
                 var change = changeKind

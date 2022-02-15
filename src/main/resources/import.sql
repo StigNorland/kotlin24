@@ -76,7 +76,7 @@ CREATE VIEW public.allrev (id, rev, revtype, revend, tablename) AS
     control_construct_universe_aud.rev,
     control_construct_universe_aud.revtype,
     control_construct_universe_aud.revend,
-         'control_construct_universe_aud'::text AS tablename
+         'control_construct_universe_aud'::text      AS tablename
   FROM audit.control_construct_universe_aud
   UNION
   SELECT instruction_aud.id,
