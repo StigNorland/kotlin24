@@ -133,6 +133,10 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
 
         val instance =  mapper.readValue(jsonString, QuestionConstruct::class.java)
+            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+            instance.modifiedBy = currentuser
+            instance.agency = currentuser.agency
+
 
         val user = SecurityContextHolder.getContext().authentication.principal as User
         instance.agency = user.agency
@@ -165,6 +169,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         Hibernate.initialize(entity.modifiedBy)
         entity.otherMaterials.size
         entity.controlConstructInstructions.size
+        entity.preInstructions.size
 
          val question =
              if ((entity.questionId != null) && (this.questionItemRepository != null) && (entity.questionItem == null)) {

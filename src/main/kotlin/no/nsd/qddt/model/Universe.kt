@@ -20,7 +20,7 @@ import javax.persistence.UniqueConstraint
 @Table(
     name = "UNIVERSE",
     uniqueConstraints = [UniqueConstraint(
-        columnNames = ["name","description","agencyId"],
+        columnNames = ["name","description","agency_id"],
         name = "UNQ_universe_name"
     )]                                                      //https://github.com/DASISH/qddt-client/issues/606
 )
@@ -56,7 +56,7 @@ data class Universe(override var name: String = ""):AbstractEntityAudit() {
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified , classKind = $classKind )"
     }
 
 }

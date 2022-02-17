@@ -1,6 +1,7 @@
 package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
 
@@ -23,9 +24,12 @@ interface TopicGroupListe : IAbstractEntityViewList {
     @Value(value = "#{target.modifiedBy.username  + '@' + target.modifiedBy.agency?.name }")
     fun getModifiedBy(): String?
 
+    @Value(value = "#{target.questionItems }")
+    fun getQuestionItems(): MutableList<ElementRefQuestionItem>
+
     @Value(value = "#{target.comments }")
     fun getComments(): List<CommentListe>
-//    var children: List<ConceptListe>
+
 
 }
 

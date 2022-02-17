@@ -25,8 +25,8 @@ data class User(
 
     private var username : String = "?",
 
-    @Column(nullable = false)
-    var agencyId: UUID? = null,
+//    @Column(nullable = false)
+//    var agencyId: UUID? = null,
 
     @JsonSerialize
     @JsonFormat
@@ -88,7 +88,7 @@ data class User(
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "agencyId", insertable = false, updatable =  false)
+    @JoinColumn(name = "agency_id", insertable = false, updatable =  false)
     lateinit var agency : Agency
 
 

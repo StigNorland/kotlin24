@@ -10,8 +10,9 @@ import javax.persistence.*
  */
 @Audited
 @Embeddable
-class ControlConstructInstruction : Serializable {
-    @ManyToOne(cascade = [CascadeType.DETACH, CascadeType.MERGE], fetch = FetchType.EAGER)
+class ControlConstructInstruction() : Serializable {
+
+    @ManyToOne(optional=false, fetch = FetchType.EAGER)
     lateinit var instruction: Instruction
 
     @Enumerated(EnumType.STRING)

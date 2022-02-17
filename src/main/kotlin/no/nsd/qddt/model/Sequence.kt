@@ -49,7 +49,7 @@ data class Sequence(
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "universe_idx")
     @JoinTable(
-        name = "CONTROL_CONSTRUCT_UNIVERSE",
+        name = "control_construct_universe",
         joinColumns = [JoinColumn(name = "question_construct_id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "universe_id", referencedColumnName = "id")]
     )
@@ -136,7 +136,7 @@ data class Sequence(
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified , classKind = $classKind )"
     }
 
 }

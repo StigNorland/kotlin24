@@ -1,24 +1,16 @@
 package no.nsd.qddt.model
 
-// import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
-// import no.nsd.qddt.model.builder.pdf.PdfReport
-// import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-// import no.nsd.qddt.model.embedded.ElementRefQuestionItem
-// import no.nsd.qddt.model.enums.ControlConstructInstructionRank
-// import no.nsd.qddt.model.enums.ElementKind
-// import no.nsd.qddt.repository.handler.QuestionConstructRefAuditTrailer
-// import org.hibernate.envers.Audited
-// import javax.persistence.*
-// import kotlin.streams.toList
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.IInstructionImpl
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.InstructionRank
+import no.nsd.qddt.model.interfaces.IInstruction
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.stream.Collectors
@@ -53,15 +45,12 @@ data class QuestionConstruct(
     @JsonIgnore
     var questionItem: QuestionItem? = null
 
-    @JsonSerialize
-    @JsonDeserialize
     @OrderColumn(name = "universe_idx")
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE])
     var universe: MutableList<Universe> = mutableListOf()
 
 
-    @JsonSerialize
-    @JsonDeserialize
+    @JsonIgnore
     @OrderColumn(name = "instruction_idx")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -80,21 +69,45 @@ data class QuestionConstruct(
 //    @MapKeyColumn(name = "instructionRank")
 //    val controlConstructInstructions2: Map<InstructionRank, MutableList<ControlConstructInstruction>> = mutableMapOf()
 
-//    @JsonSerialize
-//    @JsonDeserialize
-    private val preInstructions
+    var preInstructions: List<IInstructionImpl>
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == InstructionRank.PRE }
-            .map {   it.instruction.description}
+            .map { IInstructionImpl(it.instruction) }
             .collect(Collectors.toList())
+        set(value) {
+            controlConstructInstructions.addAll(
+                value.stream()
+                    .map {
+                        ControlConstructInstruction().apply {
+                            instructionRank = InstructionRank.PRE
+                            instruction = Instruction().apply {
+                                description = it.description
+                                id = it.id
+                            }
+                        }
+                    }.collect(Collectors.toList())
+            )
+        }
 
-    private val postInstructions
+    var  postInstructions: List<IInstructionImpl>
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == InstructionRank.POST }
-            .map {   it.instruction.description}
+            .map { IInstructionImpl(it.instruction) }
             .collect(Collectors.toList())
-
-
+        set(value) {
+            controlConstructInstructions.addAll(
+                value.stream()
+                .map {
+                    ControlConstructInstruction().apply {
+                        instructionRank = InstructionRank.POST
+                        instruction = Instruction().apply {
+                            description = it.description
+                            id = it.id
+                        }
+                    }
+                }.collect(Collectors.toList())
+            )
+        }
 
     override fun xmlBuilder(): AbstractXmlBuilder {
         return object : ControlConstructFragmentBuilder<QuestionConstruct>(this) {
@@ -138,11 +151,11 @@ data class QuestionConstruct(
             pdfReport.addParagraph(uni.description)
         }
 
-        if (preInstructions.isNotEmpty())
+        if (preInstructions.isNotEmpty() == true)
             pdfReport.addHeader2("Pre Instructions")
 
         for (pre in preInstructions) {
-            pre?.let { pdfReport.addParagraph(it) }
+            pre?.let { pdfReport.addParagraph(it.description) }
         }
 
         pdfReport.addHeader2("Question Item")
@@ -153,7 +166,7 @@ data class QuestionConstruct(
             pdfReport.addHeader2("Post Instructions")
 
         for (post in postInstructions) {
-            post?.let { pdfReport.addParagraph(it) }
+            post?.let { pdfReport.addParagraph(it.description) }
         }
         if (comments.size > 0)
             pdfReport.addHeader2("Comments")
@@ -173,7 +186,7 @@ data class QuestionConstruct(
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id, name = $name,  modified = $modified, classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified , classKind = $classKind )"
     }
 
 }

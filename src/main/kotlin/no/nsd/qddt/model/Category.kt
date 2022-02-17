@@ -53,18 +53,15 @@ import kotlin.streams.toList
 @Entity
 @Table(
     name = "CATEGORY",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agencyId"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
+    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agency_id"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
 ) 
 data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<Category>, Cloneable {
-
 
     /**
      *   A display label for the category. May be expressed in multiple languages.
      *   Repeat for labels with different content, for example,
      *   labels with differing length limitations or of different types or applications.
      */
-
-
     override var name: String = ""
         get() {
             if (field.isBlank())
@@ -209,37 +206,25 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     override fun xmlBuilder() = CategoryFragmentBuilder(this)
 
     override fun compareTo(other: Category): Int {
-        var i = other.agencyId.let { this.agencyId?.compareTo(it) ?: 0 }
-        if (i != 0) return i
-        i = hierarchyLevel.compareTo(other.hierarchyLevel)
-        if (i != 0) return i
-        i = categoryKind.compareTo(other.categoryKind)
-        if (i != 0) return i
-        i = name.compareTo(other.name)
-        if (i != 0) return i
-        i = label.compareTo(other.label)
-        if (i != 0) return i
-        i = description.compareTo(other.description)
-        if (i != 0) return i
-        i = this.id!!.compareTo(other.id)
+        var i = this.id!!.compareTo(other.id)
         return if (i != 0) i else modified?.compareTo(other.modified)?:0
     }
 
     public override fun clone(): Category {
-        return Category().apply {
-            name = name
-            label = label
-            inputLimit = inputLimit
-            classificationLevel = classificationLevel
-            format = format
-            hierarchyLevel = hierarchyLevel
-            categoryKind = categoryKind
-            children = children
-            code = code
-            description = description
-            basedOn = UriId.fromAny("$id")
-            changeKind = IBasedOn.ChangeKind.NEW_COPY
-            changeComment = "Copy of [$name]"
+        return Category().also {
+            it.name = name
+            it.label = label
+            it.inputLimit = inputLimit
+            it.classificationLevel = classificationLevel
+            it.format = format
+            it.hierarchyLevel = hierarchyLevel
+            it.categoryKind = categoryKind
+            it.children = children
+            it.code = code
+            it.description = description
+            it.basedOn = UriId.fromAny("$id")
+            it.changeKind = IBasedOn.ChangeKind.NEW_COPY
+            it.changeComment = "Clone of [$name]"
         }
     }
 

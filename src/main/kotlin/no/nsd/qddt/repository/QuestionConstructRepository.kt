@@ -13,4 +13,5 @@ interface QuestionConstructRepository: ControlConstructRepository<QuestionConstr
      * @return
      */
     fun findByQuestionIdId(questionId: UUID): List<QuestionConstruct>
+
 }

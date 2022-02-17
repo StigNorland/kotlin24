@@ -14,6 +14,7 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.projection.PublicationStatusItem
+import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,6 +24,7 @@ import org.springframework.data.projection.ProjectionFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 import javax.persistence.*
+
 
 /**
  * @author Stig Norland
@@ -41,7 +43,7 @@ class EntityAuditTrailListener{
     private val publicationStatusService get() = applicationContext?.getBean("publicationStatusService") as PublicationStatusService
 
     @PreRemove
-    private fun beforeAnyUpdate(entity: AbstractEntityAudit) {
+    private fun beforeAnyDelete(entity: AbstractEntityAudit) {
         entity.changeKind = ChangeKind.TO_BE_DELETED
         entity.changeComment = "Deleting..."
         when (entity) {
@@ -49,6 +51,7 @@ class EntityAuditTrailListener{
                 beforeStudyRemove(entity)
             }
         }
+
         log.debug("About to delete entity: {}" , entity.id)
     }
 
@@ -64,6 +67,9 @@ class EntityAuditTrailListener{
                 beforeCategoryInsert(entity)
             }
             is ResponseDomain -> {
+//                if (entity.changeKind.ordinal > 0 && entity.changeKind.ordinal < 4 && entity.managedRepresentation?.id != null ) {
+//                    entity.managedRepresentation = entity.managedRepresentation?.clone()
+//                }
 //                persistManagedRep(entity)
             }
             is Study -> {
@@ -81,17 +87,18 @@ class EntityAuditTrailListener{
         log.debug("PreUpdate [{}] {}", entity.name, entity.id)
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
+            user.getAuthority()
             with(entity) {
-                agency = user.agency
+
                 modifiedBy = user
-                var ver: Version? = version
+                var ver: Version = version
                 var change = changeKind
 
                 // it is illegal to update an entity with "Creator statuses" (CREATED...BASEDON)
-                if ((change.ordinal <= ChangeKind.REFERENCED.ordinal) and !ver!!.isModified) {
-                    change = ChangeKind.IN_DEVELOPMENT
-                    changeKind = change
-                }
+//                if ((change.ordinal <= ChangeKind.REFERENCED.ordinal) and !ver!!.isModified) {
+//                    change = ChangeKind.IN_DEVELOPMENT
+//                    changeKind = change
+//                }
                 if (changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
                     changeComment = change.description
                 when (change) {
@@ -114,6 +121,7 @@ class EntityAuditTrailListener{
                         ver.versionLabel = ""
                     }
                     ChangeKind.CONCEPTUAL, ChangeKind.EXTERNAL, ChangeKind.OTHER, ChangeKind.ADDED_CONTENT -> {
+                        ver.minor=0
                         ver.major++
                         ver.versionLabel = ""
                     }
@@ -137,6 +145,7 @@ class EntityAuditTrailListener{
                     log.debug("PreUpdate: {}, value = {}", entity.name, entity.code?.value ?: "NIL")
                 }
                 is ResponseDomain -> {
+                    entity.managedRepresentation!!.version = entity.version
 //                    persistManagedRep(entity)
                 }
                 is QuestionConstruct -> {
@@ -240,7 +249,6 @@ class EntityAuditTrailListener{
             }
         }
     }
-
 
     private fun beforeCategoryInsert(entity: Category) {
         with(entity) {

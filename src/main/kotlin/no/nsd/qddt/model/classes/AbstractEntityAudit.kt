@@ -36,20 +36,12 @@ import no.nsd.qddt.model.embedded.Version as EmbeddedVersion
 @EntityListeners(value = [EntityAuditTrailListener::class])
 abstract class AbstractEntityAudit(
 
-    @JsonIgnore
-    @Column(insertable = false, updatable = false)
-    protected var agencyId: UUID? = null,
+//    @JsonIgnore
+//    @Column(insertable = false, updatable = false)
+//    protected var agencyId: UUID? = null,
 
-    @AttributeOverrides(
-        AttributeOverride(name = "id", column = Column(name = "based_on_object", nullable = true)),
-        AttributeOverride(name = "rev", column = Column(name = "based_on_revision", nullable = true)),
-    )
-    @Embedded
-    override var basedOn: UriId? = null,
 
-    @AttributeOverrides(
-        AttributeOverride(name = "rev",column = Column(name = "rev"))
-    )
+    @AttributeOverrides(AttributeOverride(name = "rev",column = Column(name = "rev")))
     @Embedded
     override var version: EmbeddedVersion = EmbeddedVersion(),
 
@@ -64,7 +56,7 @@ abstract class AbstractEntityAudit(
      */
     @JsonIgnoreProperties("surveyPrograms","users")
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "agencyId")
+    @JoinColumn(name = "AGENCY_ID", updatable = false, nullable = false)
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     override lateinit var agency : Agency
 
@@ -72,14 +64,14 @@ abstract class AbstractEntityAudit(
     @Column(nullable = false)
     override var changeKind: ChangeKind = ChangeKind.CREATED
         set(value) {
-//            if (field == ChangeKind.IN_DEVELOPMENT &&
-//                (value == ChangeKind.UPDATED_HIERARCHY_RELATION ||
-//                 value == ChangeKind.UPDATED_PARENT ||
-//                 value == ChangeKind.UPDATED_CHILD)
-//            ) {
-//                //BUGFIX https://github.com/DASISH/qddt-client/issues/546
-//                return
-//            }
+            if (field == ChangeKind.IN_DEVELOPMENT &&
+                (value == ChangeKind.UPDATED_HIERARCHY_RELATION ||
+                 value == ChangeKind.UPDATED_PARENT ||
+                 value == ChangeKind.UPDATED_CHILD)
+            ) {
+                //BUGFIX https://github.com/DASISH/qddt-client/issues/546
+                return
+            }
             field = value
         }
 
@@ -98,6 +90,13 @@ abstract class AbstractEntityAudit(
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.LAZY, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
 
+    @JsonSerialize
+    @AttributeOverrides(
+        AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true, updatable = false)),
+        AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true, updatable = false)),
+    )
+    @Embedded
+    override var basedOn:  UriId? =null
 
     @JsonFormat
         (shape = JsonFormat.Shape.NUMBER_INT)

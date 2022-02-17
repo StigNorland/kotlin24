@@ -195,15 +195,22 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         entity.codes = harvestCatCodes(entity.managedRepresentation)
         logger.debug("persistManagedRep[0] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
 
-        entity.managedRepresentation!!.let{ manRep ->
+        entity.managedRepresentation = entity.managedRepresentation!!.let{ manRep ->
             manRep.name = entity.name
             manRep.changeComment = entity.changeComment
             manRep.changeKind = entity.changeKind
             manRep.xmlLang = entity.xmlLang
             manRep.version = entity.version
             manRep.description = entity.getAnchorLabels()
-//            entity.responseCardinality = manRep.inputLimit
-            manRep
+            if (entity.responseKind == ResponseKind.LIST) {
+                manRep.inputLimit = entity.responseCardinality
+            } else {
+                entity.responseCardinality = manRep.inputLimit
+            }
+            if (entity.changeKind.ordinal > 0 && entity.changeKind.ordinal < 4 )
+                manRep.clone()
+            else
+                manRep
         }
         logger.debug("persistManagedRep[1] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
 
