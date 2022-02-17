@@ -56,7 +56,7 @@ data class Universe(override var name: String = ""):AbstractEntityAudit() {
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified , classKind = $classKind )"
     }
 
 }

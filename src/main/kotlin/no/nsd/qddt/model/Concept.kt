@@ -58,6 +58,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
         joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
     override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
 
+
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
         try {
             pdfReport.addHeader(this, "Concept $counter")
@@ -114,7 +115,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name , modified = $modified , classKind = $classKind )"
     }
 
 }

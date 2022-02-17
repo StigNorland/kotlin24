@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
 import org.slf4j.Logger
@@ -25,17 +26,16 @@ abstract class AbstractEntity(
     @Column(updatable = false, nullable = false)
     var id: UUID? = null,
 
-    @JsonIgnore
-    @Column(insertable = false, updatable = false)
-    protected var modifiedById: UUID? = null,
+//    @JsonIgnore
+//    @Column(insertable = false, updatable = false)
+//    protected var modifiedById: UUID? = null,
 
     @Version
     var modified: Timestamp?=null
 ) {
 
-    @LastModifiedBy
     @ManyToOne
-    @JoinColumn(name = "modifiedById")
+    @JoinColumn(name = "modified_by_id")
     @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
     lateinit var modifiedBy: User
 

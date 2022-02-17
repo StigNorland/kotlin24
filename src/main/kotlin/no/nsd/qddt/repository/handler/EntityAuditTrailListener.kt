@@ -14,6 +14,7 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.projection.PublicationStatusItem
+import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -29,7 +30,6 @@ import javax.persistence.*
  * @author Stig Norland
  */
 class EntityAuditTrailListener{
-
 
     @Autowired
     private val factory: ProjectionFactory? = null
@@ -65,9 +65,12 @@ class EntityAuditTrailListener{
             is Category -> {
                 beforeCategoryInsert(entity)
             }
-//            is ResponseDomain -> {
+            is ResponseDomain -> {
+//                if (entity.changeKind.ordinal > 0 && entity.changeKind.ordinal < 4 && entity.managedRepresentation?.id != null ) {
+//                    entity.managedRepresentation = entity.managedRepresentation?.clone()
+//                }
 //                persistManagedRep(entity)
-//            }
+            }
             is Study -> {
                 entity.parentIdx
                 beforeStudyInsert(entity)
@@ -104,16 +107,18 @@ class EntityAuditTrailListener{
         log.debug("PreUpdate [{}] {}", entity.name, entity.id)
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
+            user.getAuthority()
             with(entity) {
+
                 modifiedBy = user
-                var ver: Version? = version
+                var ver: Version = version
                 var change = changeKind
 
                 // it is illegal to update an entity with "Creator statuses" (CREATED...BASEDON)
-                if ((change.ordinal <= ChangeKind.REFERENCED.ordinal) and !ver!!.isModified) {
-                    change = ChangeKind.IN_DEVELOPMENT
-                    changeKind = change
-                }
+//                if ((change.ordinal <= ChangeKind.REFERENCED.ordinal) and !ver!!.isModified) {
+//                    change = ChangeKind.IN_DEVELOPMENT
+//                    changeKind = change
+//                }
                 if (changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
                     changeComment = change.description
                 when (change) {
@@ -136,6 +141,7 @@ class EntityAuditTrailListener{
                         ver.versionLabel = ""
                     }
                     ChangeKind.CONCEPTUAL, ChangeKind.EXTERNAL, ChangeKind.OTHER, ChangeKind.ADDED_CONTENT -> {
+                        ver.minor=0
                         ver.major++
                         ver.versionLabel = ""
                     }
@@ -251,7 +257,6 @@ class EntityAuditTrailListener{
         }
     }
 
-
     private fun beforeCategoryInsert(entity: Category) {
         with(entity) {
             log.debug("beforeCategoryInsert [{}] {}", entity.name, entity.modified.toString())
@@ -309,8 +314,6 @@ class EntityAuditTrailListener{
              log.info("Study beforeInsert {}", entity.name)
          }
     }
-
-
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)

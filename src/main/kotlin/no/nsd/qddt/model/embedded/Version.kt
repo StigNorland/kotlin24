@@ -63,11 +63,32 @@ data class Version( var versionLabel: String = "") : Comparable<Version>, Serial
         return String.format(VERSION_FORMAT, major, minor, " $versionLabel")
     }
 
+
     fun toJson(): String {
         return String.format(
             "{\"Version\":{\"major\":\"%d\", \"minor\":\"%d\", \"versionLabel\":\"%s\"%s}}",
             major, minor, versionLabel, if (rev != 0) ", \"revision\":\"$rev\"" else ""
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Version
+
+        if (major != other.major) return false
+        if (minor != other.minor) return false
+        if (rev != other.rev) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = major
+        result = 31 * result + minor
+        result = 31 * result + rev
+        return result
     }
 }
 

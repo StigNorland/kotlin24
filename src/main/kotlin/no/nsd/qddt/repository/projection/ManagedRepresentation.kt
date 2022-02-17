@@ -1,6 +1,7 @@
 package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.Category
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
@@ -22,8 +23,11 @@ interface ManagedRepresentation {
 
     var classKind: String
 
-    @Value(value = "'managedRepresentation'")
-    fun getTest():String
+    var format: String
+
+    @Value(value = "#{target.basedOn }")
+    fun getBasedOn(): UriId?
+
 
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long

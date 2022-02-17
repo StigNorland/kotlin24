@@ -1,6 +1,5 @@
 package no.nsd.qddt.model.classes
 
-import org.springframework.core.convert.converter.Converter
 import java.io.Serializable
 import java.util.*
 import javax.persistence.Embeddable
@@ -10,32 +9,30 @@ import javax.persistence.Embeddable
  * @author Stig Norland
  */
 @Embeddable
-class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
+data class UriId(
+    var rev: Int? = null
+): Comparable<UriId> ,Serializable {
 
     lateinit var id: UUID
 
-    var rev: Int? = null
-
     override fun toString(): String {
-        if (rev != null)
-            return "$id:$rev"
-        return id.toString()
+        return if (rev != null) "$id:$rev" else id.toString()
     }
 
     override fun compareTo(other: UriId): Int {
         return try
         {
-            val i = id.compareTo(other.id)
-            return if (i != 0) i else (rev?:0).compareTo(other.rev?:0)
+            val i = id?.compareTo(other.id)?:0
+            if (i != 0) i else (rev?:0).compareTo(other.rev?:0)
         }
         catch (nfe:NumberFormatException) {
-          id.compareTo(id)
+          id?.compareTo(id)?:0
         }
     }
 
-    override fun convert(source: Serializable): UriId? {
-        return fromAny(source)
-    }
+//    override fun convert(source: Serializable): UriId? {
+//        return fromAny(source)
+//    }
 
 
     override fun hashCode(): Int {

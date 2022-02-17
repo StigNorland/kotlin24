@@ -9,7 +9,6 @@ import no.nsd.qddt.model.classes.UriId
 interface IBasedOn:IDomainObject {
 
     var basedOn: UriId?
-
     var changeKind: ChangeKind
     var changeComment: String
 

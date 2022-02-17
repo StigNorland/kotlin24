@@ -57,14 +57,11 @@ import kotlin.streams.toList
 ) 
 data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
-
     /**
      *   A display label for the category. May be expressed in multiple languages.
      *   Repeat for labels with different content, for example,
      *   labels with differing length limitations or of different types or applications.
      */
-
-
     override var name: String = ""
         get() {
             if (field.isBlank())
@@ -214,20 +211,20 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     }
 
     public override fun clone(): Category {
-        return Category().apply {
-            name = name
-            label = label
-            inputLimit = inputLimit
-            classificationLevel = classificationLevel
-            format = format
-            hierarchyLevel = hierarchyLevel
-            categoryKind = categoryKind
-            children = children
-            code = code
-            description = description
-            basedOn = UriId.fromAny("$id")
-            changeKind = IBasedOn.ChangeKind.NEW_COPY
-            changeComment = "Copy of [$name]"
+        return Category().also {
+            it.name = name
+            it.label = label
+            it.inputLimit = inputLimit
+            it.classificationLevel = classificationLevel
+            it.format = format
+            it.hierarchyLevel = hierarchyLevel
+            it.categoryKind = categoryKind
+            it.children = children
+            it.code = code
+            it.description = description
+            it.basedOn = UriId.fromAny("$id")
+            it.changeKind = IBasedOn.ChangeKind.NEW_COPY
+            it.changeComment = "Clone of [$name]"
         }
     }
 

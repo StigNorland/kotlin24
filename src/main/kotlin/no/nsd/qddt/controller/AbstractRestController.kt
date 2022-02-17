@@ -48,8 +48,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
         return if (uriId.rev != null) {
             logger.debug("getRevisions entityRevisionModelBuilder")
-            val rev = repository.findRevision(uriId.id, uriId.rev!!)
-                .orElse(repository.findLastChangeRevision(uriId.id)
+            val rev = repository.findRevision(uriId.id!!, uriId.rev!!)
+                .orElse(repository.findLastChangeRevision(uriId.id!!)
                 .orElseThrow())
             entityRevisionModelBuilder(rev)
         } else {
@@ -148,13 +148,13 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     private fun getByUri(uri: UriId): T {
         logger.debug("_getByUri : {}", uri)
         return if (uri.rev != null)
-            repository.findRevision(uri.id, uri.rev!!).map {
+            repository.findRevision(uri.id!!, uri.rev!!).map {
                 logger.debug("_getByUri : {}", it.entity.version.rev)
                 it.entity.version.rev = it.revisionNumber.get()
                 it.entity
             }.orElseThrow()
         else
-            repository.findById(uri.id).orElseThrow()
+            repository.findById(uri.id!!).orElseThrow()
     }
 
 
@@ -166,12 +166,12 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
             logger.debug("loadRevisionEntity {}", uri )
             return with(uri) {
                 if (rev != null && rev != 0)
-                    repository.findRevision(id, rev!!).map {
+                    repository.findRevision(id!!, rev!!).map {
                         it.entity.version.rev = it.revisionNumber.get()
                         it.entity
                     }.get()
                 else
-                    repository.findLastChangeRevision(id).map {
+                    repository.findLastChangeRevision(id!!).map {
                         it.entity.version.rev = it.revisionNumber.get()
                         it.entity
                     }.get()

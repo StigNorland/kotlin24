@@ -40,16 +40,8 @@ abstract class AbstractEntityAudit(
 //    @Column(insertable = false, updatable = false)
 //    protected var agencyId: UUID? = null,
 
-    @Embedded
-    @AttributeOverrides(
-        AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true)),
-        AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true)),
-    )
-    override var basedOn:  UriId? = null,
 
-    @AttributeOverrides(
-        AttributeOverride(name = "rev",column = Column(name = "rev"))
-    )
+    @AttributeOverrides(AttributeOverride(name = "rev",column = Column(name = "rev")))
     @Embedded
     override var version: EmbeddedVersion = EmbeddedVersion(),
 
@@ -98,6 +90,13 @@ abstract class AbstractEntityAudit(
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.LAZY, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
 
+    @JsonSerialize
+    @AttributeOverrides(
+        AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true, updatable = false)),
+        AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true, updatable = false)),
+    )
+    @Embedded
+    override var basedOn:  UriId? =null
 
     @JsonFormat
         (shape = JsonFormat.Shape.NUMBER_INT)

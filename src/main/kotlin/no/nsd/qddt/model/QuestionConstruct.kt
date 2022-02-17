@@ -186,7 +186,7 @@ data class QuestionConstruct(
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified , classKind = $classKind )"
     }
 
 }

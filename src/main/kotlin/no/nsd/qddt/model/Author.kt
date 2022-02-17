@@ -52,7 +52,7 @@ data class Author(var email: String? = "") : AbstractEntity() {
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name , modifiedById = $modifiedById , modified = $modified )"
+        return this::class.simpleName + "(id = $id , name = $name ,  modified = $modified )"
     }
 
 }

@@ -32,7 +32,7 @@ abstract class ConceptHierarchy (
         }
 
 
-    @Column(name = "parent_id", insertable = false, updatable = false)
+    @Column(name = "parent_id", nullable = false,  insertable = false, updatable = false)
     var parentId: UUID? = null
 
     abstract var parent: ConceptHierarchy
