@@ -1,8 +1,6 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -10,7 +8,6 @@ import no.nsd.qddt.model.classes.IInstructionImpl
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.InstructionRank
-import no.nsd.qddt.model.interfaces.IInstruction
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.stream.Collectors

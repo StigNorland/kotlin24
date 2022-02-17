@@ -1,9 +1,7 @@
 package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.io.source.ByteArrayOutputStream
@@ -21,7 +19,6 @@ import org.hibernate.envers.NotAudited
 import org.hibernate.envers.RelationTargetAuditMode
 import java.io.Serializable
 import java.sql.Timestamp
-import java.util.*
 import java.util.stream.Collectors
 import javax.persistence.*
 import no.nsd.qddt.model.embedded.Version as EmbeddedVersion

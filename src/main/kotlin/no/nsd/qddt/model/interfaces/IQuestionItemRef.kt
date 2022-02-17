@@ -10,7 +10,7 @@ interface IQuestionItemRef {
 
     var questionItems:MutableList<ElementRefQuestionItem>
 
-    fun addQuestionItem(qef: ElementRefQuestionItem) {
+    fun addQuestionRef(qef: ElementRefQuestionItem) {
         if (this.questionItems.stream().noneMatch { cqi -> cqi == qef }) {
             questionItems.add(qef)
             this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
@@ -19,7 +19,7 @@ interface IQuestionItemRef {
             AbstractEntity.logger.debug("QuestionItem not inserted, match found")
     }
 
-    fun removeQuestionItem(qef: ElementRefQuestionItem) {
+    fun removeQuestionRef(qef: ElementRefQuestionItem) {
         if (questionItems.remove(qef)){
             this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
             this.changeComment =  String.format("Removed QI [${qef.name}]")

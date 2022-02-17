@@ -74,39 +74,63 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     }
 
     @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @PutMapping("/concept/{uuid}/questionitems", produces = ["application/hal+json"])
     fun addQuestionItem(
         @PathVariable uuid: UUID,
         @RequestBody questionItem: ElementRefQuestionItem
     ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
 
-        val qRepository = repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
+//        val qRepository = repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
         repository.findById(uuid).orElseThrow().let { parent ->
 
-            parent.addQuestionItem(questionItem)
+            parent.addQuestionRef(questionItem)
 
-            val result = repository.saveAndFlush(parent).questionItems.map {
-                it.element = Companion.loadRevisionEntity(it.getUri(), qRepository)
-                it
-            }.toMutableList()
+//            val result = repository.saveAndFlush(parent).questionItems.map {
+////                it.element = Companion.loadRevisionEntity(it.getUri(), qRepository)
+//                it
+//            }.toMutableList()
 
-            return ResponseEntity.ok(result)
-        }
-    }
-
-    @Transactional(propagation = Propagation.NESTED)
-    @DeleteMapping("/concept/{uuid}/questionitems", produces = ["application/hal+json"])
-    fun removeQuestionItem(
-        @PathVariable uuid: UUID,
-        @RequestBody questionItem: ElementRefQuestionItem
-    ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
-        repository.findById(uuid).orElseThrow().let { parent ->
-            parent.removeQuestionItem(questionItem)
             return ResponseEntity.ok(
                 repository.saveAndFlush(parent).questionItems
             )
         }
     }
+
+    @Transactional(propagation = Propagation.NESTED)
+    @DeleteMapping("/concept/{uuid}/questionitems/{uri}", produces = ["application/hal+json"])
+    fun removeQuestionItem(
+        @PathVariable uuid: UUID,
+        @PathVariable uri: String
+    ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
+
+        val parent = repository.findById(uuid).orElseThrow()
+        val qUri = UriId.fromAny(uri)
+
+        val qef = parent.questionItems.find { it.uri == qUri }
+        if (qef != null) {
+            parent.removeQuestionRef(qef)
+        }
+
+        return ResponseEntity.ok(
+            repository.saveAndFlush(parent).questionItems
+        )
+    }
+
+
+//    @Transactional(propagation = Propagation.NESTED)
+//    @DeleteMapping("/concept/{uuid}/questionitems", produces = ["application/hal+json"])
+//    fun removeQuestionItem(
+//        @PathVariable uuid: UUID,
+//        @RequestBody questionItem: ElementRefQuestionItem
+//    ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
+//        repository.findById(uuid).orElseThrow().let { parent ->
+//            parent.removeQuestionRef(questionItem)
+//            return ResponseEntity.ok(
+//                repository.saveAndFlush(parent).questionItems
+//            )
+//        }
+//    }
 
 
     @Transactional(propagation = Propagation.NESTED)

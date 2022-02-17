@@ -62,7 +62,7 @@ data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuth
 
 
 //  @OrderColumn(name = "ownerIdx")
-  @ElementCollection()
+  @ElementCollection
   @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
 

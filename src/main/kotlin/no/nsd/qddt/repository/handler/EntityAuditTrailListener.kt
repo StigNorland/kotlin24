@@ -14,7 +14,6 @@ import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.projection.PublicationStatusItem
-import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -273,7 +272,7 @@ class EntityAuditTrailListener{
                     -> entity.description
             }
 
-            if (!version.isModified) {
+            if (!version.isModified()) {
                 log.debug("onUpdate not run yet ♣♣♣ ")
             }
 

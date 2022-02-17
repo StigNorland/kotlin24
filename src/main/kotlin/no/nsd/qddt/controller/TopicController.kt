@@ -101,12 +101,12 @@ class TopicController(
 
         repository.findById(uuid).orElseThrow().let { parent ->
 
-            parent.addQuestionItem(questionItem)
+            parent.addQuestionRef(questionItem)
             val qRepository = repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
 
             return ResponseEntity.ok(
                 repository.saveAndFlush(parent).questionItems.map {
-                    it.element = Companion.loadRevisionEntity(it.getUri(), qRepository)
+                    it.element = Companion.loadRevisionEntity(it.uri, qRepository)
                     it
                 }.toMutableList()
             )
@@ -123,9 +123,9 @@ class TopicController(
         val parent = repository.findById(uuid).orElseThrow()
         val qUri = UriId.fromAny(uri)
 
-        val qef = parent.questionItems.find { it.getUri() == qUri }
+        val qef = parent.questionItems.find { it.uri == qUri }
         if (qef != null) {
-            parent.removeQuestionItem(qef)
+            parent.removeQuestionRef(qef)
         }
 
         return ResponseEntity.ok(

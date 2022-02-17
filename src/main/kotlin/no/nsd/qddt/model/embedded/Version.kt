@@ -11,30 +11,32 @@ package no.nsd.qddt.model.embedded
  */
 @Embeddable
 //@JsonDeserialize(converter = KotlinVersionConverter::class)
-data class Version( var versionLabel: String = "") : Comparable<Version>, Serializable {
+data class Version(@Transient
+                   private var _isModified: Boolean = false) : Comparable<Version>, Serializable {
     var major = 1
         set(value) {
             field = value
-            isModified = true
+            _isModified = true
         }
 
     var minor: Int = 0
         set(value) {
             field = value
-            isModified = true
+            _isModified = true
         }
+
+    var versionLabel: String = ""
 
 
     @Transient
     @JsonSerialize
     var rev: Int = 0
 
-    @Transient
     @JsonIgnore
-    final var isModified: Boolean = false
-        public get
-        private set
-
+    @Transient
+    fun isModified(): Boolean {
+        return _isModified
+    }
 
     @Transient
     private val VERSION_FORMAT = "%1\$s.%2\$s%3\$s"
@@ -46,7 +48,7 @@ data class Version( var versionLabel: String = "") : Comparable<Version>, Serial
         this.minor = minor
         this.rev = revision?:0
         this.versionLabel = versionLabel?:""
-        isModified = false
+        _isModified = false
     }
 
 

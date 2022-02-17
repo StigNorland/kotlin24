@@ -1,7 +1,10 @@
 package no.nsd.qddt.model.embedded
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.QuestionItem
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import org.hibernate.envers.Audited
@@ -16,31 +19,38 @@ import javax.persistence.*
 @Audited
 @Embeddable
 class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
-    /**
-     * This field will be populated with the correct version of a QI,
-     * but should never be persisted.
-     */
-
-    override var elementId: UUID?=null
+    @AttributeOverrides(
+        AttributeOverride(name = "id", column = Column(name = "element_id", insertable = false, updatable = false)),
+        AttributeOverride(name = "rev", column = Column(name = "element_revision", insertable = false, updatable = false))
+    )
+    @Embedded
+    lateinit var uri: UriId
 
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
-
-    @Column(name = "element_revision", insertable =false, updatable=false )
-    override var elementRevision: Int? = null
 
     @Column(name = "element_name", length = 500)
     override var name: String? = null
 
 
+    @JsonIgnore
+    @Column(name = "element_id")
+    override var elementId: UUID?=null
+
+    @Column(name = "element_revision")
+    @JsonIgnore
+    override var elementRevision: Int? = null
+
+
     @AttributeOverrides(
-        AttributeOverride(name = "major",       column = Column(name = "element_major")),
-        AttributeOverride(name = "minor",       column = Column(name = "element_minor")),
-        AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
-        AttributeOverride(name = "versionLabel",column = Column(name = "element_version_label"))
+        AttributeOverride(name = "major", column = Column(name = "element_major")),
+        AttributeOverride(name = "minor", column = Column(name = "element_minor")),
+        AttributeOverride(name = "versionLabel", column = Column(name = "element_version_label")),
+        AttributeOverride(name = "rev", column = Column(name = "element_revision", insertable = false, updatable = false))
     )
-    @Transient
+    @Embedded
     override var version: Version = Version()
+
 
     @Transient
     var text: String? = null
@@ -49,6 +59,10 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
         }
 
 
+    /**
+     * This field will be populated with the correct version of a QI,
+     * but should never be persisted.
+     */
     @Transient
     @JsonSerialize
     override var element: QuestionItem? = null
@@ -56,6 +70,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
             field = value
             value?.let {
                 elementId = it.id
+                elementRevision = it.version.rev
                 name = it.name
                 text = it.question
                 version = it.version
@@ -63,7 +78,6 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
             if (value == null) {
                 name = ""
                 text = ""
-                elementRevision = null
             }
         }
 
@@ -75,6 +89,7 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
                 this.element = element
             else
                 this.elementId = elementId
+                this.elementRevision = elementRevision
             
         }
     }
