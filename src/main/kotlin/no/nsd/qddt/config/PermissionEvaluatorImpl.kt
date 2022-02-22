@@ -70,7 +70,7 @@ class PermissionEvaluatorImpl : PermissionEvaluator {
     }
 
     private fun isMemberOfAgency(agency: Agency, entity: IDomainObject): Boolean {
-        logger.info(agency.id.toString() + " != " + entity.agency.id)
-        return (agency.id == entity.agency.id)
+        logger.info(agency.id.toString() + " != " + (entity.agency?.id ?: "?"))
+        return (agency.id == (entity.agency?.id ?: 0))
     }
 }

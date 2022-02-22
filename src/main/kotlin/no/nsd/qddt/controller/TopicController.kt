@@ -2,9 +2,7 @@ package no.nsd.qddt.controller
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.QuestionItem
-import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import no.nsd.qddt.model.enums.ElementKind
@@ -19,6 +17,7 @@ import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -102,11 +101,11 @@ class TopicController(
         repository.findById(uuid).orElseThrow().let { parent ->
 
             parent.addQuestionRef(questionItem)
-            val qRepository = repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
+//            val qRepository = repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
 
             return ResponseEntity.ok(
                 repository.saveAndFlush(parent).questionItems.map {
-                    it.element = Companion.loadRevisionEntity(it.uri, qRepository)
+//                    it.element = Companion.loadRevisionEntity(it.uri, qRepository)
                     it
                 }.toMutableList()
             )
@@ -133,8 +132,8 @@ class TopicController(
         )
     }
 
-
     @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @PostMapping("/topicgroup/createfile",
         headers = ["content-type=multipart/form-data"],
         produces = ["application/hal+json"],
@@ -143,9 +142,13 @@ class TopicController(
     fun createWithFile(
         @RequestParam("files") multipartFiles: Array<MultipartFile>?,
         @RequestParam("topicgroup") jsonString: String?
-    ): ResponseEntity<TopicGroup> {
+    ): RepresentationModel<EntityModel<TopicGroup>> {
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val topicGroup = mapper.readValue(jsonString, TopicGroup::class.java)
+        val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+        topicGroup.modifiedBy = currentuser
+        topicGroup.agency = currentuser.agency
+
         if (multipartFiles != null && multipartFiles.isNotEmpty()) {
             logger.info("got new files!!!")
             if (topicGroup.id == null) {
@@ -156,7 +159,9 @@ class TopicController(
                 topicGroup.addOtherMaterial(otherMaterialService.saveFile(file, topicGroup.id!!))
             }
         }
-        return ResponseEntity.ok(repository.save(topicGroup))
+        val saved = repository.saveAndFlush(topicGroup)
+        return   entityModelBuilder(saved)
+//        return ResponseEntity.ok(repository.save(topicGroup))
     }
 
     fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
@@ -176,7 +181,7 @@ class TopicController(
 //            .link(Link.of(self))
             .link(Link.of("${baseUrl}/questionItems", "questionItems"))
 
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))
@@ -202,7 +207,7 @@ class TopicController(
         return HalModelBuilder.halModel()
             .entity(entity).link(Link.of(baseUrl))
             .link(Link.of("${baseUrl}/questionItems", "questionItems"))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))

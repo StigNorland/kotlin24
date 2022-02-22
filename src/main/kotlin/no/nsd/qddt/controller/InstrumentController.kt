@@ -1,7 +1,11 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.Instrument
 import no.nsd.qddt.model.Publication
+import no.nsd.qddt.model.User
 import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.repository.InstructionRepository
+import no.nsd.qddt.repository.InstrumentRepository
 import no.nsd.qddt.repository.PublicationRepository
 import no.nsd.qddt.repository.criteria.PublicationCriteria
 import org.hibernate.Hibernate
@@ -13,6 +17,7 @@ import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -20,15 +25,15 @@ import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)
 @BasePathAwareController
-class PublicationController(@Autowired repository: PublicationRepository) :
-    AbstractRestController<Publication>(repository) {
+class InstrumentController(@Autowired repository: InstrumentRepository) :
+    AbstractRestController<Instrument>(repository) {
 
-    @GetMapping("/publication/revision/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/instrument/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @GetMapping("/publication/revisions/{uuid}", produces = ["application/hal+json"])
+    @GetMapping("/instrument/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
         @PathVariable uuid: UUID,
         pageable: Pageable
@@ -37,12 +42,12 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     }
 
 
-    @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/instrument/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/instrument/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
@@ -53,31 +58,44 @@ class PublicationController(@Autowired repository: PublicationRepository) :
 //    }
 
     @ResponseBody
-    @PostMapping("/publication", produces = ["application/hal+json"])
-    fun save(@RequestBody publication: Publication): RepresentationModel<*> {
-        return entityModelBuilder(repository.saveAndFlush(publication))
+    @PostMapping("/instrument", produces = ["application/hal+json"])
+    fun insert(@RequestBody instrument: Instrument): RepresentationModel<*> {
+        return entityModelBuilder(repository.saveAndFlush(instrument))
     }
 
     @ResponseBody
-    @GetMapping("/publication/search/findByQuery", produces = ["application/hal+json"])
-    fun getByQuery(publicationCriteria: PublicationCriteria, pageable: Pageable?): RepresentationModel<*> {
-
-        logger.debug(publicationCriteria.toString())
-        val entities = (repository as PublicationRepository).findByQuery(
-            publicationCriteria.publishedKind!!,
-            publicationCriteria.publicationStatus!!,
-            publicationCriteria.purpose!!,
-            publicationCriteria.xmlLang!!,
-            publicationCriteria.name!!,
-            publicationCriteria.getAngencyId(), pageable
-        ).map {
-            entityModelBuilder(it)
+    @PutMapping("/instrument/{uuid}", produces = ["application/hal+json"])
+    fun update(@PathVariable uuid: UUID,@RequestBody instrument: Instrument): RepresentationModel<*> {
+        val result = repository.saveAndFlush(instrument)
+        if (result.agency == null) {
+            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+            result.modifiedBy = currentuser
+            result.agency = currentuser.agency
         }
-
-        return PagedModel.of(entities.content, pageMetadataBuilder(entities), Link.of("publications"))
+        return entityModelBuilder(result)
     }
 
-    override fun entityModelBuilder(entity: Publication): RepresentationModel<EntityModel<Publication>> {
+
+//    @ResponseBody
+//    @GetMapping("/instrument/search/findByQuery", produces = ["application/hal+json"])
+//    fun getByQuery(publicationCriteria: PublicationCriteria, pageable: Pageable?): RepresentationModel<*> {
+//
+//        logger.debug(publicationCriteria.toString())
+//        val entities = (repository as InstrumentRepository).findByQuery(
+//            publicationCriteria.publishedKind!!,
+//            publicationCriteria.publicationStatus!!,
+//            publicationCriteria.purpose!!,
+//            publicationCriteria.xmlLang!!,
+//            publicationCriteria.name!!,
+//            publicationCriteria.getAngencyId(), pageable
+//        ).map {
+//            entityModelBuilder(it)
+//        }
+//
+//        return PagedModel.of(entities.content, pageMetadataBuilder(entities), Link.of("publications"))
+//    }
+
+    override fun entityModelBuilder(entity: Instrument): RepresentationModel<EntityModel<Instrument>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"publication")
         logger.debug("entityModelBuilder Publication : {}", uriId)
@@ -89,14 +107,12 @@ class PublicationController(@Autowired repository: PublicationRepository) :
         }
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
-        Hibernate.initialize(entity.publicationElements)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
-            .embed(entity.status!!, LinkRelation.of("status"))
             .build()
     }
 

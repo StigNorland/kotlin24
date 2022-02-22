@@ -28,11 +28,10 @@ data class Sequence(
     var sequenceKind: SequenceKind = SequenceKind.SECTION
 
     @AttributeOverrides(
-        AttributeOverride(name = "elementId",column = Column(name = "questionitem_id")),
-        AttributeOverride(name = "elementRevision",column = Column(name = "questionitem_revision")),
+        AttributeOverride(name = "uri.id",column = Column(name = "questionitem_id")),
+        AttributeOverride(name = "uri.rev",column = Column(name = "questionitem_revision")),
         AttributeOverride(name = "name",column = Column(name = "question_name", length = 25)),
-        AttributeOverride(name = "condition",column = Column(name = "question_text", length = 1500)),
-        AttributeOverride(name = "version.revision",column = Column(name = "questionitem_revision"))
+        AttributeOverride(name = "condition",column = Column(name = "question_text", length = 1500))
     )
     @Embedded
     var condition: ElementRefCondition? = null

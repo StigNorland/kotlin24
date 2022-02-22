@@ -18,40 +18,30 @@ import javax.persistence.*
 
 @Audited
 @MappedSuperclass
-abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
+abstract class AbstractElementRef<T : IWebMenuPreview>() : IElementRef<T> {
 
-    constructor()
-
-    constructor(entity: T?) {
+    constructor(entity: T?) : this() {
         entity?.let{
             element = it
         }
     }
-    constructor(elementKind: ElementKind, elementId: UUID?, elementRevision: Int?) {
+    constructor(elementKind: ElementKind, uriId: UriId) : this() {
         this.elementKind = elementKind
-        this.elementId = elementId
-        this.elementRevision = elementRevision
+        this.uri = uriId
     }
+
+    @AttributeOverrides(
+        AttributeOverride(name = "id", column = Column(name = "element_id")),
+        AttributeOverride(name = "rev", column = Column(name = "element_revision"))
+    )
+    @Embedded
+    override lateinit var uri: UriId
 
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
 
-    override var elementId: UUID?=null
-
     @Column(name = "element_name", length = 500)
     override var name: String? = null
-
-    @Column(name = "element_major" )
-    var major: Int? = null
-
-    @Column(name = "element_minor" )
-    var minor: Int? = null
-
-    @Column(name = "element_version_label" )
-    var versionLabel: String? = null
-    
-    @Column(name = "element_revision" )
-    override var elementRevision: Int? = null
 
     @AttributeOverrides(
         AttributeOverride(name = "major",       column = Column(name = "element_major")),
@@ -68,20 +58,19 @@ abstract class AbstractElementRef<T : IWebMenuPreview> : IElementRef<T> {
     @JsonDeserialize
     override var element: T? = null
         set(value) {
-            field = value
-            value?.let {
-                elementId = it.id
-                version = it.version
-                when (it) {
-                    is QuestionItem -> (it.name + " ➫ " + it.question).also { name = it }
-                    is StatementItem -> (it.name + " ➫ " + it.statement).also { name = it }
-                    is ConditionConstruct -> (it.name + " ➫ " + it.condition).also { name = it }
-                    // is QuestionConstruct -> name = it
-                    else -> name = it.name
+            field = value?.also { item ->
+                uri = UriId().also {
+                    it.id = item.id!!
+                    it.rev = item.version.rev
                 }
-            }
-            if (value == null) {
-                name = ""
+                version = item.version
+                when (item) {
+                    is QuestionItem -> (item.name + " ➫ " + item.question).also { name = it }
+                    is StatementItem -> (item.name + " ➫ " + item.statement).also { name = it }
+                    is ConditionConstruct -> (item.name + " ➫ " + item.condition).also { name = it }
+                    // is QuestionConstruct -> name = it
+                    else -> name = item.name
+                }
             }
         }
 

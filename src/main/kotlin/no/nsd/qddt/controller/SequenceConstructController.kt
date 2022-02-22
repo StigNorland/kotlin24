@@ -69,7 +69,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
     }

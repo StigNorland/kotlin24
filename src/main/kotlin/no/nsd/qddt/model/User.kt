@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.repository.handler.UserAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.security.core.GrantedAuthority
@@ -19,14 +20,11 @@ import javax.persistence.*
 @Cacheable
 @Entity
 @Table(name="user_account")
-@JsonIgnoreProperties("hibernateLazyInitializer", "handler")
+@JsonIgnoreProperties(ignoreUnknown = true, value = ["hibernateLazyInitializer", "handler"])
 @EntityListeners(value = [UserAuditTrailListener::class])
 data class User(
 
     private var username : String = "?",
-
-//    @Column(nullable = false)
-//    var agencyId: UUID? = null,
 
     @JsonSerialize
     @JsonFormat
@@ -65,7 +63,9 @@ data class User(
     }
 
     @JsonIgnore
+    @Column(nullable = false, updatable = false, insertable = false)
     private lateinit var password : String
+
     override fun getPassword(): String {
         return password
     }
@@ -81,9 +81,10 @@ data class User(
         }.toMutableSet()
     }
 
-//    fun setAuthorites(grantedAuthorities: MutableCollection<out GrantedAuthority>){
-//        authorities = grantedAuthorities.map { it -> it.authority }
-//    }
+    fun setAuthorites(grantedAuthorities:MutableCollection<Authority>){
+
+        authorities = grantedAuthorities
+    }
 
 
     @JsonIgnore
@@ -93,7 +94,7 @@ data class User(
 
 
     fun getAuthority(): String {
-        return authorities.joinToString() { it.authority }
+        return authorities.joinToString { it.authority }
     }
 
     override fun equals(other: Any?): Boolean {

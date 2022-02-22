@@ -9,5 +9,4 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "authority",  itemResourceRel = "Authority")
-interface AuthorityRepository : JpaRepository<Authority,UUID> {
-}
+interface AuthorityRepository : JpaRepository<Authority,UUID>

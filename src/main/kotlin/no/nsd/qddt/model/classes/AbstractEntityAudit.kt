@@ -36,7 +36,11 @@ abstract class AbstractEntityAudit(
 //    @JsonIgnore
 //    @Column(insertable = false, updatable = false)
 //    protected var agencyId: UUID? = null,
-
+    @JsonIgnoreProperties("surveyPrograms","users")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AGENCY_ID", updatable = false, nullable = false)
+    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
+    override  var agency : Agency?=null,
 
     @AttributeOverrides(AttributeOverride(name = "rev",column = Column(name = "rev")))
     @Embedded
@@ -51,11 +55,7 @@ abstract class AbstractEntityAudit(
      * I am essential to creation, and I surround every place.
      * What am I?
      */
-    @JsonIgnoreProperties("surveyPrograms","users")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "AGENCY_ID", updatable = false, nullable = false)
-    @Audited(targetAuditMode =  RelationTargetAuditMode.NOT_AUDITED)
-    override lateinit var agency : Agency
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

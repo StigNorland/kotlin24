@@ -11,9 +11,14 @@ import javax.persistence.PreUpdate
 class UserAuditTrailListener {
 
     @PrePersist
+    private fun prePersist(entity: User) {
+        log.debug("prePersist [{}] {}", "USER", entity.username)
+        entity.modified = Timestamp.from(Instant.now())
+    }
+
     @PreUpdate
-    private fun preSave(entity: User) {
-        log.debug("preSave [{}] {}", "USER", entity.username)
+    private fun preUpdate(entity: User) {
+        log.debug("preUpdate [{}] {}", "USER", entity.username)
         entity.modified = Timestamp.from(Instant.now())
     }
 

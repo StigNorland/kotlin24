@@ -173,7 +173,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             .addCell(Cell().add(Paragraph("Last Saved By")).addStyle(cellStyleRight))
             .addCell(Cell().add(Paragraph(CapString(element.modifiedBy.username))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Agency")).addStyle(cellStyleRight))
-            .addCell(Cell().add(Paragraph(element.agency.name)).addStyle(cellStyleLeft))
+            .addCell(Cell().add(Paragraph(element.agency!!.name)).addStyle(cellStyleLeft))
             .setWidth(width100)
         p.setNextRenderer(UpdatePageRenderer(p, titlePage))
         val div = Div().add(table).setKeepTogether(true).setKeepWithNext(true)

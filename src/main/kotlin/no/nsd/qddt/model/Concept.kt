@@ -40,12 +40,6 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
     @ManyToOne(fetch = FetchType.LAZY)
     override lateinit var parent: ConceptHierarchy
 
-    @JsonIgnore
-    @Transient
-    override var parentRef: IParentRef? = null
-        get() = ParentRef(parent)
-
-
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
     @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
@@ -57,6 +51,11 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
         name = "CONCEPT_HIERARCHY_QUESTION_ITEM",
         joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
     override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
+
+    @JsonIgnore
+    @Transient
+    override var parentRef: IParentRef? = null
+        get() = ParentRef(parent)
 
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {

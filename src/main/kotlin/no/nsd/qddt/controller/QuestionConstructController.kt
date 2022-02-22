@@ -123,7 +123,6 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
 
     @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    @Modifying
     @PostMapping(value = ["/questionconstruct/createfile"], headers = ["content-type=multipart/form-data"], produces = ["application/hal+json"])
     @Throws(FileUploadException::class, IOException::class)
     fun createWithFile(
@@ -177,7 +176,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(question?.let { entityModelBuilder(it) }?:"",LinkRelation.of("questionItem"))
             .build()
@@ -206,7 +205,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(response?.let { entityModelBuilder(it) }?:"",LinkRelation.of("responseDomain") )
             .build()
@@ -233,7 +232,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(user!!, LinkRelation.of("modifiedBy"))
             .embed(managedRepresentation!!, LinkRelation.of("managedRepresentation"))
             .build()

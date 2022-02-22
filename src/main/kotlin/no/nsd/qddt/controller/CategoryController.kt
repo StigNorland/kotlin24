@@ -124,7 +124,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
             .entity(entity)
             .link(Link.of(baseUrl))
 
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(children, LinkRelation.of("children"))
             .build()

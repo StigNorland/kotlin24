@@ -64,7 +64,7 @@ abstract class AbstractXmlBuilder {
     fun <S : AbstractEntityAudit> getXmlURN(instance: S): String {
         return java.lang.String.format(
             xmlURN,
-            instance.agency.name,
+            instance.agency!!.name,
             instance.id,
             instance.version.toDDIXml()
         )
@@ -76,7 +76,7 @@ abstract class AbstractXmlBuilder {
 
     protected fun <S : AbstractEntityAudit> getXmlRationale(instance: S): String {
         return String.format(
-            xmlRationale, instance.modifiedBy.username + "@" + (instance.agency.name),
+            xmlRationale, instance.modifiedBy.username + "@" + (instance.agency!!.name),
             "[" + instance.changeKind.description + "] ➫ " + instance.changeComment, instance.changeKind.name
         )
     }
@@ -87,7 +87,7 @@ abstract class AbstractXmlBuilder {
             val uri = "https://qddt.nsd.no/preview/" + basedOn!!.id + "/" + basedOn!!.rev
             val urn = java.lang.String.format(
                 xmlURN,
-                agency.name,
+                agency!!.name,
                 basedOn!!.id,
                 basedOn!!.rev?.let { Version(1, 0, it, "").toDDIXml() }
             )

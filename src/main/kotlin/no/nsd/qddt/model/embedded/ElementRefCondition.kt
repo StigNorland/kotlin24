@@ -2,14 +2,12 @@ package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ControlConstruct
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import java.io.Serializable
 import java.util.*
-import javax.persistence.Embeddable
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Transient
+import javax.persistence.*
 
 @Embeddable
 class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
@@ -18,8 +16,12 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
      * but should never be persisted.
      */
 
-    override var elementId: UUID?=null
-    override var elementRevision: Int? = null
+    @AttributeOverrides(
+        AttributeOverride(name = "id", column = Column(name = "element_id")),
+        AttributeOverride(name = "rev", column = Column(name = "element_revision"))
+    )
+    @Embedded
+    override lateinit var uri: UriId
     @Transient
     @JsonSerialize
     override var version: Version = Version()
@@ -45,17 +47,17 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
     @JsonSerialize
     override var element: ControlConstruct? = null
         set(value) {
-            field = value?.also {
-                elementId = it.id
-                name = it.label
-                version = it.version
-                if (version.rev == 0)
-                    version.rev = elementRevision?:0
+            field = value?.also { item ->
+                uri = UriId().also {
+                    it.id = item.id!!
+                    it.rev = item.version.rev
+                }
+                name = item.label
+                version = item.version
             }
             if (value == null) {
                 name = null
                 condition = ""
-                elementRevision = null
             }
         }
 }

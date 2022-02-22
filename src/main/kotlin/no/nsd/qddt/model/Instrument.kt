@@ -26,6 +26,7 @@ import javax.persistence.*
 @Table(name = "INSTRUMENT")
 data class Instrument(
     override var name: String = "",
+    @Column(length = 1000)
     var description: String? = null
 
 ) : AbstractEntityAudit() {
@@ -34,8 +35,6 @@ data class Instrument(
     @ManyToOne(fetch = FetchType.LAZY)
     lateinit var study: Study
 
-
-
     var label: String = ""
         protected set(value) {
             field = value
@@ -43,8 +42,6 @@ data class Instrument(
                 name = value.uppercase(Locale.getDefault())
             }
         }
-
-
 
     var externalInstrumentLocation: String? = null
 

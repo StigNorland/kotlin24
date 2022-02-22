@@ -26,13 +26,13 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
 
     var versionLabel: String = ""
     set(value) {
-        field = value?:""
+        field = value
     }
 
 
     @Transient
     @JsonSerialize
-    var rev: Int = 0
+    var rev: Int? = 0
 
     @JsonIgnore
     @Transient
@@ -90,7 +90,7 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
     override fun hashCode(): Int {
         var result = major
         result = 31 * result + minor
-        result = 31 * result + rev
+        result = 31 * result + (rev?:0)
         return result
     }
 }

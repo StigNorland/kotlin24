@@ -10,6 +10,7 @@ import no.nsd.qddt.model.interfaces.*
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditMappedBy
 import org.hibernate.envers.Audited
+import java.util.*
 import javax.persistence.*
 
 
@@ -45,6 +46,8 @@ data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuth
 
   @Column(insertable = false, updatable = false)
   var parentIdx: Int? = null
+
+  override var parentId: UUID? = null
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)

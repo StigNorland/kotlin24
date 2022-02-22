@@ -127,15 +127,15 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
             } else {
                 entity.response
             }
-//        var _index = 0
-//        if (response?.managedRepresentation != null) {
-//            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
-////            entity.responseName = response.name
-//        }
+        var _index = 0
+        if (response?.managedRepresentation != null) {
+            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
+//            entity.responseName = response.name
+        }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(response?.let { entityModelBuilder(it) }?:"",LinkRelation.of("responseDomain") )
             .build()
@@ -150,10 +150,10 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-//        entity.managedRepresentation?.children?.forEach {
-//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-//                it.children.size
-//        }
+        entity.managedRepresentation?.children?.forEach {
+            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                it.children.size
+        }
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
@@ -162,7 +162,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(user!!, LinkRelation.of("modifiedBy"))
             .embed(managedRepresentation!!, LinkRelation.of("managedRepresentation"))
             .build()

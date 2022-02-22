@@ -134,7 +134,7 @@ class EntityAuditTrailListener{
             when (entity) {
                 is Publication -> {
                     entity.publicationElements.forEach {
-                        log.debug(it.elementRevision.toString())
+                        log.debug(it.uri.toString())
                     }
                 }
                 is Study -> {
@@ -164,17 +164,22 @@ class EntityAuditTrailListener{
         }
     }
 
-    @PostPersist
     @PostRemove
+    private fun afterREmove(entity: AbstractEntityAudit) {
+        log.debug("PostRemove complete for entity: {}" , entity.id)
+
+    }
+
+    @PostPersist
     private fun afterAnyUpdate(entity: AbstractEntityAudit) {
-        log.debug("Add/update/delete complete for entity: {}" , entity.id)
+        log.debug("PostPersist for entity: {}" , entity.id)
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
     }
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        log.debug("AfterLoading [{}] {} " , entity.classKind, entity.name)
+        log.debug("PostLoad [{}] {} " , entity.classKind, entity.name)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)

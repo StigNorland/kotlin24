@@ -23,10 +23,6 @@ interface ConceptRepository: BaseArchivedRepository<Concept> {
     @RestResource(rel = "all", path = "/list")
     override fun findAll(pageable: Pageable): Page<Concept>
 
-    fun findByParentIdAndNameIsNotNull(id:UUID, pageable:Pageable):Page<Concept>
-
-    fun findByQuestionItemsElementId(id:UUID):List<Concept>
-    
     @Query( nativeQuery = true,
         value = "SELECT c.* FROM concept_hierarchy c " +
                 "WHERE c.change_kind !='BASED_ON' " +

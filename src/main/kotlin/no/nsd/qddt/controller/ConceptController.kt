@@ -7,6 +7,7 @@ import no.nsd.qddt.repository.ConceptRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -22,13 +23,11 @@ import java.util.*
 @BasePathAwareController
 class ConceptController(@Autowired repository: ConceptRepository) : AbstractRestController<Concept>(repository) {
 
-    //    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
         @PathVariable uuid: UUID,
@@ -37,20 +36,19 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         return super.getRevisions(uuid, pageable)
     }
 
-    //    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revisions/byparent/{uri}", produces = ["application/hal+json"])
     fun getParent(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 
 
-    @GetMapping("/concept/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/concept/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
     @ResponseBody
-    @GetMapping("/concept/{uri}")
+    @GetMapping("/concept/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     fun getXmlString(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
 //        return ResponseEntity.ok()
@@ -58,18 +56,6 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
 //            .body(super.getXml(uri))
     }
 
-    @GetMapping(path = ["/concept/xml/{uri}"], produces = [MediaType.TEXT_XML_VALUE])
-    fun download(): ResponseEntity<String> {
-        return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_XML)
-            .body(
-                """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Student>
-    <age>32</age>
-    <name>John</name>
-</Student>"""
-            )
-    }
 
     @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
@@ -177,7 +163,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity).link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))

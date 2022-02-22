@@ -1,7 +1,5 @@
 package no.nsd.qddt.model.embedded
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.classes.UriId
@@ -9,7 +7,6 @@ import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import org.hibernate.envers.Audited
 import java.io.Serializable
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -20,26 +17,17 @@ import javax.persistence.*
 @Embeddable
 class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
     @AttributeOverrides(
-        AttributeOverride(name = "id", column = Column(name = "element_id", insertable = false, updatable = false)),
-        AttributeOverride(name = "rev", column = Column(name = "element_revision", insertable = false, updatable = false))
+        AttributeOverride(name = "id", column = Column(name = "element_id")),
+        AttributeOverride(name = "rev", column = Column(name = "element_revision"))
     )
     @Embedded
-    lateinit var uri: UriId
+    override lateinit var uri: UriId
 
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
 
     @Column(name = "element_name", length = 500)
     override var name: String? = null
-
-
-    @JsonIgnore
-    @Column(name = "element_id")
-    override var elementId: UUID?=null
-
-    @Column(name = "element_revision")
-    @JsonIgnore
-    override var elementRevision: Int? = null
 
 
     @AttributeOverrides(
@@ -68,16 +56,14 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
     override var element: QuestionItem? = null
         set(value) {
             field = value
-            value?.let {
-                elementId = it.id
-                elementRevision = it.version.rev
-                name = it.name
-                text = it.question
-                version = it.version
-            }
-            if (value == null) {
-                name = ""
-                text = ""
+            value?.let { item ->
+                uri = UriId().also {
+                    it.id = item.id!!
+                    it.rev = item.version.rev
+                }
+                name = item.name
+                text = item.question
+                version = item.version
             }
         }
 
@@ -88,27 +74,24 @@ class ElementRefQuestionItem : IElementRef<QuestionItem>, Serializable {
             if (element != null)
                 this.element = element
             else
-                this.elementId = elementId
-                this.elementRevision = elementRevision
-            
+                this.uri = uri
+                this.elementKind = elementKind
         }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is ElementRefQuestionItem) return false
 
-        other as ElementRefQuestionItem
-
-        if (elementId != other.elementId) return false
-        if (elementRevision != other.elementRevision) return false
+        if (uri != other.uri) return false
+        if (elementKind != other.elementKind) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = elementId?.hashCode() ?: 0
-        result = 31 * result + (elementRevision ?: 0)
+        var result = uri.hashCode()
+        result = 31 * result + elementKind.hashCode()
         return result
     }
 

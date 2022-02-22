@@ -15,9 +15,6 @@ import java.util.*
 @RepositoryRestResource(path = "topicgroup",  itemResourceRel = "TopicGroup", excerptProjection = TopicGroupListe::class)
 interface TopicGroupRepository : BaseArchivedRepository<TopicGroup> {
 
-    fun findByQuestionItemsElementId(id: UUID): List<TopicGroup>?
-
-
     @Query( nativeQuery = true,
         value = "SELECT tg.* FROM concept_hierarchy tg " +
                 "WHERE (  tg.change_kind !='BASED_ON' and class_kind='TOPIC_GROUP' and (tg.name ILIKE searchStr(cast(:name AS text))  or tg.description ILIKE searchStr(cast(:description AS text)) ) ) ",

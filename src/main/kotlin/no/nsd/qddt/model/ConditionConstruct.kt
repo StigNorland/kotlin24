@@ -17,7 +17,7 @@ import javax.persistence.*
 @Audited
 @DiscriminatorValue("CONDITION_CONSTRUCT")
 data class ConditionConstruct(
-    @Column(name = "description")
+    @Column(name = "question_text", length = 1500)
     override var condition: String? = null
 ) : ControlConstruct(), IConditionNode {
 

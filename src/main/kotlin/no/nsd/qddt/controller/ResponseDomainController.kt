@@ -152,6 +152,11 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
+
+        entity.managedRepresentation?.children?.forEach {
+            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                it.children.size
+        }
 //        var _index = 0
 //        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
@@ -163,7 +168,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(entity.agency, LinkRelation.of("agency"))
+            .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(user!!, LinkRelation.of("modifiedBy"))
             .embed(managedRepresentation!!, LinkRelation.of("managedRepresentation"))
             .build()

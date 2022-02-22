@@ -17,9 +17,9 @@ class ElementLoader<T : IWebMenuPreview>(protected var repository: RevisionRepos
 
     fun fill(element: IElementRef<T>): IElementRef<T> {
         try {
-            get(element.elementId, element.elementRevision).also {  
+            get(element.uri.id, element.uri.rev).also {
                 element.element = it.entity
-                element.elementRevision = it.revisionNumber.get()
+                element.uri.rev = it.revisionNumber.get()
             }
             return element
         } catch (e: Exception) {

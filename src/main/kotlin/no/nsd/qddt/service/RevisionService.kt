@@ -35,7 +35,7 @@ class RevisionService(val repLoaderService: RepLoaderService) {
         } else {
             pageable
         }
-        return repository.findRevisions(uri.id, qPage ).map {
+        return repository.findRevisions(uri.id!!, qPage ).map {
             Hibernate.initialize(it.entity.agency)
             Hibernate.initialize(it.entity.modifiedBy)
             it.entity.version.rev = it.revisionNumber.get()
@@ -48,7 +48,7 @@ class RevisionService(val repLoaderService: RepLoaderService) {
 
         val repository = repLoaderService.getRepository<T>(elementKind)
 
-        val result = uri.rev?.let { repository.findRevision(uri.id, it) }
+        val result = uri.rev?.let { repository.findRevision(uri.id!!, it) }
 
         return if (result?.isPresent == true) {
             logger.debug(result.get().entity.agency.toString())
@@ -56,7 +56,7 @@ class RevisionService(val repLoaderService: RepLoaderService) {
 //            logger.debug(result.get().entity)
             result.get()
         } else
-            repository.findLastChangeRevision(uri.id).get()
+            repository.findLastChangeRevision(uri.id!!).get()
     }
 
 

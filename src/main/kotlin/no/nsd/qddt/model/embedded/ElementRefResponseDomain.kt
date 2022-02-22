@@ -2,12 +2,13 @@ package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import org.springframework.data.history.Revision
 import java.io.Serializable
 import java.util.*
-import javax.persistence.Embeddable
+import javax.persistence.*
 
 /**
  * @author Stig Norland
@@ -15,34 +16,38 @@ import javax.persistence.Embeddable
 @Embeddable
 class ElementRefResponseDomain() : IElementRef<ResponseDomain> , Serializable {
 
-    override var elementId: UUID?=null
-    override var elementRevision: Int? = null
+    @AttributeOverrides(
+        AttributeOverride(name = "id", column = Column(name = "element_id")),
+        AttributeOverride(name = "rev", column = Column(name = "element_revision"))
+    )
+    @Embedded
+    override lateinit var uri: UriId
     override var name: String? = null
 
-    @javax.persistence.Transient
+    @Transient
     override var version: Version = Version()
 
-    @javax.persistence.Transient
+    @Transient
     override var elementKind: ElementKind = ElementKind.RESPONSEDOMAIN
 
-    @javax.persistence.Transient
+    @Transient
     @JsonSerialize(contentAs = ResponseDomain::class)
     override var element: ResponseDomain? = null
         set(value) {
-            field = value
-            value?.let {
-                elementId = it.id
-                name = it.name
-                version = it.version
+            field = value?.also { item ->
+                uri = UriId().also {
+                    it.id = item.id!!
+                    it.rev = item.version.rev
+                }
+                name = item.name
+                version = item.version
             }
-            if (value == null) {
-                name = ""
-                elementRevision = null
-            }
+//            if (value == null) {
+//                name = ""
+//            }
         }
 
     constructor(revision: Revision<Int, ResponseDomain>) : this() {
-        elementRevision = revision.revisionNumber.get()
         element = revision.entity
     }
     
