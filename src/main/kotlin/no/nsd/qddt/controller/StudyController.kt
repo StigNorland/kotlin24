@@ -31,12 +31,12 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/revisions/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/study/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         pageable: Pageable
     ): RepresentationModel<*>? {
-        return super.getRevisions(uri, pageable)
+        return super.getRevisions(uuid, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -54,7 +54,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
@@ -75,8 +75,10 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
 
 
     fun entityModelBuilder(it: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
-        logger.debug("entityModelBuilder Study TopicGroup : {}", it.id)
-        // uses size() to initialize and fetch collections
+        val uriId = toUriId(it)
+        val baseUrl = baseUrl(uriId,"topicgroup")
+        logger.debug("entityModelBuilder TopicGroup : {}", uriId)
+
         it.authors.size
         it.comments.size
         it.otherMaterials.size
@@ -86,8 +88,8 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
         Hibernate.initialize(it.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(it)
-            .link(Link.of("${baseUri}/topicgroup/${it.id}"))
-            .link(Link.of("${baseUri}/topicgroup/${it.id}/children", "children"))
+            .link(Link.of(baseUrl))
+            .link(Link.of(baseUrl+ "/children", "children"))
             .embed(it.agency, LinkRelation.of("agency"))
             .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(it.comments, LinkRelation.of("comments"))
@@ -99,12 +101,9 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
 
 
     override fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"study")
         logger.debug("entityModelBuilder Study : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/study/revision/${uriId}"
-        else
-            "${baseUri}/study/${uriId.id}"
 
         entity.authors.size
         entity.comments.size
@@ -115,8 +114,6 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-//            .link(Link.of("${baseUri}/study/topics/${uriId}","topics"))
-
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))

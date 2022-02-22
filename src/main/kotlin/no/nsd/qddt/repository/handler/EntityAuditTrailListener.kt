@@ -174,7 +174,8 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        log.debug("AfterLoading [{}] {} : ({})" , entity.classKind, entity.name, entity.modified)
+        log.debug("AfterLoading [{}] {} " , entity.classKind, entity.name)
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
@@ -215,8 +216,8 @@ class EntityAuditTrailListener{
                     entity.children.size
             }
             is Concept ->{
-                entity.questionItems.size
-                entity.children.size
+                entity.questionItems?.size
+                entity.children?.size
                 entity.comments.size
             }
             is TopicGroup -> {
@@ -244,7 +245,7 @@ class EntityAuditTrailListener{
             }
             else -> {
 //                entity.comments.size
-                log.debug("AfterLoad [{}] {} : (no post loading)", entity.classKind , entity.name)
+//                log.debug("AfterLoad [{}] {} : (no post loading)", entity.classKind , entity.name)
             }
         }
     }

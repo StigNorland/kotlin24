@@ -46,7 +46,7 @@ class OtherMaterial():Cloneable, Serializable {
     this.originalName = file.originalFilename.toString()
     this.fileType = file.contentType.toString()
     this.size = file.size
-    this.fileDate = Timestamp.from(Instant.ofEpochMilli(file.resource.lastModified()))
+//    this.fileDate = Timestamp.from(Instant.ofEpochMilli(file.resource.lastModified()))
   }
   constructor(originalName:String, fileType:String, size:Long, description:String?) : this() {
     this@OtherMaterial.originalName = originalName

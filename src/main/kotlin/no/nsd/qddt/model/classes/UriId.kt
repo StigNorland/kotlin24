@@ -22,11 +22,11 @@ data class UriId(
     override fun compareTo(other: UriId): Int {
         return try
         {
-            val i = id?.compareTo(other.id)?:0
+            val i = id.compareTo(other.id)
             if (i != 0) i else (rev?:0).compareTo(other.rev?:0)
         }
         catch (nfe:NumberFormatException) {
-          id?.compareTo(id)?:0
+          id.compareTo(id)
         }
     }
 

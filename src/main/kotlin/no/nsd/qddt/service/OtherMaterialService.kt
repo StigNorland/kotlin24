@@ -10,7 +10,9 @@ import java.util.*
 * @author Stig Norland
 */
 interface OtherMaterialService {
+
   @Throws(IOException::class)
   fun saveFile(multipartFile:MultipartFile, uuid:UUID): OtherMaterial
+
   fun getFile(root:UUID, fileName:String):File
 }

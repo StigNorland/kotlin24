@@ -40,13 +40,13 @@ class TopicController(
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/topicgroup/revisions/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/topicgroup/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
     override fun getRevisions(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         pageable: Pageable,
     ): RepresentationModel<*>? {
-        return super.getRevisions(uri, pageable)
+        return super.getRevisions(uuid, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -63,7 +63,7 @@ class TopicController(
     }
 
     @GetMapping("/topicgroup/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
@@ -160,13 +160,9 @@ class TopicController(
     }
 
     fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
-
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-
-        val self = if (uriId.rev != null)
-            "${baseUri}/concept/revision/${uriId}"
-        else
-            "${baseUri}/concept/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"concept")
+        logger.debug("entityModelBuilder Concept : {}", uriId)
 
         entity.children.size
         entity.authors.size
@@ -176,8 +172,9 @@ class TopicController(
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity)
-            .link(Link.of(self))
-            .link(Link.of("${baseUri}/concept/${uriId.id}/questionItems", "questionItems"))
+            .link(Link.of(baseUrl))
+//            .link(Link.of(self))
+            .link(Link.of("${baseUrl}/questionItems", "questionItems"))
 
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
@@ -189,36 +186,12 @@ class TopicController(
             .build()
     }
 
-//    fun entityModelBuilder(it: Concept): RepresentationModel<EntityModel<Concept>> {
-//        logger.debug("entityModelBuilder TopicController : Concept")
-//        it.children.size
-//        it.authors.size
-//        it.comments.size
-//        it.questionItems.size
-//        Hibernate.initialize(it.agency)
-//        Hibernate.initialize(it.modifiedBy)
-//        return HalModelBuilder.halModel()
-//            .entity(it)
-//            .link(Link.of("${baseUri}/concept/${it.id}"))
-//            .embed(it.agency, LinkRelation.of("agency"))
-//            .embed(it.modifiedBy, LinkRelation.of("modifiedBy"))
-//            .embed(it.comments, LinkRelation.of("comments"))
-//            .embed(it.authors, LinkRelation.of("authors"))
-//            .embed(it.questionItems, LinkRelation.of("questionItems"))
-//            .embed(it.children.map {
-//                entityModelBuilder(it as Concept)
-//            }, LinkRelation.of("children"))
-//            .build()
-//    }
-
 
     override fun entityModelBuilder(entity: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder TopicController : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/topicgroup/revision/${uriId}"
-        else
-            "${baseUri}/topicgroup/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"topicgroup")
+        logger.debug("entityModelBuilder TopicGroup : {}", uriId)
+
         entity.children.size
         entity.authors.size
         entity.comments.size
@@ -228,7 +201,7 @@ class TopicController(
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity).link(Link.of(baseUrl))
-            .link(Link.of("${baseUri}/topicgroup/${uriId.id}/questionItems", "questionItems"))
+            .link(Link.of("${baseUrl}/questionItems", "questionItems"))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))

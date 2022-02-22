@@ -3,6 +3,7 @@ import no.nsd.qddt.model.OtherMaterial
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,7 +14,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.nio.file.attribute.BasicFileAttributes
+import java.sql.Timestamp
 import java.util.*
+
 /**
 * @author Stig Norland
 */
@@ -25,7 +29,7 @@ internal class OtherMaterialServiceImpl : OtherMaterialService {
 
   protected val LOG = LoggerFactory.getLogger(this.javaClass)
 
-  @Transactional
+
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
   @Throws(IOException::class)
   override fun saveFile(multipartFile:MultipartFile, uuid:UUID): OtherMaterial {
@@ -40,6 +44,8 @@ internal class OtherMaterialServiceImpl : OtherMaterialService {
       filePath = Paths.get(getFolder(uuid.toString()), om.fileName)
     }
     Files.copy(multipartFile.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
+    val attr = Files.readAttributes(filePath, BasicFileAttributes::class.java)
+    om.fileDate =  Timestamp.from(attr.creationTime().toInstant())
     return om
   }
 

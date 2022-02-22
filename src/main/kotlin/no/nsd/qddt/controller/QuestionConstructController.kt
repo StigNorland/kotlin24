@@ -24,7 +24,9 @@ import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -64,9 +66,9 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return super.getRevisions(uuid, pageable)
     }
 
-
-    @GetMapping("/questionconstruct/{uri}", produces = ["application/hal+json"])
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
+    @GetMapping("/questionconstruct/{uri}", produces = ["application/hal+json"])
     fun getQuestionConstruct(@PathVariable uri: UUID):  RepresentationModel<*> {
         return entityModelBuilder(repository.findById(uri).orElseThrow())
     }
@@ -76,11 +78,10 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return super.getPdf(uri)
     }
 
-    @GetMapping("/questionconstruct/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    @GetMapping("/questionconstruct/xml/{uri}")
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
-
 
     @ResponseBody
     @Modifying
@@ -120,28 +121,22 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
 //        return PagedModel.of(entities.content, pageMetadataBuilder(entities), Link.of("questionConstructs"))
 //    }
 
-
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @Modifying
-    @PostMapping(value = ["/questionconstruct/createfile"], headers = ["content-type=multipart/form-data"])
+    @PostMapping(value = ["/questionconstruct/createfile"], headers = ["content-type=multipart/form-data"], produces = ["application/hal+json"])
     @Throws(FileUploadException::class, IOException::class)
     fun createWithFile(
         @RequestParam("files") files: Array<MultipartFile>?,
         @RequestParam("controlconstruct") jsonString: String
     ): RepresentationModel<*> {
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
+//        val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
 
         val instance =  mapper.readValue(jsonString, QuestionConstruct::class.java)
-            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
-            instance.modifiedBy = currentuser
-            instance.agency = currentuser.agency
-
-
-        val user = SecurityContextHolder.getContext().authentication.principal as User
-        instance.agency = user.agency
-        instance.modifiedBy = user
-
+        val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+        instance.modifiedBy = currentuser
+        instance.agency = currentuser.agency
 
         if (files != null && files.isNotEmpty()) {
             logger.info("got new files!!!")
@@ -149,27 +144,27 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
             if (null == instance.id) instance.id = UUID.randomUUID()
 
             for (multipartFile in files) {
-                instance.otherMaterials.add(omService.saveFile(multipartFile, instance.id!!))
+                var om = omService.saveFile(multipartFile, instance.id!!)
+                instance.otherMaterials.add(om)
             }
-            if (IBasedOn.ChangeKind.CREATED == instance.changeKind) instance.changeKind =
-                IBasedOn.ChangeKind.TO_BE_DELETED
+            if (IBasedOn.ChangeKind.CREATED == instance.changeKind)
+                instance.changeKind = IBasedOn.ChangeKind.TO_BE_DELETED
         }
-        return   entityModelBuilder(repository.save(instance)as QuestionConstruct)
+        val saved = repository.saveAndFlush(instance)
+        return   entityModelBuilder(saved)
     }
 
 
     override fun entityModelBuilder(entity: QuestionConstruct): RepresentationModel<*> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"questionconstruct")
         logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/questionconstruct/revision/${uriId}"
-        else
-            "${baseUri}/questionconstruct/${uriId.id}"
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         entity.otherMaterials.size
         entity.controlConstructInstructions.size
-        entity.preInstructions.size
+//        entity.preInstructions.size
 
          val question =
              if ((entity.questionId != null) && (this.questionItemRepository != null) && (entity.questionItem == null)) {
@@ -190,12 +185,10 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
 
 
     fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder QuestionItem : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/questionitem/revision/${uriId}"
-        else
-            "${baseUri}/questionitem/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"questionitem")
+        logger.debug("entityModelBuilder QuestionConstruct:QuestionItem : {}", uriId)
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
@@ -220,12 +213,10 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     }
 
     fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder ResponseDomain : {} {}", uriId, entity.codes.joinToString { it.value })
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/responsedomain/revision/${uriId}"
-        else
-            "${baseUri}/responsedomain/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"responsedomain")
+        logger.debug("entityModelBuilder QuestionConstruct:ResponseDomain : {}", uriId)
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)

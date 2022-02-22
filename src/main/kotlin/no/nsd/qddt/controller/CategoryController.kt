@@ -1,11 +1,9 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.CategoryRepository
-import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -32,12 +30,12 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/category/revisions/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/category/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         pageable: Pageable
     ): RepresentationModel<*>? {
-        return super.getRevisions(uri, pageable)
+        return super.getRevisions(uuid, pageable)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -55,7 +53,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/category/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
@@ -90,14 +88,14 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    @PutMapping("/category/{uri}/children", produces = ["application/hal+json"])
+    @PutMapping("/category/{uuid}/children", produces = ["application/hal+json"])
     fun putChildren(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         @RequestBody category: Category
     ): ResponseEntity<RepresentationModel<EntityModel<Category>>> {
         logger.debug("put category CategoryController...")
 
-        var parent = repository.findById(uri).orElseThrow()
+        var parent = repository.findById(uuid).orElseThrow()
         val entity = repository.findById(category.id!!).orElseThrow()
         if (category.code!= null) {
             entity.code = category.code
@@ -109,12 +107,10 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     }
 
     override fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"category")
         logger.debug("entityModelBuilder Category : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/category/revision/${uriId}"
-        else
-            "${baseUri}/category/${uriId.id}"
+
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {
                 entity.children.size
@@ -127,7 +123,6 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-//            .link(Link.of("${baseUri}/category/topics/${uriId}","topics"))
 
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))

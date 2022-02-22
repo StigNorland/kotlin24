@@ -23,6 +23,9 @@ import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 import java.util.*
@@ -32,8 +35,6 @@ import javax.persistence.PersistenceContext
 
 abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: BaseMixedRepository<T>) {
 
-    val baseUri get() = BasicLinkBuilder.linkToCurrentMapping()
-
     @PersistenceContext
     protected val entityManager: EntityManager? = null
 
@@ -42,14 +43,20 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
     val repLoaderService get() = applicationContext?.getBean("repLoaderService") as RepLoaderService
 
+    val baseUri get() = BasicLinkBuilder.linkToCurrentMapping()
+
+    val toUriId = { entity: AbstractEntityAudit ->  UriId.fromAny("${entity.id}:${entity.version.rev}") }
+
+    val baseUrl =  { uriId:UriId, path:String ->  if (uriId.rev != null)  "${baseUri}/${path}/revision/${uriId}" else "${baseUri}/${path}/${uriId.id}"}
+
     @ResponseBody
     open fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         val uriId = UriId.fromAny(uri)
 
         return if (uriId.rev != null) {
             logger.debug("getRevisions entityRevisionModelBuilder")
-            val rev = repository.findRevision(uriId.id!!, uriId.rev!!)
-                .orElse(repository.findLastChangeRevision(uriId.id!!)
+            val rev = repository.findRevision(uriId.id, uriId.rev!!)
+                .orElse(repository.findLastChangeRevision(uriId.id)
                 .orElseThrow())
             entityRevisionModelBuilder(rev)
         } else {
@@ -102,11 +109,14 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         return getByUri(uri).makePdf().toByteArray()
     }
 
-
-    open fun getXml(@PathVariable uri: String): String {
+    @ResponseBody
+    open fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         val xml = XmlDDIFragmentAssembler(getByUri(uri)).compileToXml()
         logger.debug("compiledToXml : {}", xml)
-        return xml
+        return ResponseEntity.ok()
+//            .contentType(MediaType.TEXT_XML)
+            .contentLength(xml.length.toLong())
+            .body(xml)
     }
 
 
@@ -116,7 +126,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
-//        Hibernate.initialize(entity.parent)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of("${baseUri}/study/${entity.id}"))
@@ -148,36 +157,34 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     private fun getByUri(uri: UriId): T {
         logger.debug("_getByUri : {}", uri)
         return if (uri.rev != null)
-            repository.findRevision(uri.id!!, uri.rev!!).map {
+            repository.findRevision(uri.id, uri.rev!!).map {
                 logger.debug("_getByUri : {}", it.entity.version.rev)
                 it.entity.version.rev = it.revisionNumber.get()
                 it.entity
             }.orElseThrow()
         else
-            repository.findById(uri.id!!).orElseThrow()
+            repository.findById(uri.id).orElseThrow()
     }
-
 
     companion object {
 
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
         fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId,repository: RevisionRepository<T, UUID, Int>): T {
-            logger.debug("loadRevisionEntity {}", uri )
+            logger.debug("loadRevisionEntity {}:{}",  repository.toString(),  uri )
             return with(uri) {
                 if (rev != null && rev != 0)
-                    repository.findRevision(id!!, rev!!).map {
+                    repository.findRevision(id, rev!!).map {
                         it.entity.version.rev = it.revisionNumber.get()
                         it.entity
                     }.get()
                 else
-                    repository.findLastChangeRevision(id!!).map {
+                    repository.findLastChangeRevision(id).map {
                         it.entity.version.rev = it.revisionNumber.get()
                         it.entity
                     }.get()
             }
         }
     }
-
 
 }

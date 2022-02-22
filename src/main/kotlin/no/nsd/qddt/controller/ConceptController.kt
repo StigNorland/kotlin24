@@ -1,10 +1,8 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
-import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.repository.ConceptRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,12 +29,12 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/concept/revisions/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/concept/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         pageable: Pageable
     ): RepresentationModel<*>? {
-        return super.getRevisions(uri, pageable)
+        return super.getRevisions(uuid, pageable)
     }
 
     //    @Transactional(propagation = Propagation.REQUIRED)
@@ -52,12 +50,12 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     }
 
     @ResponseBody
-    @GetMapping("/concept/{uri}", produces = [MediaType.TEXT_XML_VALUE])
+    @GetMapping("/concept/{uri}")
     fun getXmlString(@PathVariable uri: String): ResponseEntity<String> {
-//        return super.getXml(uri)
-        return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_XML)
-            .body(super.getXml(uri))
+        return super.getXml(uri)
+//        return ResponseEntity.ok()
+//            .contentType(MediaType.TEXT_XML)
+//            .body(super.getXml(uri))
     }
 
     @GetMapping(path = ["/concept/xml/{uri}"], produces = [MediaType.TEXT_XML_VALUE])
@@ -167,16 +165,11 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     }
 
     override fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/concept/revision/${uriId}"
-        else
-            "${baseUri}/concept/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"concept")
+        logger.debug("entityModelBuilder Concept : {}", uriId)
 
         entity.children.size
-        if (entity.children== null) {
-            logger.error("wrf null children")
-        }
         entity.authors.size
         entity.comments.size
         entity.questionItems.size

@@ -61,7 +61,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
 //    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/xml"])
-    override fun getXml(@PathVariable uri: String): String {
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
@@ -84,9 +84,9 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             populateCatCodes(saved.managedRepresentation, index, saved.codes)
             logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
 
-            if (saved == null) {
-                return ResponseEntity<ResponseDomain>(HttpStatus.NOT_MODIFIED)
-            }
+//            if (saved == null) {
+//                return ResponseEntity<ResponseDomain>(HttpStatus.NOT_MODIFIED)
+//            }
             return ResponseEntity<ResponseDomain>( HttpStatus.OK)
         } catch (e: Exception) {
             return ResponseEntity<ResponseDomain>( HttpStatus.INTERNAL_SERVER_ERROR)
@@ -105,14 +105,15 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
                 responseDomain.codes.joinToString { it.value })
 
             val saved = repository.save(responseDomain)
+//            if (saved == null) {
+//                return ResponseEntity<ResponseDomain>(HttpStatus.NO_CONTENT)
+//            }
 
             var index = 0
             populateCatCodes(saved.managedRepresentation, index, saved.codes)
             logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
 
-            if (saved == null) {
-                return ResponseEntity<ResponseDomain>(HttpStatus.NO_CONTENT)
-            }
+
             return ResponseEntity(null, HttpStatus.CREATED)
         } catch (e: Exception) {
             return ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
@@ -144,17 +145,15 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
 
     override fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder ResponseDomain : {} {}", uriId, entity.codes.joinToString { it.value })
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/responsedomain/revision/${uriId}"
-        else
-            "${baseUri}/responsedomain/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"responsedomain")
+        logger.debug("entityModelBuilder ResponseDomain : {}", uriId)
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
-        var _index = 0
-        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
+//        var _index = 0
+//        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
@@ -171,12 +170,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     }
 
     fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder Category : {} : {}", uriId, entity.code)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/category/revision/${uriId}"
-        else
-            "${baseUri}/category/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"category")
+        logger.debug("entityModelBuilder Category : {}", uriId)
+
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {
                 entity.children.size

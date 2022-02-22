@@ -12,6 +12,7 @@ import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -27,12 +28,12 @@ class PublicationController(@Autowired repository: PublicationRepository) :
         return super.getRevision(uri)
     }
 
-    @GetMapping("/publication/revisions/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/publication/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         pageable: Pageable
     ): RepresentationModel<*>? {
-        return super.getRevisions(uri, pageable)
+        return super.getRevisions(uuid, pageable)
     }
 
 
@@ -42,7 +43,7 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     }
 
     @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 //    @ResponseBody
@@ -78,12 +79,10 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     }
 
     override fun entityModelBuilder(entity: Publication): RepresentationModel<EntityModel<Publication>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"publication")
         logger.debug("entityModelBuilder Publication : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/publication/revision/${uriId}"
-        else
-            "${baseUri}/publication/${uriId.id}"
+
         entity.comments.size
         entity.comments.forEach {
             logger.debug("initialize(comments.modifiedBy)")

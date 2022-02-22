@@ -35,7 +35,7 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
     @ResponseBody
     @GetMapping("/statementitem/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
-        return entityModelBuilder(repository.getById(uuid) as StatementItem)
+        return entityModelBuilder(repository.getById(uuid))
     }
     @ResponseBody
     @Modifying
@@ -53,7 +53,7 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
         @RequestParam("controlconstruct") jsonString: String
     ): RepresentationModel<*> {
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
+//        val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
 
         val instance = mapper.readValue(jsonString, StatementItem::class.java)
 
@@ -72,16 +72,14 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
     }
 
 
+
      override fun entityModelBuilder(entity: StatementItem): RepresentationModel<*> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/questionitem/revision/${uriId}"
-        else
-            "${baseUri}/questionitem/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"statementitem")
+         logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
-
 
         return HalModelBuilder.halModel()
             .entity(entity)

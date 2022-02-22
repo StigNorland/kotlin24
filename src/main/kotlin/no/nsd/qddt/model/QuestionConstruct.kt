@@ -148,11 +148,11 @@ data class QuestionConstruct(
             pdfReport.addParagraph(uni.description)
         }
 
-        if (preInstructions.isNotEmpty() == true)
+        if (preInstructions.isNotEmpty())
             pdfReport.addHeader2("Pre Instructions")
 
         for (pre in preInstructions) {
-            pre?.let { pdfReport.addParagraph(it.description) }
+            pre.let { pdfReport.addParagraph(it.description) }
         }
 
         pdfReport.addHeader2("Question Item")
@@ -163,7 +163,7 @@ data class QuestionConstruct(
             pdfReport.addHeader2("Post Instructions")
 
         for (post in postInstructions) {
-            post?.let { pdfReport.addParagraph(it.description) }
+            post.let { pdfReport.addParagraph(it.description) }
         }
         if (comments.size > 0)
             pdfReport.addHeader2("Comments")

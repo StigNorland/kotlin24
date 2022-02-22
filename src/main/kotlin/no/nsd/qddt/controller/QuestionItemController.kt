@@ -68,8 +68,8 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    @GetMapping("/questionitem/{uri}", produces = [MediaType.TEXT_XML_VALUE])
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
@@ -114,12 +114,10 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     }
 
     override fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"questionitem")
         logger.debug("entityModelBuilder QuestionItem : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/questionitem/revision/${uriId}"
-        else
-            "${baseUri}/questionitem/${uriId.id}"
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
 
@@ -129,11 +127,11 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
             } else {
                 entity.response
             }
-        var _index = 0
-        if (response?.managedRepresentation != null) {
-            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
-//            entity.responseName = response.name
-        }
+//        var _index = 0
+//        if (response?.managedRepresentation != null) {
+//            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
+////            entity.responseName = response.name
+//        }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
@@ -144,20 +142,18 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     }
 
     fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
-        logger.debug("entityModelBuilder ResponseDomain : {} {}", uriId, entity.codes.joinToString { it.value })
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/responsedomain/revision/${uriId}"
-        else
-            "${baseUri}/responsedomain/${uriId.id}"
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"responsedomain")
+        logger.debug("entityModelBuilder QuestionItem:ResponseDomain : {}", uriId)
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        entity.managedRepresentation?.children?.forEach {
-            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-                it.children.size
-        }
+//        entity.managedRepresentation?.children?.forEach {
+//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+//                it.children.size
+//        }
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =

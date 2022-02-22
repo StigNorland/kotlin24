@@ -33,12 +33,12 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/surveyprogram/revisions/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/surveyprogram/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         pageable: Pageable
     ): RepresentationModel<*>? {
-        return super.getRevisions(uri, pageable)
+        return super.getRevisions(uuid, pageable)
     }
 
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
@@ -47,7 +47,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     }
 
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
-    override fun getXml(@PathVariable uri: String): String {
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
@@ -86,19 +86,17 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     }
 
     override fun entityModelBuilder(entity: SurveyProgram): RepresentationModel<EntityModel<SurveyProgram>> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"surveyprogram")
         logger.debug("entityModelBuilder SurveyProgram : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/surveyprogram/revision/${uriId}"
-        else
-            "${baseUri}/surveyprogram/${uriId.id}"
+
         entity.children.size
         entity.authors.size
         entity.comments.size
-        entity.comments.forEach {
-            logger.debug("initialize(comments.modifiedBy)")
-            Hibernate.initialize(it.modifiedBy)
-        }
+//        entity.comments.forEach {
+//            logger.debug("initialize(comments.modifiedBy)")
+//            Hibernate.initialize(it.modifiedBy)
+//        }
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()

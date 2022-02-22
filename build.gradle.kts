@@ -34,42 +34,24 @@ dependencies {
 	implementation("org.springframework.data:spring-data-rest-hal-explorer")
 	implementation("org.springframework.boot:spring-boot-starter-hateoas")
 	implementation("org.springframework.data:spring-data-envers")
-//	implementation("org.hibernate:hibernate-envers:5.3.11.Final")
 
 	implementation("org.apache.httpcomponents:httpclient:4.5.13")
 	implementation("org.apache.httpcomponents:httpclient-cache:4.5.13")
-
+	implementation("org.apache.commons:commons-lang3:3.12.0")
+	implementation("io.jsonwebtoken:jjwt-api:0.11.2")
 
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
-//	implementation("com.fasterxml.jackson.core:jackson-core:2.13.1")
-//	implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
-//	implementation("org.jetbrains.kotlin:kotlin-reflect")
-//	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-//	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
-
 
 	implementation("com.google.code.gson:gson:2.8.9")
-
 	implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")
-
-//	implementation("io.jsonwebtoken:jjwt:0.9.1")
-	implementation("io.jsonwebtoken:jjwt-api:0.11.2")
-	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
-
-	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     implementation("com.itextpdf:itext7-core:7.1.17")
     implementation("com.itextpdf:html2pdf:3.0.5")
 
-	implementation("org.apache.commons:commons-lang3:3.12.0")
-
-
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 	runtimeOnly("org.postgresql:postgresql")
-//	runtimeOnly("com.h2database:h2")
-//	runtimeOnly("org.springframework.boot:spring-boot-devtools")
-
-	// kapt("org.springframework.boot:spring-boot-configuration-processor")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

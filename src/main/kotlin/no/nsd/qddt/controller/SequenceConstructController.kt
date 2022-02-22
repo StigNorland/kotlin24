@@ -40,7 +40,6 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @ResponseBody
     @GetMapping("/sequence/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
@@ -55,42 +54,11 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     }
 
 
-//    @ResponseBody
-//    @Modifying
-//    @PostMapping(value = ["/sequence/createfile"], headers = ["content-type=multipart/form-data"])
-//    @Throws(FileUploadException::class, IOException::class)
-//    fun createWithFile(
-//        @RequestParam("files") files: Array<MultipartFile>?,
-//        @RequestParam("controlconstruct") jsonString: String
-//    ): RepresentationModel<*> {
-//        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-//        val index = jsonString.indexOf("\"classKind\":\"QUESTION_CONSTRUCT\"")
-//
-//        val instance =mapper.readValue(jsonString, Sequence::class.java)
-//
-//
-//        if (files != null && files.isNotEmpty()) {
-//            logger.info("got new files!!!")
-//
-//            if (null == instance.id) instance.id = UUID.randomUUID()
-//
-//            for (multipartFile in files) {
-//                instance.otherMaterials.add(omService.saveFile(multipartFile, instance.id!!))
-//            }
-//            if (IBasedOn.ChangeKind.CREATED == instance.changeKind) instance.changeKind =
-//                IBasedOn.ChangeKind.TO_BE_DELETED
-//        }
-//        return   entityModelBuilder(repository.save(instance))
-//    }
-
-
     override fun entityModelBuilder(entity: Sequence): RepresentationModel<*> {
-        val uriId = UriId.fromAny("${entity.id}:${entity.version.rev}")
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId,"sequence")
         logger.debug("entityModelBuilder Sequence : {}", uriId)
-        val baseUrl = if (uriId.rev != null)
-            "${baseUri}/sequence/revision/${uriId}"
-        else
-            "${baseUri}/sequence/${uriId.id}"
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.condition)
@@ -106,10 +74,5 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
             .build()
     }
 
-
-//
-//    override fun entityModelBuilder(entity: ControlConstruct): RepresentationModel<EntityModel<ControlConstruct>> {
-//        return super.entityModelBuilder(entity)
-//    }
 
 }
