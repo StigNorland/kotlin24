@@ -121,14 +121,15 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
 
     open fun entityModelBuilder(entity: T): RepresentationModel<*> {
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId, entity.classKind.lowercase())
         logger.debug("entityModelBuilder(T) : {}", entity.name)
-        val baseUri = BasicLinkBuilder.linkToCurrentMapping()
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity)
-            .link(Link.of("${baseUri}/study/${entity.id}"))
+            .link(Link.of(baseUrl))
             .embed(entity.agency, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
