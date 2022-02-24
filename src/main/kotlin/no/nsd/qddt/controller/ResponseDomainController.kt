@@ -154,8 +154,8 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
                 it.children.size
         }
-//        var _index = 0
-//        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
+        var _index = 0
+        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
