@@ -12,6 +12,7 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
+
 //@EntityListeners(value = [QuestionItemRefAuditTrailer::class])
 @Audited
 @Embeddable

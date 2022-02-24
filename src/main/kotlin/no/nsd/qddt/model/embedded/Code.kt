@@ -9,6 +9,7 @@ import javax.persistence.Embeddable
 * @author Dag Østgulen Heradstveit
 * @author Stig Norland
 */
+
 @Audited
 @Embeddable
 data class Code(

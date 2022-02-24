@@ -9,6 +9,7 @@ import javax.persistence.Embeddable
 /**
  * @author Stig Norland
  */
+
 @Audited
 @Embeddable
 class Parameter(

@@ -256,122 +256,130 @@ CREATE VIEW public.uuidpath (id, path, name, modified_by_id) AS
 DROP TABLE IF EXISTS public.change_log;
 DROP VIEW IF  EXISTS public.change_log;
 
-CREATE VIEW public.change_log (ref_id, ref_rev, ref_kind, ref_change_kind, ref_modified, ref_modified_by, ref_action, element_id, element_revision, element_kind, name) AS  SELECT ca.id AS ref_id,
-    ca.rev AS ref_rev,
-    'CONCEPT_HIERARCHY'::text AS ref_kind,
-    ca.change_kind AS ref_change_kind,
-    ca.modified AS ref_modified,
-    ca.modified_by_id AS ref_modified_by,
-    ca.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    NULL::character varying AS element_kind,
-    COALESCE(ca.name, 'Deleted'::character varying) AS name
-   FROM audit.concept_hierarchy_aud ca
+create view change_log
+            (ref_id, ref_rev, ref_kind, ref_change_kind, ref_modified, ref_modified_by, ref_action, element_id,
+             element_revision, element_kind, name)
+as
+SELECT ca.id                                           AS ref_id,
+       ca.rev                                          AS ref_rev,
+       'CONCEPT_HIERARCHY'::text                       AS ref_kind,
+       ca.change_kind                                  AS ref_change_kind,
+       ca.modified                                     AS ref_modified,
+       ca.modified_by_id                               AS ref_modified_by,
+       ca.revtype                                      AS ref_action,
+       NULL::uuid                                      AS element_id,
+       NULL::integer                                   AS element_revision,
+       NULL::character varying                         AS element_kind,
+       COALESCE(ca.name, 'Deleted'::character varying) AS name
+FROM audit.concept_hierarchy_aud ca
 UNION
- SELECT cc.id AS ref_id,
-    cc.rev AS ref_rev,
-    'CONTROL_CONSTRUCT'::text AS ref_kind,
-    cc.change_kind AS ref_change_kind,
-    cc.modified AS ref_modified,
-    cc.modified_by_id AS ref_modified_by,
-    cc.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    NULL::character varying AS element_kind,
-    COALESCE(cc.name, 'Deleted'::character varying) AS name
-   FROM audit.control_construct_aud cc
+SELECT cc.id                                           AS ref_id,
+       cc.rev                                          AS ref_rev,
+       'CONTROL_CONSTRUCT'::text                       AS ref_kind,
+       cc.change_kind                                  AS ref_change_kind,
+       cc.modified                                     AS ref_modified,
+       cc.modified_by_id                               AS ref_modified_by,
+       cc.revtype                                      AS ref_action,
+       NULL::uuid                                      AS element_id,
+       NULL::integer                                   AS element_revision,
+       NULL::character varying                         AS element_kind,
+       COALESCE(cc.name, 'Deleted'::character varying) AS name
+FROM audit.control_construct_aud cc
 UNION
- SELECT ai.id AS ref_id,
-    ai.rev AS ref_rev,
-    'INSTRUMENT'::text AS ref_kind,
-    ai.change_kind AS ref_change_kind,
-    ai.modified AS ref_modified,
-    ai.modified_by_id AS ref_modified_by,
-    ai.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    NULL::character varying AS element_kind,
-    COALESCE(ai.name, 'Deleted'::character varying) AS name
-   FROM audit.instrument_aud ai
+SELECT ai.id                                           AS ref_id,
+       ai.rev                                          AS ref_rev,
+       'INSTRUMENT'::text                              AS ref_kind,
+       ai.change_kind                                  AS ref_change_kind,
+       ai.modified                                     AS ref_modified,
+       ai.modified_by_id                               AS ref_modified_by,
+       ai.revtype                                      AS ref_action,
+       NULL::uuid                                      AS element_id,
+       NULL::integer                                   AS element_revision,
+       NULL::character varying                         AS element_kind,
+       COALESCE(ai.name, 'Deleted'::character varying) AS name
+FROM audit.instrument_aud ai
 UNION
- SELECT qi.id AS ref_id,
-    qi.rev AS ref_rev,
-    'QUESTION_ITEM'::text AS ref_kind,
-    qi.change_kind AS ref_change_kind,
-    qi.modified AS ref_modified,
-    qi.modified_by_id AS ref_modified_by,
-    qi.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    NULL::character varying AS element_kind,
-    COALESCE(qi.name, 'Deleted'::character varying) AS name
-   FROM audit.question_item_aud qi
+SELECT qi.id                                           AS ref_id,
+       qi.rev                                          AS ref_rev,
+       'QUESTION_ITEM'::text                           AS ref_kind,
+       qi.change_kind                                  AS ref_change_kind,
+       qi.modified                                     AS ref_modified,
+       qi.modified_by_id                               AS ref_modified_by,
+       qi.revtype                                      AS ref_action,
+       NULL::uuid                                      AS element_id,
+       NULL::integer                                   AS element_revision,
+       NULL::character varying                         AS element_kind,
+       COALESCE(qi.name, 'Deleted'::character varying) AS name
+FROM audit.question_item_aud qi
 UNION
- SELECT rd.id AS ref_id,
-    rd.rev AS ref_rev,
-    'RESPONSEDOMAIN'::text AS ref_kind,
-    rd.change_kind AS ref_change_kind,
-    rd.modified AS ref_modified,
-    rd.modified_by_id AS ref_modified_by,
-    rd.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    NULL::character varying AS element_kind,
-    COALESCE(rd.name, 'Deleted'::character varying) AS name
-   FROM audit.responsedomain_aud rd
+SELECT rd.id                                           AS ref_id,
+       rd.rev                                          AS ref_rev,
+       'RESPONSEDOMAIN'::text                          AS ref_kind,
+       rd.change_kind                                  AS ref_change_kind,
+       rd.modified                                     AS ref_modified,
+       rd.modified_by_id                               AS ref_modified_by,
+       rd.revtype                                      AS ref_action,
+       NULL::uuid                                      AS element_id,
+       NULL::integer                                   AS element_revision,
+       NULL::character varying                         AS element_kind,
+       COALESCE(rd.name, 'Deleted'::character varying) AS name
+FROM audit.responsedomain_aud rd
 UNION
- SELECT ap.id AS ref_id,
-    ap.rev AS ref_rev,
-    'PUBLICATION'::text AS ref_kind,
-    ap.change_kind AS ref_change_kind,
-    ap.modified AS ref_modified,
-    ap.modified_by_id AS ref_modified_by,
-    ap.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    NULL::character varying AS element_kind,
-    COALESCE(ap.name, 'Deleted'::character varying) AS name
-   FROM audit.publication_aud ap
+SELECT ap.id                                           AS ref_id,
+       ap.rev                                          AS ref_rev,
+       'PUBLICATION'::text                             AS ref_kind,
+       ap.change_kind                                  AS ref_change_kind,
+       ap.modified                                     AS ref_modified,
+       ap.modified_by_id                               AS ref_modified_by,
+       ap.revtype                                      AS ref_action,
+       NULL::uuid                                      AS element_id,
+       NULL::integer                                   AS element_revision,
+       NULL::character varying                         AS element_kind,
+       COALESCE(ap.name, 'Deleted'::character varying) AS name
+FROM audit.publication_aud ap
 UNION
- SELECT cqi.parent_id AS ref_id,
-    cqi.rev AS ref_rev,
-    'CONCEPT_HIERARCHY'::text AS ref_kind,
-    NULL::character varying AS ref_change_kind,
-    NULL::timestamp without time zone AS ref_modified,
-    NULL::uuid AS ref_modified_by,
-    cqi.revtype AS ref_action,
-    cqi.element_id,
-    cqi.element_revision,
-    cqi.element_kind,
-    COALESCE(cqi.element_name, 'Deleted'::character varying) AS name
-   FROM audit.concept_hierarchy_question_item_aud cqi
+SELECT cqi.parent_id                                            AS ref_id,
+       cqi.rev                                                  AS ref_rev,
+       'CONCEPT_HIERARCHY'::text                                AS ref_kind,
+       'UPDATED_HIERARCHY_RELATION'::text                       AS ref_change_kind,
+       r2.modified                                              AS ref_modified,
+       r2.modified_by_id                                        AS ref_modified_by,
+       cqi.revtype                                              AS ref_action,
+       cqi.element_id,
+       cqi.element_revision,
+       cqi.element_kind,
+       COALESCE(cqi.element_name, 'Deleted'::character varying) AS name
+FROM audit.concept_hierarchy_question_item_aud cqi
+         LEFT JOIN revinfo r2 ON cqi.rev = r2.id
 UNION
- SELECT ccom.owner_id AS ref_id,
-    ccom.rev AS ref_rev,
-    'CONTROL_CONSTRUCT'::text AS ref_kind,
-    NULL::character varying AS ref_change_kind,
-    NULL::timestamp without time zone AS ref_modified,
-    NULL::uuid AS ref_modified_by,
-    ccom.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    'OTHER_MATERIAL'::text AS element_kind,
-    ccom.original_name AS name
-   FROM audit.control_construct_other_material_aud ccom
+SELECT ccom.owner_id             AS ref_id,
+       ccom.rev                  AS ref_rev,
+       'CONTROL_CONSTRUCT'::text AS ref_kind,
+       NULL::character varying   AS ref_change_kind,
+       r.modified                AS ref_modified,
+       r.modified_by_id          AS ref_modified_by,
+       ccom.revtype              AS ref_action,
+       NULL::uuid                AS element_id,
+       NULL::integer             AS element_revision,
+       'OTHER_MATERIAL'::text    AS element_kind,
+       ccom.original_name        AS name
+FROM audit.control_construct_other_material_aud ccom
+         LEFT JOIN revinfo r ON ccom.rev = r.id
 UNION
- SELECT tgom.owner_id AS ref_id,
-    tgom.rev AS ref_rev,
-    'CONCEPT_HIERARCHY'::text AS ref_kind,
-    NULL::character varying AS ref_change_kind,
-    NULL::timestamp without time zone AS ref_modified,
-    NULL::uuid AS ref_modified_by,
-    tgom.revtype AS ref_action,
-    NULL::uuid AS element_id,
-    NULL::integer AS element_revision,
-    'OTHER_MATERIAL'::text AS element_kind,
-    tgom.original_name AS name
-   FROM audit.concept_hierarchy_other_material_aud tgom;
+SELECT tgom.owner_id             AS ref_id,
+       tgom.rev                  AS ref_rev,
+       'CONCEPT_HIERARCHY'::text AS ref_kind,
+       NULL::character varying   AS ref_change_kind,
+       r3.modified               AS ref_modified,
+       r3.modified_by_id         AS ref_modified_by,
+       tgom.revtype              AS ref_action,
+       NULL::uuid                AS element_id,
+       NULL::integer             AS element_revision,
+       'OTHER_MATERIAL'::text    AS element_kind,
+       tgom.original_name        AS name
+FROM audit.concept_hierarchy_other_material_aud tgom
+         LEFT JOIN revinfo r3 ON tgom.rev = r3.id;
+
 
 CREATE FUNCTION searchStr(text default '%') RETURNS text AS $$
 SELECT REPLACE($1,'*','%')

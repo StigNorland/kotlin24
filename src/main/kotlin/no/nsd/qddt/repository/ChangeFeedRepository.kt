@@ -21,16 +21,5 @@ interface ChangeFeedRepository : JpaRepository<ChangeFeed, ChangeFeedKey> {
         pageable: Pageable?
     ): Page<ChangeFeed>
 
-//    @Query(nativeQuery = false,
-//        value = "SELECT cl FROM ChangeFeed cl " +
-//                "WHERE  lower(cl.name) like :name or lower(cl.refChangeKind) LIKE :changeKind or lower(cl.refKind) LIKE :kind "
-//        ,
-//        countQuery = "SELECT count(cl) FROM ChangeFeed cl " +
-//                "WHERE  lower(cl.name) like :name or lower(cl.refChangeKind) LIKE :changeKind or lower(cl.refKind) LIKE :kind "
-//    )
-//    fun findByQuery(
-//        @Param("name") name: String?,
-//        @Param("changeKind") changeKind: String?,
-//        @Param("kind") kind: String?, pageable: Pageable?
-//    ): Page<ChangeFeed?>?
+
 }

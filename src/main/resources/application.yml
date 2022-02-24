@@ -87,7 +87,7 @@ server:
 
 qddt:
   api:
-    origin: https://*.nsd.no/,http://localhost:4200,http://nsd404:4200
+    origin: https://*.nsd.no/,http://localhost:4200,http://nsd404:4200,http://odin:4200
     rooturl: http://localhost:5001/
     fileroot: c:\\Projects\\qddt\\uploads\\
 

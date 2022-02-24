@@ -50,12 +50,4 @@ data class ChangeFeed(@EmbeddedId private val changeFeedKey: ChangeFeedKey? = nu
     @Column(name = "name")
     var name: String? = null
 
-//        get() = changeFeedKey.refId
-//    var refAction: ActionKind
-//        get() = changeFeedKey.refAction
-//        set(refAction) {
-//            changeFeedKey.refAction = refAction
-//        }
-
-
 }

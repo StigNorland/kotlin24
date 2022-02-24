@@ -2,6 +2,7 @@ package no.nsd.qddt.model.embedded
 
  import com.fasterxml.jackson.annotation.JsonIgnore
  import com.fasterxml.jackson.databind.annotation.JsonSerialize
+ import org.hibernate.envers.Audited
  import java.io.Serializable
  import javax.persistence.Embeddable
  import javax.persistence.Transient
@@ -10,6 +11,7 @@ package no.nsd.qddt.model.embedded
  * @author Stig Norland
  */
 @Embeddable
+@Audited
 //@JsonDeserialize(converter = KotlinVersionConverter::class)
 data class Version(@Transient private var _isModified: Boolean = false) : Comparable<Version>, Serializable {
     var major = 1

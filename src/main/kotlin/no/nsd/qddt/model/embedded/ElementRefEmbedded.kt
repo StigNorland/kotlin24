@@ -6,14 +6,14 @@ import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import org.hibernate.envers.Audited
 import java.io.Serializable
-import java.util.*
 import javax.persistence.Embeddable
 
 /**
  * @author Stig Norland
  */
-@Embeddable
+
 @Audited
+@Embeddable
 class ElementRefEmbedded<T : IWebMenuPreview>:AbstractElementRef<T>, Serializable {
 
     constructor() : super()

@@ -23,6 +23,7 @@ import java.util.*
 @BasePathAwareController
 class ConceptController(@Autowired repository: ConceptRepository) : AbstractRestController<Concept>(repository) {
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/concept/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)

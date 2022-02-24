@@ -7,12 +7,12 @@ import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.interfaces.IElementRef
 import org.hibernate.envers.Audited
 import java.io.Serializable
-import java.util.*
 import javax.persistence.*
 
 /**
  * @author Stig Norland
  */
+
 @Audited
 @Embeddable
 class PublicationElement : IElementRef<IDomainObject> , Serializable {

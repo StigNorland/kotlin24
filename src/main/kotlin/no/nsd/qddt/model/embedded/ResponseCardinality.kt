@@ -1,5 +1,6 @@
 package no.nsd.qddt.model.embedded
 
+import org.hibernate.envers.Audited
 import java.io.Serializable
 import javax.persistence.Embeddable
 
@@ -8,6 +9,7 @@ import javax.persistence.Embeddable
  *
  * @author Stig Norland
  */
+@Audited
 @Embeddable
 class ResponseCardinality(
     var minimum: Int = 0,

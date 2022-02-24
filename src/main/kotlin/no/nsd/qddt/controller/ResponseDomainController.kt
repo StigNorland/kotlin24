@@ -93,7 +93,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         }
     }
 
-    @Modifying
+    @Transactional(propagation = Propagation.NESTED)
     @PostMapping("/responsedomain")
     fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
 
@@ -104,23 +104,22 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
                 responseDomain.name,
                 responseDomain.codes.joinToString { it.value })
 
-            val saved = repository.save(responseDomain)
+            val saved = repository.saveAndFlush(responseDomain)
 //            if (saved == null) {
 //                return ResponseEntity<ResponseDomain>(HttpStatus.NO_CONTENT)
 //            }
 
-            var index = 0
-            populateCatCodes(saved.managedRepresentation, index, saved.codes)
-            logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
+//            var index = 0
+//            populateCatCodes(saved.managedRepresentation, index, saved.codes)
+//            logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
 
 
-            return ResponseEntity(null, HttpStatus.CREATED)
+            return ResponseEntity(saved, HttpStatus.CREATED)
         } catch (e: Exception) {
             return ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
-    @Transactional
     @ResponseBody
     @GetMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
     fun getResponseDomain(@PathVariable uri: UUID):  RepresentationModel<*> {
@@ -128,9 +127,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         return entityModelBuilder(repository.findById(uri).orElseThrow())
     }
 
-//    @Transactional
     @ResponseBody
-    @Modifying
     @PutMapping("/responsedomain/{uri}/managedrepresentation", produces = ["application/hal+json"])
     fun putManagedRepresentation(
         @PathVariable uri: UUID,
