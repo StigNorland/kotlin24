@@ -29,7 +29,7 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(Category::class.java)
         config.exposeIdsFor(Comment::class.java)
         config.exposeIdsFor(Instrument::class.java)
-        config.exposeIdsFor(InstrumentNode::class.java)
+        config.exposeIdsFor(InstrumentElement::class.java)
         config.exposeIdsFor(Sequence::class.java)
         config.exposeIdsFor(StatementItem::class.java)
         config.exposeIdsFor(ConditionConstruct::class.java)

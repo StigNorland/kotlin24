@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -59,20 +60,37 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
 
     @ResponseBody
     @PostMapping("/instrument", produces = ["application/hal+json"])
-    fun insert(@RequestBody instrument: Instrument): RepresentationModel<*> {
-        return entityModelBuilder(repository.saveAndFlush(instrument))
+    fun insert(@RequestBody instrument: Instrument): ResponseEntity<*> {
+        return try {
+            val saved = repository.saveAndFlush(instrument)
+            ResponseEntity(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+        }
+//        return entityModelBuilder(repository.saveAndFlush(instrument))
     }
 
     @ResponseBody
     @PutMapping("/instrument/{uuid}", produces = ["application/hal+json"])
-    fun update(@PathVariable uuid: UUID,@RequestBody instrument: Instrument): RepresentationModel<*> {
-        val result = repository.saveAndFlush(instrument)
-        if (result.agency == null) {
-            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
-            result.modifiedBy = currentuser
-            result.agency = currentuser.agency
+    fun update(@PathVariable uuid: UUID,@RequestBody instrument: Instrument): ResponseEntity<*> {
+        return try {
+            val saved = repository.saveAndFlush(instrument)
+            if (saved.agency == null) {
+                val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+                saved.modifiedBy = currentuser
+                saved.agency = currentuser.agency
+            }
+            ResponseEntity(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }
-        return entityModelBuilder(result)
+//        val result = repository.saveAndFlush(instrument)
+//        if (result.agency == null) {
+//            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+//            result.modifiedBy = currentuser
+//            result.agency = currentuser.agency
+//        }
+//        return entityModelBuilder(result)
     }
 
 

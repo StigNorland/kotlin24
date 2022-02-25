@@ -13,12 +13,14 @@ import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@Transactional(propagation = Propagation.REQUIRED)
+@Transactional(propagation = Propagation.NESTED)
 @BasePathAwareController
 class SequenceConstructController(@Autowired repository: ControlConstructRepository<Sequence>) :
     AbstractRestController<Sequence>(repository) {
@@ -26,19 +28,17 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     @Autowired
     lateinit var omService: OtherMaterialService
 
-
-    @GetMapping("/sequence/revision/{uri}", produces = ["application/hal+json"])
     @ResponseBody
+    @GetMapping("/sequence/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @GetMapping("/sequence/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
+    @GetMapping("/sequence/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
-
 
     @ResponseBody
     @GetMapping("/sequence/{uuid}", produces = ["application/hal+json"])
@@ -47,17 +47,32 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     }
 
     @ResponseBody
-    @Modifying
+    @PutMapping("/sequence/{uuid}", produces = ["application/hal+json"])
+    fun update(@PathVariable uuid: UUID, @RequestBody instance: Sequence): ResponseEntity<*>  {
+        return try {
+            val saved = repository.saveAndFlush(instance)
+            ResponseEntity(saved, HttpStatus.OK)
+        } catch (e: Exception) {
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+        }
+    }
+
+    @ResponseBody
     @PostMapping(value = ["/sequence"])
-    fun update(@RequestBody instance: Sequence): Sequence {
-        return repository.save(instance)
+    fun insert(@RequestBody instance: Sequence): ResponseEntity<*>  {
+        return try {
+            val saved = repository.saveAndFlush(instance)
+            ResponseEntity(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+        }
     }
 
 
     override fun entityModelBuilder(entity: Sequence): RepresentationModel<*> {
-        val uriId = toUriId(entity)
-        val baseUrl = baseUrl(uriId,"sequence")
-        logger.debug("entityModelBuilder Sequence : {}", uriId)
+
+        val baseUrl = baseUrl( toUriId(entity),"sequence")
+        logger.debug("entityModelBuilder Sequence : {}", baseUrl)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -73,6 +88,5 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
     }
-
 
 }

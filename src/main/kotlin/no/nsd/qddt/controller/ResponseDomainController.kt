@@ -2,6 +2,7 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.User
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
@@ -20,6 +21,7 @@ import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -65,39 +67,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         return super.getXml(uri)
     }
 
-//    @Transactional(propagation = Propagation.NESTED)
-
+    @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/responsedomain/{uri}", produces = ["application/hal+json"], consumes = ["application/hal+json","application/json"])
     fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain):ResponseEntity<*> {
-
-        try {
-//        responseDomain.codes = harvestCatCodes(responseDomain.managedRepresentation)
-            persistManagedRep(responseDomain)
-            logger.debug(
-                "harvestedCodes : {} : {}",
-                responseDomain.name,
-                responseDomain.codes.joinToString { it.value })
-
-            val saved = repository.save(responseDomain)
-
-            var index = 0
-            populateCatCodes(saved.managedRepresentation, index, saved.codes)
-            logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
-
-//            if (saved == null) {
-//                return ResponseEntity<ResponseDomain>(HttpStatus.NOT_MODIFIED)
-//            }
-            return ResponseEntity<ResponseDomain>( HttpStatus.OK)
-        } catch (e: Exception) {
-            return ResponseEntity<ResponseDomain>( HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-    }
-
-    @Transactional(propagation = Propagation.NESTED)
-    @PostMapping("/responsedomain")
-    fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
-
-        try {
+        return try {
             persistManagedRep(responseDomain)
             logger.debug(
                 "harvestedCodes : {} : {}",
@@ -105,18 +78,31 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
                 responseDomain.codes.joinToString { it.value })
 
             val saved = repository.saveAndFlush(responseDomain)
-//            if (saved == null) {
-//                return ResponseEntity<ResponseDomain>(HttpStatus.NO_CONTENT)
-//            }
-
-//            var index = 0
-//            populateCatCodes(saved.managedRepresentation, index, saved.codes)
-//            logger.debug("populatedCodes : {} : {}", saved.name, saved.codes.joinToString { it.value })
-
-
-            return ResponseEntity(saved, HttpStatus.CREATED)
+            ResponseEntity(saved, HttpStatus.OK)
         } catch (e: Exception) {
-            return ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.NOT_MODIFIED)
+        }
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    @PostMapping("/responsedomain")
+    fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
+        return try {
+            persistManagedRep(responseDomain)
+            logger.debug(
+                "harvestedCodes : {} : {}",
+                responseDomain.name,
+                responseDomain.codes.joinToString { it.value })
+
+            val saved = repository.saveAndFlush(responseDomain)
+
+            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+            saved.modifiedBy = currentuser
+            saved.agency = currentuser.agency
+            saved.managedRepresentation!!.modifiedBy = currentuser
+            ResponseEntity(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 

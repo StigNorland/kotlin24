@@ -137,6 +137,12 @@ class EntityAuditTrailListener{
                         log.debug(it.uri.toString())
                     }
                 }
+                is Sequence
+                -> {
+                    entity.sequence.forEach {
+                        log.debug(it.uri.toString())
+                    }
+                }
                 is Study -> {
                     beforeStudyUpdate(entity)
                 }

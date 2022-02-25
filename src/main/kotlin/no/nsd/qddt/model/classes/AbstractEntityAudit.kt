@@ -1,6 +1,7 @@
 package no.nsd.qddt.model.classes
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
@@ -82,6 +83,7 @@ abstract class AbstractEntityAudit(
         try { ElementKind.getEnum(this.javaClass.simpleName).toString() }
         catch (e: Exception) {this.javaClass.simpleName}
 
+    @JsonIgnore
     @NotAudited
     @OrderColumn(name = "ownerIdx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.LAZY, orphanRemoval = true)

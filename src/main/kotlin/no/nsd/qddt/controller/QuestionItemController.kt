@@ -46,10 +46,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
-    override fun getRevisions(
-        @PathVariable uuid: UUID,
-        pageable: Pageable
-    ): RepresentationModel<*>? {
+    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
@@ -75,7 +72,6 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
 
     @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    @Modifying
     @PutMapping("/questionitem/{uuid}",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
     fun putQuestionItem(@PathVariable uuid: UUID, @RequestBody questionItem: QuestionItem): ResponseEntity<*> {
 
@@ -87,7 +83,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
 
             val saved = repository.save(questionItem)
 
-            return ResponseEntity<QuestionItem>( HttpStatus.OK)
+            return ResponseEntity(saved, HttpStatus.OK)
         } catch (e: Exception) {
             return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }

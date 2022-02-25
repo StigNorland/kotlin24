@@ -23,10 +23,12 @@ class ElementRefCondition : IElementRef<ControlConstruct> , Serializable {
         AttributeOverride(name = "rev", column = Column(name = "element_revision"))
     )
     @Embedded
-    override lateinit var uri: UriId
+    override var uri: UriId = UriId()
+
     @Transient
     @JsonSerialize
     override var version: Version = Version()
+
     override var name: String? =""
 
 

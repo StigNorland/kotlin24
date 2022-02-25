@@ -1,6 +1,7 @@
 package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import no.nsd.qddt.model.ControlConstruct
 import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IDomainObject
@@ -15,14 +16,14 @@ import javax.persistence.*
 
 @Audited
 @Embeddable
-class PublicationElement : IElementRef<IDomainObject> , Serializable {
+class SequenceElement : IElementRef<IDomainObject> , Serializable {
 
     @AttributeOverrides(
         AttributeOverride(name = "id", column = Column(name = "element_id")),
         AttributeOverride(name = "rev", column = Column(name = "element_revision"))
     )
     @Embedded
-    override lateinit var uri: UriId
+    override var uri: UriId = UriId()
 
     @Enumerated(EnumType.STRING)
     override lateinit var elementKind: ElementKind
@@ -41,7 +42,7 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
 
 
     @Transient
-    @JsonSerialize
+    @JsonSerialize(contentAs = ControlConstruct::class)
     override var element: IDomainObject? = null
         set(value) {
             field = value?.also { item ->
@@ -54,15 +55,15 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
             }
         }
 
-    public override fun clone(): PublicationElement {
-        return PublicationElement().apply { 
+    public override fun clone(): SequenceElement {
+        return SequenceElement().apply {
             this.element = element
          }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is PublicationElement) return false
+        if (other !is SequenceElement) return false
 
         if (uri != other.uri) return false
         if (elementKind != other.elementKind) return false
@@ -77,7 +78,7 @@ class PublicationElement : IElementRef<IDomainObject> , Serializable {
     }
 
     override fun toString(): String {
-        return "PublicationElement(uri=$uri, elementKind=$elementKind)"
+        return "SequenceElement(uri=$uri, elementKind=$elementKind)"
     }
 
 }

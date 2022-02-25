@@ -1,16 +1,15 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Publication
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.PublicationRepository
 import no.nsd.qddt.repository.criteria.PublicationCriteria
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
@@ -46,16 +45,16 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
-//    @ResponseBody
-//    @GetMapping("/publication/{uri}", produces = ["application/hal+json"])
-//    fun get(@PathVariable uri: UUID):RepresentationModel<*> {
-//        return entityModelBuilder(repository.getById(uri))
-//    }
 
     @ResponseBody
     @PostMapping("/publication", produces = ["application/hal+json"])
-    fun save(@RequestBody publication: Publication): RepresentationModel<*> {
-        return entityModelBuilder(repository.saveAndFlush(publication))
+    fun save(@RequestBody publication: Publication): ResponseEntity<*> {
+        return try {
+            val saved = repository.saveAndFlush(publication)
+            ResponseEntity(saved, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+        }
     }
 
     @ResponseBody

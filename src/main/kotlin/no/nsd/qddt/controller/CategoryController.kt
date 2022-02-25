@@ -66,7 +66,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
             val saved = repository.save(category)
 
-            return ResponseEntity<Category>(null, HttpStatus.OK)
+            return ResponseEntity<Category>(saved, HttpStatus.OK)
         } catch (e: Exception) {
             return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }

@@ -1,7 +1,5 @@
 package no.nsd.qddt.model
 
-// import com.fasterxml.jackson.annotation.JsonBackReference
-// import no.nsd.qddt.model.classes.ParentRef
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nsd.qddt.model.builder.InstrumentFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
@@ -12,7 +10,6 @@ import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
-
 
 /**
  * You change your meaning by emphasizing different words in your sentence. ex:
@@ -54,7 +51,7 @@ data class Instrument(
 
 
     @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST])
-    var root: InstrumentNode<*>? = null
+    var root: InstrumentElement? = null
 
 
     ////    TODO implement outparams....

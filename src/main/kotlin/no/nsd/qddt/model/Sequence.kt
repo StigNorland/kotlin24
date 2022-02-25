@@ -1,10 +1,12 @@
 package no.nsd.qddt.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.ElementRefCondition
-import no.nsd.qddt.model.embedded.ElementRefEmbedded
+import no.nsd.qddt.model.embedded.SequenceElement
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.SequenceKind
 import org.hibernate.Hibernate
@@ -43,7 +45,7 @@ data class Sequence(
         name = "CONTROL_CONSTRUCT_SEQUENCE",
         joinColumns = [JoinColumn(name = "sequence_id", referencedColumnName = "id")]
     )
-    var sequence: MutableList<ElementRefEmbedded<ControlConstruct>> = mutableListOf()
+    var sequence: MutableList<SequenceElement> = mutableListOf()
 
     @ManyToMany(fetch = FetchType.EAGER)
     @OrderColumn(name = "universe_idx")
@@ -89,8 +91,11 @@ data class Sequence(
             pdfReport.addParagraph(uni.description)
         }
 
-        sequence.forEach { it.element?.fillDoc(pdfReport, counter) }
-
+        var i = 0
+        sequence.forEach {
+            (it.element as AbstractEntityAudit).fillDoc(pdfReport, counter + "." + ++i)
+         }
+//it.element?.fillDoc(pdfReport, counter)
         if (comments.size > 0)
             pdfReport.addHeader2("Comments")
 
@@ -114,11 +119,12 @@ data class Sequence(
                 }
 
             private fun addChildren() {
-                children.addAll(
-                    sequence
-                        .filter { it.element != null }
-                        .map { it.element!!.xmlBuilder() }.toList()
-                )
+                sequence
+                    .filter { it.element != null }
+                    .mapNotNull { it.element!!.xmlBuilder() }
+                    .forEach {
+                        children.add(it)
+                    }
             }
         }
     }

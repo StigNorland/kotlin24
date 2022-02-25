@@ -3,7 +3,6 @@ package no.nsd.qddt.model.classes
 /**
  * @author Stig Norland
  */
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ConditionConstruct
 import no.nsd.qddt.model.QuestionItem
@@ -13,7 +12,6 @@ import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import org.hibernate.envers.Audited
-import java.util.*
 import javax.persistence.*
 
 @Audited
@@ -55,7 +53,6 @@ abstract class AbstractElementRef<T : IWebMenuPreview>() : IElementRef<T> {
    
     @Transient
     @JsonSerialize
-    @JsonDeserialize
     override var element: T? = null
         set(value) {
             field = value?.also { item ->

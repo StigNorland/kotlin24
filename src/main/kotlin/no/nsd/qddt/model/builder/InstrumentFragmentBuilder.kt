@@ -43,7 +43,7 @@ class InstrumentFragmentBuilder(entity: Instrument) : XmlDDIFragmentBuilder<Inst
         entity.root?.children?. let{ mutableList -> mutableList
             .filter { it.element != null }
             .map { it.element!!.xmlBuilder() }
-            .let { children.addAll(it.toList()) }
+            .let { children.addAll(it as MutableList<AbstractXmlBuilder>) }
         }
     }
 
@@ -52,8 +52,9 @@ class InstrumentFragmentBuilder(entity: Instrument) : XmlDDIFragmentBuilder<Inst
         super.addXmlFragments(fragments)
         if (children.size == 0)
             addChildren()
-        children.stream()
-            .forEach { it.addXmlFragments(fragments) }
+        children.stream().forEach {
+            it.addXmlFragments(fragments)
+        }
     }
 
 
