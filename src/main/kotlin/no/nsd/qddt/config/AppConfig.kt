@@ -86,11 +86,11 @@ class AppConfig {
         return FilterRegistrationBean(ForwardedHeaderFilter())
     }
 
-    @Bean
-    fun cacheControlFilter(): FilterRegistrationBean<OncePerRequestFilter> {
-        val registration = FilterRegistrationBean<OncePerRequestFilter>(CacheControlFilter())
-        registration.addUrlPatterns("/*")
-        return registration
-    }
+//    @Bean
+//    fun cacheControlFilter(): FilterRegistrationBean<OncePerRequestFilter> {
+//        val registration = FilterRegistrationBean<OncePerRequestFilter>(CacheControlFilter())
+//        registration.addUrlPatterns("/*")
+//        return registration
+//    }
 
 }

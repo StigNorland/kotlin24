@@ -1,8 +1,6 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.layout.borders.DottedBorder
 import com.itextpdf.layout.element.Cell
@@ -13,18 +11,17 @@ import no.nsd.qddt.model.builder.ResponseDomainFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
-import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.utils.StringTool.CapString
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import javax.persistence.*
 
+@Cacheable
 @Audited
 @Entity
 @Table(name = "RESPONSEDOMAIN", uniqueConstraints =

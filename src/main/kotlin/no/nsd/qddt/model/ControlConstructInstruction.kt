@@ -8,6 +8,7 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
+@Cacheable
 @Audited
 @Embeddable
 class ControlConstructInstruction() : Serializable {

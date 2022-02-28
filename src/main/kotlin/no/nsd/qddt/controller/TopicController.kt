@@ -3,13 +3,13 @@ package no.nsd.qddt.controller
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.*
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
-import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.repository.TopicGroupRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -57,7 +58,7 @@ class TopicController(
 
 
     @GetMapping("/topicgroup/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         return super.getPdf(uri)
     }
 

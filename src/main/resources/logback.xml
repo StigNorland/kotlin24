@@ -42,5 +42,8 @@
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </logger>
+    <logger name="org.springframework.cache" level="trace">
+        <appender-ref ref="Console" />
+    </logger>
 
 </configuration>

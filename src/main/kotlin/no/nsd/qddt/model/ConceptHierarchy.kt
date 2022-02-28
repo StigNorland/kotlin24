@@ -1,10 +1,7 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.config.exception.StackTraceFilter
-import no.nsd.qddt.model.classes.AbstractEntity
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IParentRef
@@ -17,7 +14,6 @@ import javax.persistence.*
 
 @Audited
 @Entity
-@Cacheable
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "CLASS_KIND")
 @Table(name = "CONCEPT_HIERARCHY")
@@ -33,9 +29,8 @@ abstract class ConceptHierarchy (
             return field ?: name
         }
 
-    @JsonSerialize
-    @Embedded
-    override var basedOn: UriId? = null
+//    @Embedded
+//    override var basedOn: UriId = UriId()
 
     @Column(name = "parent_id", nullable = false,  insertable = false, updatable = false)
     var parentId: UUID? = null

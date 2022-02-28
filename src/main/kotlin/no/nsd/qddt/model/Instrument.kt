@@ -21,6 +21,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "INSTRUMENT")
+@Cacheable
 data class Instrument(
     override var name: String = "",
     @Column(length = 1000)

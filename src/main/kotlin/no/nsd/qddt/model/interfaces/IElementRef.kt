@@ -1,10 +1,9 @@
 package no.nsd.qddt.model.interfaces
 
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
 import java.io.Serializable
-import java.util.*
 
 /**
  * @author Stig Norland

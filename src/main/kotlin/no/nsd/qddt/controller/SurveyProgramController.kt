@@ -2,10 +2,10 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import java.io.ByteArrayInputStream
 import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)
@@ -42,7 +43,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     }
 
     @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         return super.getPdf(uri)
     }
 

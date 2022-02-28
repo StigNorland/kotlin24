@@ -1,17 +1,12 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Instrument
-import no.nsd.qddt.model.Publication
 import no.nsd.qddt.model.User
-import no.nsd.qddt.model.classes.UriId
-import no.nsd.qddt.repository.InstructionRepository
 import no.nsd.qddt.repository.InstrumentRepository
-import no.nsd.qddt.repository.PublicationRepository
-import no.nsd.qddt.repository.criteria.PublicationCriteria
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -22,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayInputStream
 import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)
@@ -44,7 +40,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
 
 
     @GetMapping("/instrument/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         return super.getPdf(uri)
     }
 

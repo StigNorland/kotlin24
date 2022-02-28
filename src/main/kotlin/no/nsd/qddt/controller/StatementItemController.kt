@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.config.exception.FileUploadException
 import no.nsd.qddt.model.StatementItem
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService

@@ -8,13 +8,13 @@ import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.*
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Table
-import javax.persistence.UniqueConstraint
+import javax.persistence.*
+
 /**
 * @author Stig Norland
 */
+
+@Cacheable
 @Audited
 @Entity
 @Table(

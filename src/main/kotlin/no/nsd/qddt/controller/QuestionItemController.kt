@@ -2,7 +2,6 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.ResponseDomain
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
@@ -11,6 +10,7 @@ import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.projection.ProjectionFactory
@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -60,7 +61,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
 
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         return super.getPdf(uri)
     }
 

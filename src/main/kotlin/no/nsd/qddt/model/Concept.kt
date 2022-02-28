@@ -31,6 +31,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @DiscriminatorValue("CONCEPT")
+@Cacheable
 data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthorSet, IArchived, IQuestionItemRef {
 
     @Column(insertable = false, updatable = false)

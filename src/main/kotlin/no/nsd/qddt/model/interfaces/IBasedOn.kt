@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 
 /**
  * @author Stig Norland

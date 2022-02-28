@@ -7,7 +7,7 @@ import com.itextpdf.layout.element.Paragraph
 import no.nsd.qddt.model.builder.CategoryFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryRelationCodeType
@@ -18,9 +18,7 @@ import no.nsd.qddt.utils.StringTool
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.*
-import java.util.stream.Collectors
 import javax.persistence.*
-import kotlin.streams.toList
 
 /**
  *
@@ -48,7 +46,7 @@ import kotlin.streams.toList
  * @author Dag Østgulen Heradstveit
  */
 
-
+@Cacheable()
 @Audited
 @Entity
 @Table(
@@ -85,6 +83,11 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
                 field = categoryKind.description
             return field
         }
+
+//    @Embedded
+//    override var basedOn: UriId = UriId()
+
+
 
     /**
      *  This field is only used for categories that facilitates user input.
@@ -222,9 +225,15 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
             it.children = children
             it.code = code
             it.description = description
-            it.basedOn = UriId.fromAny("$id")
-            it.changeKind = IBasedOn.ChangeKind.NEW_COPY
-            it.changeComment = "Clone of [$name]"
+            if (changeKind.ordinal >= IBasedOn.ChangeKind.BASED_ON.ordinal && changeKind.ordinal <= IBasedOn.ChangeKind.REFERENCED.ordinal) {
+                it.changeKind = changeKind
+                it.changeComment = changeComment
+                it.basedOn = basedOn
+            } else {
+                it.changeKind = IBasedOn.ChangeKind.NEW_COPY
+                it.changeComment = "Clone of [$name]"
+                it.basedOn = UriId.fromAny("$id:0")
+            }
         }
     }
 

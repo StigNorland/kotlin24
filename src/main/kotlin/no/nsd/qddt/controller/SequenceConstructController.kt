@@ -1,13 +1,11 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Sequence
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation

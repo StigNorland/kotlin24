@@ -18,6 +18,7 @@ import javax.persistence.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Audited
+@Cacheable
 @Table(
     name = "INSTRUCTION",
     uniqueConstraints = [UniqueConstraint(

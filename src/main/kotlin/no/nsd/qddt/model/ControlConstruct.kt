@@ -17,6 +17,8 @@ import javax.persistence.*
  * @author Stig Norland
  * @author Dag Østgulen Heradstveit
  */
+
+@Cacheable
 @Audited
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

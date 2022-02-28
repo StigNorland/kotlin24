@@ -2,7 +2,6 @@ package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ControlConstruct
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.interfaces.IElementRef

@@ -2,7 +2,7 @@ package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Parameter
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
@@ -21,6 +21,7 @@ import javax.persistence.*
 @Audited
 @Entity
 @Table(name = "INSTRUMENT_NODE")
+@Cacheable
 data class InstrumentElement(
     @Id @GeneratedValue var id: UUID? = null
 ) : IElementRef<IDomainObject> , Serializable {

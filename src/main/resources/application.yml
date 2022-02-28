@@ -95,23 +95,11 @@ qddt:
 logging:
   level:
     web: DEBUG
-
-
+#    org:
+#      springframework:
+#        cache: TRACE
 ---
 spring:
-  config:
-    activate:
-      on-profile: stage
-  jpa:
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        show_sql: false
-  sql:
-    init:
-      mode: never
-      continue-on-error: true
 ---
 spring:
   config:

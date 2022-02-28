@@ -3,16 +3,19 @@ package no.nsd.qddt.model.embedded
  import com.fasterxml.jackson.annotation.JsonIgnore
  import com.fasterxml.jackson.databind.annotation.JsonSerialize
  import org.hibernate.envers.Audited
+ import org.slf4j.Logger
+ import org.slf4j.LoggerFactory
  import java.io.Serializable
+ import java.util.*
  import javax.persistence.Embeddable
  import javax.persistence.Transient
 
 /**
  * @author Stig Norland
  */
+
 @Embeddable
 @Audited
-//@JsonDeserialize(converter = KotlinVersionConverter::class)
 data class Version(@Transient private var _isModified: Boolean = false) : Comparable<Version>, Serializable {
     var major = 1
         set(value) {
@@ -34,7 +37,7 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
 
     @Transient
     @JsonSerialize
-    var rev: Int? = 0
+    var rev: Int = 0
 
     @JsonIgnore
     @Transient
@@ -43,6 +46,7 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
     }
 
     @Transient
+    @JsonIgnore
     private val VERSION_FORMAT = "%1\$s.%2\$s%3\$s"
 
 
@@ -51,7 +55,7 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
         this.minor = minor
         this.rev = revision?:0
         this.versionLabel = versionLabel?:""
-        _isModified = false
+//        _isModified = false
     }
 
 
@@ -94,6 +98,10 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
         result = 31 * result + minor
         result = 31 * result + (rev?:0)
         return result
+    }
+
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }
 

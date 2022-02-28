@@ -10,6 +10,7 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.Agency
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.builder.pdf.PdfReport
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
@@ -51,6 +52,15 @@ abstract class AbstractEntityAudit(
 
 ) : AbstractEntity(), IWebMenuPreview, IBasedOn,  Serializable {
 
+    @JsonSerialize
+    @JsonDeserialize
+    @AttributeOverrides(
+        AttributeOverride(name = "id",column = Column(name = "based_on_object")),
+        AttributeOverride(name = "rev",column = Column(name = "based_on_revision" )),
+    )
+    @Embedded
+    override var basedOn : UriId?= null
+
     /**
      * I am the beginning of the end, and the end of time and space.
      * I am essential to creation, and I surround every place.
@@ -88,14 +98,6 @@ abstract class AbstractEntityAudit(
     @OrderColumn(name = "ownerIdx")
     @OneToMany(mappedBy = "ownerId", cascade = [CascadeType.REMOVE], fetch = FetchType.LAZY, orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
-
-    @JsonSerialize
-    @AttributeOverrides(
-        AttributeOverride(name = "id",column = Column(name = "based_on_object", nullable =true, updatable = false)),
-        AttributeOverride(name = "rev",column = Column(name = "based_on_revision", nullable =true, updatable = false)),
-    )
-    @Embedded
-    override var basedOn:  UriId? =null
 
     @JsonFormat
         (shape = JsonFormat.Shape.NUMBER_INT)

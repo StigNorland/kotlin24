@@ -1,8 +1,9 @@
 package no.nsd.qddt.controller
 
+import io.micrometer.core.ipc.http.HttpSender
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.BaseMixedRepository
@@ -14,6 +15,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -28,11 +30,13 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
+import java.io.ByteArrayInputStream
 import java.util.*
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 
 
+//https://docs.spring.io/spring-data/rest/docs/current-SNAPSHOT/reference/html/#customizing-sdr.overriding-sdr-response-handlers.annotations
 abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: BaseMixedRepository<T>) {
 
     @PersistenceContext
@@ -47,7 +51,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
     val toUriId = { entity: AbstractEntityAudit ->  UriId.fromAny("${entity.id}:${entity.version.rev}") }
 
-    val baseUrl =  { uriId:UriId, path:String ->  if (uriId.rev != null)  "${baseUri}/${path}/revision/${uriId}" else "${baseUri}/${path}/${uriId.id}"}
+    val baseUrl =  { uriId: UriId, path:String ->  if (uriId.rev != null)  "${baseUri}/${path}/revision/${uriId}" else "${baseUri}/${path}/${uriId.id}"}
 
     @ResponseBody
     open fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
@@ -103,10 +107,23 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 //        return PagedModel.of(null)
     }
 
-
-    open fun getPdf(@PathVariable uri: String): ByteArray {
+    @ResponseBody
+    open fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         logger.debug("getPdf : {}", uri)
-        return getByUri(uri).makePdf().toByteArray()
+        val headers = HttpHeaders()
+        val stream = getByUri(uri).also {
+            headers.add("Content-Disposition", "inline")
+        }.makePdf()
+
+        val resut = ByteArrayInputStream(stream.toByteArray())
+        return ResponseEntity.ok().body(resut)
+
+//        val resource = ByteArrayResource(stream.toByteArray())
+//        return ResponseEntity.ok()
+//            .headers(headers)
+//            .contentLength(stream.size().toLong())
+//            .contentType(MediaType.parseMediaType("application/pdf"))
+//            .body(resource)
     }
 
     @ResponseBody
@@ -171,7 +188,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-        fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId,repository: RevisionRepository<T, UUID, Int>): T {
+        fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
             logger.debug("loadRevisionEntity {}:{}",  repository.toString(),  uri )
             return with(uri) {
                 if (rev != null && rev != 0)

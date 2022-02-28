@@ -1,13 +1,13 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import no.nsd.qddt.repository.ConceptRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -44,7 +45,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
 
 
     @GetMapping("/concept/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         return super.getPdf(uri)
     }
 
@@ -101,22 +102,6 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
             repository.saveAndFlush(parent).questionItems
         )
     }
-
-
-//    @Transactional(propagation = Propagation.NESTED)
-//    @DeleteMapping("/concept/{uuid}/questionitems", produces = ["application/hal+json"])
-//    fun removeQuestionItem(
-//        @PathVariable uuid: UUID,
-//        @RequestBody questionItem: ElementRefQuestionItem
-//    ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
-//        repository.findById(uuid).orElseThrow().let { parent ->
-//            parent.removeQuestionRef(questionItem)
-//            return ResponseEntity.ok(
-//                repository.saveAndFlush(parent).questionItems
-//            )
-//        }
-//    }
-
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/concept/{uri}/children", produces = ["application/hal+json"])

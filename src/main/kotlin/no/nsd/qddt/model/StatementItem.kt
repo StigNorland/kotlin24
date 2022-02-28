@@ -5,6 +5,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
+import javax.persistence.Cacheable
 import javax.persistence.Column
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
@@ -12,6 +13,8 @@ import javax.persistence.Entity
 /**
  * @author Stig Norland
  */
+
+@Cacheable
 @Entity
 @Audited
 @DiscriminatorValue("STATEMENT_CONSTRUCT")

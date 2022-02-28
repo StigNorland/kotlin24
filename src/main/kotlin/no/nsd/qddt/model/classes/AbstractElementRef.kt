@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ConditionConstruct
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.StatementItem
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef

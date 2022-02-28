@@ -15,6 +15,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "AUTHOR")
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@Cacheable
 data class Author(var email: String? = "") : AbstractEntity() {
     //--------------------------------------------------------------------------------
     @Column(length = 70, nullable = false)

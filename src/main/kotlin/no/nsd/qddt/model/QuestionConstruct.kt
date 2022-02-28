@@ -5,7 +5,7 @@ import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.IInstructionImpl
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.InstructionRank
 import org.hibernate.Hibernate

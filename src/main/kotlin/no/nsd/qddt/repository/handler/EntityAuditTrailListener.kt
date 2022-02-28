@@ -1,9 +1,10 @@
 package no.nsd.qddt.repository.handler
 
+import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
@@ -56,28 +57,36 @@ class EntityAuditTrailListener{
 
     @PrePersist
     private fun prePersist(entity: AbstractEntityAudit) {
-        log.debug("PrePersist [{}] {}", entity.classKind, entity.name)
-        val user = SecurityContextHolder.getContext().authentication.principal as User
-        entity.agency = user.agency
-        entity.modifiedBy = user
-        if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
-        when (entity) {
-            is Category -> {
-                beforeCategoryInsert(entity)
-            }
-            is ResponseDomain -> {
+        try {
+            log.debug("PrePersist [{}] {}", entity.classKind, entity.name)
+            val user = SecurityContextHolder.getContext().authentication.principal as User
+            entity.agency = user.agency
+            entity.modifiedBy = user
+            entity.version = Version()
+            if (entity.xmlLang == "") user.agency.xmlLang.also { entity.xmlLang = it }
+
+            checkBasedOn(entity)
+
+            when (entity) {
+                is Category -> {
+//                    beforeCategoryToDb(entity)
+                }
+                is ResponseDomain -> {
 //                if (entity.changeKind.ordinal > 0 && entity.changeKind.ordinal < 4 && entity.managedRepresentation?.id != null ) {
 //                    entity.managedRepresentation = entity.managedRepresentation?.clone()
 //                }
 //                persistManagedRep(entity)
+                }
+                is Study -> {
+                    entity.parentIdx
+                    beforeStudyInsert(entity)
+                }
+                else -> {
+                    log.debug("PrePersist [{}] {} : (no pre processing)", entity.classKind, entity.name)
+                }
             }
-            is Study -> {
-                entity.parentIdx
-                beforeStudyInsert(entity)
-            }
-            else -> {
-                log.debug("PrePersist [{}] {} : (no pre processing)", entity.classKind , entity.name)
-            }
+        } catch (ex: Exception) {
+            log.error("AbstractEntityAudit::prePersist", ex)
         }
     }
 
@@ -87,27 +96,22 @@ class EntityAuditTrailListener{
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
             user.getAuthority()
-            with(entity) {
-
-                modifiedBy = user
-                var ver: Version = version
-                var change = changeKind
+            entity.modifiedBy = user
+            var ver: Version = entity.version
+            var change = entity.changeKind
 
                 // it is illegal to update an entity with "Creator statuses" (CREATED...BASEDON)
 //                if ((change.ordinal <= ChangeKind.REFERENCED.ordinal) and !ver!!.isModified) {
 //                    change = ChangeKind.IN_DEVELOPMENT
 //                    changeKind = change
 //                }
-                if (changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
-                    changeComment = change.description
+                if (entity.changeComment.isEmpty()) // insert default comment if none was supplied, (can occur with auto touching (hierarchy updates etc))
+                    entity.changeComment = change.description
                 when (change) {
                     ChangeKind.CREATED -> {
-                        if (changeComment == "") changeComment = change.description
+                        if (entity.changeComment == "") entity.changeComment = change.description
                     }
-                    ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED -> {
-                        ver = Version()
-                        entity.basedOn = UriId.fromAny("${entity.id}:${entity.version.rev}")
-                    }
+                    ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED ,
                     ChangeKind.REFERENCED, ChangeKind.TO_BE_DELETED -> { }
                     ChangeKind.UPDATED_PARENT, ChangeKind.UPDATED_CHILD, ChangeKind.UPDATED_HIERARCHY_RELATION -> {
                         ver.versionLabel = ""
@@ -129,8 +133,8 @@ class EntityAuditTrailListener{
                         ver.versionLabel = ""
                     }
                 }
-                version = ver
-            }
+            entity.version = ver
+
             when (entity) {
                 is Publication -> {
                     entity.publicationElements.forEach {
@@ -147,7 +151,7 @@ class EntityAuditTrailListener{
                     beforeStudyUpdate(entity)
                 }
                 is Category -> {
-                    log.debug("PreUpdate: {}, value = {}", entity.name, entity.code?.value ?: "NIL")
+                    beforeCategoryToDb(entity)
                 }
                 is ResponseDomain -> {
                     entity.managedRepresentation!!.version = entity.version
@@ -217,12 +221,13 @@ class EntityAuditTrailListener{
                 entity.comments.size
             }
             is ResponseDomain -> {
-                log.debug("[populateCatCodes] {}", entity.name)
-                entity.managedRepresentation?.children?.size
-                var _index = 0
-                populateCatCodes(entity.managedRepresentation,_index,entity.codes)
+//                log.debug("[populateCatCodes] {}", entity.name)
+//                entity.managedRepresentation?.children?.size
+//                var _index = 0
+//                populateCatCodes(entity.managedRepresentation,_index,entity.codes)
             }
             is Category -> {
+//                log.debug(entity.basedOn?.toString())
                 if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
                     entity.children.size
             }
@@ -232,6 +237,8 @@ class EntityAuditTrailListener{
                 entity.comments.size
             }
             is TopicGroup -> {
+                if (StackTraceFilter.stackContains("getPdf"))
+                    entity.children.size
                 entity.questionItems.size
                 entity.otherMaterials.size
                 entity.comments.size
@@ -261,41 +268,62 @@ class EntityAuditTrailListener{
         }
     }
 
-    private fun beforeCategoryInsert(entity: Category) {
-        with(entity) {
-            log.debug("beforeCategoryInsert [{}] {}", entity.name, entity.modified.toString())
-            when {
-                this.categoryKind === CategoryKind.MIXED -> {
-                    this.name = (String.format("Mixed [%s]",this.children.joinToString { it.label }))
-                }
-                this.categoryKind === CategoryKind.SCALE -> {
-                    log.debug(this.toString())
-                }
-            }
-            if (label.isBlank())
-                label = entity.name
 
-            name = entity.name.uppercase(Locale.getDefault())
-
-            description = when {
-                this.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && description.isNullOrBlank()
-                    -> this.categoryKind.description
-                else
-                    -> entity.description
+    private fun checkBasedOn(entity: AbstractEntityAudit) {
+        when (entity.changeKind) {
+            ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED, ChangeKind.REFERENCED -> {
+                log.debug("checkBasedOn {}", entity.name)
+//                entity.version = Version()
+                if (entity.version.rev == null || entity.version.rev == 0 ) {
+                    repLoaderService.getRepository<AbstractEntityAudit>(ElementKind.getEnum(entity.classKind)).let {
+                            repository -> loadRevisionEntity(entity.basedOn!!, repository).let {
+                            result -> entity.basedOn = UriId.fromAny("${result.id}:${result.version.rev}")
+                        }
+                    }
+                } else
+                    entity.basedOn = UriId.fromAny("${entity.id}:${entity.version.rev}")
             }
-
-            if (!version.isModified()) {
-                log.debug("onUpdate not run yet ♣♣♣ ")
+            else -> {
+                log.debug("ikke based on {}", entity.name)
             }
-
-            hierarchyLevel = when (categoryKind) {
-                CategoryKind.DATETIME, CategoryKind.BOOLEAN, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.CATEGORY ->
-                    HierarchyLevel.ENTITY
-                CategoryKind.MISSING_GROUP, CategoryKind.LIST, CategoryKind.SCALE, CategoryKind.MIXED ->
-                    HierarchyLevel.GROUP_ENTITY
-            }
-            name = name.trim()
         }
+
+    }
+
+    private fun beforeCategoryToDb(entity: Category) {
+        log.debug("beforeCategoryToDb [{}] {}", entity.name, entity.modified.toString())
+        when {
+            entity.categoryKind === CategoryKind.MIXED -> {
+                entity.name = (String.format("Mixed [%s]", entity.children.joinToString { it.label }))
+            }
+            entity.categoryKind === CategoryKind.SCALE -> {
+                log.debug(entity.toString())
+            }
+        }
+        if (entity.label.isBlank())
+            entity.label = entity.name
+
+        entity.name = entity.name.uppercase(Locale.getDefault())
+
+        entity.description = when {
+            entity.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && entity.description.isNullOrBlank()
+            -> entity.categoryKind.description
+            else
+            -> entity.description
+        }
+
+        if (!entity.version.isModified()) {
+            log.debug("version.isModified={}", entity.version.isModified())
+        }
+
+        entity.hierarchyLevel = when (entity.categoryKind) {
+            CategoryKind.DATETIME, CategoryKind.BOOLEAN, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.CATEGORY ->
+                HierarchyLevel.ENTITY
+            CategoryKind.MISSING_GROUP, CategoryKind.LIST, CategoryKind.SCALE, CategoryKind.MIXED ->
+                HierarchyLevel.GROUP_ENTITY
+        }
+        entity.name = entity.name.trim()
+
     }
 
     private fun beforeStudyRemove(entity: Study) {

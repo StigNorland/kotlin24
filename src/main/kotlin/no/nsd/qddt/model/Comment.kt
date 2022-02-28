@@ -20,6 +20,7 @@ import javax.persistence.*
  * @author Dag Østgulen Heradstveit
  * @author Stig Norland
  */
+@Cacheable
 @Entity
 @Table(name = "comment")
 @EntityListeners(value = [CommentTrailListener::class])

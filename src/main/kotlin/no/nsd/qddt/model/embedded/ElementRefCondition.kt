@@ -2,12 +2,10 @@ package no.nsd.qddt.model.embedded
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ControlConstruct
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IElementRef
 import org.hibernate.envers.Audited
 import java.io.Serializable
-import java.util.*
 import javax.persistence.*
 
 @Audited

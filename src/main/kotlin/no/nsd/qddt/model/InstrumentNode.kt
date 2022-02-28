@@ -2,7 +2,7 @@
 //
 //import com.fasterxml.jackson.annotation.JsonIgnore
 //import no.nsd.qddt.model.classes.AbstractElementRef
-//import no.nsd.qddt.model.classes.UriId
+//import no.nsd.qddt.model.embedded.UriId
 //import no.nsd.qddt.model.embedded.Parameter
 //import org.hibernate.envers.AuditMappedBy
 //import org.hibernate.envers.Audited

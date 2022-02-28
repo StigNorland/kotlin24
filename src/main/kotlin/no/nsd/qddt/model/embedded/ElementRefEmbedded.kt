@@ -1,7 +1,6 @@
 package no.nsd.qddt.model.embedded
 
 import no.nsd.qddt.model.classes.AbstractElementRef
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.IWebMenuPreview
 import org.hibernate.envers.Audited

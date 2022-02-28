@@ -3,7 +3,6 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.User
-import no.nsd.qddt.model.classes.UriId
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.repository.ResponseDomainRepository
@@ -13,8 +12,8 @@ import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -25,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -56,7 +56,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
 //    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/pdf"])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
@@ -109,7 +109,6 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     @ResponseBody
     @GetMapping("/responsedomain/{uri}", produces = ["application/hal+json"])
     fun getResponseDomain(@PathVariable uri: UUID):  RepresentationModel<*> {
-//        logger.debug("getResponseDomain - harvestCode : {} : {}", responseDomain.name, responseDomain.codes.joinToString { it.value })
         return entityModelBuilder(repository.findById(uri).orElseThrow())
     }
 

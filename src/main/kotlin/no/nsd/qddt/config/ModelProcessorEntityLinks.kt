@@ -5,7 +5,7 @@ import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +30,7 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
         val entity = model.content!!
         val uri = UriId().also {
             it.id = entity.id!!
-            it.rev = entity.version.rev
+            it.rev = entity.version.rev?:0
         }
 
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder

@@ -8,6 +8,7 @@ import java.io.Serializable
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
+import javax.persistence.Cacheable
 import javax.persistence.Embeddable
 
 /**
@@ -20,6 +21,7 @@ import javax.persistence.Embeddable
 */
 @Audited
 @Embeddable
+@Cacheable
 class OtherMaterial():Cloneable, Serializable {
 
   lateinit var originalOwner: UUID

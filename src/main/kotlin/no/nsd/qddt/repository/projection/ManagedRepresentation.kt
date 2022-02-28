@@ -1,7 +1,7 @@
 package no.nsd.qddt.repository.projection
 
 import no.nsd.qddt.model.Category
-import no.nsd.qddt.model.classes.UriId
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
