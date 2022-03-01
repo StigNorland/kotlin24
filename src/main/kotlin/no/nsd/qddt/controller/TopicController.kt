@@ -57,8 +57,8 @@ class TopicController(
     }
 
 
-    @GetMapping("/topicgroup/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
+    @GetMapping("/topicgroup/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
@@ -68,7 +68,6 @@ class TopicController(
     }
 
     @ResponseBody
-    @Modifying
     @PostMapping("/topicgroup", produces = ["application/hal+json"])
     fun save(@RequestBody topicGroup: TopicGroup): RepresentationModel<*> {
         return entityModelBuilder(repository.saveAndFlush(topicGroup))
@@ -144,25 +143,29 @@ class TopicController(
         @RequestParam("files") multipartFiles: Array<MultipartFile>?,
         @RequestParam("topicgroup") jsonString: String?
     ): RepresentationModel<EntityModel<TopicGroup>> {
-        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val topicGroup = mapper.readValue(jsonString, TopicGroup::class.java)
-        val currentuser = SecurityContextHolder.getContext().authentication.principal as User
-        topicGroup.modifiedBy = currentuser
-        topicGroup.agency = currentuser.agency
+        try {
+            val mapper = ObjectMapper().configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false)
+            val topicGroup = mapper.readValue(jsonString, TopicGroup::class.java)
+            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+            topicGroup.modifiedBy = currentuser
+            topicGroup.agency = currentuser.agency
 
-        if (multipartFiles != null && multipartFiles.isNotEmpty()) {
-            logger.info("got new files!!!")
-            if (topicGroup.id == null) {
-                topicGroup.id = UUID.randomUUID()
+            if (multipartFiles != null && multipartFiles.isNotEmpty()) {
+                logger.info("got new files!!!")
+                if (topicGroup.id == null) {
+                    topicGroup.id = UUID.randomUUID()
+                }
+                for (file in multipartFiles) {
+                    logger.info(file.name)
+                    topicGroup.addOtherMaterial(otherMaterialService.saveFile(file, topicGroup.id!!))
+                }
             }
-            for (file in multipartFiles) {
-                logger.info(file.name)
-                topicGroup.addOtherMaterial(otherMaterialService.saveFile(file, topicGroup.id!!))
-            }
+            val saved = repository.saveAndFlush(topicGroup)
+            return   entityModelBuilder(saved)
+        } catch (ex: Exception) {
+            logger.error(ex.localizedMessage)
+            throw ex
         }
-        val saved = repository.saveAndFlush(topicGroup)
-        return   entityModelBuilder(saved)
-//        return ResponseEntity.ok(repository.save(topicGroup))
     }
 
     fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {

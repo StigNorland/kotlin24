@@ -40,7 +40,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
 
 
     @GetMapping("/instrument/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
+    override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 

@@ -14,7 +14,7 @@ import javax.persistence.Embeddable
 @Audited
 class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
 
-    lateinit var id: UUID
+    var id: UUID? = null
 
     var rev: Int? = null
 
@@ -29,15 +29,15 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
     override fun compareTo(other: UriId): Int {
         return try
         {
-            val i = id.compareTo(other.id)
+            val i = id?.compareTo(other.id)?:0
             return if (i != 0) i else (rev?:0).compareTo(other.rev?:0)
         }
         catch (nfe:NumberFormatException) {
-          id.compareTo(id)
+          -1
         }
     }
 
-    override fun convert(source: Serializable): UriId? {
+    override fun convert(source: Serializable): UriId {
         return fromAny(source)
     }
 

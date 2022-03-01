@@ -1,10 +1,15 @@
 package  no.nsd.qddt.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.*
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer
+import org.springframework.http.MediaType
+import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.http.converter.StringHttpMessageConverter
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 
@@ -17,10 +22,24 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
     @Value(value = "\${qddt.api.origin}")
     lateinit var origin: String
 
+
+    override fun configureHttpMessageConverters(messageConverters: MutableList<HttpMessageConverter<*>?>) {
+        val converter = StringHttpMessageConverter()
+        converter.supportedMediaTypes = configureMediaTypes()
+        messageConverters.add(converter)
+    }
+    private fun configureMediaTypes(): List<MediaType> {
+        val mediaTypes: MutableList<MediaType> = ArrayList()
+        mediaTypes.add(MediaType.TEXT_PLAIN)
+        mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM)
+        mediaTypes.add(MediaType.APPLICATION_PDF)
+        mediaTypes.add(MediaType.APPLICATION_XML)
+        return mediaTypes
+    }
+
     override fun configureRepositoryRestConfiguration(config:RepositoryRestConfiguration,  cors: CorsRegistry) {
 
         cors.addMapping("/**").allowedOrigins(origin)
-
 
         config.exposeIdsFor(User::class.java)
         config.exposeIdsFor(Agency::class.java)
@@ -43,30 +62,11 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(Universe::class.java)
         config.exposeIdsFor(PublicationStatus::class.java)
         config.exposeIdsFor(Publication::class.java)
-//        config.exposeIdsFor(ChangeFeed::class.java)
-
 
 //        config.withEntityLookup().forRepository(AgencyRepository::class.java, Agency::id, AgencyRepository::findById)
-//        config.withEntityLookup().forRepository(UserRepository::class.java, User::id, UserRepository::findById)
-//        config.withEntityLookup().forRepository(StudyRepository::class.java, Study::id, StudyRepository::findById)
-
-//        config.withEntityLookup().forRepository(StudyRepository::class.java, User::id, StudyRepository:: )
-
-//        config.withEntityLookup()
-//            .forRepository(QuestionItemRepository::class.java, QuestionItem::responseId, QuestionItemRepository::findRevision)
-
-//         config.withEntityLookup()
-//             .forRepository(ResponseDomainRepository::class.java,
-//                 { ent ->  UriId() },
-//                 EntityLookupRegistrar.LookupRegistrar.Lookup())
 
         config.repositoryDetectionStrategy = RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED
     }
-
-//    @Bean
-//    fun questionItemEventHandler(): QuestionItemEventHandler {
-//        return QuestionItemEventHandler()
-//    }
 
 
 }

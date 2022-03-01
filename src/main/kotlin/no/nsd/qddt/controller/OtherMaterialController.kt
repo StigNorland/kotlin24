@@ -24,12 +24,13 @@ import java.util.*
  */
 
 @RestController
+@RequestMapping("/othermaterial")
 class OtherMaterialController {
 
     @Autowired
     private lateinit var service: OtherMaterialService
 
-    @PostMapping(value = ["/othermaterial/upload/{ownerid}"], headers = ["content-type=multipart/form-data"])
+    @PostMapping(value = ["/upload/{ownerid}"])
     @Throws(IOException::class, FileUploadException::class)
     fun handleFileUpload(
         @PathVariable("ownerid") ownerId: UUID,
@@ -40,7 +41,7 @@ class OtherMaterialController {
     }
 
 
-    @GetMapping(value = ["/othermaterial/files/{uuid}/{filename}"])
+    @GetMapping(value = ["/files/{uuid}/{filename}"])
     @Throws(IOException::class)
     fun downloadFile(@PathVariable("uuid") uuid: UUID, @PathVariable("filename") fileName: String): ResponseEntity<InputStreamResource> {
         val file = service.getFile(uuid, fileName)

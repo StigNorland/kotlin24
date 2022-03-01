@@ -62,10 +62,10 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
         ) { linkBuilder.slash("revisions").slash(entity.id).withRel("revisions") }
         model.addIf(
             !model.hasLink("xml")
-        ) { linkBuilder.slash(uri).withRel("xml") }
+        ) { linkBuilder.slash("xml").slash(uri).withRel("xml") }
         model.addIf(
             !model.hasLink("pdf")
-        ) { linkBuilder.slash(uri).withRel("pdf") }
+        ) { linkBuilder.slash("pdf").slash(uri).withRel("pdf") }
 
 
         return when (entity) {

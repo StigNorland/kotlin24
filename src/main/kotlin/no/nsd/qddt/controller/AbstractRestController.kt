@@ -1,5 +1,6 @@
 package no.nsd.qddt.controller
 
+import com.itextpdf.io.source.ByteArrayOutputStream
 import io.micrometer.core.ipc.http.HttpSender
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
@@ -107,16 +108,16 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 //        return PagedModel.of(null)
     }
 
-    @ResponseBody
-    open fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
-        logger.debug("getPdf : {}", uri)
-        val headers = HttpHeaders()
-        val stream = getByUri(uri).also {
-            headers.add("Content-Disposition", "inline")
-        }.makePdf()
 
-        val resut = ByteArrayInputStream(stream.toByteArray())
-        return ResponseEntity.ok().body(resut)
+    open fun getPdf(@PathVariable uri: String): ByteArray {
+        logger.debug("getPdf : {}", uri)
+        return getByUri(uri).makePdf().toByteArray()
+
+    //        val resut = ByteArrayInputStream(stream.toByteArray())
+//        return ResponseEntity.ok()
+//            .headers(headers)
+//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//            .body(stream.toByteArray())
 
 //        val resource = ByteArrayResource(stream.toByteArray())
 //        return ResponseEntity.ok()

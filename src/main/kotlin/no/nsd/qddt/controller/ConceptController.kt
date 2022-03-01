@@ -1,22 +1,24 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
-import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.repository.ConceptRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -31,10 +33,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     }
 
     @GetMapping("/concept/revisions/{uuid}", produces = ["application/hal+json"])
-    override fun getRevisions(
-        @PathVariable uuid: UUID,
-        pageable: Pageable
-    ): RepresentationModel<*>? {
+    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
@@ -43,19 +42,35 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 
-
-    @GetMapping("/concept/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
-        return super.getPdf(uri)
+    @GetMapping("/concept/pdf/{uri}")
+    @ResponseBody
+    fun downloadFile(@PathVariable uri: String): ResponseEntity<ByteArray> {
+        val resource = super.getPdf(uri)
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + "test.pdf")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .contentLength(resource.size.toLong())
+            .body(resource)
     }
+
+//    @GetMapping("/concept/pdf/{uri}")
+//    fun getPdf2(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
+////        return super.getPdf(uri)
+//        val resource = ByteArrayResource(super.getPdf(uri))
+//        return ResponseEntity.ok()
+//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//            .contentLength(resource.contentLength())
+//            .header(HttpHeaders.CONTENT_DISPOSITION,
+//                ContentDisposition.attachment().filename("whatever")
+//                    .build().toString()
+//            )
+//            .body(resource)
+//    }
 
     @ResponseBody
     @GetMapping("/concept/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     fun getXmlString(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
-//        return ResponseEntity.ok()
-//            .contentType(MediaType.TEXT_XML)
-//            .body(super.getXml(uri))
     }
 
 
@@ -67,16 +82,8 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         @RequestBody questionItem: ElementRefQuestionItem
     ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
 
-//        val qRepository = repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM)
         repository.findById(uuid).orElseThrow().let { parent ->
-
             parent.addQuestionRef(questionItem)
-
-//            val result = repository.saveAndFlush(parent).questionItems.map {
-////                it.element = Companion.loadRevisionEntity(it.getUri(), qRepository)
-//                it
-//            }.toMutableList()
-
             return ResponseEntity.ok(
                 repository.saveAndFlush(parent).questionItems
             )
@@ -153,7 +160,6 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))
             .embed(entity.authors, LinkRelation.of("authors"))
-//                .embed(entity.questionItems, LinkRelation.of("questionItems"))
             .embed(entity.children.map {
                 entityModelBuilder(it as Concept)
             }, LinkRelation.of("children"))

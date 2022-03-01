@@ -39,7 +39,7 @@ class PublicationController(@Autowired repository: PublicationRepository) :
 
 
     @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
+    override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 

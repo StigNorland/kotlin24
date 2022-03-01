@@ -223,8 +223,8 @@ class EntityAuditTrailListener{
             is ResponseDomain -> {
 //                log.debug("[populateCatCodes] {}", entity.name)
 //                entity.managedRepresentation?.children?.size
-//                var _index = 0
-//                populateCatCodes(entity.managedRepresentation,_index,entity.codes)
+                var _index = 0
+                populateCatCodes(entity.managedRepresentation,_index,entity.codes)
             }
             is Category -> {
 //                log.debug(entity.basedOn?.toString())

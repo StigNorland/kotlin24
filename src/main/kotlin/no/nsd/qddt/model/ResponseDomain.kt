@@ -24,10 +24,10 @@ import javax.persistence.*
 @Cacheable
 @Audited
 @Entity
-@Table(name = "RESPONSEDOMAIN", uniqueConstraints =
-        [UniqueConstraint(name = "UNQ_RESPONSEDOMAIN_NAME",
-          columnNames = ["name","category_id","based_on_object"])]
-)
+@Table(name = "RESPONSEDOMAIN",
+       uniqueConstraints =[UniqueConstraint(
+         name = "UNQ_RESPONSEDOMAIN_NAME",
+         columnNames = ["name","category_id","based_on_object"])])
 data class ResponseDomain(
   @Column(length = 2000, nullable = false)
   var description:String = ""

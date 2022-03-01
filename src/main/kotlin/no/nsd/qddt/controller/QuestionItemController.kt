@@ -61,7 +61,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
 
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayInputStream> {
+    override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
