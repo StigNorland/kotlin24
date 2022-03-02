@@ -129,7 +129,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     override fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"responsedomain")
-        logger.debug("entityModelBuilder ResponseDomain : {}", uriId)
+        logger.debug("EntModBuild ResponseDomain : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -159,7 +159,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"category")
-        logger.debug("entityModelBuilder Category : {}", uriId)
+        logger.debug("EntModBuild Category : {}", uriId)
 
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {

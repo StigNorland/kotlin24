@@ -77,6 +77,9 @@ class EntityAuditTrailListener{
 //                }
 //                persistManagedRep(entity)
                 }
+                is Instrument -> {
+                    log.debug("{}:{}", entity.name, entity.root?.children?.joinToString { it.toString() } ?: "<emoty>")
+                }
                 is Study -> {
                     entity.parentIdx
                     beforeStudyInsert(entity)
@@ -114,7 +117,7 @@ class EntityAuditTrailListener{
                     ChangeKind.BASED_ON, ChangeKind.NEW_COPY, ChangeKind.TRANSLATED ,
                     ChangeKind.REFERENCED, ChangeKind.TO_BE_DELETED -> { }
                     ChangeKind.UPDATED_PARENT, ChangeKind.UPDATED_CHILD, ChangeKind.UPDATED_HIERARCHY_RELATION -> {
-                        ver.versionLabel = ""
+                        ver.versionLabel = ChangeKind.IN_DEVELOPMENT.label
                     }
                     ChangeKind.IN_DEVELOPMENT-> {
                         ver.versionLabel = ChangeKind.IN_DEVELOPMENT.label
@@ -130,7 +133,7 @@ class EntityAuditTrailListener{
                     }
                     ChangeKind.ARCHIVED -> {
                         (this as IArchived).isArchived = true
-                        ver.versionLabel = ""
+                        ver.versionLabel = ChangeKind.ARCHIVED.label
                     }
                 }
             entity.version = ver

@@ -1,9 +1,6 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.model.ConceptHierarchy
-import no.nsd.qddt.model.QuestionConstruct
-import no.nsd.qddt.model.QuestionItem
-import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
@@ -71,6 +68,12 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
         return when (entity) {
             is QuestionConstruct -> with (entity.questionId.toString()){
                 return model.add(Link.of("$baseUri/questionitem/revision/$this", "questionItem"))
+            }
+//            is no.nsd.qddt.model.Sequence -> {
+//                return model.add(Link.of("$baseUri/sequence/revisions/${entity.id}", "revisions"))
+//            }
+            is ConditionConstruct -> {
+                return model.add(Link.of("$baseUri/condition/revision/$this", "revisions"))
             }
             is QuestionItem -> with(entity.responseId.toString()) {
                 return model.add(Link.of("$baseUri/responsedomain/revision/$this", "responseDomain"))

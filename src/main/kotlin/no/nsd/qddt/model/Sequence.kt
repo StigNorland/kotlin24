@@ -20,7 +20,7 @@ import javax.persistence.*
 @Audited
 @DiscriminatorValue("SEQUENCE_CONSTRUCT")
 data class Sequence(
-    @Column(length = 3000)
+    @Column(length = 1500)
     var description: String? = null
 ) : ControlConstruct() {
 

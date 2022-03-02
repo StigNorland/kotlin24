@@ -20,7 +20,6 @@ import javax.persistence.*
 @Audited
 @DiscriminatorValue("QUESTION_CONSTRUCT")
 data class QuestionConstruct(
-    @Column(name = "description", length = 1500)
     var description: String = ""
 ): ControlConstruct() {
 
@@ -34,7 +33,7 @@ data class QuestionConstruct(
     @Column(name = "question_name")
     var questionName: String? = null
 
-    @Column(name = "question_text")
+    @Column(name = "question_text", length = 1500)
     var questionText: String? = null
 
 

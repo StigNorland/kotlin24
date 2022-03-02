@@ -69,7 +69,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     }
 
     private fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
-        logger.debug("entityModelBuilder SurveyProgram Study: {}", entity.id)
+        logger.debug("EntModBuild SurveyProgram Study: {}", entity.id)
 //        entity.children.size
         entity.authors.size
         entity.comments.size
@@ -89,7 +89,7 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     override fun entityModelBuilder(entity: SurveyProgram): RepresentationModel<EntityModel<SurveyProgram>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"surveyprogram")
-        logger.debug("entityModelBuilder SurveyProgram : {}", uriId)
+        logger.debug("EntModBuild SurveyProgram : {}", uriId)
 
         entity.children.size
         entity.authors.size

@@ -5,6 +5,7 @@ import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
@@ -23,6 +24,19 @@ class ConditionConstructController(@Autowired repository: ControlConstructReposi
 
     @Autowired
     lateinit var omService: OtherMaterialService
+
+    @ResponseBody
+    @GetMapping("/condition/revision/{uri}", produces = ["application/hal+json"])
+    override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
+        return super.getRevision(uri)
+    }
+
+    @ResponseBody
+    @GetMapping("/condition/revisions/{uuid}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
+        return super.getRevisions(uuid, pageable)
+    }
+
 
     @ResponseBody
     @GetMapping("/controlconstruct/condition/{uuid}", produces = ["application/hal+json"])
@@ -45,7 +59,7 @@ class ConditionConstructController(@Autowired repository: ControlConstructReposi
      override fun entityModelBuilder(entity: ConditionConstruct): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"conditionconstruct")
-        logger.debug("entityModelBuilder ConditionConstruct : {}", uriId)
+        logger.debug("EntModBuild Condition : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)

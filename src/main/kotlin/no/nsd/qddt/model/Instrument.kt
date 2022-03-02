@@ -51,8 +51,8 @@ data class Instrument(
     // @JoinColumn(name = "study_id", updatable = false)
 
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST])
-    var root: InstrumentElement? = null
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE, CascadeType.PERSIST])
+    var root: InstrumentElement? = InstrumentElement()
 
 
     ////    TODO implement outparams....

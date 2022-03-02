@@ -3,11 +3,13 @@ package no.nsd.qddt.repository
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.repository.projection.CategoryListe
 import no.nsd.qddt.repository.projection.ManagedRepresentation
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import java.util.*
 
 /**
  * @author Dag Østgulen Heradstveit
@@ -15,6 +17,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
  */
 @RepositoryRestResource(path = "category", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
 interface CategoryRepository : BaseMixedRepository<Category>  {
+
+    @Cacheable(cacheNames = ["CATEGORIES"])
+    override fun getOne(id: UUID): Category
+
+    @Cacheable(cacheNames = ["CATEGORIES"])
+    override fun getById(id: UUID): Category
 
     @Query(nativeQuery = true,
         value = """

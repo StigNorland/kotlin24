@@ -111,7 +111,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     override fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"category")
-        logger.debug("entityModelBuilder Category : {}", uriId)
+        logger.debug("EntModBuild Category : {}", uriId)
 
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {

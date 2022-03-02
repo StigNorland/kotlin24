@@ -70,7 +70,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     override fun entityModelBuilder(entity: Sequence): RepresentationModel<*> {
 
         val baseUrl = baseUrl( toUriId(entity),"sequence")
-        logger.debug("entityModelBuilder Sequence : {}", baseUrl)
+        logger.debug("EntModBuild Sequence : {}", baseUrl)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -82,6 +82,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
+//            .link(Link.of(baseUrl( toUriId(entity),"sequence/revisions"),"revisions"))
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()

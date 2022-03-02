@@ -25,13 +25,13 @@ import java.util.*
 @BasePathAwareController
 class StudyController(@Autowired repository: StudyRepository) : AbstractRestController<Study>(repository) {
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/study/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/study/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
         @PathVariable uuid: UUID,
@@ -78,7 +78,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     fun entityModelBuilder(it: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
         val uriId = toUriId(it)
         val baseUrl = baseUrl(uriId,"topicgroup")
-        logger.debug("entityModelBuilder TopicGroup : {}", uriId)
+        logger.debug("EntModBuild TopicGroup : {}", uriId)
 
         it.authors.size
         it.comments.size
@@ -104,7 +104,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     override fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"study")
-        logger.debug("entityModelBuilder Study : {}", uriId)
+        logger.debug("EntModBuild Study : {}", uriId)
 
         entity.authors.size
         entity.comments.size

@@ -38,7 +38,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     }
 
     @GetMapping("/concept/revisions/byparent/{uri}", produces = ["application/hal+json"])
-    fun getParent(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
+    fun getRevisionByParent(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 
@@ -52,20 +52,6 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
             .contentLength(resource.size.toLong())
             .body(resource)
     }
-
-//    @GetMapping("/concept/pdf/{uri}")
-//    fun getPdf2(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
-////        return super.getPdf(uri)
-//        val resource = ByteArrayResource(super.getPdf(uri))
-//        return ResponseEntity.ok()
-//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .contentLength(resource.contentLength())
-//            .header(HttpHeaders.CONTENT_DISPOSITION,
-//                ContentDisposition.attachment().filename("whatever")
-//                    .build().toString()
-//            )
-//            .body(resource)
-//    }
 
     @ResponseBody
     @GetMapping("/concept/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
@@ -146,7 +132,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     override fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"concept")
-        logger.debug("entityModelBuilder Concept : {}", uriId)
+        logger.debug("EntModBuild Concept : {}", uriId)
 
         entity.children.size
         entity.authors.size

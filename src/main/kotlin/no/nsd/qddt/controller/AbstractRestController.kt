@@ -141,7 +141,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     open fun entityModelBuilder(entity: T): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId, entity.classKind.lowercase())
-        logger.debug("entityModelBuilder(T) : {}", entity.name)
+        logger.debug("EntModBuild(T) : {}", entity.name)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)

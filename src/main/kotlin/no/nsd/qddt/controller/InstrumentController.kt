@@ -54,6 +54,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
 //        return entityModelBuilder(repository.getById(uri))
 //    }
 
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @PostMapping("/instrument", produces = ["application/hal+json"])
     fun insert(@RequestBody instrument: Instrument): ResponseEntity<*> {
@@ -112,7 +113,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
     override fun entityModelBuilder(entity: Instrument): RepresentationModel<EntityModel<Instrument>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"publication")
-        logger.debug("entityModelBuilder Publication : {}", uriId)
+        logger.debug("EntModBuild Instrument : {}", uriId)
 
         entity.comments.size
         entity.comments.forEach {

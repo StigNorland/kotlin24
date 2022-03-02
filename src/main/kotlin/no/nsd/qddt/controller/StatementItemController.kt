@@ -75,7 +75,7 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
      override fun entityModelBuilder(entity: StatementItem): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"statementitem")
-         logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
+         logger.debug("EntModBuild QuestionConstruct : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)

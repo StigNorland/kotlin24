@@ -171,7 +171,7 @@ class TopicController(
     fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"concept")
-        logger.debug("entityModelBuilder Concept : {}", uriId)
+        logger.debug("EntModBuild Concept : {}", uriId)
 
         entity.children.size
         entity.authors.size
@@ -199,7 +199,7 @@ class TopicController(
     override fun entityModelBuilder(entity: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"topicgroup")
-        logger.debug("entityModelBuilder TopicGroup : {}", uriId)
+        logger.debug("EntModBuild TopicGroup : {}", uriId)
 
         entity.children.size
         entity.authors.size

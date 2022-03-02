@@ -113,7 +113,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     override fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"questionitem")
-        logger.debug("entityModelBuilder QuestionItem : {}", uriId)
+        logger.debug("EntModBuild QuestionItem : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -141,7 +141,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"responsedomain")
-        logger.debug("entityModelBuilder QuestionItem:ResponseDomain : {}", uriId)
+        logger.debug("EntModBuild QuestionItem:ResponseDomain : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)

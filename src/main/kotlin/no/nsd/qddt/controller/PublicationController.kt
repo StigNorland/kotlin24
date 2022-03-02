@@ -81,7 +81,7 @@ class PublicationController(@Autowired repository: PublicationRepository) :
     override fun entityModelBuilder(entity: Publication): RepresentationModel<EntityModel<Publication>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"publication")
-        logger.debug("entityModelBuilder Publication : {}", uriId)
+        logger.debug("EntModBuild Publication : {}", uriId)
 
         entity.comments.size
         entity.comments.forEach {

@@ -57,6 +57,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return super.getRevision(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionconstruct/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
     override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
@@ -70,7 +71,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return entityModelBuilder(repository.findById(uri).orElseThrow())
     }
 
-    @GetMapping("/questionconstruct/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/questionconstruct/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
@@ -154,7 +155,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     override fun entityModelBuilder(entity: QuestionConstruct): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"questionconstruct")
-        logger.debug("entityModelBuilder QuestionConstruct : {}", uriId)
+        logger.info("EntModBuild QC : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -183,7 +184,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"questionitem")
-        logger.debug("entityModelBuilder QuestionConstruct:QuestionItem : {}", uriId)
+        logger.info("EntModBuild QC:QI : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -211,7 +212,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"responsedomain")
-        logger.debug("entityModelBuilder QuestionConstruct:ResponseDomain : {}", uriId)
+        logger.info("EntModBuild QC:Response : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
