@@ -43,7 +43,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE], targetEntity = Concept::class)
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
     @OrderColumn(name="parentIdx")
@@ -52,6 +52,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
         name = "CONCEPT_HIERARCHY_QUESTION_ITEM",
         joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
     override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
+    get() = field.filterNotNull() as MutableList<ElementRefQuestionItem>
 
     @JsonIgnore
     @Transient

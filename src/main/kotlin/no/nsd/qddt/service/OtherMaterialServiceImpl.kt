@@ -17,6 +17,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.sql.Timestamp
 import java.util.*
+import kotlin.io.path.deleteIfExists
 
 /**
 * @author Stig Norland
@@ -33,20 +34,26 @@ internal class OtherMaterialServiceImpl : OtherMaterialService {
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
   @Throws(IOException::class)
   override fun saveFile(multipartFile:MultipartFile, uuid:UUID): OtherMaterial {
-    LOG.info(uuid.toString())
-    val om = OtherMaterial(multipartFile).apply {
+    return OtherMaterial(multipartFile).apply {
+      LOG.info(uuid.toString())
+
       originalOwner = uuid
+
+      var filePath = Paths.get(getFolder(uuid.toString()), fileName).also {
+        if (Files.exists(it)){
+          fileName = getNextFileName(it)
+          Paths.get(getFolder(uuid.toString()), fileName)
+        } else
+          it
+      }
+
+      Files.copy(multipartFile.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
+
+      fileDate = with(Files.readAttributes(filePath, BasicFileAttributes::class.java)) {
+        Timestamp.from(creationTime().toInstant())
+      }
+
     }
-    var filePath = Paths.get(getFolder(uuid.toString()), om.fileName)
-    if (Files.exists(filePath))
-    {
-      om.fileName = getNextFileName(filePath)
-      filePath = Paths.get(getFolder(uuid.toString()), om.fileName)
-    }
-    Files.copy(multipartFile.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
-    val attr = Files.readAttributes(filePath, BasicFileAttributes::class.java)
-    om.fileDate =  Timestamp.from(attr.creationTime().toInstant())
-    return om
   }
 
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
@@ -54,6 +61,11 @@ internal class OtherMaterialServiceImpl : OtherMaterialService {
     val filePath = Paths.get(getFolder(root.toString()), fileName).toString()
     return File(filePath)
   }
+
+  override fun deleteFile(root: UUID, fileName: String): Boolean {
+    return Paths.get(getFolder(root.toString()), fileName).deleteIfExists()
+  }
+
   /*
  return absolute path to save folder, creates folder if not exists
  */

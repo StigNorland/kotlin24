@@ -60,11 +60,11 @@ data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuth
 
   @OrderColumn(name = "parentIdx")
   @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-  @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Concept::class)
+  @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE], targetEntity = Concept::class)
   override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
 
-//  @OrderColumn(name = "ownerIdx")
+  @OrderColumn(name = "ownerIdx")
   @ElementCollection
   @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()

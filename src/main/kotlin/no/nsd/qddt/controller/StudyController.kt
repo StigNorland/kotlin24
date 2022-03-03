@@ -1,7 +1,9 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Study
+import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.classes.ElementOrder
 import no.nsd.qddt.repository.StudyRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -59,6 +61,20 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
         return super.getXml(uri)
     }
 
+    @PutMapping("/study/reorder/{uuid}", produces = ["application/hal+json"])
+    fun setOrder(@PathVariable uuid: UUID?, @RequestBody ranks: List<ElementOrder>): ResponseEntity<Study> {
+        if (uuid!=null) {
+            repository.saveAllAndFlush(
+                repository.findAllById(ranks.map { it.uuid })
+                    .mapIndexed { idx, study ->
+                        study.parentIdx = ranks[idx].index
+                        study
+                    })
+        } else {
+
+        }
+        return ResponseEntity.ok().build()
+    }
 
     @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])

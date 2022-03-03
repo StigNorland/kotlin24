@@ -15,4 +15,6 @@ interface OtherMaterialService {
   fun saveFile(multipartFile:MultipartFile, uuid:UUID): OtherMaterial
 
   fun getFile(root:UUID, fileName:String):File
+
+  fun deleteFile(uuid: UUID, fileName: String): Boolean
 }

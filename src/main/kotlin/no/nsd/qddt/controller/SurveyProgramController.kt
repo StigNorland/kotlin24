@@ -2,10 +2,10 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.SurveyProgram
+import no.nsd.qddt.model.classes.ElementOrder
 import no.nsd.qddt.repository.SurveyProgramRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import java.io.ByteArrayInputStream
 import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)
@@ -27,13 +26,11 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
     AbstractRestController<SurveyProgram>(repository) {
 // https://docs.spring.io/spring-hateoas/docs/current/reference/html/#fundamentals.representation-models
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/surveyprogram/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/surveyprogram/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
         @PathVariable uuid: UUID,
@@ -42,16 +39,31 @@ class SurveyProgramController(@Autowired repository: SurveyProgramRepository) :
         return super.getRevisions(uuid, pageable)
     }
 
-    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+
+    @GetMapping("/surveyprogram/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/surveyprogram/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/surveyprogram/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
 
+
+    @PutMapping("/surveyprogram/reorder", produces = ["application/hal+json"])
+    fun setOrder( @RequestBody ranks: List<ElementOrder>): ResponseEntity<SurveyProgram> {
+//        if (uuid!=null) {
+            repository.saveAllAndFlush(
+             repository.findAllById(ranks.map { it.uuid })
+                .map { survey ->
+                        survey.parentIdx = ranks.find { it.uuid == survey.id }?.index
+                        survey
+                })
+//        } else {
+//        }
+        return ResponseEntity.ok().build()
+    }
 
     @PutMapping("/surveyprogram/{uri}/children", produces = ["application/hal+json"])
     fun putStudies(

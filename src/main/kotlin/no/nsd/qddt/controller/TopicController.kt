@@ -3,15 +3,13 @@ package no.nsd.qddt.controller
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.*
-import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.repository.TopicGroupRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -131,6 +128,72 @@ class TopicController(
             repository.saveAndFlush(parent).questionItems
         )
     }
+
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
+    @DeleteMapping("/topicgroup/{uuid}/otherMaterial/{filename}")
+    fun removeFile( @PathVariable uuid: UUID, @PathVariable filename: String): RepresentationModel<EntityModel<TopicGroup>>  {
+        try {
+            val topicGroup = repository.getById(uuid)
+            topicGroup.removeOtherMaterial(filename)
+            val saved = repository.saveAndFlush(topicGroup)
+// Due to revision concerns, we cannot delete uploads...
+//                    .also{
+//                    otherMaterialService.deleteFile(uuid,filename)
+//                    it
+//                }
+            return entityModelBuilder(saved)
+        } catch (ex: Exception) {
+            logger.error(ex.localizedMessage)
+            throw ex
+        }
+    }
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
+    @PostMapping("/topicgroup/{uuid}/otherMaterial")
+    fun uploadFile( @PathVariable uuid: UUID,@RequestParam("file") file: MultipartFile): RepresentationModel<EntityModel<TopicGroup>>  {
+        try {
+            if (file != null) {
+                val topicGroup = repository.getById(uuid)
+                logger.info("got new files!!! {}",file.name)
+                topicGroup.addOtherMaterial(otherMaterialService.saveFile(file, topicGroup.id!!))
+                val saved = repository.saveAndFlush(topicGroup)
+                return entityModelBuilder(saved)
+            }
+            throw Exception("No files to upload.")
+        } catch (ex: Exception) {
+            logger.error(ex.localizedMessage)
+            throw ex
+        }
+    }
+//    @Transactional(propagation = Propagation.NESTED)
+//    @ResponseBody
+//    @PostMapping("/topicgroup/{uuid}/otherMaterial",
+//        headers = ["content-type=multipart/form-data"],
+//        produces = ["application/hal+json"],
+//        consumes = ["multipart/form-data"]
+//    )
+//    fun addFile(
+//        @PathVariable uuid: UUID,
+//        @RequestParam("files") multipartFiles: Array<MultipartFile>,
+//    ): RepresentationModel<EntityModel<TopicGroup>> {
+//        try {
+//            if (multipartFiles != null) {
+//                val topicGroup = repository.getById(uuid)
+//                logger.info("got new files!!!")
+//                for (file in multipartFiles) {
+//                    logger.info(file.name)
+//                    topicGroup.addOtherMaterial(otherMaterialService.saveFile(file, topicGroup.id!!))
+//                }
+//                val saved = repository.saveAndFlush(topicGroup)
+//                return entityModelBuilder(saved)
+//            }
+//            throw Exception("No files to upload.")
+//        } catch (ex: Exception) {
+//            logger.error(ex.localizedMessage)
+//            throw ex
+//        }
+//    }
 
     @Transactional(propagation = Propagation.NESTED)
     @ResponseBody

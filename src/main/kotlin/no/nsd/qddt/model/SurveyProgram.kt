@@ -49,7 +49,7 @@ data class SurveyProgram(override var name: String = "") : ConceptHierarchy() {
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = Study::class)
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE], targetEntity = Study::class)
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
 

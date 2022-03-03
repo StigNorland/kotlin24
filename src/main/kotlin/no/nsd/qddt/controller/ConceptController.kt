@@ -129,6 +129,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         }
     }
 
+
     override fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"concept")
@@ -141,7 +142,11 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
-            .entity(entity).link(Link.of(baseUrl))
+            .entity(entity)
+            .link(Link.of(baseUrl))
+//            .link(Link.of(self))
+            .link(Link.of("${baseUrl}/questionItems", "questionItems"))
+
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .embed(entity.comments, LinkRelation.of("comments"))

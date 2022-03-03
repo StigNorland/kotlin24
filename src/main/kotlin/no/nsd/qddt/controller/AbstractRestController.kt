@@ -1,7 +1,5 @@
 package no.nsd.qddt.controller
 
-import com.itextpdf.io.source.ByteArrayOutputStream
-import io.micrometer.core.ipc.http.HttpSender
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentAssembler
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.UriId
@@ -16,7 +14,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -26,12 +23,9 @@ import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
-import java.io.ByteArrayInputStream
 import java.util.*
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
@@ -68,7 +62,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
             HalModelBuilder.emptyHalModel().build<EntityModel<T>>()
         }
     }
-
 
     @ResponseBody
     open fun getRevisions(@PathVariable uuid: UUID, pageable: Pageable): RepresentationModel<*>? {
@@ -137,7 +130,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
             .body(xml)
     }
 
-
     open fun entityModelBuilder(entity: T): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId, entity.classKind.lowercase())
@@ -152,7 +144,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
     }
-
 
     open fun getByUri(uri: String): T {
         logger.debug("getByUri : {}", uri)

@@ -68,7 +68,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    @PutMapping("/responsedomain/{uri}", produces = ["application/hal+json"], consumes = ["application/hal+json","application/json"])
+    @PatchMapping("/responsedomain/{uri}", produces = ["application/hal+json"], consumes = ["application/hal+json","application/json"])
     fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain):ResponseEntity<*> {
         return try {
             persistManagedRep(responseDomain)

@@ -10,6 +10,8 @@ import java.time.Instant
 import java.util.*
 import javax.persistence.Cacheable
 import javax.persistence.Embeddable
+import javax.persistence.Table
+import javax.persistence.UniqueConstraint
 
 /**
 * This class is just a placeholder for functionality not implemented.
@@ -22,6 +24,7 @@ import javax.persistence.Embeddable
 @Audited
 @Embeddable
 @Cacheable
+@Table( uniqueConstraints = [UniqueConstraint(columnNames = ["originalOwner", "fileName", "size"],name = "UNQ_OTHERMATERIAL_IDENT")])
 class OtherMaterial():Cloneable, Serializable {
 
   lateinit var originalOwner: UUID
@@ -35,7 +38,6 @@ class OtherMaterial():Cloneable, Serializable {
   var description:String? = ""
 
   var originalName: String =""
-
   set(value) {
   field = value
   this.fileName = value.uppercase(Locale.getDefault()).replace(' ', '_').replace('.', '_') + "00"

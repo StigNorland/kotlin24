@@ -49,6 +49,7 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
     @ManyToOne(fetch = FetchType.LAZY)
     override lateinit var parent: ConceptHierarchy
 
+
     @JsonIgnore
     @Transient
     override var parentRef: IParentRef? = null
@@ -56,7 +57,7 @@ data class Study(override var name: String = "") : ConceptHierarchy(), IAuthorSe
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = TopicGroup::class)
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE], targetEntity = TopicGroup::class)
     override var children: MutableList<ConceptHierarchy> = mutableListOf()
 
 //
