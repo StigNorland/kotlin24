@@ -13,18 +13,18 @@ import javax.persistence.*
 /**
 * @author Stig Norland
 */
-
 @Cacheable
 @Audited
 @Entity
 @Table(
     name = "UNIVERSE",
-    uniqueConstraints = [UniqueConstraint(
-        columnNames = ["name","description","agency_id"],
-        name = "UNQ_universe_name"
-    )]                                                      //https://github.com/DASISH/qddt-client/issues/606
+    uniqueConstraints = [UniqueConstraint(name = "UNQ_universe_name", columnNames = ["name","description","agency_id"])]                                                      //https://github.com/DASISH/qddt-client/issues/606
 )
 data class Universe(override var name: String = ""):AbstractEntityAudit() {
+//
+//    @ManyToMany(mappedBy = "universe")
+//    var controlconstruct: MutableList<ControlConstruct> = mutableListOf()
+
 
     @Column(length = 2000)
     var description: String = ""
@@ -56,7 +56,7 @@ data class Universe(override var name: String = ""):AbstractEntityAudit() {
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified , classKind = $classKind )"
+        return this::class.simpleName + "(id = $id , name = $name  , modified = $modified )"
     }
 
 }

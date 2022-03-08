@@ -24,6 +24,8 @@ import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 import java.util.*
@@ -46,7 +48,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
     val toUriId = { entity: AbstractEntityAudit ->  UriId.fromAny("${entity.id}:${entity.version.rev}") }
 
-    val baseUrl =  { uriId: UriId, path:String ->  if (uriId.rev != null)  "${baseUri}/${path}/revision/${uriId}" else "${baseUri}/${path}/${uriId.id}"}
+    val baseUrl =  { uriId: UriId, path:String ->  if ((uriId.rev?:0) > 0)  "${baseUri}/${path}/revision/${uriId}" else "${baseUri}/${path}/${uriId.id}"}
 
     @ResponseBody
     open fun getRevision(@PathVariable uri: String): RepresentationModel<*> {

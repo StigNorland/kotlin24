@@ -9,7 +9,7 @@ import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
@@ -30,12 +30,27 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
     @Autowired
     lateinit var omService: OtherMaterialService
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
+    @GetMapping("/statementitem/revision/{uri}", produces = ["application/hal+json"])
+    override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
+        return super.getRevision(uri)
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
+    @GetMapping("/statementitem/revisions/{uuid}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uuid: UUID, pageable: Pageable): RepresentationModel<*>? {
+        return super.getRevisions(uuid, pageable)
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     @ResponseBody
     @GetMapping("/statementitem/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
         return entityModelBuilder(repository.getById(uuid))
     }
+
     @ResponseBody
     @PostMapping(value = ["/statementitem"])
     fun update(@RequestBody instance: StatementItem): StatementItem {
@@ -65,18 +80,18 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
             if (IBasedOn.ChangeKind.CREATED == instance.changeKind) instance.changeKind =
                 IBasedOn.ChangeKind.TO_BE_DELETED
         }
-        return   entityModelBuilder(repository.save(instance))
+        return entityModelBuilder(repository.save(instance))
     }
 
 
-
-     override fun entityModelBuilder(entity: StatementItem): RepresentationModel<*> {
+    override fun entityModelBuilder(entity: StatementItem): RepresentationModel<*> {
         val uriId = toUriId(entity)
-        val baseUrl = baseUrl(uriId,"statementitem")
-         logger.debug("EntModBuild QuestionConstruct : {}", uriId)
+        val baseUrl = baseUrl(uriId, "statementitem")
+        logger.debug("EntModBuild QuestionConstruct : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
+        entity.otherMaterials.size
 
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -85,6 +100,4 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
     }
-
-
 }

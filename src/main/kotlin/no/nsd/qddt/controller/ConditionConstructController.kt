@@ -25,44 +25,49 @@ class ConditionConstructController(@Autowired repository: ControlConstructReposi
     @Autowired
     lateinit var omService: OtherMaterialService
 
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    @GetMapping("/condition/revision/{uri}", produces = ["application/hal+json"])
+    @GetMapping("/conditionconstruct/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    @GetMapping("/condition/revisions/{uuid}", produces = ["application/hal+json"])
-    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
+    @GetMapping("/conditionconstruct/revisions/{uuid}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uuid: UUID, pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
 
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    @GetMapping("/controlconstruct/condition/{uuid}", produces = ["application/hal+json"])
+    @GetMapping("/conditionconstruct/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
         return entityModelBuilder(repository.getById(uuid))
     }
 
     @ResponseBody
-    @PutMapping(value = ["/controlconstruct/condition/{uuid}"],produces = ["application/hal+json"])
-    fun update(@PathVariable uuid: UUID,@RequestBody instance: ConditionConstruct): ConditionConstruct {
+    @PutMapping(value = ["/conditionconstruct/{uuid}"], produces = ["application/hal+json"])
+    fun update(@PathVariable uuid: UUID, @RequestBody instance: ConditionConstruct): ConditionConstruct {
         return repository.saveAndFlush(instance)
     }
 
     @ResponseBody
-    @PostMapping(value = ["/controlconstruct/condition"],produces = ["application/hal+json"])
+    @PostMapping(value = ["/conditionconstruct"], produces = ["application/hal+json"])
     fun update(@RequestBody instance: ConditionConstruct): ConditionConstruct {
         return repository.save(instance)
     }
 
-     override fun entityModelBuilder(entity: ConditionConstruct): RepresentationModel<*> {
+    override fun entityModelBuilder(entity: ConditionConstruct): RepresentationModel<*> {
         val uriId = toUriId(entity)
-        val baseUrl = baseUrl(uriId,"conditionconstruct")
+        val baseUrl = baseUrl(uriId, "conditionconstruct")
         logger.debug("EntModBuild Condition : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
+        entity.otherMaterials.size
+        entity.sequence.size
 
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -71,8 +76,4 @@ class ConditionConstructController(@Autowired repository: ControlConstructReposi
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
             .build()
     }
-
-
-
-
 }

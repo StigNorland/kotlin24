@@ -25,11 +25,15 @@ import java.util.*
 class InstrumentController(@Autowired repository: InstrumentRepository) :
     AbstractRestController<Instrument>(repository) {
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/instrument/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/instrument/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
         @PathVariable uuid: UUID,

@@ -66,8 +66,12 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
             return UriId().apply {
                 if (parts.isNotEmpty()) {
                     id = UUID.fromString(parts[0])
-                    if (parts.size==2 && parts[1].toInt() > 0)
-                        rev = parts[1].toInt()
+                    if (parts.size==2)
+                        rev = try {
+                            parts[1].toInt()
+                        } catch(ex: Exception){
+                            0
+                        }
                 }
             }
 

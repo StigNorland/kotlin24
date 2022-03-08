@@ -1,16 +1,11 @@
 package no.nsd.qddt.model.classes
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.User
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
-import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.envers.Audited
 import org.hibernate.envers.RelationTargetAuditMode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.data.annotation.LastModifiedBy
 import java.sql.Timestamp
 import java.util.*
 import javax.persistence.*

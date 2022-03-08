@@ -158,6 +158,7 @@ class EntityAuditTrailListener{
                 }
                 is ResponseDomain -> {
                     entity.managedRepresentation!!.version = entity.version
+                    entity.managedRepresentation!!.label = entity.name
 //                    persistManagedRep(entity)
                 }
                 is QuestionConstruct -> {

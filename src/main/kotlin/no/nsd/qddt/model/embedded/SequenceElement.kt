@@ -3,7 +3,6 @@ package no.nsd.qddt.model.embedded
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.ControlConstruct
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.interfaces.IDomainObject
 import no.nsd.qddt.model.interfaces.IElementRef
 import org.hibernate.envers.Audited
 import java.io.Serializable
@@ -15,7 +14,7 @@ import javax.persistence.*
 
 @Audited
 @Embeddable
-class SequenceElement : IElementRef<IDomainObject> , Serializable {
+class SequenceElement :  IElementRef<ControlConstruct> , Serializable {
 
     @AttributeOverrides(
         AttributeOverride(name = "id", column = Column(name = "element_id")),
@@ -42,7 +41,7 @@ class SequenceElement : IElementRef<IDomainObject> , Serializable {
 
     @Transient
     @JsonSerialize(contentAs = ControlConstruct::class)
-    override var element: IDomainObject? = null
+    override var element: ControlConstruct? = null
         set(value) {
             field = value?.also { item ->
                 uri = UriId().also {

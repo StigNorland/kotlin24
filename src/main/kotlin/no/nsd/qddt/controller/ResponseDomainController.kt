@@ -44,24 +44,19 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         return super.getRevision(uri)
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/responsedomain/revisions/{uuid}", produces = ["application/hal+json"])
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
-    override fun getRevisions(
-        @PathVariable uuid: UUID,
-        pageable: Pageable
-    ): RepresentationModel<*>? {
+    @GetMapping("/responsedomain/revisions/{uuid}", produces = ["application/hal+json"])
+    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/pdf"])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/responsedomain/{uri}", produces = ["application/xml"])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)

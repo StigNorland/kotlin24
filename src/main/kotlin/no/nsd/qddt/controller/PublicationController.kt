@@ -24,25 +24,28 @@ import java.util.*
 class PublicationController(@Autowired repository: PublicationRepository) :
     AbstractRestController<Publication>(repository) {
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/publication/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/publication/revisions/{uuid}", produces = ["application/hal+json"])
-    override fun getRevisions(
-        @PathVariable uuid: UUID,
-        pageable: Pageable
-    ): RepresentationModel<*>? {
+    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
 
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/publication/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)

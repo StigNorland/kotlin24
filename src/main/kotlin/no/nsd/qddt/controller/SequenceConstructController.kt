@@ -26,12 +26,14 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     @Autowired
     lateinit var omService: OtherMaterialService
 
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @GetMapping("/sequence/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @GetMapping("/sequence/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
@@ -68,8 +70,9 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
 
 
     override fun entityModelBuilder(entity: Sequence): RepresentationModel<*> {
+        val uriId = toUriId(entity)
+        val baseUrl = baseUrl(uriId, "sequence")
 
-        val baseUrl = baseUrl( toUriId(entity),"sequence")
         logger.debug("EntModBuild Sequence : {}", baseUrl)
 
         Hibernate.initialize(entity.agency)

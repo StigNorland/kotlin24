@@ -27,7 +27,7 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
         val entity = model.content!!
         val uri = UriId().also {
             it.id = entity.id!!
-            it.rev = entity.version.rev?:0
+            it.rev = entity.version.rev
         }
 
         val linkBuilder = entityLinks.linkFor(entity::class.java) as RepositoryLinkBuilder
@@ -67,16 +67,18 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
 
         return when (entity) {
             is QuestionConstruct -> with (entity.questionId.toString()){
-                return model.add(Link.of("$baseUri/questionitem/revision/$this", "questionItem"))
+                model.add(Link.of("$baseUri/questionitem/revision/$this", "questionItem"))
             }
 //            is no.nsd.qddt.model.Sequence -> {
 //                return model.add(Link.of("$baseUri/sequence/revisions/${entity.id}", "revisions"))
 //            }
             is ConditionConstruct -> {
-                return model.add(Link.of("$baseUri/condition/revision/$this", "revisions"))
+//                model.add(Link.of("$baseUri/condition/revision/$this", "revisions"))
+                model
             }
             is QuestionItem -> with(entity.responseId.toString()) {
-                return model.add(Link.of("$baseUri/responsedomain/revision/$this", "responseDomain"))
+//                return model.add(Link.of("$baseUri/responsedomain/revision/$this", "responseDomain"))
+                model
             }
             is ResponseDomain -> {
                 model

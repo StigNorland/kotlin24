@@ -9,6 +9,8 @@ import org.springframework.data.rest.core.config.Projection
  */
 @Projection(name = "universeListe", types = [Universe::class])
 interface UniverseListe:IAbstractEntityViewList {
+
+
     var description:String
 
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")

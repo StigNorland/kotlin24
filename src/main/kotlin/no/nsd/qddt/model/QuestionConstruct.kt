@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
@@ -19,9 +20,7 @@ import javax.persistence.*
 @Entity
 @Audited
 @DiscriminatorValue("QUESTION_CONSTRUCT")
-data class QuestionConstruct(
-    var description: String = ""
-): ControlConstruct() {
+data class QuestionConstruct(var description: String = ""): ControlConstruct() {
 
     @Embedded
     @AttributeOverrides(
@@ -40,11 +39,6 @@ data class QuestionConstruct(
     @Transient
     @JsonIgnore
     var questionItem: QuestionItem? = null
-
-    @OrderColumn(name = "universe_idx")
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE])
-    var universe: MutableList<Universe> = mutableListOf()
-
 
     @JsonIgnore
     @OrderColumn(name = "instruction_idx")

@@ -25,13 +25,15 @@ import java.util.*
 @BasePathAwareController
 class CategoryController(@Autowired repository: CategoryRepository) : AbstractRestController<Category>(repository) {
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/category/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/category/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(
         @PathVariable uuid: UUID,

@@ -38,6 +38,18 @@ abstract class ControlConstruct(
     @Column(name = "CONTROL_CONSTRUCT_KIND", insertable = false, updatable = false)
     protected val controlConstructKind: String? = null
 
+//    @OrderColumn(name = "universe_idx")
+//    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST])
+//    var universe: MutableList<Universe> = mutableListOf()
+    @ManyToMany(fetch = FetchType.EAGER,cascade = [CascadeType.PERSIST])
+    @OrderColumn(name = "universe_idx")
+    @JoinTable(
+        name = "control_construct_universe",
+        joinColumns = [JoinColumn(name = "question_construct_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "universe_id", referencedColumnName = "id")]
+    )
+    var universe: MutableList<Universe> = mutableListOf()
+
     @OrderColumn(name = "owner_idx")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

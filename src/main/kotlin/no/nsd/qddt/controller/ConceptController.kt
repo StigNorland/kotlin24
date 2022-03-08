@@ -26,17 +26,21 @@ import java.util.*
 @BasePathAwareController
 class ConceptController(@Autowired repository: ConceptRepository) : AbstractRestController<Concept>(repository) {
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/concept/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
-
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/concept/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
+    @Transactional(propagation = Propagation.NESTED)
+    @ResponseBody
     @GetMapping("/concept/revisions/byparent/{uri}", produces = ["application/hal+json"])
     fun getRevisionByParent(@PathVariable uri: String, pageable: Pageable): RepresentationModel<*> {
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)

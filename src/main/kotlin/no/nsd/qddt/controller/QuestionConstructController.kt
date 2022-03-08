@@ -51,15 +51,16 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     lateinit var omService: OtherMaterialService
 
 
-    @GetMapping("/questionconstruct/revision/{uri}", produces = ["application/hal+json"])
+    @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
+    @GetMapping("/questionconstruct/revision/{uri}", produces = ["application/hal+json"])
     override fun getRevision(@PathVariable uri: String): RepresentationModel<*> {
         return super.getRevision(uri)
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    @GetMapping("/questionconstruct/revisions/{uuid}", produces = ["application/hal+json"])
     @ResponseBody
+    @GetMapping("/questionconstruct/revisions/{uuid}", produces = ["application/hal+json"])
     override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
@@ -87,36 +88,6 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return repository.save(instance)
     }
 
-
-
-//    @ResponseBody
-//    @GetMapping("/questionconstruct/search/findByQuery", produces = ["application/hal+json"])
-//    fun getByQuery(ccc: ControlConstructCriteria, pageable: Pageable): RepresentationModel<*> {
-//        logger.debug(ccc.toString())
-//        val qPage: Pageable = if (pageable.sort.isUnsorted) {
-//            PageRequest.of(pageable.pageNumber, pageable.pageSize*2, Sort.Direction.DESC, "modified")
-//        } else {
-//            pageable
-//        }
-//
-//        val repro = repository as ControlConstructRepository<ControlConstruct>
-//
-//        val entities = repro.findByQuery<QuestionConstruct>(
-//            constructKind= ccc.constructKind,
-//            xmlLang = ccc.xmlLang,
-//            superKind = ccc.superKind,
-//            label = ccc.label,
-//            name = ccc.name,
-//            description = ccc.description,
-//            questionName = ccc.questionName,
-//            questionText = ccc.questionText,
-//            pageable = qPage
-//        ).map {
-//            entityModelBuilder(it)  as RepresentationModel<EntityModel<QuestionConstruct>>
-//        }
-//
-//        return PagedModel.of(entities.content, pageMetadataBuilder(entities), Link.of("questionConstructs"))
-//    }
 
     @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
@@ -159,6 +130,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         entity.otherMaterials.size
+        entity.universe.size
         entity.controlConstructInstructions.size
 //        entity.preInstructions.size
 
@@ -175,6 +147,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
             .link(Link.of(baseUrl))
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
+            .embed(entity.universe, LinkRelation.of("universe"))
             .embed(question?.let { entityModelBuilder(it) }?:"",LinkRelation.of("questionItem"))
             .build()
     }

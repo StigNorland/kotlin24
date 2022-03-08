@@ -6,6 +6,7 @@ import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.ElementRefCondition
+import no.nsd.qddt.model.embedded.ElementRefEmbedded
 import no.nsd.qddt.model.embedded.SequenceElement
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.SequenceKind
@@ -45,16 +46,9 @@ data class Sequence(
         name = "CONTROL_CONSTRUCT_SEQUENCE",
         joinColumns = [JoinColumn(name = "sequence_id", referencedColumnName = "id")]
     )
-    var sequence: MutableList<SequenceElement> = mutableListOf()
+    var sequence: MutableList<ElementRefEmbedded<ControlConstruct>> = mutableListOf()
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @OrderColumn(name = "universe_idx")
-    @JoinTable(
-        name = "control_construct_universe",
-        joinColumns = [JoinColumn(name = "question_construct_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "universe_id", referencedColumnName = "id")]
-    )
-    var universe: MutableList<Universe> = mutableListOf()
+
 
 
 
