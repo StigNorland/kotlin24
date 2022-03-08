@@ -35,7 +35,7 @@ data class InstrumentElement(
 
     @OrderColumn(name = "parentIdx")
     @AuditMappedBy(mappedBy = "parent", positionMappedBy = "parentIdx")
-    @OneToMany(mappedBy = "parent", cascade = [CascadeType.PERSIST, CascadeType.MERGE], targetEntity = InstrumentElement::class)
+    @OneToMany(mappedBy = "parent", cascade = [CascadeType.ALL], targetEntity = InstrumentElement::class)
     var children: MutableList<InstrumentElement> = mutableListOf()
 
     @AttributeOverrides(

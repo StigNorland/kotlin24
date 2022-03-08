@@ -59,7 +59,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
                 .orElseThrow())
             entityRevisionModelBuilder(rev)
         } else {
-            HalModelBuilder.emptyHalModel().build<EntityModel<T>>()
+            val rev = repository.findLastChangeRevision(uriId.id!!).orElseThrow()
+            entityRevisionModelBuilder(rev)
         }
     }
 

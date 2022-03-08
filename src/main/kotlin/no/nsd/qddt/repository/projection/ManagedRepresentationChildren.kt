@@ -3,6 +3,7 @@ package no.nsd.qddt.repository.projection
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
+import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.rest.core.config.Projection
@@ -19,6 +20,8 @@ interface ManagedRepresentationChildren {
     var xmlLang: String
 
     var classKind: String
+
+    var version: Version
 
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long

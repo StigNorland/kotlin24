@@ -394,10 +394,10 @@ class EntityAuditTrailListener{
                     log.error(ex.localizedMessage)
                     current.code = Code()
                 }
+                log.debug("popCoding {}", current.code)
             }
             if (current.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
                 current.children.forEach {
-                    log.debug("popCoding")
                     index = populateCatCodes(it, index, codes)
                 }
             }

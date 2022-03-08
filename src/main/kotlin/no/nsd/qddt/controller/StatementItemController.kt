@@ -37,14 +37,12 @@ class StatementItemController(@Autowired repository: ControlConstructRepository<
         return entityModelBuilder(repository.getById(uuid))
     }
     @ResponseBody
-    @Modifying
     @PostMapping(value = ["/statementitem"])
     fun update(@RequestBody instance: StatementItem): StatementItem {
         return repository.save(instance)
     }
 
     @ResponseBody
-    @Modifying
     @PostMapping(value = ["/statementitem/createfile"], headers = ["content-type=multipart/form-data"])
     @Throws(FileUploadException::class, IOException::class)
     fun createWithFile(

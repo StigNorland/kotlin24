@@ -23,4 +23,7 @@ interface ConceptListe: IAbstractEntityViewList {
     @Value(value = "#{target.modifiedBy.username  + '@' + target.agency.name }")
     fun getUserAgencyName(): String
 
+    @Value(value = "#{target.authors }")
+    fun getAuthors(): List<AuthorListe>
+
 }

@@ -82,7 +82,6 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     }
 
     @ResponseBody
-    @Modifying
     @PostMapping(value = ["/questionconstruct"])
     fun update(@RequestBody instance: QuestionConstruct): QuestionConstruct {
         return repository.save(instance)

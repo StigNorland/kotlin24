@@ -46,7 +46,7 @@ import javax.persistence.*
  * @author Dag Østgulen Heradstveit
  */
 
-@Cacheable()
+@Cacheable
 @Audited
 @Entity
 @Table(
@@ -83,11 +83,6 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
                 field = categoryKind.description
             return field
         }
-
-//    @Embedded
-//    override var basedOn: UriId = UriId()
-
-
 
     /**
      *  This field is only used for categories that facilitates user input.
