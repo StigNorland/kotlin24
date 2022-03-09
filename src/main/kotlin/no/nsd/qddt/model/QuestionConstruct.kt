@@ -24,8 +24,8 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
 
     @Embedded
     @AttributeOverrides(
-      AttributeOverride(name = "id",column = Column(name = "questionitem_id", nullable =true)),
-      AttributeOverride(name = "rev",column = Column(name = "questionitem_revision", nullable =true)),
+        AttributeOverride(name = "id", column = Column(name = "questionitem_id", nullable = true)),
+        AttributeOverride(name = "rev", column = Column(name = "questionitem_revision", nullable = true)),
     )
     var questionId: UriId? = null
 
@@ -40,7 +40,6 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
     @JsonIgnore
     var questionItem: QuestionItem? = null
 
-    @JsonIgnore
     @OrderColumn(name = "instruction_idx")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -59,45 +58,22 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
 //    @MapKeyColumn(name = "instructionRank")
 //    val controlConstructInstructions2: Map<InstructionRank, MutableList<ControlConstructInstruction>> = mutableMapOf()
 
-    var preInstructions: List<IInstructionImpl>
+    @Transient
+    @JsonIgnore
+    var preInstructions: List<IInstructionImpl>? = null
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == InstructionRank.PRE }
-            .map { IInstructionImpl(it.instruction) }
+            .map { it.instruction?.let { it1 -> IInstructionImpl(it1) } }
             .collect(Collectors.toList())
-        set(value) {
-            controlConstructInstructions.addAll(
-                value.stream()
-                    .map {
-                        ControlConstructInstruction().apply {
-                            instructionRank = InstructionRank.PRE
-                            instruction = Instruction().apply {
-                                description = it.description
-                                id = it.id
-                            }
-                        }
-                    }.collect(Collectors.toList())
-            )
-        }
 
-    var  postInstructions: List<IInstructionImpl>
+    @Transient
+    @JsonIgnore
+    var postInstructions: List<IInstructionImpl>? = null
         get() = controlConstructInstructions.stream()
             .filter { it.instructionRank == InstructionRank.POST }
-            .map { IInstructionImpl(it.instruction) }
+            .map { it.instruction?.let { it1 -> IInstructionImpl(it1) } }
             .collect(Collectors.toList())
-        set(value) {
-            controlConstructInstructions.addAll(
-                value.stream()
-                .map {
-                    ControlConstructInstruction().apply {
-                        instructionRank = InstructionRank.POST
-                        instruction = Instruction().apply {
-                            description = it.description
-                            id = it.id
-                        }
-                    }
-                }.collect(Collectors.toList())
-            )
-        }
+
 
     override fun xmlBuilder(): AbstractXmlBuilder {
         return object : ControlConstructFragmentBuilder<QuestionConstruct>(this) {
@@ -124,7 +100,8 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
 
                 children.addAll(
                     controlConstructInstructions.stream()
-                        .map { it.instruction.xmlBuilder() }
+                        .filter { it.instruction != null }
+                        .map { it.instruction!!.xmlBuilder() }
                         .collect(Collectors.toList())
                 )
             }
@@ -141,22 +118,24 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
             pdfReport.addParagraph(uni.description)
         }
 
-        if (preInstructions.isNotEmpty())
+        if (preInstructions?.isNotEmpty() == true) {
             pdfReport.addHeader2("Pre Instructions")
 
-        for (pre in preInstructions) {
-            pre.let { pdfReport.addParagraph(it.description) }
+            for (pre in preInstructions!!) {
+                pre.let { pdfReport.addParagraph(it.description) }
+            }
         }
 
         pdfReport.addHeader2("Question Item")
         questionItem?.name?.let { pdfReport.addParagraph(it) }
         questionItem?.response?.fillDoc(pdfReport, "")
 
-        if (postInstructions.isNotEmpty())
+        if (postInstructions?.isNotEmpty() == true) {
             pdfReport.addHeader2("Post Instructions")
 
-        for (post in postInstructions) {
-            post.let { pdfReport.addParagraph(it.description) }
+            for (post in postInstructions!!) {
+                post.let { pdfReport.addParagraph(it.description) }
+            }
         }
         if (comments.size > 0)
             pdfReport.addHeader2("Comments")

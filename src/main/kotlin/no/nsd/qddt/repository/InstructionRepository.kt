@@ -15,7 +15,7 @@ import java.util.*
  */
 
 @RepositoryRestResource(path = "instruction", itemResourceRel = "Instruction", excerptProjection = InstructionListe::class)
-interface InstructionRepository : JpaRepository<Instruction,UUID>
+interface InstructionRepository : BaseMixedRepository<Instruction>
 {
     @Query(
         value = "SELECT ca.* FROM instruction ca WHERE " +

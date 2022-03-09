@@ -33,6 +33,7 @@ class RepLoaderServiceImpl : RepLoaderService {
     @Autowired private var studyRepository: StudyRepository? = null
     @Autowired private var publicationRepository: PublicationRepository? = null
     @Autowired private var instrumentRepository: InstrumentRepository? = null
+    @Autowired private var instructionRepository: InstructionRepository? = null
 
     override fun <T> getRepository(elementKind: ElementKind): RevisionRepository<T, UUID, Int> {
         logger.info("get Service -> $elementKind")
@@ -51,7 +52,7 @@ class RepLoaderServiceImpl : RepLoaderService {
             ElementKind.STATEMENT_CONSTRUCT ,
             ElementKind.CONDITION_CONSTRUCT,
             ElementKind.SEQUENCE_CONSTRUCT -> controlConstructRepository
-//            ElementKind.INSTRUCTION -> TODO()
+            ElementKind.INSTRUCTION -> instructionRepository
 //            ElementKind.UNIVERSE -> TODO()
 //            ElementKind.COMMENT -> TODO()
             else -> {

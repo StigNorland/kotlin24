@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.config.exception.FileUploadException
 import no.nsd.qddt.model.*
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.repository.*
@@ -132,7 +133,12 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         entity.otherMaterials.size
         entity.universe.size
         entity.controlConstructInstructions.size
-//        entity.preInstructions.size
+
+        entity.controlConstructInstructions.forEach { cci ->
+            repLoaderService.getRepository<Instruction>(ElementKind.INSTRUCTION).let {
+                cci.instruction = loadRevisionEntity(cci.uri, it)
+            }
+        }
 
          val question =
              if ((entity.questionId != null) && (this.questionItemRepository != null) && (entity.questionItem == null)) {

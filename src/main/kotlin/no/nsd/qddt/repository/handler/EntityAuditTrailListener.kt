@@ -200,17 +200,23 @@ class EntityAuditTrailListener{
 
         when (entity) {
             is QuestionConstruct -> {
-                if (entity.questionItem == null && entity.questionId?.id != null) {
-                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
+                entity.universe.size
+                entity.controlConstructInstructions.size
+                entity.comments.size
+
+                if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
+                    if (entity.questionItem == null && entity.questionId?.id != null) {
                         repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
                             entity.questionItem = loadRevisionEntity(entity.questionId!!, it)
                             afterLoad(entity.questionItem!!)
                         }
                     }
                 }
-                entity.universe.size
-                entity.controlConstructInstructions.size
-                entity.comments.size
+                entity.controlConstructInstructions.forEach { cci ->
+                    repLoaderService.getRepository<Instruction>(ElementKind.INSTRUCTION).let {
+                        cci.instruction = loadRevisionEntity(cci.uri, it)
+                    }
+                }
             }
             is QuestionItem -> {
                 if (entity.response == null && entity.responseId?.id != null) {
