@@ -47,13 +47,13 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/study/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    @GetMapping("/study/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/study/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }

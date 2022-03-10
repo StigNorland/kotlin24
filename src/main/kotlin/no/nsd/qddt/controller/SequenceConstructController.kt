@@ -40,6 +40,17 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
         return super.getRevisions(uuid, pageable)
     }
 
+    @GetMapping("/sequence/pdf/{uri}", produces = ["application/pdf"])
+    override fun getPdf(@PathVariable uri: String): ByteArray {
+        logger.debug("PDF : {}", uri)
+        return super.getPdf(uri)
+    }
+
+    @GetMapping("/sequence/xml/{uri}", produces = ["application/xml"])
+    override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
+        return super.getXml(uri)
+    }
+
     @ResponseBody
     @GetMapping("/sequence/{uuid}", produces = ["application/hal+json"])
     fun getById(@PathVariable uuid: UUID): RepresentationModel<*> {
@@ -88,6 +99,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
 //            .link(Link.of(baseUrl( toUriId(entity),"sequence/revisions"),"revisions"))
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
+            .embed(entity.universe, LinkRelation.of("universe"))
             .build()
     }
 

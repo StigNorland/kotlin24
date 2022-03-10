@@ -60,13 +60,13 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    @GetMapping("/questionitem/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @GetMapping("/questionitem/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    @GetMapping("/questionitem/{uri}", produces = [MediaType.TEXT_XML_VALUE])
+    @GetMapping("/questionitem/xml/{uri}", produces = [MediaType.TEXT_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }

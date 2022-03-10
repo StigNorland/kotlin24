@@ -42,13 +42,14 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
         return super.getRevisions(uuid, pageable)
     }
 
-
-    @GetMapping("/instrument/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
+    @Transactional(propagation = Propagation.NESTED)
+    @GetMapping("/instrument/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/instrument/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @Transactional(propagation = Propagation.NESTED)
+    @GetMapping("/instrument/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
@@ -68,7 +69,6 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
         } catch (e: Exception) {
             ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }
-//        return entityModelBuilder(repository.saveAndFlush(instrument))
     }
 
     @ResponseBody
@@ -85,13 +85,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
         } catch (e: Exception) {
             ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }
-//        val result = repository.saveAndFlush(instrument)
-//        if (result.agency == null) {
-//            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
-//            result.modifiedBy = currentuser
-//            result.agency = currentuser.agency
-//        }
-//        return entityModelBuilder(result)
+
     }
 
 
@@ -120,10 +114,10 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
         logger.debug("EntModBuild Instrument : {}", uriId)
 
         entity.comments.size
-        entity.comments.forEach {
-            logger.debug("initialize(comments.modifiedBy)")
-            Hibernate.initialize(it.modifiedBy)
-        }
+//        entity.comments.forEach {
+//            logger.debug("initialize(comments.modifiedBy)")
+//            Hibernate.initialize(it.modifiedBy)
+//        }
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
@@ -131,7 +125,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
             .link(Link.of(baseUrl))
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(entity.comments, LinkRelation.of("comments"))
+//            .embed(entity.comments, LinkRelation.of("comments"))
             .build()
     }
 

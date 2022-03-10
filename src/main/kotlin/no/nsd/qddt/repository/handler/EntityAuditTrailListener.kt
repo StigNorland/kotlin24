@@ -223,6 +223,7 @@ class EntityAuditTrailListener{
                     if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
                         repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN).let {
                             entity.response = loadRevisionEntity(entity.responseId!!, it)
+                            entity.responseId!!.rev = entity.response!!.version.rev
                             afterLoad(entity.response!!)
                         }
                     }

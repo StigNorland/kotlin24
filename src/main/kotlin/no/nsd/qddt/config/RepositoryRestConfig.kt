@@ -47,6 +47,7 @@ class RepositoryRestConfig : RepositoryRestConfigurer {
         config.exposeIdsFor(Authority::class.java)
         config.exposeIdsFor(Category::class.java)
         config.exposeIdsFor(Comment::class.java)
+        config.exposeIdsFor(Instruction::class.java)
         config.exposeIdsFor(Instrument::class.java)
         config.exposeIdsFor(InstrumentElement::class.java)
         config.exposeIdsFor(Sequence::class.java)

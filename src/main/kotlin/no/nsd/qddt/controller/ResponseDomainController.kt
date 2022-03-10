@@ -51,13 +51,13 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         return super.getRevisions(uuid, pageable)
     }
 
-    @GetMapping("/responsedomain/{uri}", produces = ["application/pdf"])
+    @GetMapping("/responsedomain/pdf/{uri}", produces = ["application/pdf"])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
 
-    @GetMapping("/responsedomain/{uri}", produces = ["application/xml"])
+    @GetMapping("/responsedomain/xml/{uri}", produces = ["application/xml"])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }

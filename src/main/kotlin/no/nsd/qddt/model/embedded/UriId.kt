@@ -21,9 +21,9 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
     override fun toString(): String {
         if (id == null)
             return "null"
-        if (rev != null)
-            return "$id:$rev"
-        return id.toString()
+        if (rev == null)
+            return "$id"
+        return "$id:$rev"
     }
 
     override fun compareTo(other: UriId): Int {

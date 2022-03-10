@@ -54,12 +54,12 @@ class TopicController(
     }
 
 
-    @GetMapping("/topicgroup/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    @GetMapping("/topicgroup/pdf/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     override fun getPdf(@PathVariable uri: String): ByteArray {
         return super.getPdf(uri)
     }
 
-    @GetMapping("/topicgroup/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/topicgroup/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }
