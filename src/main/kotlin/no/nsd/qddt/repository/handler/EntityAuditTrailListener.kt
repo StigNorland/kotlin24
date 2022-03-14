@@ -239,8 +239,17 @@ class EntityAuditTrailListener{
             }
             is Category -> {
 //                log.debug(entity.basedOn?.toString())
-                if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
                     entity.children.size
+                    if (entity.missingUri != null) {
+                        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { revisionRepository ->
+                            val index = entity.children.indexOfFirst { it.categoryKind == CategoryKind.MISSING_GROUP }
+                            val missing = loadRevisionEntity(entity.missingUri!!, revisionRepository)
+                            if (missing!= null)
+                                entity.children[index] = missing
+                        }
+                    }
+                }
             }
             is Concept ->{
                 entity.questionItems?.size

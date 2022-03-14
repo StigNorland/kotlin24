@@ -132,6 +132,21 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @JsonDeserialize
     var code: Code? = null
 
+    private var missingRev: Int? = null
+
+    var missingUri: UriId?
+    get() {
+        if (missingRev== null || categoryKind != CategoryKind.MIXED)
+            return null
+        children.firstOrNull() { it.categoryKind == CategoryKind.MISSING_GROUP }?.let {
+            return UriId.fromAny("${it.id}:${missingRev}")
+        }
+        return null
+    }
+    set(value) {
+        missingRev = value?.rev
+    }
+
     @JsonIgnore
     @OneToMany(mappedBy = "managedRepresentation",  fetch = FetchType.LAZY)
     private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
