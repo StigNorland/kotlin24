@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.layout.borders.DottedBorder
 import com.itextpdf.layout.element.Cell
@@ -28,6 +29,7 @@ import javax.persistence.*
        uniqueConstraints =[UniqueConstraint(
          name = "UNQ_RESPONSEDOMAIN_NAME",
          columnNames = ["name","category_id","based_on_object"])])
+@JsonPropertyOrder(alphabetic = true, value = ["id","name","description"])
 data class ResponseDomain(
   @Column(length = 2000, nullable = false)
   var description:String = ""

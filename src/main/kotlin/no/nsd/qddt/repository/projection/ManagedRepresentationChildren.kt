@@ -1,5 +1,6 @@
 package no.nsd.qddt.repository.projection
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
@@ -10,6 +11,9 @@ import org.springframework.data.rest.core.config.Projection
 import java.util.*
 
 @Projection(name = "managedRepresentationChildren", types = [Category::class])
+@JsonPropertyOrder(alphabetic = true,
+    value = *["id","label","code", "categoryKind", "classKind", "hierarchyLevel","basedOn" ,"format","inputLimit", "modified","version", "xmlLang","children" ]
+)
 interface ManagedRepresentationChildren {
     var id: UUID
 

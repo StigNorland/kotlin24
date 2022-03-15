@@ -1,6 +1,7 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.itextpdf.layout.element.Paragraph
@@ -51,8 +52,13 @@ import javax.persistence.*
 @Entity
 @Table(
     name = "CATEGORY",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["label", "name", "categoryKind","agency_id"],name = "UNQ_CATEGORY_NAME_KIND")]                                                      //https://github.com/DASISH/qddt-client/issues/606
-) 
+    uniqueConstraints = [
+        UniqueConstraint(name = "UNQ_CATEGORY_NAME_KIND", columnNames = ["label", "name", "categoryKind","agency_id"])
+    ] //https://github.com/DASISH/qddt-client/issues/606
+)
+@JsonPropertyOrder(alphabetic = true,
+    value = *["id","name", "label", "description", "inputLimit", "categoryKind", "code", "missingUri", "children" ]
+)
 data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
     /**

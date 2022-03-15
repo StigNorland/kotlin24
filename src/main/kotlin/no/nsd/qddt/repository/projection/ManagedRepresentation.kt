@@ -1,5 +1,6 @@
 package no.nsd.qddt.repository.projection
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ResponseCardinality
@@ -10,6 +11,10 @@ import org.springframework.data.rest.core.config.Projection
 import java.util.*
 
 @Projection(name = "managedRepresentation", types = [Category::class])
+@JsonPropertyOrder(alphabetic = true,
+    value = *["id","label",  "categoryKind", "classKind", "hierarchyLevel", "inputLimit", "basedOn", "format","missingUri", "modified", "version", "xmlLang","children" ]
+)
+
 interface ManagedRepresentation {
     var id: UUID
 
@@ -24,6 +29,8 @@ interface ManagedRepresentation {
     var classKind: String
 
     var format: String
+
+    var missingUri: UriId?
 
     @Value(value = "#{target.basedOn }")
     fun getBasedOn(): UriId?

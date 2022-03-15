@@ -3,6 +3,8 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.User
+import no.nsd.qddt.model.enums.CategoryKind
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.repository.ResponseDomainRepository
@@ -130,10 +132,29 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        entity.managedRepresentation?.children?.forEach {
-            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-                it.children.size
+        val children = when (entity.managedRepresentation.hierarchyLevel) {
+            HierarchyLevel.GROUP_ENTITY -> {
+                entity.managedRepresentation.children.size
+                entity.managedRepresentation.children.map {
+                    if (entity.managedRepresentation.missingUri != null && it.categoryKind == CategoryKind.MISSING_GROUP) {
+                        val revisionRepository = repLoaderService.getRepository<Category>(ElementKind.CATEGORY)
+                        entityModelBuilder(
+                            loadRevisionEntity(
+                                entity.managedRepresentation.missingUri!!,
+                                revisionRepository
+                            )
+                        )
+                    } else
+                        entityModelBuilder(it)
+                }
+            }
+            else -> mutableListOf()
         }
+
+//        entity.managedRepresentation?.children?.forEach {
+//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+//                it.children.size
+//        }
         var _index = 0
         populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
@@ -159,7 +180,13 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {
                 entity.children.size
-                entity.children.map { entityModelBuilder(it) }
+                entity.children.map {
+                    if (entity.missingUri != null && it.categoryKind == CategoryKind.MISSING_GROUP) {
+                        val revisionRepository = repLoaderService.getRepository<Category>(ElementKind.CATEGORY)
+                        entityModelBuilder(loadRevisionEntity(entity.missingUri!!, revisionRepository))
+                    } else
+                        entityModelBuilder(it)
+                }
             }
             else -> mutableListOf()
         }
