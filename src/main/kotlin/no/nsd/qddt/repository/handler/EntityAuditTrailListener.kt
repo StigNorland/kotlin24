@@ -4,6 +4,7 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.embedded.CategoryChildren
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.Version
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.data.projection.ProjectionFactory
+import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 import javax.persistence.*
@@ -238,9 +240,14 @@ class EntityAuditTrailListener{
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
             }
             is Category -> {
-//                log.debug(entity.basedOn?.toString())
                 if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
-                    entity.children.size
+                    repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let {
+                        entity.children = entity.categoryChildren.map { cc ->
+                            val entity = loadRevisionEntity(cc.uri, it)
+                            afterLoad(entity)
+                            entity
+                        }.toMutableList()
+                    }
                 }
             }
             is Concept ->{
@@ -302,39 +309,46 @@ class EntityAuditTrailListener{
 
     }
 
-    private fun beforeCategoryToDb(entity: Category) {
-        log.debug("beforeCategoryToDb [{}] {}", entity.name, entity.modified.toString())
+    private fun beforeCategoryToDb(category: Category) {
+        log.debug("beforeCategoryToDb [{}] {}", category.name, category.modified.toString())
         when {
-            entity.categoryKind === CategoryKind.MIXED -> {
-                entity.name = (String.format("Mixed [%s]", entity.children.joinToString { it.label }))
+            category.categoryKind === CategoryKind.MIXED -> {
+                category.name = (String.format("Mixed [%s]", category.children!!.joinToString { it.label  }))
             }
-            entity.categoryKind === CategoryKind.SCALE -> {
-                log.debug(entity.toString())
+            category.categoryKind === CategoryKind.SCALE -> {
+                log.debug(category.toString())
             }
         }
-        if (entity.label.isBlank())
-            entity.label = entity.name
+        if (category.label.isBlank())
+            category.label = category.name
 
-        entity.name = entity.name.uppercase(Locale.getDefault())
+        category.name = category.name.uppercase(Locale.getDefault())
 
-        entity.description = when {
-            entity.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && entity.description.isNullOrBlank()
-            -> entity.categoryKind.description
+        category.description = when {
+            category.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && category.description.isNullOrBlank()
+            -> category.categoryKind.description
             else
-            -> entity.description
+            -> category.description
         }
 
-        if (!entity.version.isModified()) {
-            log.debug("version.isModified={}", entity.version.isModified())
+        if (!category.version.isModified()) {
+            log.debug("version.isModified={}", category.version.isModified())
         }
 
-        entity.hierarchyLevel = when (entity.categoryKind) {
+        category.hierarchyLevel = when (category.categoryKind) {
             CategoryKind.DATETIME, CategoryKind.BOOLEAN, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.CATEGORY ->
                 HierarchyLevel.ENTITY
             CategoryKind.MISSING_GROUP, CategoryKind.LIST, CategoryKind.SCALE, CategoryKind.MIXED ->
                 HierarchyLevel.GROUP_ENTITY
         }
-        entity.name = entity.name.trim()
+        category.name = category.name.trim()
+
+        if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+            category.categoryChildren = category.children?.map {
+                CategoryChildren().apply {  uri = UriId().apply {
+                    id = it.id!!
+                    rev = it.version.rev
+                }}}?.toMutableList() ?: mutableListOf()
 
     }
 
@@ -384,7 +398,7 @@ class EntityAuditTrailListener{
                 tmpList.add((current.code?:Code("")))
             }
             if (current.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
-                current.children.forEach { tmpList.addAll(harvestCatCodes(it)) }
+                current.children?.forEach { tmpList.addAll(harvestCatCodes(it)) }
             }
             return tmpList
         }
@@ -406,11 +420,22 @@ class EntityAuditTrailListener{
                 log.debug("popCoding {}", current.code)
             }
             if (current.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
-                current.children.forEach {
+                current.children?.forEach {
                     index = populateCatCodes(it, index, codes)
                 }
             }
             return index
+        }
+
+        fun loadChildren(source: Category, rdr: RevisionRepository<Category, UUID, Int>): MutableList<Category> {
+            return if (source.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                source.categoryChildren.map { cc ->
+                    loadRevisionEntity(cc.uri, rdr).also {
+                        it.children = loadChildren(it,rdr)
+                    }
+                }.toMutableList()
+            else
+                mutableListOf()
         }
     }
 

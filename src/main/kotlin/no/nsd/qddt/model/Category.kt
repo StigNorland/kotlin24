@@ -8,6 +8,7 @@ import com.itextpdf.layout.element.Paragraph
 import no.nsd.qddt.model.builder.CategoryFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.embedded.CategoryChildren
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Code
 import no.nsd.qddt.model.embedded.ResponseCardinality
@@ -57,7 +58,7 @@ import javax.persistence.*
     ] //https://github.com/DASISH/qddt-client/issues/606
 )
 @JsonPropertyOrder(alphabetic = true,
-    value = *["id","name", "label", "description", "inputLimit", "categoryKind", "code", "missingUri", "children" ]
+    value = *["id","name", "label", "description", "inputLimit", "categoryKind", "code", "children" ]
 )
 data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<Category>, Cloneable {
 
@@ -138,36 +139,32 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @JsonDeserialize
     var code: Code? = null
 
-    private var missingRev: Int? = null
-
-    var missingUri: UriId?
-    get() {
-        if (missingRev== null || categoryKind != CategoryKind.MIXED)
-            return null
-        children.firstOrNull() { it.categoryKind == CategoryKind.MISSING_GROUP }?.let {
-            return UriId.fromAny("${it.id}:${missingRev}")
-        }
-        return null
-    }
-    set(value) {
-        missingRev = value?.rev
-    }
 
     @JsonIgnore
     @OneToMany(mappedBy = "managedRepresentation",  fetch = FetchType.LAZY)
     private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
 
-    @OrderColumn(name = "category_idx")
-    @ManyToMany(fetch = FetchType.LAZY)
-    var children: MutableList<Category> =  mutableListOf()
-        get() = when(hierarchyLevel){
-            HierarchyLevel.GROUP_ENTITY -> field
-            else -> mutableListOf()
-        }
 
+
+    @JsonIgnore
+    @OrderColumn(name = "category_idx")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "CATEGORY_CHILDREN",
+        joinColumns = [JoinColumn(name = "category_id", referencedColumnName = "id")]
+    )
+    var categoryChildren: MutableList<CategoryChildren> = mutableListOf()
+
+    @Transient
+    @JsonSerialize
+    @JsonDeserialize
+    var children: MutableList<Category>? = null
 
     fun addChildren(entity: Category): Category {
-        this.children.add(entity)
+        this.categoryChildren.add(CategoryChildren().apply {  uri = UriId().also {
+            it.id = entity.id!!
+            it.rev = entity.version.rev
+        }})
         this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
         this.changeComment =  String.format("Added [${entity.name}]")
         return entity
@@ -194,11 +191,11 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
         } else when (categoryKind) {
             CategoryKind.MISSING_GROUP,
             CategoryKind.LIST ->
-                children.size > 0 && inputLimit.valid() && classificationLevel != null
+                children!!.size > 0 && inputLimit.valid() && classificationLevel != null
             CategoryKind.SCALE ->
-                children.size >= 2 && inputLimit.valid() && classificationLevel != null
+                children!!.size >= 2 && inputLimit.valid() && classificationLevel != null
             CategoryKind.MIXED ->
-                children.size >= 2 && classificationLevel != null
+                children!!.size >= 2 && classificationLevel != null
             else -> false
         }
     }

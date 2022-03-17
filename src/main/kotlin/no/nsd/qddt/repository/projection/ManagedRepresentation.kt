@@ -2,6 +2,7 @@ package no.nsd.qddt.repository.projection
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import no.nsd.qddt.model.Category
+import no.nsd.qddt.model.embedded.CategoryChildren
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.embedded.Version
@@ -12,7 +13,7 @@ import java.util.*
 
 @Projection(name = "managedRepresentation", types = [Category::class])
 @JsonPropertyOrder(alphabetic = true,
-    value = *["id","label",  "categoryKind", "classKind", "hierarchyLevel", "inputLimit", "basedOn", "format","missingUri", "modified", "version", "xmlLang","children" ]
+    value = *["id","label",  "categoryKind", "classKind", "hierarchyLevel", "inputLimit", "basedOn", "format", "modified", "version", "xmlLang","categoryChildren","children" ]
 )
 
 interface ManagedRepresentation {
@@ -30,8 +31,6 @@ interface ManagedRepresentation {
 
     var format: String
 
-    var missingUri: UriId?
-
     @Value(value = "#{target.basedOn }")
     fun getBasedOn(): UriId?
 
@@ -44,6 +43,11 @@ interface ManagedRepresentation {
 
     @Value(value = "#{target.inputLimit}")
     fun getInputLimit(): ResponseCardinality
+
+
+
+//    @Value(value = "#{target.categoryChildren }")
+//    fun  getCategoryChildren() : MutableList<CategoryChildren>
 
     @Value(value = "#{target.children }")
     fun  getChildren() : MutableList<ManagedRepresentationChildren>

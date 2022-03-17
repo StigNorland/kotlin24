@@ -196,10 +196,10 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        entity.managedRepresentation?.children?.forEach {
-            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-                it.children.size
-        }
+//        entity.managedRepresentation.children.forEach {
+//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+//                it.children.size
+//        }
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =

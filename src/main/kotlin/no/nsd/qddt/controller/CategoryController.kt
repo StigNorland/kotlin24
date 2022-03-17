@@ -1,8 +1,10 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Category
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.CategoryRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -107,7 +109,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
         parent.addChildren(entity)
         parent = repository.saveAndFlush(parent)
 
-        return ResponseEntity.ok(entityModelBuilder(parent.children.last()))
+        return ResponseEntity.ok(entityModelBuilder(parent.children!!.last()))
     }
 
     override fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
@@ -117,8 +119,10 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {
-                entity.children.size
-                entity.children.map { entityModelBuilder(it) }
+                repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+                    EntityAuditTrailListener.loadChildren(entity, rr)
+                }
+//                entity.children?.map { it }
             }
             else -> mutableListOf()
         }
@@ -130,7 +134,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(children, LinkRelation.of("children"))
+            .embed(children!!, LinkRelation.of("children"))
             .build()
     }
 }

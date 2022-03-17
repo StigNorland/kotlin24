@@ -135,7 +135,7 @@ data class ResponseDomain(
         else -> {
           retval.add(current)
           if (current.hierarchyLevel==HierarchyLevel.GROUP_ENTITY)
-            current.children.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
+            current.children?.forEach { retval.addAll(getFlatManagedRepresentation(it)) }
           retval
         }
     }

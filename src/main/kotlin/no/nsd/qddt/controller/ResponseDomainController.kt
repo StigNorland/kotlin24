@@ -9,6 +9,7 @@ import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.repository.ResponseDomainRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.harvestCatCodes
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.loadChildren
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.populateCatCodes
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.projection.ProjectionFactory
+import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -132,29 +134,11 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        val children = when (entity.managedRepresentation.hierarchyLevel) {
-            HierarchyLevel.GROUP_ENTITY -> {
-                entity.managedRepresentation.children.size
-                entity.managedRepresentation.children.map {
-                    if (entity.managedRepresentation.missingUri != null && it.categoryKind == CategoryKind.MISSING_GROUP) {
-                        val revisionRepository = repLoaderService.getRepository<Category>(ElementKind.CATEGORY)
-                        entityModelBuilder(
-                            loadRevisionEntity(
-                                entity.managedRepresentation.missingUri!!,
-                                revisionRepository
-                            )
-                        )
-                    } else
-                        entityModelBuilder(it)
-                }
-            }
-            else -> mutableListOf()
+        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+            entity.managedRepresentation.children = loadChildren(entity.managedRepresentation,rr)
         }
 
-//        entity.managedRepresentation?.children?.forEach {
-//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-//                it.children.size
-//        }
+
         var _index = 0
         populateCatCodes(entity.managedRepresentation, _index,entity.codes)
 
@@ -172,6 +156,8 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             .build()
     }
 
+
+
     fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"category")
@@ -179,21 +165,14 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {
-                entity.children.size
-                entity.children.map {
-                    if (entity.missingUri != null && it.categoryKind == CategoryKind.MISSING_GROUP) {
-                        val revisionRepository = repLoaderService.getRepository<Category>(ElementKind.CATEGORY)
-                        entityModelBuilder(loadRevisionEntity(entity.missingUri!!, revisionRepository))
-                    } else
-                        entityModelBuilder(it)
-                }
+                entity.children?.map {  entityModelBuilder(it) }
             }
             else -> mutableListOf()
         }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-            .embed(children, LinkRelation.of("children"))
+            .embed(children!!, LinkRelation.of("children"))
             .build()
     }
 

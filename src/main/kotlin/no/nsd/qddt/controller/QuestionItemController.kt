@@ -1,11 +1,14 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.ResponseDomain
+import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.loadChildren
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
@@ -126,8 +129,15 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
             }
         var _index = 0
         if (response?.managedRepresentation != null) {
+
+            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+                response.managedRepresentation.children = loadChildren(response.managedRepresentation,rr)
+            }
+
+
+            var _index = 0
             EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
-//            entity.responseName = response.name
+
         }
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -147,10 +157,10 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        entity.managedRepresentation?.children?.forEach {
-            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-                it.children.size
-        }
+//        entity.managedRepresentation?.children?.forEach {
+//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+//                it.children.size
+//        }
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
