@@ -24,8 +24,6 @@ import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
 import org.springframework.http.ResponseEntity
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 import java.util.*
@@ -136,7 +134,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     open fun entityModelBuilder(entity: T): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId, entity.classKind.lowercase())
-        logger.debug("EntModBuild(T) : {}", entity.name)
+        logger.debug("ModelBuilder(T) : {}", entity.name)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -184,7 +182,8 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
         fun <T : AbstractEntityAudit> loadRevisionEntity(uri: UriId, repository: RevisionRepository<T, UUID, Int>): T {
-            logger.debug("loadRevisionEntity {}:{}",  repository.toString(),  uri )
+
+            logger.debug("loadRevisionEntity {}",  uri )
             return with(uri) {
                 if (rev != null && rev != 0)
                     repository.findRevision(id!!, rev!!).map {

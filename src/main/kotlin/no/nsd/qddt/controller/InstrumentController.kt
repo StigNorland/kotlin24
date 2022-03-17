@@ -111,7 +111,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
     override fun entityModelBuilder(entity: Instrument): RepresentationModel<EntityModel<Instrument>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"publication")
-        logger.debug("EntModBuild Instrument : {}", uriId)
+        logger.debug("ModelBuilder Instrument : {}", uriId)
 
         entity.comments.size
 //        entity.comments.forEach {

@@ -145,7 +145,6 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
 
 
-
     @JsonIgnore
     @OrderColumn(name = "category_idx")
     @ElementCollection(fetch = FetchType.EAGER)
@@ -166,7 +165,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
             it.rev = entity.version.rev
         }})
         this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-        this.changeComment =  String.format("Added [${entity.name}]")
+        this.changeComment =  String.format("${entity.categoryKind} [${entity.name}] Added")
         return entity
     }
 

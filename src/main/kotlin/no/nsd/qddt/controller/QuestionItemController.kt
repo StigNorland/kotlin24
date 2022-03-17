@@ -4,21 +4,21 @@ import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.QuestionItem
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
-import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.loadChildren
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -116,7 +115,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     override fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"questionitem")
-        logger.debug("EntModBuild QuestionItem : {}", uriId)
+        logger.debug("ModelBuilder QuestionItem : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -127,18 +126,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
             } else {
                 entity.response
             }
-        var _index = 0
-        if (response?.managedRepresentation != null) {
 
-            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
-                response.managedRepresentation.children = loadChildren(response.managedRepresentation,rr)
-            }
-
-
-            var _index = 0
-            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
-
-        }
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
@@ -151,16 +139,20 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
     fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"responsedomain")
-        logger.debug("EntModBuild QuestionItem:ResponseDomain : {}", uriId)
+        logger.debug("ModelBuilder QuestionItem:ResponseDomain : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-//        entity.managedRepresentation?.children?.forEach {
-//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-//                it.children.size
-//        }
+        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+            entity.managedRepresentation.children =
+                EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
+        }
+
+        var _index = 0
+        EntityAuditTrailListener.populateCatCodes(entity.managedRepresentation, _index, entity.codes)
+
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =

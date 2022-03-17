@@ -1,6 +1,8 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Category
+import no.nsd.qddt.model.embedded.CategoryChildren
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.repository.CategoryRepository
@@ -63,23 +65,26 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
         return super.getXml(uri)
     }
 
-    @ResponseBody
-    @Modifying
+    @Transactional(propagation = Propagation.NESTED)
     @PutMapping("/category/{uuid}",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
     fun putCategory(@PathVariable uuid: UUID, @RequestBody category: Category): ResponseEntity<*> {
+        return try {
+            if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                category.categoryChildren = category.children?.map {
+                    CategoryChildren().apply {
+                        uri = UriId().apply {id = it.id!!; rev = it.version.rev}
+                        children = it
+                    }
+                }!!.toMutableList()
+            val saved = repository.saveAndFlush(category)
+            ResponseEntity(saved, HttpStatus.OK)
 
-        try {
-
-            val saved = repository.save(category)
-
-            return ResponseEntity<Category>(saved, HttpStatus.OK)
         } catch (e: Exception) {
-            return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }
     }
 
-    @ResponseBody
-    @Modifying
+    @Transactional(propagation = Propagation.NESTED)
     @PostMapping("/category",produces = ["application/hal+json", "application/text"], consumes = ["application/hal+json","application/json"])
     fun postCategory(@RequestBody category: Category): ResponseEntity<*> {
 
@@ -115,26 +120,20 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     override fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"category")
-        logger.debug("EntModBuild Category : {}", uriId)
+        logger.debug("ModelBuilder Category: {}", uriId)
 
-        val children = when (entity.hierarchyLevel) {
-            HierarchyLevel.GROUP_ENTITY -> {
-                repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
-                    EntityAuditTrailListener.loadChildren(entity, rr)
-                }
-//                entity.children?.map { it }
-            }
-            else -> mutableListOf()
+        val children = repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+            EntityAuditTrailListener.loadChildrenDefault(entity, rr)
         }
+
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))
-
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))
-            .embed(children!!, LinkRelation.of("children"))
+            .embed(children, LinkRelation.of("children"))
             .build()
     }
 }

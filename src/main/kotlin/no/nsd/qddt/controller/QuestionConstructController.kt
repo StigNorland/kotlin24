@@ -126,7 +126,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     override fun entityModelBuilder(entity: QuestionConstruct): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"questionconstruct")
-        logger.info("EntModBuild QC : {}", uriId)
+        logger.info("ModelBuilder QC : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -162,7 +162,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     fun entityModelBuilder(entity: QuestionItem): RepresentationModel<EntityModel<QuestionItem>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"questionitem")
-        logger.info("EntModBuild QC:QI : {}", uriId)
+        logger.info("ModelBuilder QC:QI : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -173,10 +173,6 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
             } else {
                 entity.response
             }
-        var _index = 0
-        if (response?.managedRepresentation != null) {
-            EntityAuditTrailListener.populateCatCodes(response.managedRepresentation, _index, response.codes)
-        }
 
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -190,16 +186,20 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
     fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"responsedomain")
-        logger.info("EntModBuild QC:Response : {}", uriId)
+        logger.info("ModelBuilder QC:Response : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-//        entity.managedRepresentation.children.forEach {
-//            if (it.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-//                it.children.size
-//        }
+        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+            entity.managedRepresentation.children =
+                EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
+        }
+
+        var _index = 0
+        EntityAuditTrailListener.populateCatCodes(entity.managedRepresentation, _index, entity.codes)
+
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =

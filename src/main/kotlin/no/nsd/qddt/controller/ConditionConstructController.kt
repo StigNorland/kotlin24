@@ -62,7 +62,7 @@ class ConditionConstructController(@Autowired repository: ControlConstructReposi
     override fun entityModelBuilder(entity: ConditionConstruct): RepresentationModel<*> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId, "conditionconstruct")
-        logger.debug("EntModBuild Condition : {}", uriId)
+        logger.debug("ModelBuilder Condition : {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)

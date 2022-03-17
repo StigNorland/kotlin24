@@ -42,13 +42,14 @@ abstract class AbstractElementRef<T : IWebMenuPreview>() : IElementRef<T> {
     @Column(name = "element_name", length = 500)
     override var name: String? = null
 
+    @Embedded
     @AttributeOverrides(
         AttributeOverride(name = "major",       column = Column(name = "element_major")),
         AttributeOverride(name = "minor",       column = Column(name = "element_minor")),
-        AttributeOverride(name = "rev",         column = Column(name = "element_revision")),
+        AttributeOverride(name = "rev",         column = Column(name = "element_revision", updatable = false , insertable = false)),
         AttributeOverride(name = "versionLabel",column = Column(name = "element_version_label"))
     )
-    @Transient
+
     override var version: Version = Version()
 
    

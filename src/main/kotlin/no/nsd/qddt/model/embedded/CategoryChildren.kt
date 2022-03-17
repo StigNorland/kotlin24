@@ -13,14 +13,19 @@ import javax.persistence.*
 @Cacheable
 @Audited
 @Embeddable
-class CategoryChildren() : Serializable {
+class CategoryChildren : Serializable {
 
     @Embedded
     @AttributeOverrides(
-        AttributeOverride(name = "id", column = Column(name = "children_id", nullable = false)),
+        AttributeOverride(name = "id", column = Column(name = "children_id", nullable = false,  insertable = false, updatable = false)),
         AttributeOverride(name = "rev", column = Column(name = "children_rev", nullable = false)),
     )
     lateinit var uri: UriId
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "children_id")
+    var children: Category?=null
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

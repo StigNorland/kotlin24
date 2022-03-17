@@ -91,7 +91,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     fun entityModelBuilder(it: TopicGroup): RepresentationModel<EntityModel<TopicGroup>> {
         val uriId = toUriId(it)
         val baseUrl = baseUrl(uriId,"topicgroup")
-        logger.debug("EntModBuild TopicGroup : {}", uriId)
+        logger.debug("ModelBuilder TopicGroup : {}", uriId)
 
         it.authors.size
         it.comments.size
@@ -117,7 +117,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
     override fun entityModelBuilder(entity: Study): RepresentationModel<EntityModel<Study>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"study")
-        logger.debug("EntModBuild Study : {}", uriId)
+        logger.debug("ModelBuilder Study : {}", uriId)
 
         entity.authors.size
         entity.comments.size

@@ -3,24 +3,26 @@ package no.nsd.qddt.controller
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
 import no.nsd.qddt.model.User
-import no.nsd.qddt.model.enums.CategoryKind
+import no.nsd.qddt.model.embedded.CategoryChildren
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
 import no.nsd.qddt.repository.ResponseDomainRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.harvestCatCodes
-import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.loadChildren
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.populateCatCodes
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.projection.ProjectionFactory
-import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -28,7 +30,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayInputStream
 import java.util.*
 
 
@@ -71,13 +72,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     fun putResponseDomain(@PathVariable uri: UUID, @RequestBody responseDomain: ResponseDomain):ResponseEntity<*> {
         return try {
             persistManagedRep(responseDomain)
-            logger.debug(
-                "harvestedCodes : {} : {}",
-                responseDomain.name,
-                responseDomain.codes.joinToString { it.value })
 
             val saved = repository.saveAndFlush(responseDomain)
             ResponseEntity(saved, HttpStatus.OK)
+
         } catch (e: Exception) {
             ResponseEntity<String>(e.localizedMessage, HttpStatus.NOT_MODIFIED)
         }
@@ -88,10 +86,6 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
         return try {
             persistManagedRep(responseDomain)
-            logger.debug(
-                "harvestedCodes : {} : {}",
-                responseDomain.name,
-                responseDomain.codes.joinToString { it.value })
 
             val saved = repository.saveAndFlush(responseDomain)
 
@@ -128,16 +122,18 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     override fun entityModelBuilder(entity: ResponseDomain): RepresentationModel<EntityModel<ResponseDomain>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"responsedomain")
-        logger.debug("EntModBuild ResponseDomain : {}", uriId)
+        logger.debug("ModelBuilder ResponseDomain: {}", uriId)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
-            entity.managedRepresentation.children = loadChildren(entity.managedRepresentation,rr)
-        }
+        entity.managedRepresentation.version.rev = uriId.rev!!
 
+        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+            entity.managedRepresentation.children =
+                EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
+        }
 
         var _index = 0
         populateCatCodes(entity.managedRepresentation, _index,entity.codes)
@@ -156,12 +152,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             .build()
     }
 
-
-
     fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"category")
-        logger.debug("EntModBuild Category : {}", uriId)
+        logger.debug("ModelBuilder Category : {}", uriId)
 
         val children = when (entity.hierarchyLevel) {
             HierarchyLevel.GROUP_ENTITY -> {
@@ -178,15 +172,21 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
     private fun persistManagedRep(entity: ResponseDomain) {
         entity.codes = harvestCatCodes(entity.managedRepresentation)
-        logger.debug("persistManagedRep[0] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
 
-        entity.managedRepresentation = entity.managedRepresentation!!.let{ manRep ->
+        entity.managedRepresentation = entity.managedRepresentation.let{ manRep ->
             manRep.name = entity.name
             manRep.changeComment = entity.changeComment
             manRep.changeKind = entity.changeKind
             manRep.xmlLang = entity.xmlLang
             manRep.version = entity.version
             manRep.description = entity.getAnchorLabels()
+            if (manRep.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                manRep.categoryChildren = manRep.children?.map {
+                    CategoryChildren().apply {
+                        uri = UriId().apply {id = it.id!!; rev = it.version.rev}
+                        children = it
+                    }
+                }!!.toMutableList()
             if (entity.responseKind == ResponseKind.LIST) {
                 manRep.inputLimit = entity.responseCardinality
             } else {
@@ -197,7 +197,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             else
                 manRep
         }
-        logger.debug("persistManagedRep[1] : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
+        logger.debug("persistManagedRep : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
 
     }
 

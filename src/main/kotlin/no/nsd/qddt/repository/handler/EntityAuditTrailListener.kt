@@ -53,7 +53,6 @@ class EntityAuditTrailListener{
                 beforeStudyRemove(entity)
             }
         }
-
         log.debug("About to delete entity: {}" , entity.id)
     }
 
@@ -97,7 +96,7 @@ class EntityAuditTrailListener{
 
     @PreUpdate
     private fun preUpdate(entity: AbstractEntityAudit) {
-        log.debug("PreUpdate [{}] {}", entity.name, entity.id)
+        log.debug("PreUpdate [{}] : {} - {}", entity.classKind, entity.name, entity.id)
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
             user.getAuthority()
@@ -146,8 +145,7 @@ class EntityAuditTrailListener{
                         log.debug(it.uri.toString())
                     }
                 }
-                is Sequence
-                -> {
+                is Sequence -> {
                     entity.sequence.forEach {
                         log.debug(it.uri.toString())
                     }
@@ -159,22 +157,13 @@ class EntityAuditTrailListener{
                     beforeCategoryToDb(entity)
                 }
                 is ResponseDomain -> {
-                    entity.managedRepresentation!!.version = entity.version
-                    entity.managedRepresentation!!.label = entity.name
-//                    persistManagedRep(entity)
+                    entity.managedRepresentation.version = entity.version
+                    entity.managedRepresentation.label = entity.name
                 }
                 is QuestionConstruct -> {
-//                    if (entity.questionId?.rev != null && entity.questionName.isNullOrBlank()){
-//                        repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
-//                            with(loadRevisionEntity(entity.questionId!!, it)) {
-//                                entity.questionName = name
-//                                entity.questionText = question
-//                            }
-//                        }
-//                    }
+
                 }
             }
-            log.debug("PreUpdate [{}] {} : (done)", entity.name, entity.id)
         } catch (ex: Exception) {
             log.error("AbstractEntityAudit::onUpdate", ex)
         }
@@ -183,7 +172,6 @@ class EntityAuditTrailListener{
     @PostRemove
     private fun afterREmove(entity: AbstractEntityAudit) {
         log.debug("PostRemove complete for entity: {}" , entity.id)
-
     }
 
     @PostPersist
@@ -195,7 +183,7 @@ class EntityAuditTrailListener{
 
     @PostLoad
     private fun afterLoad(entity: AbstractEntityAudit) {
-        log.debug("PostLoad [{}] {} " , entity.classKind, entity.name)
+        log.debug("PostLoad [{}] : {} - {}:{}", entity.classKind, entity.name, entity.id, entity.version.rev)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
@@ -204,7 +192,6 @@ class EntityAuditTrailListener{
             is QuestionConstruct -> {
                 entity.universe.size
                 entity.controlConstructInstructions.size
-                entity.comments.size
 
                 if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
                     if (entity.questionItem == null && entity.questionId?.id != null) {
@@ -230,23 +217,15 @@ class EntityAuditTrailListener{
                         }
                     }
                 }
-                log.debug(entity.basedOn?.toString())
-                entity.comments.size
             }
             is ResponseDomain -> {
-//                log.debug("[populateCatCodes] {}", entity.name)
-//                entity.managedRepresentation?.children?.size
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
             }
             is Category -> {
                 if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
                     repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let {
-                        entity.children = entity.categoryChildren.map { cc ->
-                            val entity = loadRevisionEntity(cc.uri, it)
-                            afterLoad(entity)
-                            entity
-                        }.toMutableList()
+                        entity.children = loadChildrenDefault(entity,it)
                     }
                 }
             }
@@ -343,13 +322,13 @@ class EntityAuditTrailListener{
         }
         category.name = category.name.trim()
 
-        if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-            category.categoryChildren = category.children?.map {
-                CategoryChildren().apply {  uri = UriId().apply {
-                    id = it.id!!
-                    rev = it.version.rev
-                }}}?.toMutableList() ?: mutableListOf()
-
+//        if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+//            category.categoryChildren = category.children?.map {
+//                CategoryChildren().apply {
+//                    uri = UriId().apply {id = it.id!!; rev = it.version.rev}
+//                    children = it
+//                }
+//            }!!.toMutableList()
     }
 
     private fun beforeStudyRemove(entity: Study) {
@@ -362,15 +341,11 @@ class EntityAuditTrailListener{
     }
 
     private fun beforeStudyUpdate(entity: Study) {
-        with(entity) {
-            log.info("Study beforeUpdate {} - {}",entity.name, entity.id)
-        }
+        log.info("Study beforeUpdate {} - {}",entity.name, entity.id)
     }
 
     private fun beforeStudyInsert(entity: Study) {
-         with(entity) {
-             log.info("Study beforeInsert {}", entity.name)
-         }
+        log.info("Study beforeInsert {}", entity.name)
     }
 
 //    private fun persistManagedRep(entity: ResponseDomain) {
@@ -427,15 +402,23 @@ class EntityAuditTrailListener{
             return index
         }
 
-        fun loadChildren(source: Category, rdr: RevisionRepository<Category, UUID, Int>): MutableList<Category> {
-            return if (source.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-                source.categoryChildren.map { cc ->
-                    loadRevisionEntity(cc.uri, rdr).also {
-                        it.children = loadChildren(it,rdr)
+        fun loadChildrenDefault(entity: Category, repository: RevisionRepository<Category, UUID, Int>): MutableList<Category> {
+            return if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
+                log.debug("loadChildrenDefault -> {}", entity.name)
+                entity.categoryChildren.mapNotNull { cc ->
+                    if (cc.uri.rev!! > 0) {
+                        loadRevisionEntity(cc.uri, repository).also {
+                            it.children = loadChildrenDefault(it, repository)
+                        }
+                    } else {
+                        cc.children?.also {
+                            it.children = loadChildrenDefault(it, repository)
+                        }
                     }
                 }.toMutableList()
-            else
+            } else {
                 mutableListOf()
+            }
         }
     }
 

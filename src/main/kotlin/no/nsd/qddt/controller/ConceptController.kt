@@ -137,7 +137,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
     override fun entityModelBuilder(entity: Concept): RepresentationModel<EntityModel<Concept>> {
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId,"concept")
-        logger.debug("EntModBuild Concept : {}", uriId)
+        logger.debug("ModelBuilder Concept : {}", uriId)
 
         entity.children.size
         entity.authors.size

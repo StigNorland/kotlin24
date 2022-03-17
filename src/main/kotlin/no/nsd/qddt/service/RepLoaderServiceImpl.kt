@@ -36,7 +36,7 @@ class RepLoaderServiceImpl : RepLoaderService {
     @Autowired private var instructionRepository: InstructionRepository? = null
 
     override fun <T> getRepository(elementKind: ElementKind): RevisionRepository<T, UUID, Int> {
-        logger.info("get Service -> $elementKind")
+//        logger.info("get Service -> $elementKind")
         return when (elementKind){
             ElementKind.SURVEY_PROGRAM -> surveyProgramRepository
             ElementKind.STUDY -> studyRepository

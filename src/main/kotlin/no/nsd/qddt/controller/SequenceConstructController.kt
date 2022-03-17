@@ -84,7 +84,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
         val uriId = toUriId(entity)
         val baseUrl = baseUrl(uriId, "sequence")
 
-        logger.debug("EntModBuild Sequence : {}", baseUrl)
+        logger.debug("ModelBuilder Sequence : {}", baseUrl)
 
         Hibernate.initialize(entity.agency)
         Hibernate.initialize(entity.modifiedBy)
