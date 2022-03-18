@@ -9,4 +9,4 @@
 // * @author Stig Norland
 // */
 //@Repository
-//interface ReferencedRepository : JpaRepository<Referenced?, UUID?>
+//interface ReferencedRepository : JpaRepository<Referenced, UUID>

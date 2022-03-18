@@ -35,10 +35,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
     @Transactional(propagation = Propagation.NESTED)
     @ResponseBody
     @GetMapping("/instrument/revisions/{uuid}", produces = ["application/hal+json"])
-    override fun getRevisions(
-        @PathVariable uuid: UUID,
-        pageable: Pageable
-    ): RepresentationModel<*>? {
+    override fun getRevisions(@PathVariable uuid: UUID,pageable: Pageable): RepresentationModel<*>? {
         return super.getRevisions(uuid, pageable)
     }
 
@@ -59,17 +56,17 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
 //        return entityModelBuilder(repository.getById(uri))
 //    }
 
-    @Transactional(propagation = Propagation.NESTED)
-    @ResponseBody
-    @PostMapping("/instrument", produces = ["application/hal+json"])
-    fun insert(@RequestBody instrument: Instrument): ResponseEntity<*> {
-        return try {
-            val saved = repository.saveAndFlush(instrument)
-            ResponseEntity(saved, HttpStatus.CREATED)
-        } catch (e: Exception) {
-            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
-        }
-    }
+//    @Transactional(propagation = Propagation.NESTED)
+//    @ResponseBody
+//    @PostMapping("/instrument", produces = ["application/hal+json"])
+//    fun insert(@RequestBody instrument: Instrument): ResponseEntity<*> {
+//        return try {
+//            val saved = repository.saveAndFlush(instrument)
+//            ResponseEntity(saved, HttpStatus.CREATED)
+//        } catch (e: Exception) {
+//            ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
+//        }
+//    }
 
     @ResponseBody
     @PutMapping("/instrument/{uuid}", produces = ["application/hal+json"])

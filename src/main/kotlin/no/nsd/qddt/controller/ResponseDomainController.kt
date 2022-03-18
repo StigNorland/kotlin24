@@ -74,7 +74,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             persistManagedRep(responseDomain)
 
             val saved = repository.saveAndFlush(responseDomain)
-            ResponseEntity(saved, HttpStatus.OK)
+
+            val loaded = repository.getById(saved.id!!)
+
+            ResponseEntity(loaded, HttpStatus.OK)
 
         } catch (e: Exception) {
             ResponseEntity<String>(e.localizedMessage, HttpStatus.NOT_MODIFIED)
@@ -89,13 +92,17 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
             val saved = repository.saveAndFlush(responseDomain)
 
-            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
-            saved.modifiedBy = currentuser
-            saved.agency = currentuser.agency
-            saved.managedRepresentation!!.modifiedBy = currentuser
-            ResponseEntity(saved, HttpStatus.CREATED)
+//            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
+//            saved.modifiedBy = currentuser
+//            saved.agency = currentuser.agency
+//            saved.managedRepresentation.modifiedBy = currentuser
+//            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+//                saved.managedRepresentation.children =
+//                    EntityAuditTrailListener.loadChildrenDefault(saved.managedRepresentation, rr)
+//            }
+            ResponseEntity(null, HttpStatus.CREATED)
         } catch (e: Exception) {
-            ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
+            ResponseEntity(null, HttpStatus.NOT_ACCEPTABLE)
         }
     }
 
@@ -197,7 +204,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             else
                 manRep
         }
-        logger.debug("persistManagedRep : {} : {}", entity.managedRepresentation!!.name, entity.codes.joinToString { it.value })
+        logger.debug("persistManagedRep : {} : {}", entity.managedRepresentation.name, entity.codes.joinToString { it.value })
 
     }
 

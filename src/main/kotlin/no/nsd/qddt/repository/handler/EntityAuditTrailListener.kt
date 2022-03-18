@@ -44,6 +44,11 @@ class EntityAuditTrailListener{
 
     private val publicationStatusService get() = applicationContext?.getBean("publicationStatusService") as PublicationStatusService
 
+
+    private fun capitalize(label:String): String {
+        return label.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    }
+
     @PreRemove
     private fun beforeAnyDelete(entity: AbstractEntityAudit) {
         entity.changeKind = ChangeKind.TO_BE_DELETED
@@ -70,7 +75,7 @@ class EntityAuditTrailListener{
 
             when (entity) {
                 is Category -> {
-//                    beforeCategoryToDb(entity)
+                    beforeCategoryToDb(entity)
                 }
                 is ResponseDomain -> {
 //                if (entity.changeKind.ordinal > 0 && entity.changeKind.ordinal < 4 && entity.managedRepresentation?.id != null ) {
@@ -101,6 +106,7 @@ class EntityAuditTrailListener{
             val user = SecurityContextHolder.getContext().authentication.principal as User
             user.getAuthority()
             entity.modifiedBy = user
+            entity.agency = user.agency
             var ver: Version = entity.version
             var change = entity.changeKind
 
@@ -138,11 +144,18 @@ class EntityAuditTrailListener{
                     }
                 }
             entity.version = ver
+            entity.name = entity.name.trim().uppercase(Locale.getDefault())
 
             when (entity) {
                 is Publication -> {
                     entity.publicationElements.forEach {
+                        it.element
                         log.debug(it.uri.toString())
+                    }
+                }
+                is Instrument ->{
+                    entity.root.children.forEach {
+                        log.debug(it.toString())
                     }
                 }
                 is Sequence -> {
@@ -153,12 +166,23 @@ class EntityAuditTrailListener{
                 is Study -> {
                     beforeStudyUpdate(entity)
                 }
+                is TopicGroup -> {
+                    if (entity.label?.isBlank() == true)
+                        entity.label = entity.name
+                    entity.label = capitalize(entity.label!!)
+                }
+                is Concept -> {
+                    if (entity.label?.isBlank() == true)
+                        entity.label = entity.name
+                    entity.label = capitalize(entity.label!!)
+                }
                 is Category -> {
-                    beforeCategoryToDb(entity)
+                    if (entity.label.isBlank())
+                        entity.label = capitalize(entity.name)
                 }
                 is ResponseDomain -> {
                     entity.managedRepresentation.version = entity.version
-                    entity.managedRepresentation.label = entity.name
+                    entity.managedRepresentation.label = entity.name.toLowerCase().capitalize()
                 }
                 is QuestionConstruct -> {
 
@@ -292,16 +316,16 @@ class EntityAuditTrailListener{
         log.debug("beforeCategoryToDb [{}] {}", category.name, category.modified.toString())
         when {
             category.categoryKind === CategoryKind.MIXED -> {
-                category.name = (String.format("Mixed [%s]", category.children!!.joinToString { it.label  }))
+                category.label = (String.format("Mixed [%s]", category.children!!.joinToString { it.label  }))
             }
             category.categoryKind === CategoryKind.SCALE -> {
                 log.debug(category.toString())
             }
         }
-        if (category.label.isBlank())
-            category.label = category.name
+        category.name = category.name.trim().uppercase(Locale.getDefault())
 
-        category.name = category.name.uppercase(Locale.getDefault())
+        if (category.label.isBlank())
+            category.label = category.name.toLowerCase().capitalize()
 
         category.description = when {
             category.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && category.description.isNullOrBlank()
@@ -310,25 +334,12 @@ class EntityAuditTrailListener{
             -> category.description
         }
 
-        if (!category.version.isModified()) {
-            log.debug("version.isModified={}", category.version.isModified())
-        }
-
         category.hierarchyLevel = when (category.categoryKind) {
             CategoryKind.DATETIME, CategoryKind.BOOLEAN, CategoryKind.TEXT, CategoryKind.NUMERIC, CategoryKind.CATEGORY ->
                 HierarchyLevel.ENTITY
             CategoryKind.MISSING_GROUP, CategoryKind.LIST, CategoryKind.SCALE, CategoryKind.MIXED ->
                 HierarchyLevel.GROUP_ENTITY
         }
-        category.name = category.name.trim()
-
-//        if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
-//            category.categoryChildren = category.children?.map {
-//                CategoryChildren().apply {
-//                    uri = UriId().apply {id = it.id!!; rev = it.version.rev}
-//                    children = it
-//                }
-//            }!!.toMutableList()
     }
 
     private fun beforeStudyRemove(entity: Study) {

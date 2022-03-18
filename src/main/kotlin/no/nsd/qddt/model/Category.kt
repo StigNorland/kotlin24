@@ -54,7 +54,7 @@ import javax.persistence.*
 @Table(
     name = "CATEGORY",
     uniqueConstraints = [
-        UniqueConstraint(name = "UNQ_CATEGORY_NAME_KIND", columnNames = ["label", "name", "categoryKind","agency_id"])
+        UniqueConstraint(name = "UNQ_CATEGORY_NAME_KIND", columnNames = ["label", "name", "categoryKind","agency_id", "xmlLang"])
     ] //https://github.com/DASISH/qddt-client/issues/606
 )
 @JsonPropertyOrder(alphabetic = true,

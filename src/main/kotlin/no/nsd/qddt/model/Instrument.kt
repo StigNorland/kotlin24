@@ -11,6 +11,7 @@ import org.hibernate.envers.Audited
 import java.util.*
 import javax.persistence.*
 
+
 /**
  * You change your meaning by emphasizing different words in your sentence. ex:
  * "I never said she stole my money" has 7 meanings.
@@ -46,25 +47,19 @@ data class Instrument(
     @Enumerated(EnumType.STRING)
     var instrumentKind = InstrumentKind.QUESTIONNAIRE_SEMISTRUCTURED
 
-    // @JsonBackReference(value = "studyRef")
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "study_id", updatable = false)
-
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST])
     var root: InstrumentElement = InstrumentElement()
 
 
     ////    TODO implement outparams....
-    //    @Transient
-    //    @JsonSerialize
-    //    public Map<String,OutParameter> getOutParameter() {
-    //        this.sequence.stream()
-    //            .flatMap( p -> p.getOutParameters().stream() )
-    //            .collect( Collectors.toMap(OutParameter::getId, op -> op ) )
-    //            .values()
-    //            .collect( TreeMap::new, TreeMap::putAll, (map1, map2) -> { map1.putAll(map2); return map1; });
-    //    }
+//    @Transient
+//    public Map<String,OutParameter> getOutParameter() {
+//        this.root.children
+//            .flatMap( p -> p.getOutParameters().stream() )
+//            .collect( Collectors.toMap(OutParameter::getId, op -> op ) )
+//            .values()
+//            .collect( TreeMap::new, TreeMap::putAll, (map1, map2) -> { map1.putAll(map2); return map1; });
+//    }
 
 
     override fun xmlBuilder(): AbstractXmlBuilder {

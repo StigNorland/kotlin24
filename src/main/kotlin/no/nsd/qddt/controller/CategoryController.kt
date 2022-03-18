@@ -89,7 +89,13 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
     fun postCategory(@RequestBody category: Category): ResponseEntity<*> {
 
         try {
-
+            if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
+                category.categoryChildren = category.children?.map {
+                    CategoryChildren().apply {
+                        uri = UriId().apply {id = it.id!!; rev = it.version.rev}
+                        children = it
+                    }
+                }!!.toMutableList()
             val saved = repository.save(category)
 
             return ResponseEntity<Category>(saved, HttpStatus.CREATED)
