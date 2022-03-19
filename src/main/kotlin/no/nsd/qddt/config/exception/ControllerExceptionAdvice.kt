@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 //import static net.logstash.logback.encoder.org.apache.commons.lang.exception.ExceptionUtils.getRootCauseMessage;
 /**
- * Controller-advice to handle exception casted by any requests coming from
+ * Controller-advice to handle exception cast by any requests coming from
  * controllers. This will not interfere with the service layer, but it shares
  * the exceptions that can be cast from the service layer.
  *
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping(value = ["/error"], produces = [MediaType.APPLICATION_JSON_VALUE])
 class ControllerExceptionAdvice {
     /**
-     * Handle all exceptions of type [ResourceNotFoundException]
+     * Handle all exceptions to type [ResourceNotFoundException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -43,7 +43,7 @@ class ControllerExceptionAdvice {
     }
 
     /**
-     * Handle all exceptions of type [UserNotFoundException]
+     * Handle all exceptions to type [UserNotFoundException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -64,7 +64,7 @@ class ControllerExceptionAdvice {
     }
     //
     //    /**
-    //     * Handle all exceptions of type {@link OAuth2AuthenticationException}
+    //     * Handle all exceptions to type {@link OAuth2AuthenticationException}
     //     * when they occur from methods executed from the controller.
     //     * @param req servlet request
     //     * @param e general exception
@@ -83,7 +83,7 @@ class ControllerExceptionAdvice {
     //        return message;
     //    }
     /**
-     * Handle all exceptions of type [org.springframework.dao.OptimisticLockingFailureException]
+     * Handle all exceptions to type [org.springframework.dao.OptimisticLockingFailureException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -94,7 +94,7 @@ class ControllerExceptionAdvice {
         ObjectOptimisticLockingFailureException::class
     )
     @ResponseBody
-    fun handleConcurencyCheckedFailed(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
+    fun handleConcurrencyCheckedFailed(req: HttpServletRequest, e: Exception): ControllerAdviceExceptionMessage {
         val message = ControllerAdviceExceptionMessage(
             req.requestURL.toString(),
             (e as ObjectOptimisticLockingFailureException).mostSpecificCause.message
@@ -104,7 +104,7 @@ class ControllerExceptionAdvice {
     }
 
     /**
-     * Handle all exceptions of type [org.springframework.dao.OptimisticLockingFailureException]
+     * Handle all exceptions to type [org.springframework.dao.OptimisticLockingFailureException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -121,9 +121,9 @@ class ControllerExceptionAdvice {
             (e as JpaObjectRetrievalFailureException).mostSpecificCause.message
         )
         if (message.exceptionMessage!!.contains("Category") && message.url.contains("responsedomain")) {
-            message.userfriendlyMessage =
+            message.userFriendlyMessage =
                 "Saving ResponseDomain failed.</BR>Can't add a MissingGroup to a deleted ResponseDomain.</br>Remove old ResponseDomain, add an active ResponseDomain, and then add MissingGroup..."
-        } else message.userfriendlyMessage = """
+        } else message.userFriendlyMessage = """
      An Item required to complete the action, is no longer available.
      (remove old reference, add a new one, and try again...)
      """.trimIndent()
@@ -132,7 +132,7 @@ class ControllerExceptionAdvice {
     }
 
     /**
-     * Handle all exceptions of type [org.springframework.dao.OptimisticLockingFailureException]
+     * Handle all exceptions to type [org.springframework.dao.OptimisticLockingFailureException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -148,13 +148,13 @@ class ControllerExceptionAdvice {
             req.requestURL.toString(),
             e.message
         )
-        message.userfriendlyMessage =
+        message.userFriendlyMessage =
             "User are author of active items and cannot be deleted, try to disable user instead."
         return message
     }
 
     /**
-     * Handle all exceptions of type [org.springframework.security.access.AccessDeniedException]
+     * Handle all exceptions to type [org.springframework.security.access.AccessDeniedException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -168,13 +168,13 @@ class ControllerExceptionAdvice {
             req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
+        message.userFriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         logger.error(e.javaClass.simpleName, e)
         return message
     }
 
     /**
-     * Handle all exceptions of type [InvalidPasswordException]
+     * Handle all exceptions to type [InvalidPasswordException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -188,13 +188,13 @@ class ControllerExceptionAdvice {
             req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
+        message.userFriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         logger.error(e.javaClass.simpleName, e)
         return message
     }
 
     /**
-     * Handle all exceptions of type [DescendantsArchivedException]
+     * Handle all exceptions to type [DescendantsArchivedException]
      * when they occur from methods executed from the controller.
      * @param req servlet request
      * @param e general exception
@@ -208,7 +208,7 @@ class ControllerExceptionAdvice {
             req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
+        message.userFriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         return message
     }
 
@@ -227,7 +227,7 @@ class ControllerExceptionAdvice {
             req.requestURL.toString(),
             e.localizedMessage
         )
-        message.userfriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
+        message.userFriendlyMessage = ExceptionUtils.getRootCauseMessage(e.cause)
         logger.error(e.javaClass.simpleName, e)
         logger.error(req.requestURI)
         logger.error("stacktrace", e.fillInStackTrace())

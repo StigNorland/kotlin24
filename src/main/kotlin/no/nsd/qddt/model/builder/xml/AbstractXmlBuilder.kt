@@ -84,8 +84,8 @@ abstract class AbstractXmlBuilder {
     protected fun <S : AbstractEntityAudit> getXmlBasedOn(instance: S): String {
         if (instance.basedOn == null) return ""
         with(instance) {
-            val uri = "https://qddt.nsd.no/preview/" + basedOn!!.id + "/" + basedOn!!.rev
-            val urn = java.lang.String.format(
+            val uri = "https://qddt.nsd.no/preview/$basedOn"
+            val urn = String.format(
                 xmlURN,
                 agency!!.name,
                 basedOn!!.id,

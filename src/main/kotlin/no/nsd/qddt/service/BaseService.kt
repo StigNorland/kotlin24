@@ -9,7 +9,7 @@ interface BaseService<T, ID> {
 
 
     /**
-     * Return a entity based on its ID.
+     * Return an entity based on its ID.
      * @param id ID of entity
      * @return Entity
      */
@@ -24,7 +24,7 @@ interface BaseService<T, ID> {
     fun <S : T?> save(instance: S): S
 
     /**
-     * Deletes object with id ID from backstore, exception raised by failure.
+     * Deletes object with id from backstore, exception raised by failure.
      * @param id ID of entity
      */
     //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")

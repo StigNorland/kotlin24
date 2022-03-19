@@ -2,6 +2,7 @@ package no.nsd.qddt.repository
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.classes.ElementOrder
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.data.repository.query.Param
@@ -17,6 +18,7 @@ interface BaseArchivedRepository<T: AbstractEntityAudit> :BaseMixedRepository<T>
     )
     fun hasArchive(@Param("entityId") entityId: String): Int
 
+    @Modifying
     @Query(
         nativeQuery = true,
         value = "update concept_hierarchy ch set parent_idx = :ranks "

@@ -22,6 +22,4 @@ interface IAbstractEntityViewList {
     @Value(value = "#{target.modified.getTime() }")
     fun getModified(): Long
 
-
-
 }

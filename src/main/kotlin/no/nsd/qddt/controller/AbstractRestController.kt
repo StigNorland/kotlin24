@@ -107,7 +107,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         logger.debug("getPdf : {}", uri)
         return getByUri(uri).makePdf().toByteArray()
 
-    //        val resut = ByteArrayInputStream(stream.toByteArray())
+    //        val result = ByteArrayInputStream(stream.toByteArray())
 //        return ResponseEntity.ok()
 //            .headers(headers)
 //            .contentType(MediaType.APPLICATION_OCTET_STREAM)

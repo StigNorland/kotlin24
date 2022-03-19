@@ -83,7 +83,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @Column(length = 2000)
     var description: String =""
         set(value) {
-            field =  StringTool.CapString(value)
+            field =  StringTool.capString(value)
         }
         get() {
             if (field.isEmpty())

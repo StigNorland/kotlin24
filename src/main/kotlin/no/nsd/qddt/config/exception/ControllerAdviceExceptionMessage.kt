@@ -12,13 +12,13 @@ class ControllerAdviceExceptionMessage(url: String, exceptionMessage: String?) {
     var id: String?
     var url: String
     val exceptionMessage: String?
-    var userfriendlyMessage: String? = null
+    var userFriendlyMessage: String? = null
     override fun toString(): String {
         return ("{\"ControllerAdviceExceptionMessage\":{"
                 + "\"id\":\"" + id + "\""
                 + ", \"url\":\"" + url + "\""
                 + ", \"exceptionMessage\":\"" + exceptionMessage + "\""
-                + ", \"userfriendlyMessage\":\"" + userfriendlyMessage + "\""
+                + ", \"userFriendlyMessage\":\"" + userFriendlyMessage + "\""
                 + "}}")
     }
 

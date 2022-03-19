@@ -104,7 +104,7 @@ abstract class AbstractEntityAudit(
         (shape = JsonFormat.Shape.NUMBER_INT)
     override var modified: Timestamp? = null
 
-// TODO : moce these to PrePersist class
+// TODO : move these to PrePersist class
 
     fun makePdf(): ByteArrayOutputStream {
         val pdfOutputStream = ByteArrayOutputStream()

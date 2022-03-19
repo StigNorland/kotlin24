@@ -4,9 +4,8 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntity
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.model.embedded.CategoryChildren
-import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.ElementKind
@@ -84,7 +83,7 @@ class EntityAuditTrailListener{
 //                persistManagedRep(entity)
                 }
                 is Instrument -> {
-                    log.debug("{}:{}", entity.name, entity.root?.children?.joinToString { it.toString() } ?: "<emoty>")
+                    log.debug("{}:{}", entity.name, entity.root.children.joinToString { it.toString() })
                 }
                 is Study -> {
                     entity.parentIdx

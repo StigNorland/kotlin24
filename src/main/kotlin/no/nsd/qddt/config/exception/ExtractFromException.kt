@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 object ExtractFromException {
     /**
      * Get the resource ID which for now is always the last "word" in the exception.
-     * Its no need to parse this as a [Number] as its REST.
+     * It's no need to parse this as a [Number] as its REST.
      * @param exceptionMessage from the exception caster
      * @return a formatted version.
      */
@@ -29,7 +29,7 @@ object ExtractFromException {
 
     /**
      * Get the resource ID which for now is always the last "word" in the exception.
-     * Its no need to parse this as a [Number] as its REST.
+     * It's no need to parse this as a [Number] as its REST.
      * @param exceptionMessage from the exception caster
      * @return a formatted version.
      */

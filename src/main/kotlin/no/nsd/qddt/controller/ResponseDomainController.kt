@@ -2,7 +2,6 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Category
 import no.nsd.qddt.model.ResponseDomain
-import no.nsd.qddt.model.User
 import no.nsd.qddt.model.embedded.CategoryChildren
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.enums.ElementKind
@@ -26,7 +25,6 @@ import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -92,10 +90,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
             val saved = repository.saveAndFlush(responseDomain)
 
-//            val currentuser = SecurityContextHolder.getContext().authentication.principal as User
-//            saved.modifiedBy = currentuser
-//            saved.agency = currentuser.agency
-//            saved.managedRepresentation.modifiedBy = currentuser
+//            val currentUser = SecurityContextHolder.getContext().authentication.principal as User
+//            saved.modifiedBy = currentUser
+//            saved.agency = currentUser.agency
+//            saved.managedRepresentation.modifiedBy = currentUser
 //            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
 //                saved.managedRepresentation.children =
 //                    EntityAuditTrailListener.loadChildrenDefault(saved.managedRepresentation, rr)
@@ -122,7 +120,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         val domain = repository.findById(uri).orElseThrow()
         domain.managedRepresentation = managedRepresentation
         val managedRepresentationSaved = repository.saveAndFlush(domain).managedRepresentation
-        return entityModelBuilder(managedRepresentationSaved!!)
+        return entityModelBuilder(managedRepresentationSaved)
     }
 
 
@@ -148,7 +146,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
-            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation!!)
+            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation)
 
         return HalModelBuilder.halModel()
             .entity(entity)
@@ -199,7 +197,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             } else {
                 entity.responseCardinality = manRep.inputLimit
             }
-            if (entity.changeKind.ordinal > 0 && entity.changeKind.ordinal < 4 )
+            if (entity.changeKind.ordinal in (1..3))
                 manRep.clone()
             else
                 manRep

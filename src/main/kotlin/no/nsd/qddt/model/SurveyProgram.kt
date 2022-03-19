@@ -24,7 +24,7 @@ import javax.persistence.*
  *  * Every QuestionItem will have a ResponseDomain.
  *
  *
- *  * An Instrument will have a ordered list of Questions, all of which are contained in Concepts
+ *  * An Instrument will have an ordered list of Questions, all of which are contained in Concepts
  * belonging to Modules that belongs to the Studies that this Survey has.
  *
  *

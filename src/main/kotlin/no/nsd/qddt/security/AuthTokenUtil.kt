@@ -36,7 +36,7 @@ class AuthTokenUtil: Serializable {
 
         val claims = Jwts.claims()
             .setId(UUID.randomUUID().toString())
-            .setSubject(StringTool.CapString(userDetails.username))
+            .setSubject(StringTool.capString(userDetails.username))
             .setIssuedAt(Date())
             .setExpiration(Date(Date().time + expira))
 

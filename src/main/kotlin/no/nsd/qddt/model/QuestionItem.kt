@@ -15,8 +15,7 @@ import javax.persistence.*
 
 /**
 * Question Item is a container for Question (text) and responsedomain
-* This entity introduce a breaking change into the model. it supports early binding of
-* of the containing entities, by also supplying a reference to their revision number.
+* This entity introduce a breaking change into the model. it supports early binding of the containing entities, by also supplying a reference to their revision number.
 * This binding is outside the model which is defined here and used by the framework.
 * This means that when fetching its content it will need to query the revision part of this
 * system, when a revision number is specified.

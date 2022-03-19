@@ -17,7 +17,7 @@ import no.nsd.qddt.model.embedded.ResponseCardinality
 import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.enums.ResponseKind
-import no.nsd.qddt.utils.StringTool.CapString
+import no.nsd.qddt.utils.StringTool.capString
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import javax.persistence.*
@@ -40,7 +40,7 @@ data class ResponseDomain(
 
 
   override var name: String = "?"
-    get() =  CapString(field)
+    get() =  capString(field)
 
 
   /**

@@ -27,8 +27,6 @@ enum class ElementKind( name: String, val className: String, val ddiPreFix: Stri
             requireNotNull(className) { "className not specified." }
             for (v in values()) if (className.equals(v.className, ignoreCase = true)) return v
             return valueOf(className)
-
-//        throw new IllegalArgumentException("className not found. [" + className + "]");
         }
     }
 }

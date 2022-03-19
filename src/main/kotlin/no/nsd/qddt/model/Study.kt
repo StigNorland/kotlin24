@@ -28,7 +28,7 @@ import javax.persistence.*
  *
  * <br></br>
  * A publication structure for a specific study. Structures identification information, full
- * bibliographic and discovery information, administrative information, all of the reusable
+ * bibliographic and discovery information, administrative information, all the reusable
  * delineations used for response domains and variable representations, and TopicGroups covering
  * different points in the lifecycle of the study (DataCollection, LogicalProduct,
  * PhysicalDataProduct, PhysicalInstance, Archive, and DDIProfile).

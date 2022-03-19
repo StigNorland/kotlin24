@@ -4,7 +4,7 @@ import no.nsd.qddt.model.builder.UniverseFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.utils.StringTool.IsNullOrTrimEmpty
+import no.nsd.qddt.utils.StringTool.isNullOrTrimEmpty
 import org.hibernate.Hibernate
 import org.hibernate.envers.Audited
 import java.util.*
@@ -30,7 +30,7 @@ data class Universe(override var name: String = ""):AbstractEntityAudit() {
     var description: String = ""
       set(value) {
         field = value
-        if (IsNullOrTrimEmpty(name)) {
+        if (isNullOrTrimEmpty(name)) {
             val max25 = minOf(description.length, 25)
             name = description.substring(0, max25).uppercase(Locale.getDefault()).replace(' ', '_')
         }

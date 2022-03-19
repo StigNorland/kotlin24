@@ -22,7 +22,7 @@ interface IBasedOn:IDomainObject {
      * ChangeKinds are the different ways an entity can be modified by the system/user.
      * First entry will always be CREATED.
      * TYPO, can be used modify without breaking a release.
-     * Every other version is a IN_DEVELOPMENT change.
+     * Every other version is an IN_DEVELOPMENT change.
      */
     @Suppress("UNUSED_PARAMETER")
     enum class ChangeKind(val label: String, val description: String) {

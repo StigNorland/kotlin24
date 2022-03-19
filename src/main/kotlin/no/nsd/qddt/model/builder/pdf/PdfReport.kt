@@ -27,7 +27,7 @@ import com.itextpdf.layout.renderer.ParagraphRenderer
 import no.nsd.qddt.config.exception.StackTraceFilter.filter
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.classes.AbstractEntityAudit
-import no.nsd.qddt.utils.StringTool.CapString
+import no.nsd.qddt.utils.StringTool.capString
 import org.joda.time.DateTime
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -146,8 +146,8 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             //            document.add( new AreaBreak(AreaBreakType.NEXT_AREA  ) );
             // document.add( new AreaBreak() );        //https://github.com/DASISH/qddt-client/issues/611
         }
-        outline = createOutline(outline, CapString(element.name), element.id.toString())
-        val titlePage = AbstractMap.SimpleEntry(chapter + "\t" + CapString(element.name), numberOfPages)
+        outline = createOutline(outline, capString(element.name), element.id.toString())
+        val titlePage = AbstractMap.SimpleEntry(chapter + "\t" + capString(element.name), numberOfPages)
         toc.add(AbstractMap.SimpleEntry(element.id.toString(), titlePage))
         val p = Paragraph(element.name)
             .setFontColor(ColorConstants.BLUE)
@@ -171,7 +171,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             .addCell(Cell().add(Paragraph("Last Saved")).addStyle(cellStyleRight))
             .addCell(Cell().add(Paragraph(String.format("%1\$TF %1\$TT", element.modified))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Last Saved By")).addStyle(cellStyleRight))
-            .addCell(Cell().add(Paragraph(CapString(element.modifiedBy.username))).addStyle(cellStyleLeft))
+            .addCell(Cell().add(Paragraph(capString(element.modifiedBy.username))).addStyle(cellStyleLeft))
             .addCell(Cell().add(Paragraph("Agency")).addStyle(cellStyleRight))
             .addCell(Cell().add(Paragraph(element.agency!!.name)).addStyle(cellStyleLeft))
             .setWidth(width100)
@@ -290,7 +290,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
 
         LOG.info("getResource failing soon...")
 
-        //Last ditch attempt. Get the resource from the classpath.
+        //Last ditch attempts. Get the resource from the classpath.
         return ClassLoader.getSystemResource(resource)
     }
 

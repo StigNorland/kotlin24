@@ -6,25 +6,25 @@ import java.util.*
  * @author Stig Norland
  */
 object StringTool {
-    fun CapString(input: String?): String {
+    fun capString(input: String?): String {
         return if (input != null && input.length > 1) input.substring(0, 1)
             .uppercase(Locale.getDefault()) + input.substring(1) else input!!
     }
 
-    fun IsNullOrEmpty(input: String?): Boolean {
+    fun isNullOrEmpty(input: String?): Boolean {
         return input == null || input.isEmpty()
     }
 
-    fun IsNullOrTrimEmpty(input: String?): Boolean {
+    fun isNullOrTrimEmpty(input: String?): Boolean {
         return input == null || input.trim().isEmpty()
     }
 
-    fun SafeString(input: String?): String {
-        return if (IsNullOrTrimEmpty(input)) "" else input!!
+    fun safeString(input: String?): String {
+        return if (isNullOrTrimEmpty(input)) "" else input!!
     }
 
     fun likeify(value: String): String {
-        if (IsNullOrTrimEmpty(value)) return ""
+        if (isNullOrTrimEmpty(value)) return ""
 
         return value
             .let { it.replace("*", "%") }
