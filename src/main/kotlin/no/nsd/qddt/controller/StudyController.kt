@@ -1,23 +1,26 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Study
-import no.nsd.qddt.model.SurveyProgram
 import no.nsd.qddt.model.TopicGroup
 import no.nsd.qddt.model.classes.ElementOrder
 import no.nsd.qddt.repository.StudyRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayInputStream
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import java.util.*
 
 

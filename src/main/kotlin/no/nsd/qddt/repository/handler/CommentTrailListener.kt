@@ -5,8 +5,6 @@ import no.nsd.qddt.model.User
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.context.SecurityContextHolder
-import java.sql.Timestamp
-import java.time.Instant
 import javax.persistence.PrePersist
 import javax.persistence.PreUpdate
 

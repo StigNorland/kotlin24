@@ -26,7 +26,7 @@ abstract class AbstractElementRef<T : IWebMenuPreview>() : IElementRef<T> {
     }
     constructor(elementKind: ElementKind, uriId: UriId) : this() {
         this.elementKind = elementKind
-        this.uri = uriId
+        uri = uriId
     }
 
     @AttributeOverrides(

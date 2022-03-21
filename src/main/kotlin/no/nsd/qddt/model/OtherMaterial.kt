@@ -6,7 +6,6 @@ import org.hibernate.envers.Audited
 import org.springframework.web.multipart.MultipartFile
 import java.io.Serializable
 import java.sql.Timestamp
-import java.time.Instant
 import java.util.*
 import javax.persistence.Cacheable
 import javax.persistence.Embeddable
@@ -82,7 +81,7 @@ class OtherMaterial():Cloneable, Serializable {
   }
   
   companion object {
-    private val OM_REF_FORMAT = (
+    private const val OM_REF_FORMAT = (
       "%1\$s<r:ExternalAid scopeOfUniqueness = \"Maintainable\" isUniversallyUnique = \"true\">\n" +
       "%1\$s\t%3\$s\n" +
       "%1\$s\t<MaintainableObject>\n" +

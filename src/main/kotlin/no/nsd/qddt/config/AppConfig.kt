@@ -9,12 +9,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory
 import org.springframework.hateoas.config.EnableHypermediaSupport
-import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.web.filter.ForwardedHeaderFilter
-import org.springframework.web.filter.OncePerRequestFilter
 
 
 /**

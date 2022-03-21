@@ -73,9 +73,9 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
             val saved = repository.saveAndFlush(responseDomain)
 
-            val loaded = repository.getById(saved.id!!)
+//            val loaded = repository.getById(saved.id!!)
 
-            ResponseEntity(loaded, HttpStatus.OK)
+            ResponseEntity(null, HttpStatus.ACCEPTED)
 
         } catch (e: Exception) {
             ResponseEntity<String>(e.localizedMessage, HttpStatus.NOT_MODIFIED)
@@ -100,7 +100,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 //            }
             ResponseEntity(null, HttpStatus.CREATED)
         } catch (e: Exception) {
-            ResponseEntity(null, HttpStatus.NOT_ACCEPTABLE)
+            ResponseEntity<String>(e.localizedMessage, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -133,28 +133,34 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         Hibernate.initialize(entity.modifiedBy)
         Hibernate.initialize(entity.managedRepresentation)
 
-        entity.managedRepresentation.version.rev = uriId.rev!!
-
-        repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
-            entity.managedRepresentation.children =
-                EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
-        }
-
-        var _index = 0
-        populateCatCodes(entity.managedRepresentation, _index,entity.codes)
-
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
-        val managedRepresentation =
-            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation)
 
-        return HalModelBuilder.halModel()
-            .entity(entity)
-            .link(Link.of(baseUrl))
-            .embed(entity.agency!!, LinkRelation.of("agency"))
-            .embed(user!!, LinkRelation.of("modifiedBy"))
-            .embed(managedRepresentation!!, LinkRelation.of("managedRepresentation"))
-            .build()
+            entity.managedRepresentation.version.rev = uriId.rev!!
+
+            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+                entity.managedRepresentation.children =
+                    EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
+            }
+
+            var _index = 0
+            populateCatCodes(entity.managedRepresentation, _index, entity.codes)
+
+        try {
+            val managedRepresentation =
+                this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation)
+
+            return HalModelBuilder.halModel()
+                .entity(entity)
+                .link(Link.of(baseUrl))
+                .embed(entity.agency!!, LinkRelation.of("agency"))
+                .embed(user!!, LinkRelation.of("modifiedBy"))
+                .embed(managedRepresentation!!, LinkRelation.of("managedRepresentation"))
+                .build()
+        } catch (ex: Exception) {
+            logger.error(ex.localizedMessage)
+            throw ex
+        }
     }
 
     fun entityModelBuilder(entity: Category): RepresentationModel<EntityModel<Category>> {
@@ -180,6 +186,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
         entity.managedRepresentation = entity.managedRepresentation.let{ manRep ->
             manRep.name = entity.name
+            manRep.label = capitalize(entity.name)
             manRep.changeComment = entity.changeComment
             manRep.changeKind = entity.changeKind
             manRep.xmlLang = entity.xmlLang
@@ -206,5 +213,8 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 
     }
 
+    private fun capitalize(label:String): String {
+        return label.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    }
 
 }

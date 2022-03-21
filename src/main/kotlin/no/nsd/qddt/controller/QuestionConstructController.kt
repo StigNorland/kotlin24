@@ -112,7 +112,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
             if (null == instance.id) instance.id = UUID.randomUUID()
 
             for (multipartFile in files) {
-                var om = omService.saveFile(multipartFile, instance.id!!)
+                val om = omService.saveFile(multipartFile, instance.id!!)
                 instance.otherMaterials.add(om)
             }
             if (IBasedOn.ChangeKind.CREATED == instance.changeKind)
@@ -203,7 +203,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
-            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation!!)
+            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation)
 
         return HalModelBuilder.halModel()
             .entity(entity)

@@ -42,7 +42,7 @@ object FilterTool {
 
     private fun filterSort(source: Sort?, vararg args: String): Sort? {
         if (source == null) return null
-        val filterWords = Arrays.asList(*args)
+        val filterWords = listOf(*args)
         val orders: MutableList<Sort.Order> = ArrayList(0)
         source.iterator().forEachRemaining { 
             o: Sort.Order -> if (!filterWords.contains(o.property)) orders.add(o) }
@@ -79,19 +79,15 @@ object FilterTool {
         if (sort == null) return null
         val orders: MutableList<Sort.Order> = LinkedList()
         sort.forEach(Consumer { o: Sort.Order ->
-            if (o.property == "modified") {
-                orders.add(Sort.Order(o.direction, "updated"))
-            } else if (o.property == "responseDomainName") {
-                orders.add(Sort.Order(o.direction, "responsedomain_name"))
-            } else if (o.property == "questionName") {
-                orders.add(Sort.Order(o.direction, "question_name"))
-            } else if (o.property == "questionText") {
-                orders.add(Sort.Order(o.direction, "question_text"))
-            } else if (o.property == "status.label") {
-                orders.add(Sort.Order(o.direction, "statuslabel"))
-            } else if (o.property == "categoryType") {
-                orders.add(Sort.Order(o.direction, "category_kind"))
-            } else orders.add(o)
+            when (o.property) {
+                "modified" -> orders.add(Sort.Order(o.direction, "updated"))
+                "responseDomainName" -> orders.add(Sort.Order(o.direction, "responsedomain_name"))
+                "questionName" -> orders.add(Sort.Order(o.direction, "question_name"))
+                "questionText" -> orders.add(Sort.Order(o.direction, "question_text"))
+                "status.label" -> orders.add(Sort.Order(o.direction, "statuslabel"))
+                "categoryType" -> orders.add(Sort.Order(o.direction, "category_kind"))
+                else -> orders.add(o)
+            }
         })
         return Sort.by(orders)
     }

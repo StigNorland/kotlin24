@@ -1,8 +1,7 @@
 package no.nsd.qddt.model.interfaces
 
-import no.nsd.qddt.model.Instruction
 import no.nsd.qddt.model.embedded.Version
-import java.util.UUID
+import java.util.*
 
 interface IInstruction {
     var id: UUID

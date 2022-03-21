@@ -5,10 +5,12 @@ import no.nsd.qddt.model.User
 import no.nsd.qddt.repository.InstrumentRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -17,7 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayInputStream
 import java.util.*
 
 @Transactional(propagation = Propagation.REQUIRED)

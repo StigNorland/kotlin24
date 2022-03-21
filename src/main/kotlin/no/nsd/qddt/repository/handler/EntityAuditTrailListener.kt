@@ -104,10 +104,8 @@ class EntityAuditTrailListener{
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
             user.getAuthority()
-            entity.modifiedBy = user
-            entity.agency = user.agency
-            var ver: Version = entity.version
-            var change = entity.changeKind
+            val ver: Version = entity.version
+            val change = entity.changeKind
 
                 // it is illegal to update an entity with "Creator statuses" (CREATED...BASEDON)
 //                if ((change.ordinal <= ChangeKind.REFERENCED.ordinal) and !ver!!.isModified) {
@@ -142,6 +140,9 @@ class EntityAuditTrailListener{
                         ver.versionLabel = ChangeKind.ARCHIVED.label
                     }
                 }
+
+            entity.modifiedBy = user
+            entity.agency = user.agency
             entity.version = ver
             entity.name = entity.name.trim().uppercase(Locale.getDefault())
 
@@ -179,13 +180,11 @@ class EntityAuditTrailListener{
                     if (entity.label.isBlank())
                         entity.label = capitalize(entity.name)
                 }
-                is ResponseDomain -> {
-                    entity.managedRepresentation.version = entity.version
-                    entity.managedRepresentation.label = entity.name.toLowerCase().capitalize()
-                }
-                is QuestionConstruct -> {
-
-                }
+//                is ResponseDomain -> {
+//                }
+//                is QuestionConstruct -> {
+//
+//                }
             }
         } catch (ex: Exception) {
             log.error("AbstractEntityAudit::onUpdate", ex)
@@ -324,10 +323,10 @@ class EntityAuditTrailListener{
         category.name = category.name.trim().uppercase(Locale.getDefault())
 
         if (category.label.isBlank())
-            category.label = category.name.toLowerCase().capitalize()
+            category.label = capitalize(category.name)
 
         category.description = when {
-            category.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && category.description.isNullOrBlank()
+            category.hierarchyLevel === HierarchyLevel.GROUP_ENTITY && category.description.isBlank()
             -> category.categoryKind.description
             else
             -> category.description
@@ -415,7 +414,7 @@ class EntityAuditTrailListener{
         fun loadChildrenDefault(entity: Category, repository: RevisionRepository<Category, UUID, Int>): MutableList<Category> {
             return if (entity.hierarchyLevel == HierarchyLevel.GROUP_ENTITY) {
                 log.debug("loadChildrenDefault -> {}", entity.name)
-                entity.categoryChildren.mapNotNull { cc ->
+                entity.categoryChildren.filterNotNull().mapNotNull { cc ->
                     if (cc.uri.rev!! > 0) {
                         loadRevisionEntity(cc.uri, repository).also {
                             it.children = loadChildrenDefault(it, repository)

@@ -1,13 +1,11 @@
 package no.nsd.qddt.model
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.ElementRefCondition
 import no.nsd.qddt.model.embedded.ElementRefEmbedded
-import no.nsd.qddt.model.embedded.SequenceElement
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.SequenceKind
 import org.hibernate.Hibernate

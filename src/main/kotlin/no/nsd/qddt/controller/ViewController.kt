@@ -11,9 +11,7 @@ import org.springframework.hateoas.PagedModel
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
-import java.util.*
 
 @BasePathAwareController
 class ViewController(@Autowired val changeFeedRepository: ChangeFeedRepository) {

@@ -9,5 +9,5 @@ import java.util.*
 class ApiError(val status: HttpStatus, val message: String, val errors: List<String>) {
 
     constructor(status: HttpStatus, message: String, error: String?) :
-            this(status,message,Arrays.asList(error?:"?"))
+            this(status,message, listOf(error?:"?"))
 }

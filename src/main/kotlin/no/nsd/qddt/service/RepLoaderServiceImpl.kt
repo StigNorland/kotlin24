@@ -1,7 +1,6 @@
 package no.nsd.qddt.service
 
 import no.nsd.qddt.model.ControlConstruct
-import no.nsd.qddt.model.QuestionConstruct
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.*

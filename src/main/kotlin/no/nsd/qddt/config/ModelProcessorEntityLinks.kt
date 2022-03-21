@@ -69,15 +69,10 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
             is QuestionConstruct -> with (entity.questionId.toString()){
                 model.add(Link.of("$baseUri/questionitem/revision/$this", "questionItem"))
             }
-//            is no.nsd.qddt.model.Sequence -> {
-//                return model.add(Link.of("$baseUri/sequence/revisions/${entity.id}", "revisions"))
-//            }
             is ConditionConstruct -> {
-//                model.add(Link.of("$baseUri/condition/revision/$this", "revisions"))
                 model
             }
-            is QuestionItem -> with(entity.responseId.toString()) {
-//                return model.add(Link.of("$baseUri/responsedomain/revision/$this", "responseDomain"))
+            is QuestionItem -> {
                 model
             }
             is ResponseDomain -> {

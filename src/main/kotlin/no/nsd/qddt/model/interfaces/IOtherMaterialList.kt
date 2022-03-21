@@ -2,7 +2,6 @@ package no.nsd.qddt.model.interfaces
 
 import no.nsd.qddt.model.OtherMaterial
 import no.nsd.qddt.model.classes.AbstractEntity
-import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 
 /**
  * @author Stig Norland

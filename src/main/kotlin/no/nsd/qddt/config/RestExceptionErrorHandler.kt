@@ -32,16 +32,16 @@ class RestExceptionErrorHandler: ResponseEntityExceptionHandler() {
         }
         log.error(ex.message, ex.cause)
 
-        var qddtStack = if (profile.isBlank() || profile=="local") StackTraceFilter.filter(ex.stackTrace).let {
+        val qddtStack = if (profile.isBlank() || profile=="local") StackTraceFilter.filter(ex.stackTrace).let {
             if (it.isNotEmpty()) {
                 log.debug(it.joinToString(separator = "\n", prefix = "\t"))
                 it
             } else
-                mutableListOf<StackTraceElement>()
+                mutableListOf()
             }
             .map { it.toString() }
         else
-            mutableListOf<String>()
+            mutableListOf()
 
         val httpStatus = if (ex is NoSuchElementException)
             HttpStatus.NO_CONTENT

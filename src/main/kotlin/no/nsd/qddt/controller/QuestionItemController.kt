@@ -156,7 +156,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
         val user =
             this.factory?.createProjection(UserListe::class.java, entity.modifiedBy)
         val managedRepresentation =
-            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation!!)
+            this.factory?.createProjection(ManagedRepresentation::class.java, entity.managedRepresentation)
 
         return HalModelBuilder.halModel()
             .entity(entity)

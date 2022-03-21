@@ -10,7 +10,6 @@ import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link

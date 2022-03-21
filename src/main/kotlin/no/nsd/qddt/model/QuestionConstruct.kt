@@ -1,7 +1,6 @@
 package no.nsd.qddt.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder

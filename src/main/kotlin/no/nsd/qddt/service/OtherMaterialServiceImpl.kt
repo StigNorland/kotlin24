@@ -3,10 +3,8 @@ import no.nsd.qddt.model.OtherMaterial
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.io.IOException
@@ -28,18 +26,18 @@ internal class OtherMaterialServiceImpl : OtherMaterialService {
   @Value("\${qddt.api.fileroot}")
   private lateinit var fileRoot:String
 
-  protected val LOG = LoggerFactory.getLogger(this.javaClass)
+  protected val logger = LoggerFactory.getLogger(this.javaClass)
 
 
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_EDITOR','ROLE_CONCEPT','ROLE_VIEW')")
   @Throws(IOException::class)
   override fun saveFile(multipartFile:MultipartFile, uuid:UUID): OtherMaterial {
     return OtherMaterial(multipartFile).apply {
-      LOG.info(uuid.toString())
+      logger.info(uuid.toString())
 
       originalOwner = uuid
 
-      var filePath = Paths.get(getFolder(uuid.toString()), fileName).also {
+      val filePath = Paths.get(getFolder(uuid.toString()), fileName).also {
         if (Files.exists(it)){
           fileName = getNextFileName(it)
           Paths.get(getFolder(uuid.toString()), fileName)

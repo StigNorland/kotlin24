@@ -13,7 +13,7 @@ import java.util.stream.Collectors
 * @author Stig Norland
 */
 class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHorizontal: String):XmlDDIFragmentBuilder<Category>(entity) {
-  protected val LOG = LoggerFactory.getLogger(this.javaClass)
+  protected val logger = LoggerFactory.getLogger(this.javaClass)
 
   private val xmlScaleMan = (
     "\t\t\t<r:ScaleDimension dimensionNumber=\"1\" degreeSlopeFromHorizontal=\"%1\$s\">\n" +
@@ -158,7 +158,7 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
   override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
     super.addXmlFragments(fragments)
     if (entity.categoryKind === CategoryKind.MISSING_GROUP)
-    (fragments.get(ElementKind.CATEGORY))!!.putIfAbsent(missingCodeURN, getXmlMissingCodeListFragment())
+    (fragments[ElementKind.CATEGORY])!!.putIfAbsent(missingCodeURN, getXmlMissingCodeListFragment())
     children.forEach { c -> c.addXmlFragments(fragments) }
   }
 
@@ -182,7 +182,7 @@ class FragmentBuilderManageRep(entity: Category, private val degreeSlopeFromHori
       CategoryKind.MISSING_GROUP,
       CategoryKind.LIST -> FragmentBuilderCode(category)
       else -> {
-        LOG.info("getbuilder get default")
+        logger.info("getbuilder get default")
         category.xmlBuilder()
       }
     }

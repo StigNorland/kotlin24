@@ -12,7 +12,7 @@ import javax.persistence.*
 @Cacheable
 @Audited
 @Embeddable
-class ControlConstructInstruction() : Serializable {
+class ControlConstructInstruction : Serializable {
 
     @Enumerated(EnumType.STRING)
     lateinit var instructionRank: InstructionRank

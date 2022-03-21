@@ -10,11 +10,11 @@ class HtmlTool {
         return source
     }
 
-    fun StripScript(source: String): String {
+    fun stripScript(source: String): String {
         return source
     }
 
     private fun parseTxt(source: String): List<String> {
-        return Arrays.asList(*source.split("/n").toTypedArray())
+        return listOf(*source.split("/n").toTypedArray())
     }
 }

@@ -6,7 +6,6 @@ package no.nsd.qddt.model.embedded
  import org.slf4j.Logger
  import org.slf4j.LoggerFactory
  import java.io.Serializable
- import java.util.*
  import javax.persistence.Embeddable
  import javax.persistence.Transient
 
@@ -30,9 +29,6 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
         }
 
     var versionLabel: String = ""
-    set(value) {
-        field = value
-    }
 
 
     @Transient
@@ -96,7 +92,7 @@ data class Version(@Transient private var _isModified: Boolean = false) : Compar
     override fun hashCode(): Int {
         var result = major
         result = 31 * result + minor
-        result = 31 * result + (rev?:0)
+        result = 31 * result + rev
         return result
     }
 

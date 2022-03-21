@@ -40,7 +40,7 @@ import java.util.*
  */
 class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(outputStream).setSmartMode(true)) {
 
-    protected val LOG: Logger = LoggerFactory.getLogger(this.javaClass)
+    protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     private val toc: MutableList<AbstractMap.SimpleEntry<String, AbstractMap.SimpleEntry<String, Int>>> = mutableListOf()
 
@@ -124,9 +124,9 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
                 movePage(getLastPage(), 1)
             }
         } catch (ex: Exception) {
-            LOG.error("createToc", ex)
+            logger.error("createToc", ex)
         }
-        LOG.info( pageLabels.joinToString(", "))
+        logger.info( pageLabels.joinToString(", "))
         getPage(1).setPageLabel(PageLabelNumberingStyle.LOWERCASE_ROMAN_NUMERALS, null, 1)
         getPage(tocPages + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS, "Page ", 1)
 //        getPage(startToc + 1).setPageLabel(PageLabelNumberingStyle.DECIMAL_ARABIC_NUMERALS,"Page ",startToc - tocPages + 1)
@@ -288,7 +288,7 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             }
         }
 
-        LOG.info("getResource failing soon...")
+        logger.info("getResource failing soon...")
 
         //Last ditch attempts. Get the resource from the classpath.
         return ClassLoader.getSystemResource(resource)
@@ -312,10 +312,10 @@ class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(ou
             addEventHandler(PdfDocumentEvent.START_PAGE, TextFooterEventHandler(document))
 
         } catch (ex: Exception) {
-            LOG.error("PdfReport()", ex)
+            logger.error("PdfReport()", ex)
             filter(ex.stackTrace).stream()
                 .map { a: StackTraceElement -> a.toString() }
-                .forEach(LOG::info)
+                .forEach(logger::info)
         }
     }
 }
