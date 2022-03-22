@@ -15,6 +15,7 @@ import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
@@ -27,7 +28,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.interceptor.TransactionAspectSupport
 import org.springframework.web.bind.annotation.*
+import java.sql.SQLException
 import java.util.*
 
 
@@ -82,7 +85,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
         }
     }
 
-    @Transactional(propagation = Propagation.NESTED)
+    @Transactional(propagation = Propagation.REQUIRED)
     @PostMapping("/responsedomain")
     fun postResponseDomain(@RequestBody responseDomain: ResponseDomain): ResponseEntity<*> {
         return try {
@@ -99,7 +102,12 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
 //                    EntityAuditTrailListener.loadChildrenDefault(saved.managedRepresentation, rr)
 //            }
             ResponseEntity(null, HttpStatus.CREATED)
+        }catch (ex:DataIntegrityViolationException){
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()
+            throw ex
+
         } catch (e: Exception) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()
             ResponseEntity<String>(e.localizedMessage, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

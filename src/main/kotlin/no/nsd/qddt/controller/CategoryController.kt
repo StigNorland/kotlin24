@@ -91,15 +91,16 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
             if (category.hierarchyLevel == HierarchyLevel.GROUP_ENTITY)
                 category.categoryChildren = category.children?.map {
                     CategoryChildren().apply {
-                        uri = UriId().apply {id = it.id!!; rev = it.version.rev}
+                        uri = UriId().apply { id = it.id!!; rev = it.version.rev }
                         children = it
                     }
                 }!!.toMutableList()
             val saved = repository.save(category)
 
             return ResponseEntity<Category>(saved, HttpStatus.CREATED)
+//        } catch (es: SqlException) {
         } catch (e: Exception) {
-            return ResponseEntity<String>(e.localizedMessage, HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity<String>(e.localizedMessage, HttpStatus.CONFLICT)
         }
     }
 

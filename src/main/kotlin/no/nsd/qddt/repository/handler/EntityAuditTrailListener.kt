@@ -56,6 +56,9 @@ class EntityAuditTrailListener{
             is Study -> {
                 beforeStudyRemove(entity)
             }
+            is Category -> {
+//                entity.categoryChildren.clear()
+            }
         }
         log.debug("About to delete entity: {}" , entity.id)
     }

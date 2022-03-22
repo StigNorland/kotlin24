@@ -54,7 +54,7 @@ import javax.persistence.*
 @Table(
     name = "CATEGORY",
     uniqueConstraints = [
-        UniqueConstraint(name = "UNQ_CATEGORY_NAME_KIND", columnNames = ["label", "name", "categoryKind","agency_id", "xmlLang"])
+        UniqueConstraint(name = "UNQ_CATEGORY_NAME_KIND", columnNames = ["label", "name", "categoryKind","agency_id", "xmlLang", "based_on_object","based_on_revision"])
     ] //https://github.com/DASISH/qddt-client/issues/606
 )
 @JsonPropertyOrder(alphabetic = true,
@@ -140,9 +140,9 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     var code: Code? = null
 
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "managedRepresentation",  fetch = FetchType.LAZY)
-    private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "managedRepresentation",  fetch = FetchType.LAZY, orphanRemoval = true)
+//    private var responseDomains: MutableSet<ResponseDomain> = mutableSetOf()
 
 
     @JsonIgnore
@@ -150,6 +150,7 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "CATEGORY_CHILDREN",
+
         joinColumns = [JoinColumn(name = "category_id", referencedColumnName = "id")]
     )
     var categoryChildren: MutableList<CategoryChildren> = mutableListOf()

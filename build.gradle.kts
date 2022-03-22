@@ -43,15 +43,15 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
 
-	implementation("com.google.code.gson:gson:2.8.9")
+	implementation("com.google.code.gson:gson:2.9.0")
 	implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")
 
     implementation("com.itextpdf:itext7-core:7.1.17")
     implementation("com.itextpdf:html2pdf:3.0.5")
+	implementation("org.postgresql:postgresql")
 
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
-	runtimeOnly("org.postgresql:postgresql")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")

@@ -20,6 +20,7 @@ spring:
     enabled: false
   jpa:
     open-in-view: true
+#    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
     hibernate:
       ddl-auto: validate
       naming:
@@ -30,6 +31,7 @@ spring:
       org:
         hibernate:
           use-new-id-generator-mappings: false
+          dialect: org.hibernate.dialect.PostgreSQLDialect
           envers:
             audit_table_suffix: _aud
             default_schema: audit
