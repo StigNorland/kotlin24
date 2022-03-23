@@ -20,7 +20,7 @@ class CategoryChildren : Serializable {
     )
     lateinit var uri: UriId
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.DETACH])
     @JoinColumn(name = "children_id")
     var children: Category?=null
 

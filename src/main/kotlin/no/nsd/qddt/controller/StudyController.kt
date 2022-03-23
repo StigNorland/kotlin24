@@ -51,7 +51,7 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/study/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         return super.getPdf(uri)
     }
 

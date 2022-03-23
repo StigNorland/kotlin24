@@ -1,5 +1,6 @@
 package no.nsd.qddt.config
 
+import no.nsd.qddt.model.interfaces.IBasedOn
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -41,6 +42,11 @@ class AppConfig {
     fun projectionFactory(): SpelAwareProxyProjectionFactory? {
         return SpelAwareProxyProjectionFactory()
     }
+
+//    @Bean
+//    fun userReasonBean(): IBasedOn {
+//        return {  } as IBasedOn
+//    }
 
 //    @Autowired
 //    private val env: Environment? = null

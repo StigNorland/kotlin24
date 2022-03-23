@@ -46,19 +46,20 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 
-    @GetMapping("/concept/pdf/{uri}")
+    @GetMapping("/concept/pdf/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @ResponseBody
     fun downloadFile(@PathVariable uri: String): ResponseEntity<ByteArray> {
-        val resource = super.getPdf(uri)
+//        return super.getPdf(uri)
+        val pdf = getByUri(uri).makePdf().toByteArray()
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + "test.pdf")
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .contentLength(resource.size.toLong())
-            .body(resource)
+            .contentLength(pdf.size.toLong())
+            .body(pdf)
     }
 
     @ResponseBody
-    @GetMapping("/concept/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])
+    @GetMapping("/concept/xml/{uri}")
     fun getXmlString(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }

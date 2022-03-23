@@ -6,6 +6,7 @@ import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.RepLoaderService
 import no.nsd.qddt.repository.BaseMixedRepository
+import org.apache.http.Header
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditReaderFactory
 import org.hibernate.envers.query.AuditEntity
@@ -23,6 +24,7 @@ import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.hateoas.*
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
@@ -102,10 +104,26 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 //        return PagedModel.of(null)
     }
 
-
-    open fun getPdf(@PathVariable uri: String): ByteArray {
+//    @ResponseBody
+//    public byte[] serveFile(@PathVariable("file"} String file) throws IOException {
+//    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//    DbxEntry.File downloadedFile = client.getFile("/" + filename, null, outputStream);
+//    return outputStream.toByteArray();
+//}
+    @ResponseBody
+    open fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         logger.debug("getPdf : {}", uri)
-        return getByUri(uri).makePdf().toByteArray()
+        val pdf = getByUri(uri).makePdf().toByteArray()
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_PDF)
+        .body(pdf)
+//        val contentType = "application/octet-stream"
+
+
+//        return ResponseEntity.ok()
+//            .contentType(MediaType.parseMediaType(contentType))
+//            .header(Header(), "attachment; filename=\"" +)
+//            .body(pdf.toByteArray())
 
     //        val result = ByteArrayInputStream(stream.toByteArray())
 //        return ResponseEntity.ok()
@@ -126,7 +144,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         val xml = XmlDDIFragmentAssembler(getByUri(uri)).compileToXml()
         logger.debug("compiledToXml : {}", xml)
         return ResponseEntity.ok()
-//            .contentType(MediaType.TEXT_XML)
+            .contentType(MediaType.APPLICATION_XML)
             .contentLength(xml.length.toLong())
             .body(xml)
     }

@@ -41,12 +41,12 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     }
 
     @GetMapping("/sequence/pdf/{uri}", produces = ["application/pdf"])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }
 
-    @GetMapping("/sequence/xml/{uri}", produces = ["application/xml"])
+    @GetMapping("/sequence/xml/{uri}")
     override fun getXml(@PathVariable uri: String): ResponseEntity<String> {
         return super.getXml(uri)
     }

@@ -70,7 +70,7 @@ data class ResponseDomain(
    * the managed representation is never reused (as was intended),
    * so we want to remove it when the responseDomain is removed. -> CascadeType.REMOVE
   **/
-  @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
+  @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE], orphanRemoval = true)
   @JoinColumn(name = "category_id", nullable = false)
   var managedRepresentation: Category = Category()
 

@@ -150,7 +150,6 @@ data class Category(var label: String = "") : AbstractEntityAudit(), Comparable<
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "CATEGORY_CHILDREN",
-
         joinColumns = [JoinColumn(name = "category_id", referencedColumnName = "id")]
     )
     var categoryChildren: MutableList<CategoryChildren> = mutableListOf()

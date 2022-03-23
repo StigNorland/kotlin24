@@ -59,6 +59,9 @@ class EntityAuditTrailListener{
             is Category -> {
 //                entity.categoryChildren.clear()
             }
+            is ResponseDomain -> {
+                entity.managedRepresentation.categoryChildren.clear()
+            }
         }
         log.debug("About to delete entity: {}" , entity.id)
     }

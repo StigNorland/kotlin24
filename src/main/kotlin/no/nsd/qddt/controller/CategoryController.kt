@@ -54,7 +54,7 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/category/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         return super.getPdf(uri)
     }
 

@@ -58,7 +58,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     }
 
     @GetMapping("/responsedomain/pdf/{uri}", produces = ["application/pdf"])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }

@@ -55,7 +55,7 @@ class TopicController(
 
 
     @GetMapping("/topicgroup/pdf/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         return super.getPdf(uri)
     }
 

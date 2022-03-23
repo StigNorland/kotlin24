@@ -5,21 +5,23 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.config.exception.FileUploadException
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.enums.ElementKind
-import no.nsd.qddt.model.enums.HierarchyLevel
 import no.nsd.qddt.model.interfaces.IBasedOn
-import no.nsd.qddt.repository.*
+import no.nsd.qddt.repository.QuestionConstructRepository
+import no.nsd.qddt.repository.QuestionItemRepository
+import no.nsd.qddt.repository.ResponseDomainRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
-import org.springframework.hateoas.*
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.LinkRelation
+import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -28,7 +30,6 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*
 
@@ -73,8 +74,9 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
         return entityModelBuilder(repository.findById(uri).orElseThrow())
     }
 
-    @GetMapping("/questionconstruct/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ByteArray {
+    @ResponseBody
+    @GetMapping("/questionconstruct/pdf/{uri}")
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         return super.getPdf(uri)
     }
 
