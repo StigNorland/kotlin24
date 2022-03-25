@@ -13,7 +13,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
  */
 
 @RepositoryRestResource(path = "instruction", itemResourceRel = "Instruction", excerptProjection = InstructionListe::class)
-interface InstructionRepository : BaseMixedRepository<Instruction>
+interface InstructionRepository : BaseEntityAuditRepository<Instruction>
 {
     @Query(
         value = "SELECT ca.* FROM instruction ca WHERE " +

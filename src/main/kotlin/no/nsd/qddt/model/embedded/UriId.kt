@@ -18,6 +18,10 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
 
     var rev: Int? = null
 
+//    fun isValid():Boolean = (this.id!=null)
+//
+//    fun isRev():Boolean =  isValid() && (this.rev != null)
+
     override fun toString(): String {
         if (id == null)
             return "null"
@@ -40,7 +44,6 @@ class UriId: Comparable<UriId> , Serializable, Converter<Serializable, UriId> {
     override fun convert(source: Serializable): UriId {
         return fromAny(source)
     }
-
 
     override fun hashCode(): Int {
         var result = id.hashCode()

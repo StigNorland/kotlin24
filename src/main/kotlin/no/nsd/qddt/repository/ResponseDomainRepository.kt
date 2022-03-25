@@ -13,7 +13,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
  *
 */
 @RepositoryRestResource(path = "responsedomain", exported=true,  itemResourceRel = "ResponseDomain", excerptProjection = ResponseDomainListe::class)
-interface ResponseDomainRepository:  BaseMixedRepository<ResponseDomain>  {
+interface ResponseDomainRepository:  BaseEntityAuditRepository<ResponseDomain>  {
 
     @Query( nativeQuery = true,
       value =

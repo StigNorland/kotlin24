@@ -15,6 +15,7 @@ import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.projection.ProjectionFactory
@@ -58,7 +59,7 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
     }
 
     @GetMapping("/responsedomain/pdf/{uri}", produces = ["application/pdf"])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }

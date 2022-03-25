@@ -13,7 +13,7 @@ import java.util.*
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "controlconstruct",  itemResourceRel = "ControlConstruct", excerptProjection = ControlConstructListe::class)
-interface ControlConstructRepository<T : ControlConstruct>:BaseMixedRepository<T>{
+interface ControlConstructRepository<T : ControlConstruct>:BaseEntityAuditRepository<T>{
 
 
         @Query( nativeQuery = true,

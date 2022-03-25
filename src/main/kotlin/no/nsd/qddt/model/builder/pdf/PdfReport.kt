@@ -38,7 +38,7 @@ import java.util.*
 /**
  * @author Stig Norland
  */
-class PdfReport(outputStream: ByteArrayOutputStream?) : PdfDocument(PdfWriter(outputStream).setSmartMode(true)) {
+class PdfReport(outputStream: ByteArrayOutputStream) : PdfDocument(PdfWriter(outputStream).setSmartMode(true)) {
 
     protected val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 

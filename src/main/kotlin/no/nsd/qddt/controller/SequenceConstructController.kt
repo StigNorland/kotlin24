@@ -5,6 +5,7 @@ import no.nsd.qddt.repository.ControlConstructRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.Link
@@ -41,7 +42,7 @@ class SequenceConstructController(@Autowired repository: ControlConstructReposit
     }
 
     @GetMapping("/sequence/pdf/{uri}", produces = ["application/pdf"])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
         logger.debug("PDF : {}", uri)
         return super.getPdf(uri)
     }

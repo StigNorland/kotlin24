@@ -16,7 +16,7 @@ import java.util.*
  * @author Stig Norland
  */
 @RepositoryRestResource(path = "category", itemResourceRel = "Category", excerptProjection = CategoryListe::class)
-interface CategoryRepository : BaseMixedRepository<Category>  {
+interface CategoryRepository : BaseEntityAuditRepository<Category>  {
 
     @Cacheable(cacheNames = ["CATEGORIES"])
     override fun getOne(id: UUID): Category

@@ -9,6 +9,7 @@ import no.nsd.qddt.repository.CategoryRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
@@ -54,7 +55,8 @@ class CategoryController(@Autowired repository: CategoryRepository) : AbstractRe
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/category/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource>
+ {
         return super.getPdf(uri)
     }
 

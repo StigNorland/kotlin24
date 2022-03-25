@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param
  * @author Stig Norland
  */
 @NoRepositoryBean
-interface BaseArchivedRepository<T: AbstractEntityAudit> :BaseMixedRepository<T> {
+interface BaseArchivedRepository<T: AbstractEntityAudit> :BaseEntityAuditRepository<T> {
      @Query(
         nativeQuery = true,
         value = "select count(*) from project_archived_hierarchy as pah  where is_archived and  pah.ancestors  @> ARRAY[CAST(:entityId AS uuid)];",

@@ -13,12 +13,14 @@ import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.CacheControl
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayOutputStream
 import java.util.*
 
 
@@ -46,17 +48,23 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 
-    @GetMapping("/concept/pdf/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    @ResponseBody
-    fun downloadFile(@PathVariable uri: String): ResponseEntity<ByteArray> {
+//    @GetMapping("/concept/pdf/{uri}" )
+//    fun downloadFile(@PathVariable uri: String): ResponseEntity<ByteArrayOutputStream>
+//    {
+//        val headers = HttpHeaders()
+//        val media = getByUri(uri).makePdf()
+//        headers.cacheControl = CacheControl.noCache().headerValue
+//
+//        return ResponseEntity<ByteArrayOutputStream>(media, headers, HttpStatus.OK)
 //        return super.getPdf(uri)
-        val pdf = getByUri(uri).makePdf().toByteArray()
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + "test.pdf")
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .contentLength(pdf.size.toLong())
-            .body(pdf)
-    }
+//        val pdf = getByUri(uri).makePdf()
+//        return pdf
+//        return ResponseEntity.ok()
+//            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + "test.pdf")
+//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//            .contentLength(pdf.size().toLong())
+//            .body(pdf)
+//    }
 
     @ResponseBody
     @GetMapping("/concept/xml/{uri}")

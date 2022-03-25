@@ -5,6 +5,7 @@ import no.nsd.qddt.repository.PublicationRepository
 import no.nsd.qddt.repository.criteria.PublicationCriteria
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -39,7 +40,7 @@ class PublicationController(@Autowired repository: PublicationRepository) :
 
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/publication/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
         return super.getPdf(uri)
     }
 

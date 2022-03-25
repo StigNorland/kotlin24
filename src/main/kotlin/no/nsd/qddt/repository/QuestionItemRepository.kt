@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 * @author Stig Norland
 */
 @RepositoryRestResource(path = "questionitem",  itemResourceRel = "QuestionItem", excerptProjection = QuestionItemListe::class)
-interface QuestionItemRepository:  BaseMixedRepository<QuestionItem>  {
+interface QuestionItemRepository:  BaseEntityAuditRepository<QuestionItem>  {
 
     @Query(nativeQuery = true,
     value =

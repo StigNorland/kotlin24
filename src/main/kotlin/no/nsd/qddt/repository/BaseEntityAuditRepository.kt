@@ -13,7 +13,7 @@ import java.util.*
  * @author Stig Norland
  */
 @NoRepositoryBean
-interface BaseMixedRepository<T : AbstractEntityAudit> :    RevisionRepository<T, UUID, Int>,  JpaRepository<T, UUID> {
+interface BaseEntityAuditRepository<T : AbstractEntityAudit> :    RevisionRepository<T, UUID, Int>,  JpaRepository<T, UUID> {
 //    override fun findLastChangeRevision(id: UUID): Optional<Revision<Int, T>>
 //
 //    override fun findRevisions(id: UUID): Revisions<Int, T>

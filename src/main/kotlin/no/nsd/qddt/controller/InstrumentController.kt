@@ -5,6 +5,7 @@ import no.nsd.qddt.model.User
 import no.nsd.qddt.repository.InstrumentRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.EntityModel
@@ -42,7 +43,7 @@ class InstrumentController(@Autowired repository: InstrumentRepository) :
 
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/instrument/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
         return super.getPdf(uri)
     }
 

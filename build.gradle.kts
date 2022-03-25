@@ -29,6 +29,7 @@ dependencies {
 	{
 		exclude("org.apache.tomcat:tomcat-jdbc")
 	}
+	implementation("org.springframework.boot:spring-boot-starter-jetty")
 
 //	implementation("org.springframework.data:spring-data-rest-hal-browser")
 	implementation("org.springframework.data:spring-data-rest-hal-explorer")

@@ -11,6 +11,7 @@ import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.projection.ProjectionFactory
@@ -63,7 +64,7 @@ class QuestionItemController(@Autowired repository: QuestionItemRepository): Abs
 
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/questionitem/pdf/{uri}", produces = [MediaType.APPLICATION_PDF_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
         return super.getPdf(uri)
     }
 

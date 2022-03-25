@@ -1,6 +1,11 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.embedded.UriId
+import no.nsd.qddt.repository.BaseEntityAuditRepository
 import no.nsd.qddt.repository.ChangeFeedRepository
+import no.nsd.qddt.repository.ConceptRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -10,11 +15,18 @@ import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.PagedModel
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
+import org.springframework.http.CacheControl
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
+import java.io.ByteArrayOutputStream
 
 @BasePathAwareController
 class ViewController(@Autowired val changeFeedRepository: ChangeFeedRepository) {
+
 
     class ChangelogCriteria {
         var name: String? = null
@@ -61,4 +73,5 @@ class ViewController(@Autowired val changeFeedRepository: ChangeFeedRepository) 
             revisions.totalPages.toLong()
         )
     }
+
 }

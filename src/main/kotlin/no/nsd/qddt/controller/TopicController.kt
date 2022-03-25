@@ -9,6 +9,7 @@ import no.nsd.qddt.repository.TopicGroupRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.rest.webmvc.BasePathAwareController
 import org.springframework.hateoas.*
@@ -55,8 +56,10 @@ class TopicController(
 
 
     @GetMapping("/topicgroup/pdf/{uri}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
-        return super.getPdf(uri)
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
+        val response = super.getPdf(uri)
+        logger.debug(response.body?.description ?: "#¤")
+        return response
     }
 
     @GetMapping("/topicgroup/xml/{uri}", produces = [MediaType.APPLICATION_XML_VALUE])

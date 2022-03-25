@@ -15,6 +15,7 @@ import no.nsd.qddt.repository.projection.UserListe
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.rest.webmvc.BasePathAwareController
@@ -76,7 +77,7 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
 
     @ResponseBody
     @GetMapping("/questionconstruct/pdf/{uri}")
-    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+    override fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArrayResource> {
         return super.getPdf(uri)
     }
 

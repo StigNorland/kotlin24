@@ -5,8 +5,7 @@ import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.interfaces.IBasedOn
 import no.nsd.qddt.model.interfaces.RepLoaderService
-import no.nsd.qddt.repository.BaseMixedRepository
-import org.apache.http.Header
+import no.nsd.qddt.repository.BaseEntityAuditRepository
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditReaderFactory
 import org.hibernate.envers.query.AuditEntity
@@ -15,6 +14,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -34,7 +34,7 @@ import javax.persistence.PersistenceContext
 
 
 //https://docs.spring.io/spring-data/rest/docs/current-SNAPSHOT/reference/html/#customizing-sdr.overriding-sdr-response-handlers.annotations
-abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: BaseMixedRepository<T>) {
+abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: BaseEntityAuditRepository<T>) {
 
     @PersistenceContext
     protected val entityManager: EntityManager? = null
@@ -110,12 +110,12 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 //    DbxEntry.File downloadedFile = client.getFile("/" + filename, null, outputStream);
 //    return outputStream.toByteArray();
 //}
-    @ResponseBody
-    open fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
+
+    open fun getPdf(@PathVariable uri: String):  ResponseEntity<ByteArrayResource> {
         logger.debug("getPdf : {}", uri)
-        val pdf = getByUri(uri).makePdf().toByteArray()
+        val pdf = ByteArrayResource(getByUri(uri).makePdf().toByteArray())
     return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_PDF)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(pdf)
 //        val contentType = "application/octet-stream"
 

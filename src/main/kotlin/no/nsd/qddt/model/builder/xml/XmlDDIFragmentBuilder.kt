@@ -11,8 +11,7 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit>(val entity: T) : A
     protected open val xmlRef = """
          %3${"$"}s<r:%1${"$"}sReference>
          %3${"$"}s	%2${"$"}s%3${"$"}s	<r:TypeOfObject>%1${"$"}s</r:TypeOfObject>
-         %3${"$"}s</r:%1${"$"}sReference>
-         
+         %3${"$"}s</r:%1${"$"}sReference> 
          """.trimIndent()
 
     override fun addXmlFragments(fragments: Map<ElementKind, MutableMap<String, String>>) {
@@ -31,7 +30,7 @@ abstract class XmlDDIFragmentBuilder<T : AbstractEntityAudit>(val entity: T) : A
             xmlRef,
             entity::class.simpleName,
             getXmlURN(entity),
-            Collections.nCopies(depth, "\t").joinToString { "" }
+            Collections.nCopies(depth, "\t").joinToString("")
         )
     }
 
