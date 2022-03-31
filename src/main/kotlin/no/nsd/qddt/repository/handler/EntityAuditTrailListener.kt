@@ -20,6 +20,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.security.core.context.SecurityContextHolder
@@ -30,7 +31,7 @@ import javax.persistence.*
 /**
  * @author Stig Norland
  */
-class EntityAuditTrailListener{
+class EntityAuditTrailListener: AuditingEntityListener() {
 
 
     @Autowired
@@ -210,7 +211,7 @@ class EntityAuditTrailListener{
     }
 
     @PostLoad
-    private fun afterLoad(entity: AbstractEntityAudit) {
+    fun afterLoad(entity: AbstractEntityAudit) {
         log.debug("PostLoad [{}] : {} - {}:{}", entity.classKind, entity.name, entity.id, entity.version.rev)
 
         Hibernate.initialize(entity.agency)
@@ -237,7 +238,7 @@ class EntityAuditTrailListener{
             }
             is QuestionItem -> {
                 if (entity.response == null && entity.responseId?.id != null) {
-                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
+                    if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById").or(it.methodName.contains("getPdf"))  } != null) {
                         repLoaderService.getRepository<ResponseDomain>(ElementKind.RESPONSEDOMAIN).let {
                             entity.response = loadRevisionEntity(entity.responseId!!, it)
                             entity.responseId!!.rev = entity.response!!.version.rev
@@ -247,6 +248,7 @@ class EntityAuditTrailListener{
                 }
             }
             is ResponseDomain -> {
+                afterLoad(entity.managedRepresentation)
                 var _index = 0
                 populateCatCodes(entity.managedRepresentation,_index,entity.codes)
             }
@@ -259,6 +261,14 @@ class EntityAuditTrailListener{
             }
             is Concept ->{
                 entity.questionItems.size
+                if (Thread.currentThread().stackTrace.find { it.methodName.contains("getPdf")  } != null) {
+                    repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
+                        entity.questionItems.forEach { qref ->
+                            qref.element=  loadRevisionEntity(qref.uri!!, it)
+                            afterLoad(qref.element!!)
+                        }
+                    }
+                }
                 entity.children.size
                 entity.comments.size
             }

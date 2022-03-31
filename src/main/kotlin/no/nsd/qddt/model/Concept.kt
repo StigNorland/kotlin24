@@ -52,7 +52,7 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
         name = "CONCEPT_HIERARCHY_QUESTION_ITEM",
         joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
     override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
-    get() = field.filterNotNull().toMutableList()
+
 
     @JsonIgnore
     @Transient
@@ -85,13 +85,13 @@ data class Concept(override var name: String ="?") : ConceptHierarchy(), IAuthor
             }
             pdfReport.addPadding()
 
-//            var i = 0
-//            children.forEach {
-//                it.fillDoc(pdfReport, counter + "." + ++i)
-//            }
-//
-//            if (children.size == 0)
-//                pdfReport.addPadding()
+            var i = 0
+            children.forEach {
+                it.fillDoc(pdfReport, counter + "." + ++i)
+            }
+
+            if (children.size == 0)
+                pdfReport.addPadding()
 
         } catch (ex:Exception) {
             logger.error(ex.message)

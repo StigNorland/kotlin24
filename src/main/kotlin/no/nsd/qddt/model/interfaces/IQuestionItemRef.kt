@@ -12,7 +12,7 @@ interface IQuestionItemRef {
 
     fun addQuestionRef(qef: ElementRefQuestionItem) {
         if (this.questionItems.stream().noneMatch { cqi -> cqi == qef }) {
-            questionItems.add(qef)
+            this.questionItems.add(qef)
             this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
             this.changeComment =  String.format("Added QI [${qef.name}]")
         } else
@@ -21,8 +21,8 @@ interface IQuestionItemRef {
 
     fun removeQuestionRef(qef: ElementRefQuestionItem) {
         if (questionItems.remove(qef)){
-            this.changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
-            this.changeComment =  String.format("Removed QI [${qef.name}]")
+            changeKind = IBasedOn.ChangeKind.UPDATED_HIERARCHY_RELATION
+            changeComment =  String.format("Removed QI [${qef.name}]")
         } else
             AbstractEntity.logger.debug("QuestionItem not found, nothing to do")
     }

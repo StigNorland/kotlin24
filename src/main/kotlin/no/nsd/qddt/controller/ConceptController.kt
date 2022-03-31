@@ -13,14 +13,12 @@ import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
-import org.springframework.http.CacheControl
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
 import java.util.*
 
 
@@ -48,23 +46,31 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         return super.getRevisionsByParent(uri, Concept::class.java, pageable)
     }
 
-//    @GetMapping("/concept/pdf/{uri}" )
-//    fun downloadFile(@PathVariable uri: String): ResponseEntity<ByteArrayOutputStream>
-//    {
+    @GetMapping("/concept/pdf/{uri}",produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    fun downloadFile(@PathVariable uri: String): ResponseEntity<ByteArray>
+    {
 //        val headers = HttpHeaders()
-//        val media = getByUri(uri).makePdf()
+//        headers.contentType = MediaType.APPLICATION_PDF
+//        val media = getByUri(uri).makePdf().toByteArray()
 //        headers.cacheControl = CacheControl.noCache().headerValue
 //
-//        return ResponseEntity<ByteArrayOutputStream>(media, headers, HttpStatus.OK)
+//        return ResponseEntity<ByteArray>(media, headers, HttpStatus.OK)
 //        return super.getPdf(uri)
-//        val pdf = getByUri(uri).makePdf()
-//        return pdf
-//        return ResponseEntity.ok()
-//            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + "test.pdf")
-//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .contentLength(pdf.size().toLong())
-//            .body(pdf)
-//    }
+        val pdf = getByUri(uri).makePdf().toByteArray()
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + "test.pdf")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .contentLength(pdf.size.toLong())
+            .body(pdf)
+    }
+
+    @GetMapping(value = ["/concept/image"],produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE] )
+    @Throws(IOException::class)
+    fun getImage(): ByteArray? {
+        val stream: InputStream = ClassLoader.getSystemResource("qddt.png").openStream()
+        return stream.readAllBytes()
+    }
+
 
     @ResponseBody
     @GetMapping("/concept/xml/{uri}")
@@ -81,12 +87,11 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         @RequestBody questionItem: ElementRefQuestionItem
     ): ResponseEntity<MutableList<ElementRefQuestionItem>> {
 
-        repository.findById(uuid).orElseThrow().let { parent ->
-            parent.addQuestionRef(questionItem)
-            return ResponseEntity.ok(
-                repository.saveAndFlush(parent).questionItems
-            )
-        }
+        var parent = repository.findById(uuid).orElseThrow()
+        parent.addQuestionRef(questionItem)
+        return ResponseEntity.ok(
+            repository.saveAndFlush(parent).questionItems
+        )
     }
 
     @Transactional(propagation = Propagation.NESTED)

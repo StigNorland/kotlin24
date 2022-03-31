@@ -6,8 +6,8 @@ import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.layout.borders.DottedBorder
 import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
-import com.itextpdf.layout.property.TextAlignment
-import com.itextpdf.layout.property.UnitValue
+import com.itextpdf.layout.properties.TextAlignment
+import com.itextpdf.layout.properties.UnitValue
 import no.nsd.qddt.model.builder.ResponseDomainFragmentBuilder
 import no.nsd.qddt.model.builder.pdf.PdfReport
 import no.nsd.qddt.model.builder.xml.XmlDDIFragmentBuilder

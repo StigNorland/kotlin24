@@ -75,7 +75,7 @@ class OtherMaterialController {
 
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+
     @GetMapping("/pdf/{uri}" )
     fun getPdf(@PathVariable uri: String): ResponseEntity<ByteArray> {
         val uriId = UriId.fromAny(uri)
@@ -88,24 +88,26 @@ class OtherMaterialController {
         else
             changeRepository.findByRefIdAndRefRev(uriId.id!!, uriId.rev!!)
         Hibernate.initialize(result)
-        val instance = Class.forName("no.nsd.qddt.model."+ ElementKind.valueOf(result.refKind!!).className)
-        instance.kotlin.java.let {
-            clazz ->
-                AuditReaderFactory.get(entityManager).let {
-                    auditReader ->
-                    val entityAudit = auditReader.find(clazz, result.refId, result.refRev)
-                    val media = (entityAudit as AbstractEntityAudit).makePdf().toByteArray()
-                    return ResponseEntity<ByteArray>(media, headers, HttpStatus.OK)
-                }
+
+        ElementKind.valueOf(result.refKind?:result.elementKind?:"none").let { elementkind ->
+            (repLoaderService.getRepository<AbstractEntityAudit>(elementkind) as BaseEntityAuditRepository<*>).let { repro ->
+                val entity = getByUri(repro, uriId)
+                val media = entity.makePdf()
+                return ResponseEntity<ByteArray>(media.toByteArray(), headers, HttpStatus.OK)
+            }
         }
+//        val clazzInstance = Class.forName("no.nsd.qddt.model."+ ElementKind.valueOf(result.refKind!!).className)
+//        clazzInstance.kotlin.java.let {
+//            clazz ->
+//                AuditReaderFactory.get(entityManager).let {
+//                    auditReader ->
+//                    val entityAudit = auditReader.find(clazz, result.refId, result.refRev)
+//                    val media = (entityAudit as AbstractEntityAudit).makePdf().toByteArray()
+//                    return ResponseEntity<ByteArray>(media, headers, HttpStatus.OK)
+//                }
+//        }
     }
 
-//    private fun getRepository(uri: UriId) {
-//
-//
-//
-//        repLoaderService.getRepository<BaseEntityAuditRepository<*>>( result.elementKind!!)
-//    }
 
     private fun <T : AbstractEntityAudit>getByUri(repository: BaseEntityAuditRepository<T>, uri: UriId): T {
         return if (uri.rev != null)

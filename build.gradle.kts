@@ -23,7 +23,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-//	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	{
@@ -42,13 +42,13 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-api:0.11.2")
 
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
-	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
 
 	implementation("com.google.code.gson:gson:2.9.0")
 	implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")
 
-    implementation("com.itextpdf:itext7-core:7.1.17")
-    implementation("com.itextpdf:html2pdf:3.0.5")
+    implementation("com.itextpdf:itext7-core:7.2.1")
+    implementation("com.itextpdf:html2pdf:4.0.1")
 	implementation("org.postgresql:postgresql")
 
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
@@ -59,7 +59,7 @@ dependencies {
 		exclude(module = "mockito-core")
 	}
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-	testImplementation("com.ninja-squad:springmockk:3.1.0")
+	testImplementation("com.ninja-squad:springmockk:3.1.1")
 
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 

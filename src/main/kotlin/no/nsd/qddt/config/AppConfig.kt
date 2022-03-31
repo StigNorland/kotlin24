@@ -1,6 +1,10 @@
 package no.nsd.qddt.config
 
+import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IBasedOn
+import org.hibernate.cfg.AvailableSettings
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -10,9 +14,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory
 import org.springframework.hateoas.config.EnableHypermediaSupport
+import org.springframework.orm.hibernate5.SpringBeanContainer
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.web.filter.ForwardedHeaderFilter
+import java.util.Map
+import javax.sql.DataSource
 
 
 /**
@@ -34,7 +42,6 @@ import org.springframework.web.filter.ForwardedHeaderFilter
 class AppConfig {
     @Bean
     fun customAuditProvider(): AuditAwareImpl {
-//        val test = wildify
         return AuditAwareImpl()
     }
 
@@ -43,51 +50,23 @@ class AppConfig {
         return SpelAwareProxyProjectionFactory()
     }
 
-//    @Bean
-//    fun userReasonBean(): IBasedOn {
-//        return {  } as IBasedOn
-//    }
-
-//    @Autowired
-//    private val env: Environment? = null
-//
-//    @Bean
-//    fun dataSource(): DataSource {
-//       return DriverManagerDataSource().apply {
-//            env?.getProperty("datasource.driverClassName")?.let { setDriverClassName(it) }
-//            env?.getProperty("datasource.url")?.let { url = it }
-//            env?.getProperty("datasource.username")?.let { username = it }
-//            env?.getProperty("datasource.password")?.let { password = it }
-//
-//        }
-//    }
-//
-//    @Bean
-//    fun entityManagerFactory(): EntityManagerFactory? {
-//        return LocalContainerEntityManagerFactoryBean().apply {
-//            setPackagesToScan("no.nsd.qddt.repository")
-//            jpaVendorAdapter = HibernateJpaVendorAdapter().apply {
-//                setGenerateDdl(true)
-//            }
-//            dataSource = dataSource()
-//            afterPropertiesSet()
-//
-//        }.`object`
-//    }
-
-//    @Bean
-//    fun transactionManager(): PlatformTransactionManager? {
-//        return JpaTransactionManager().apply {
-//            entityManagerFactory = entityManagerFactory()
-//        }
-//    }
-
-
-
     @Bean
     fun forwardedHeaderFilter(): FilterRegistrationBean<ForwardedHeaderFilter> {
         return FilterRegistrationBean(ForwardedHeaderFilter())
     }
+//
+//    @Bean(name = ["entityManagerFactory"])
+//    fun entityManagerFactory(
+//        dataSource: DataSource?,
+//        builder: EntityManagerFactoryBuilder,
+//        beanFactory: ConfigurableListableBeanFactory?): LocalContainerEntityManagerFactoryBean
+//    {
+//        return builder.dataSource(dataSource)
+//            .packages(AbstractEntityAudit::class.java)
+//            .persistenceUnit("myunit")
+//            .properties(Map.of(AvailableSettings.BEAN_CONTAINER, SpringBeanContainer(beanFactory!!)))
+//            .build()
+//    }
 
 //    @Bean
 //    fun cacheControlFilter(): FilterRegistrationBean<OncePerRequestFilter> {

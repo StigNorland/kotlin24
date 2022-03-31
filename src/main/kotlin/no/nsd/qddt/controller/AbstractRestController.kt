@@ -101,15 +101,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
 
         return PagedModel.of(result, PagedModel.PageMetadata(result.size.toLong(), 1L, result.size.toLong()))
 
-//        return PagedModel.of(null)
     }
-
-//    @ResponseBody
-//    public byte[] serveFile(@PathVariable("file"} String file) throws IOException {
-//    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//    DbxEntry.File downloadedFile = client.getFile("/" + filename, null, outputStream);
-//    return outputStream.toByteArray();
-//}
 
     open fun getPdf(@PathVariable uri: String):  ResponseEntity<ByteArrayResource> {
         logger.debug("getPdf : {}", uri)
@@ -117,26 +109,6 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(pdf)
-//        val contentType = "application/octet-stream"
-
-
-//        return ResponseEntity.ok()
-//            .contentType(MediaType.parseMediaType(contentType))
-//            .header(Header(), "attachment; filename=\"" +)
-//            .body(pdf.toByteArray())
-
-    //        val result = ByteArrayInputStream(stream.toByteArray())
-//        return ResponseEntity.ok()
-//            .headers(headers)
-//            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .body(stream.toByteArray())
-
-//        val resource = ByteArrayResource(stream.toByteArray())
-//        return ResponseEntity.ok()
-//            .headers(headers)
-//            .contentLength(stream.size().toLong())
-//            .contentType(MediaType.parseMediaType("application/pdf"))
-//            .body(resource)
     }
 
     @ResponseBody

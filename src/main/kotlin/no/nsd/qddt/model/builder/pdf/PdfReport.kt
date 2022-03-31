@@ -1,7 +1,7 @@
 package no.nsd.qddt.model.builder.pdf
 
 import com.itextpdf.html2pdf.HtmlConverter
-import com.itextpdf.io.IOException
+import com.itextpdf.io.exceptions.IOException
 import com.itextpdf.io.font.constants.StandardFonts
 import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.io.source.ByteArrayOutputStream
@@ -22,7 +22,7 @@ import com.itextpdf.layout.element.*
 import com.itextpdf.layout.hyphenation.HyphenationConfig
 import com.itextpdf.layout.layout.LayoutContext
 import com.itextpdf.layout.layout.LayoutResult
-import com.itextpdf.layout.property.*
+import com.itextpdf.layout.properties.*
 import com.itextpdf.layout.renderer.ParagraphRenderer
 import no.nsd.qddt.config.exception.StackTraceFilter.filter
 import no.nsd.qddt.model.Comment
@@ -200,9 +200,8 @@ class PdfReport(outputStream: ByteArrayOutputStream) : PdfDocument(PdfWriter(out
 
     fun addParagraph(value: String): Document {
         try {
-            val joined = value.split("\n")
-                .map { if (it.matches(Regex(HTML_PATTERN))) it else "$it</br>" }
-                .joinToString { " " }
+            val joined = value.split("\n").joinToString(" ") { if (it.matches(Regex(HTML_PATTERN))) it else "$it</br>" }
+
 
             val para = Paragraph().setWidth(width100 * 0.8f).setKeepTogether(false)
 

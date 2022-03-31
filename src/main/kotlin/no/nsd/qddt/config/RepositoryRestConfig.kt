@@ -1,9 +1,7 @@
 package  no.nsd.qddt.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.*
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer

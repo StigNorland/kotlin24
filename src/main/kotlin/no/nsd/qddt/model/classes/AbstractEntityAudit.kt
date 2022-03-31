@@ -109,7 +109,7 @@ abstract class AbstractEntityAudit(
         val pdfOutputStream = ByteArrayOutputStream()
         try {
             PdfReport(pdfOutputStream).use { pdf ->
-                fillDoc(pdf, "")
+                fillDoc(pdf, "1")
                 pdf.createToc()
             }
         } catch (ex: Exception) {
