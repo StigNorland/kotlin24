@@ -75,11 +75,14 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
         }
 
         logger.debug("getRevisions PagedModel: {}", qPage)
-        val revisions = repository.findRevisions(uuid, qPage)
+        val revisions = repository.findRevisions(uuid)
             .filter {
-                    it.entity.changeKind.ordinal <  IBasedOn.ChangeKind.UPDATED_PARENT.ordinal ||
-                    it.entity.changeKind.ordinal > IBasedOn.ChangeKind.IN_DEVELOPMENT.ordinal }
-            .map { rev -> entityRevisionModelBuilder(rev) }.toList()
+                it.entity.changeKind.ordinal !in IBasedOn.ChangeKind.UPDATED_PARENT.ordinal.. IBasedOn.ChangeKind.IN_DEVELOPMENT.ordinal
+            }
+            .drop(qPage.offset.toInt())
+            .take(qPage.pageSize)
+            .map { rev ->  entityRevisionModelBuilder(rev) }
+            .toList()
         return PagedModel.of(revisions, PagedModel.PageMetadata(revisions.size.toLong(), 1L, revisions.size.toLong()))
     }
 

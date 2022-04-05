@@ -68,11 +68,13 @@ data class TopicGroup(override var name: String = "") :ConceptHierarchy(), IAuth
   @ElementCollection
   @CollectionTable(name = "CONCEPT_HIERARCHY_OTHER_MATERIAL", joinColumns = [JoinColumn(name = "owner_id")])
   override var otherMaterials: MutableList<OtherMaterial> = mutableListOf()
+    get() = field.filter { it != null }.toMutableList()
 
   @OrderColumn(name="parentIdx")
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "CONCEPT_HIERARCHY_QUESTION_ITEM",joinColumns = [JoinColumn(name = "parent_id", referencedColumnName = "id")])
   override var questionItems:MutableList<ElementRefQuestionItem> = mutableListOf()
+    get() = field.filter { it != null }.toMutableList()
 
   override fun xmlBuilder():AbstractXmlBuilder {
     return TopicGroupFragmentBuilder(this)

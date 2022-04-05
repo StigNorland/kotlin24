@@ -22,9 +22,9 @@ interface ChangeFeedRepository : JpaRepository<ChangeFeed, ChangeFeedKey> {
         pageable: Pageable?
     ): Page<ChangeFeed>
 
-    fun findFirstByRefIdOrderByRefRevDesc(id:UUID):ChangeFeed
+    fun findFirstByRefIdAndElementKindIsNullOrderByRefRevDesc(id:UUID):ChangeFeed
 
-    fun findByRefIdAndRefRev(id:UUID, revref:Int):ChangeFeed
+    fun findByRefIdAndRefRevAndElementKindIsNull(id:UUID, revref:Int):ChangeFeed
 
 
 }

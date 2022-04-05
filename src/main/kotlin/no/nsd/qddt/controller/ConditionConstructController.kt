@@ -2,6 +2,7 @@ package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.ConditionConstruct
 import no.nsd.qddt.repository.ControlConstructRepository
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
@@ -68,6 +69,9 @@ class ConditionConstructController(@Autowired repository: ControlConstructReposi
         Hibernate.initialize(entity.modifiedBy)
         entity.otherMaterials.size
         entity.sequence.size
+
+        entity.parameterIn = EntityAuditTrailListener.getParameterIn(entity)
+        entity.parameterOut = EntityAuditTrailListener.getParameterOut(entity)
 
         return HalModelBuilder.halModel()
             .entity(entity)

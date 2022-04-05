@@ -163,7 +163,7 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
             .entity(entity)
             .link(Link.of(baseUrl))
 //            .link(Link.of(self))
-            .link(Link.of("${baseUrl}/questionItems", "questionItems"))
+//            .link(Link.of("${baseUrl}/questionItems", "questionItems"))
 
             .embed(entity.agency!!, LinkRelation.of("agency"))
             .embed(entity.modifiedBy, LinkRelation.of("modifiedBy"))

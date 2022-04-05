@@ -84,9 +84,9 @@ class OtherMaterialController {
             it.cacheControl = CacheControl.noCache().headerValue
         }
         val result = if (uriId.id != null && uriId.rev == null)
-            changeRepository.findFirstByRefIdOrderByRefRevDesc(uriId.id!!)
+            changeRepository.findFirstByRefIdAndElementKindIsNullOrderByRefRevDesc(uriId.id!!)
         else
-            changeRepository.findByRefIdAndRefRev(uriId.id!!, uriId.rev!!)
+            changeRepository.findByRefIdAndRefRevAndElementKindIsNull(uriId.id!!, uriId.rev!!)
         Hibernate.initialize(result)
 
         ElementKind.valueOf(result.refKind?:result.elementKind?:"none").let { elementkind ->

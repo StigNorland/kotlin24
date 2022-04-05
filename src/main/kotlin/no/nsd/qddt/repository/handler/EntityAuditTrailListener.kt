@@ -424,14 +424,28 @@ class EntityAuditTrailListener: AuditingEntityListener() {
                         }
                     }
                     is ConditionConstruct -> {
+                        var matcher: Matcher = TAGS.matcher(instance.condition!!)
+                        if (matcher.find()) {
+                            for (i in 0 until matcher.groupCount()) {
+                                it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                            }
+                        }
                     }
                     is Sequence -> {
                         it.addAll(instance.sequence.flatMap { item ->
                             getParameterIn(item.element!!)
                         })
                     }
+                    is StatementItem -> {
+                        var matcher: Matcher = TAGS.matcher(instance.statement!!)
+                        if (matcher.find()) {
+                            for (i in 0 until matcher.groupCount()) {
+                                it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                            }
+                        }
+                    }
                     else -> {
-
+                        log.debug("[{}] not parameterized", instance.name)
                     }
                 }
             }
