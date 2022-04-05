@@ -5,11 +5,13 @@ import no.nsd.qddt.controller.AbstractRestController.Companion.loadRevisionEntit
 import no.nsd.qddt.model.*
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.Code
+import no.nsd.qddt.model.embedded.Parameter
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.model.embedded.Version
 import no.nsd.qddt.model.enums.CategoryKind
 import no.nsd.qddt.model.enums.ElementKind
 import no.nsd.qddt.model.enums.HierarchyLevel
+import no.nsd.qddt.model.enums.ParameterKind
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn.ChangeKind
 import no.nsd.qddt.model.interfaces.PublicationStatusService
@@ -25,6 +27,9 @@ import org.springframework.data.projection.ProjectionFactory
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+import java.util.stream.Collectors
 import javax.persistence.*
 
 
@@ -68,7 +73,7 @@ class EntityAuditTrailListener: AuditingEntityListener() {
     }
 
     @PrePersist
-    private fun prePersist(entity: AbstractEntityAudit) {
+    private fun prePersistEntity(entity: AbstractEntityAudit) {
         try {
             log.debug("PrePersist [{}] {}", entity.classKind, entity.name)
             val user = SecurityContextHolder.getContext().authentication.principal as User
@@ -106,7 +111,7 @@ class EntityAuditTrailListener: AuditingEntityListener() {
     }
 
     @PreUpdate
-    private fun preUpdate(entity: AbstractEntityAudit) {
+    private fun preUpdateEntity(entity: AbstractEntityAudit) {
         log.debug("PreUpdate [{}] : {} - {}", entity.classKind, entity.name, entity.id)
         try {
             val user = SecurityContextHolder.getContext().authentication.principal as User
@@ -235,6 +240,8 @@ class EntityAuditTrailListener: AuditingEntityListener() {
                         cci.instruction = loadRevisionEntity(cci.uri, it)
                     }
                 }
+                entity.parameterIn = getParameterIn(entity)
+                entity.parameterOut = getParameterOut(entity)
             }
             is QuestionItem -> {
                 if (entity.response == null && entity.responseId?.id != null) {
@@ -390,6 +397,45 @@ class EntityAuditTrailListener: AuditingEntityListener() {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)
+
+        fun getParameterOut(instance: ControlConstruct) : Set<Parameter> {
+            return mutableSetOf<Parameter>().plus(Parameter(name = instance.name, parameterKind = ParameterKind.OUT))
+        }
+
+        private val TAGS: Pattern = Pattern.compile("\\[(.{1,50}?)\\]")
+
+        fun getParameterIn(instance: ControlConstruct): Set<Parameter> {
+            return mutableSetOf<Parameter>().also {
+                when (instance) {
+                    is QuestionConstruct -> {
+                        if (instance.questionItem != null) {
+                            var matcher: Matcher = TAGS.matcher(instance.questionItem!!.question)
+                            if (matcher.find()) {
+                                for (i in 0 until matcher.groupCount()) {
+                                    it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                                }
+                            }
+                            matcher = TAGS.matcher(instance.questionItem!!.response!!.getAnchorLabels())
+                            if (matcher.find()) {
+                                for (i in 0 until matcher.groupCount()) {
+                                    it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                                }
+                            }
+                        }
+                    }
+                    is ConditionConstruct -> {
+                    }
+                    is Sequence -> {
+                        it.addAll(instance.sequence.flatMap { item ->
+                            getParameterIn(item.element!!)
+                        })
+                    }
+                    else -> {
+
+                    }
+                }
+            }
+        }
 
         fun harvestCatCodes(current: Category?): MutableList<Code> {
             val tmpList: MutableList<Code> = mutableListOf()

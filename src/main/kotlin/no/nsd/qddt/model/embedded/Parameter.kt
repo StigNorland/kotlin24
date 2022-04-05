@@ -1,10 +1,13 @@
 package no.nsd.qddt.model.embedded
 
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.enums.ParameterKind
 import org.hibernate.envers.Audited
 import java.io.Serializable
 import java.util.*
 import javax.persistence.Embeddable
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 
 /**
  * @author Stig Norland
@@ -13,10 +16,11 @@ import javax.persistence.Embeddable
 @Audited
 @Embeddable
 class Parameter(
-    var id: UUID = UUID.randomUUID(),
+    var id: UUID? = UUID.randomUUID(),
     var name: String? = null,
     var referencedId: UUID? = null,
-    var parameterKind: String? = null
+    @Enumerated(EnumType.STRING)
+    var parameterKind: ParameterKind? = null
 ) : Comparable<Parameter>, Serializable {
 
 

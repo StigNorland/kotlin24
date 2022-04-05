@@ -5,6 +5,7 @@ import no.nsd.qddt.config.exception.StackTraceFilter
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.interfaces.IArchived
 import no.nsd.qddt.model.interfaces.IBasedOn
+import no.nsd.qddt.model.interfaces.ILabel
 import no.nsd.qddt.model.interfaces.IParentRef
 import org.hibernate.Hibernate
 import org.hibernate.envers.AuditJoinTable
@@ -24,9 +25,9 @@ abstract class ConceptHierarchy (
     @Column(length = 20000)
     var description: String=""
 
-) : AbstractEntityAudit(), IArchived, IParentRef {
+) : AbstractEntityAudit(), IArchived, ILabel, IParentRef {
 
-    var label: String? = null
+    override var label: String = ""
         get() {
             return field ?: name
         }

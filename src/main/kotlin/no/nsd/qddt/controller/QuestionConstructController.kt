@@ -10,6 +10,8 @@ import no.nsd.qddt.repository.QuestionConstructRepository
 import no.nsd.qddt.repository.QuestionItemRepository
 import no.nsd.qddt.repository.ResponseDomainRepository
 import no.nsd.qddt.repository.handler.EntityAuditTrailListener
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.getParameterIn
+import no.nsd.qddt.repository.handler.EntityAuditTrailListener.Companion.getParameterOut
 import no.nsd.qddt.repository.projection.ManagedRepresentation
 import no.nsd.qddt.repository.projection.UserListe
 import no.nsd.qddt.service.OtherMaterialService
@@ -145,12 +147,18 @@ class QuestionConstructController(@Autowired repository: QuestionConstructReposi
 
          val question =
              if ((entity.questionId != null) && (this.questionItemRepository != null) && (entity.questionItem == null)) {
-                 loadRevisionEntity(entity.questionId!!, repository = this.questionItemRepository)
+                 loadRevisionEntity(entity.questionId!!, repository = this.questionItemRepository).also {
+                     it.response =  loadRevisionEntity(it.responseId!!, repository = this.responseDomainRepository!!)
+                 }
+
              } else {
                  logger.debug("qi auto fetched")
                  entity.questionItem
              }
 
+        entity.questionItem = question
+        entity.parameterIn = getParameterIn(entity)
+        entity.parameterOut = getParameterOut(entity)
         return HalModelBuilder.halModel()
             .entity(entity)
             .link(Link.of(baseUrl))

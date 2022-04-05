@@ -6,6 +6,7 @@ import no.nsd.qddt.model.builder.ControlConstructFragmentBuilder
 import no.nsd.qddt.model.builder.xml.AbstractXmlBuilder
 import no.nsd.qddt.model.classes.AbstractEntityAudit
 import no.nsd.qddt.model.embedded.Parameter
+import no.nsd.qddt.model.interfaces.ILabel
 import org.hibernate.envers.Audited
 import javax.persistence.*
 
@@ -25,9 +26,9 @@ import javax.persistence.*
 @DiscriminatorColumn(name = "CONTROL_CONSTRUCT_KIND")
 @Table(name = "CONTROL_CONSTRUCT")
 abstract class ControlConstruct(
-    var label: String = "",
+    override var label: String = "",
     override var name: String = ""
-) : AbstractEntityAudit() {
+) : AbstractEntityAudit(),ILabel {
 
     @Transient
     @JsonSerialize

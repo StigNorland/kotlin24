@@ -148,10 +148,10 @@ class ResponseDomainController(@Autowired repository: ResponseDomainRepository) 
             entity.managedRepresentation.version.rev = uriId.rev!!
 
 
-//            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
-//                entity.managedRepresentation.children =
-//                    EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
-//            }
+            repLoaderService.getRepository<Category>(ElementKind.CATEGORY).let { rr ->
+                entity.managedRepresentation.children =
+                    EntityAuditTrailListener.loadChildrenDefault(entity.managedRepresentation, rr)
+            }
 
             var _index = 0
             populateCatCodes(entity.managedRepresentation, _index, entity.codes)

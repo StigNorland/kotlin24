@@ -27,6 +27,7 @@ import com.itextpdf.layout.renderer.ParagraphRenderer
 import no.nsd.qddt.config.exception.StackTraceFilter.filter
 import no.nsd.qddt.model.Comment
 import no.nsd.qddt.model.classes.AbstractEntityAudit
+import no.nsd.qddt.model.interfaces.ILabel
 import no.nsd.qddt.utils.StringTool.capString
 import org.joda.time.DateTime
 import org.slf4j.Logger
@@ -146,10 +147,11 @@ class PdfReport(outputStream: ByteArrayOutputStream) : PdfDocument(PdfWriter(out
             //            document.add( new AreaBreak(AreaBreakType.NEXT_AREA  ) );
             // document.add( new AreaBreak() );        //https://github.com/DASISH/qddt-client/issues/611
         }
-        outline = createOutline(outline, capString(element.name), element.id.toString())
-        val titlePage = AbstractMap.SimpleEntry(chapter + "\t" + capString(element.name), numberOfPages)
+        val name = if(element is ILabel) element.label else element.name
+        outline = createOutline(outline, capString(name), element.id.toString())
+        val titlePage = AbstractMap.SimpleEntry(chapter + "\t" + capString(name), numberOfPages)
         toc.add(AbstractMap.SimpleEntry(element.id.toString(), titlePage))
-        val p = Paragraph(element.name)
+        val p = Paragraph( name)
             .setFontColor(ColorConstants.BLUE)
             .setFontSize(sizeHeader1.toFloat())
             .setMultipliedLeading(1f) //            .setWidth(width100*0.8F)
