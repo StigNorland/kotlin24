@@ -69,7 +69,7 @@ abstract class AbstractRestController<T : AbstractEntityAudit>(val repository: B
     @ResponseBody
     open fun getRevisions(@PathVariable uuid: UUID, pageable: Pageable): RepresentationModel<*>? {
         val qPage: Pageable = if (pageable.sort.isUnsorted) {
-            PageRequest.of(pageable.pageNumber, pageable.pageSize*2, Sort.Direction.DESC, "modified")
+            PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.Direction.DESC, "modified")
         } else {
             pageable
         }

@@ -108,7 +108,7 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
     }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
-        pdfReport.addHeader(this, "ControlConstruct $counter")
+        pdfReport.addHeader(this, "QuestionConstruct $counter")
         description.let { pdfReport.addParagraph(it) }
 
         if (universe.size > 0)
@@ -127,6 +127,7 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
 
         pdfReport.addHeader2("Question Item")
         questionItem?.name?.let { pdfReport.addParagraph(it) }
+        questionItem?.question?.let { pdfReport.addParagraph(it) }
         questionItem?.response?.fillDoc(pdfReport, "")
 
         if (postInstructions?.isNotEmpty() == true) {
@@ -140,6 +141,7 @@ data class QuestionConstruct(var description: String = ""): ControlConstruct() {
             pdfReport.addHeader2("Comments")
 
         pdfReport.addComments(comments)
+        pdfReport.addPadding()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -29,7 +29,14 @@ data class StatementItem(
     }
 
     override fun fillDoc(pdfReport: PdfReport, counter: String) {
-        TODO("Not yet implemented")
+        pdfReport.addHeader(this, "StatementItem $counter")
+
+        statement?.let { pdfReport.addParagraph(it) }
+
+        if (comments.size > 0) {
+            pdfReport.addHeader2("Comments")
+            pdfReport.addComments(comments)
+        }
     }
 
     override fun equals(other: Any?): Boolean {

@@ -62,7 +62,11 @@ class ModelProcessorEntityLinks : RepresentationModelProcessor<EntityModel<Abstr
         ) { linkBuilder.slash("xml").slash(uri).withRel("xml") }
         model.addIf(
             !model.hasLink("pdf")
-        ) { linkBuilder.slash("pdf").slash(uri).withRel("pdf") }
+        ) {
+            val ref = String.format("${baseUri}/othermaterial/pdf/${entity.id}")
+            Link.of(ref,"pdf")
+//            linkBuilder.slash("pdf").slash(uri).withRel("pdf")
+        }
 
 
         return when (entity) {

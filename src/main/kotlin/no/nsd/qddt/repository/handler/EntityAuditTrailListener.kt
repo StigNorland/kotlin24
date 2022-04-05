@@ -179,12 +179,12 @@ class EntityAuditTrailListener: AuditingEntityListener() {
                     beforeStudyUpdate(entity)
                 }
                 is TopicGroup -> {
-                    if (entity.label?.isBlank() == true)
+                    if (entity.label.isBlank())
                         entity.label = entity.name
                     entity.label = capitalize(entity.label!!)
                 }
                 is Concept -> {
-                    if (entity.label?.isBlank() == true)
+                    if (entity.label.isBlank())
                         entity.label = entity.name
                     entity.label = capitalize(entity.label!!)
                 }
@@ -223,22 +223,11 @@ class EntityAuditTrailListener: AuditingEntityListener() {
         Hibernate.initialize(entity.modifiedBy)
 
         when (entity) {
-            is Sequence -> {
-                entity.universe.size
-                entity.sequence.size
-
-                entity.sequence.forEach { cci ->
-                    repLoaderService.getRepository<ControlConstruct>(cci.elementKind).let {
-                        cci.element = loadRevisionEntity(cci.uri, it)
-                        afterLoad(cci.element!!)
-                    }
-                }
-            }
             is QuestionConstruct -> {
                 entity.universe.size
                 entity.controlConstructInstructions.size
 
-                if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById")  } != null) {
+                if (Thread.currentThread().stackTrace.find { it.methodName.contains("getById").or(it.methodName.contains("getPdf"))  } != null) {
                     if (entity.questionItem == null && entity.questionId?.id != null) {
                         repLoaderService.getRepository<QuestionItem>(ElementKind.QUESTION_ITEM).let {
                             entity.questionItem = loadRevisionEntity(entity.questionId!!, it)
@@ -300,6 +289,62 @@ class EntityAuditTrailListener: AuditingEntityListener() {
             is Study -> {
                 entity.instruments.size
                 entity.comments.size
+            }
+            is Instrument -> {
+                if (Thread.currentThread().stackTrace.find { it.methodName.contains("getPdf")  } != null) {
+                    entity.root.children.forEach { elementRef ->
+                        if (elementRef.element == null) {
+                            val repository = when (elementRef.elementKind) {
+                                ElementKind.QUESTION_CONSTRUCT -> {
+                                    repLoaderService.getRepository<QuestionConstruct>(elementRef.elementKind)
+                                }
+                                ElementKind.CONDITION_CONSTRUCT -> {
+                                    repLoaderService.getRepository<ConditionConstruct>(elementRef.elementKind)
+                                }
+                                ElementKind.STATEMENT_CONSTRUCT -> {
+                                    repLoaderService.getRepository<StatementItem>(elementRef.elementKind)
+                                }
+                                ElementKind.SEQUENCE_CONSTRUCT -> {
+                                    repLoaderService.getRepository<Sequence>(elementRef.elementKind)
+                                }
+                                else -> {
+                                    repLoaderService.getRepository(elementRef.elementKind)
+                                }
+                            }
+                            elementRef.element = loadRevisionEntity(elementRef.uri, repository)
+                            afterLoad(elementRef.element as AbstractEntityAudit)
+                        }
+                    }
+                }
+            }
+            is Sequence -> {
+                entity.universe.size
+                entity.sequence.size
+                if (Thread.currentThread().stackTrace.find { it.methodName.contains("getPdf")  } != null) {
+                    entity.sequence.forEach { elementRef ->
+                        if (elementRef.element == null) {
+                            val repository = when(elementRef.elementKind) {
+                                ElementKind.QUESTION_CONSTRUCT -> {
+                                    repLoaderService.getRepository<QuestionConstruct>(elementRef.elementKind)
+                                }
+                                ElementKind.CONDITION_CONSTRUCT -> {
+                                    repLoaderService.getRepository<ConditionConstruct>(elementRef.elementKind)
+                                }
+                                ElementKind.STATEMENT_CONSTRUCT -> {
+                                    repLoaderService.getRepository<StatementItem>(elementRef.elementKind)
+                                }
+                                ElementKind.SEQUENCE_CONSTRUCT -> {
+                                    repLoaderService.getRepository<Sequence>(elementRef.elementKind)
+                                }
+                                else -> {
+                                    repLoaderService.getRepository(elementRef.elementKind)
+                                }
+                            }
+                            elementRef.element = loadRevisionEntity(elementRef.uri, repository)
+                            afterLoad(elementRef.element!!)
+                        }
+                    }
+                }
             }
             is Publication -> {
                 entity.comments.size
@@ -410,7 +455,7 @@ class EntityAuditTrailListener: AuditingEntityListener() {
         private val log: Logger = LoggerFactory.getLogger(EntityAuditTrailListener::class.java)
 
         fun getParameterOut(instance: ControlConstruct) : Set<Parameter> {
-            return mutableSetOf<Parameter>().plus(Parameter(name = instance.name, parameterKind = ParameterKind.OUT))
+            return mutableSetOf<Parameter>().plus(Parameter(name = instance.name.uppercase(Locale.getDefault()), parameterKind = ParameterKind.OUT))
         }
 
         private val TAGS: Pattern = Pattern.compile("\\[(.{1,50}?)\\]")
@@ -423,13 +468,13 @@ class EntityAuditTrailListener: AuditingEntityListener() {
                             var matcher: Matcher = TAGS.matcher(instance.questionItem!!.question)
                             if (matcher.find()) {
                                 for (i in 0 until matcher.groupCount()) {
-                                    it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                                    it.add(Parameter(name = matcher.group(i).uppercase(Locale.getDefault()), parameterKind = ParameterKind.IN))
                                 }
                             }
                             matcher = TAGS.matcher(instance.questionItem!!.response!!.getAnchorLabels())
                             if (matcher.find()) {
                                 for (i in 0 until matcher.groupCount()) {
-                                    it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                                    it.add(Parameter(name = matcher.group(i).uppercase(Locale.getDefault()), parameterKind = ParameterKind.IN))
                                 }
                             }
                         }
@@ -438,7 +483,7 @@ class EntityAuditTrailListener: AuditingEntityListener() {
                         var matcher: Matcher = TAGS.matcher(instance.condition!!)
                         if (matcher.find()) {
                             for (i in 0 until matcher.groupCount()) {
-                                it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                                it.add(Parameter(name = matcher.group(i).uppercase(Locale.getDefault()), parameterKind = ParameterKind.IN))
                             }
                         }
                     }
@@ -451,7 +496,7 @@ class EntityAuditTrailListener: AuditingEntityListener() {
                         var matcher: Matcher = TAGS.matcher(instance.statement!!)
                         if (matcher.find()) {
                             for (i in 0 until matcher.groupCount()) {
-                                it.add(Parameter(name = matcher.group(i), parameterKind = ParameterKind.IN))
+                                it.add(Parameter(name = matcher.group(i).uppercase(Locale.getDefault()), parameterKind = ParameterKind.IN))
                             }
                         }
                     }
