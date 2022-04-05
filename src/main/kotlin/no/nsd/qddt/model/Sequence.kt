@@ -85,7 +85,7 @@ data class Sequence(
 
         var i = 0
         sequence.forEach {
-            (it.element as AbstractEntityAudit).fillDoc(pdfReport, counter + "." + ++i)
+            (it.element as ControlConstruct).fillDoc(pdfReport, counter + "." + ++i)
          }
 //it.element?.fillDoc(pdfReport, counter)
         if (comments.size > 0)

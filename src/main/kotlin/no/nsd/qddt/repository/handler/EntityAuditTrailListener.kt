@@ -223,6 +223,17 @@ class EntityAuditTrailListener: AuditingEntityListener() {
         Hibernate.initialize(entity.modifiedBy)
 
         when (entity) {
+            is Sequence -> {
+                entity.universe.size
+                entity.sequence.size
+
+                entity.sequence.forEach { cci ->
+                    repLoaderService.getRepository<ControlConstruct>(cci.elementKind).let {
+                        cci.element = loadRevisionEntity(cci.uri, it)
+                        afterLoad(cci.element!!)
+                    }
+                }
+            }
             is QuestionConstruct -> {
                 entity.universe.size
                 entity.controlConstructInstructions.size
