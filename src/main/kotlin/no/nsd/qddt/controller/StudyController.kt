@@ -1,9 +1,13 @@
 package no.nsd.qddt.controller
 
+import no.nsd.qddt.model.Concept
 import no.nsd.qddt.model.Study
 import no.nsd.qddt.model.TopicGroup
+import no.nsd.qddt.model.builder.TopicGroupFactory
 import no.nsd.qddt.model.classes.ElementOrder
+import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.repository.StudyRepository
+import no.nsd.qddt.repository.TopicGroupRepository
 import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ByteArrayResource
@@ -18,15 +22,15 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 
 @BasePathAwareController
 class StudyController(@Autowired repository: StudyRepository) : AbstractRestController<Study>(repository) {
+
+    @Autowired
+    lateinit var topicGroupRepository: TopicGroupRepository
 
     @Transactional(propagation = Propagation.NESTED)
     @GetMapping("/study/revision/{uri}", produces = ["application/hal+json"])
@@ -77,15 +81,35 @@ class StudyController(@Autowired repository: StudyRepository) : AbstractRestCont
         return ResponseEntity.ok().build()
     }
 
+    @ResponseBody
     @Transactional(propagation = Propagation.NESTED)
-    @PutMapping("/study/{uri}/children", produces = ["application/hal+json"])
+    @PostMapping("/study/{uuid}/addcopy/{uri}", produces = ["application/hal+json"])
+    fun addCopy(
+        @PathVariable uuid: UUID,
+        @PathVariable uri: String,
+        @RequestBody topicGroup: TopicGroup?): ResponseEntity<RepresentationModel<EntityModel<TopicGroup>>> {
+        val uriId = UriId.fromAny(uri)
+        val basedonTopic = topicGroupRepository.findRevision(uriId.id!!, uriId.rev!! ).let {
+            TopicGroupFactory().copy(it.get().entity, uriId.rev)
+        }
+
+        repository.findById(uuid).orElseThrow().let { parent ->
+            parent.childrenAdd(basedonTopic)
+            return ResponseEntity.ok(
+                entityModelBuilder(repository.saveAndFlush(parent).children.last() as TopicGroup)
+            )
+        }
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    @PutMapping("/study/{uuid}/children", produces = ["application/hal+json"])
     fun putStudies(
-        @PathVariable uri: UUID,
+        @PathVariable uuid: UUID,
         @RequestBody topicGroup: TopicGroup
     ): ResponseEntity<RepresentationModel<EntityModel<TopicGroup>>> {
         logger.debug("put studies StudyController...")
 
-        val study = repository.findById(uri).orElseThrow()
+        val study = repository.findById(uuid).orElseThrow()
         study.childrenAdd(topicGroup)
         val topicSaved = repository.saveAndFlush(study).children.last() as TopicGroup
         return ResponseEntity.ok(entityModelBuilder(topicSaved))

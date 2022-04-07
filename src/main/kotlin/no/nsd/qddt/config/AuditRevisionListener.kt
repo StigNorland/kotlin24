@@ -1,8 +1,5 @@
 package no.nsd.qddt.config
 
-import no.nsd.qddt.model.classes.AbstractEntityAudit
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item
-import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.envers.EntityTrackingRevisionListener
 import org.hibernate.envers.RevisionType
 import org.slf4j.Logger
@@ -12,7 +9,6 @@ import org.springframework.stereotype.Component
 import java.io.Serializable
 import java.sql.Timestamp
 import java.time.Instant
-import java.util.UUID
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 
@@ -52,10 +48,10 @@ class AuditRevisionListener : EntityTrackingRevisionListener {
 //                    }
 //                }
 //            }
-            this@AuditRevisionListener.entityManager
-            var result =entityManager!!.find(entityClass,entityId)
-
-            changeComment = (result as AbstractEntityAudit).changeComment
+//            this@AuditRevisionListener.entityManager
+//            var result =entityManager!!.find(entityClass,entityId)
+//
+//            changeComment = (result as AbstractEntityAudit).changeComment
 
 //            reader.findRevision(entityClass, revisionEntity.id).runCatching {
 //                with(this as IBasedOn) {

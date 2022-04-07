@@ -3,8 +3,10 @@ package no.nsd.qddt.controller
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nsd.qddt.model.*
+import no.nsd.qddt.model.builder.ConceptFactory
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import no.nsd.qddt.model.embedded.UriId
+import no.nsd.qddt.repository.ConceptRepository
 import no.nsd.qddt.repository.TopicGroupRepository
 import no.nsd.qddt.service.OtherMaterialService
 import org.hibernate.Hibernate
@@ -29,6 +31,9 @@ class TopicController(
     @Autowired repository: TopicGroupRepository,
     @Autowired val otherMaterialService: OtherMaterialService
 ) : AbstractRestController<TopicGroup>(repository) {
+
+    @Autowired
+    lateinit var conceptRepository: ConceptRepository
 
     @Transactional(propagation = Propagation.REQUIRED)
     @GetMapping("/topicgroup/revision/{uri}", produces = ["application/hal+json"])
@@ -72,6 +77,26 @@ class TopicController(
     fun save(@RequestBody topicGroup: TopicGroup): RepresentationModel<*> {
         return entityModelBuilder(repository.saveAndFlush(topicGroup))
     }
+
+    @ResponseBody
+    @Transactional(propagation = Propagation.NESTED)
+    @PostMapping("/topicgroup/{uuid}/addcopy/{uri}", produces = ["application/hal+json"])
+    fun addCopy(@PathVariable uuid: UUID,
+                @PathVariable uri: String,
+                @RequestBody concept: Concept?): ResponseEntity<RepresentationModel<EntityModel<Concept>>> {
+        val uriId = UriId.fromAny(uri)
+        val basedConcept = conceptRepository.findRevision(uriId.id!!, uriId.rev!! ).let {
+            ConceptFactory().copy(it.get().entity, uriId.rev)
+        }
+
+        repository.findById(uuid).orElseThrow().let { parent ->
+            parent.childrenAdd(basedConcept)
+            return ResponseEntity.ok(
+                entityModelBuilder(repository.saveAndFlush(parent).children.last() as Concept)
+            )
+        }
+    }
+
 
 
     @Transactional(propagation = Propagation.NESTED)

@@ -1,6 +1,7 @@
 package no.nsd.qddt.controller
 
 import no.nsd.qddt.model.Concept
+import no.nsd.qddt.model.builder.ConceptFactory
 import no.nsd.qddt.model.embedded.ElementRefQuestionItem
 import no.nsd.qddt.model.embedded.UriId
 import no.nsd.qddt.repository.ConceptRepository
@@ -13,7 +14,9 @@ import org.springframework.hateoas.Link
 import org.springframework.hateoas.LinkRelation
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
-import org.springframework.http.*
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -112,6 +115,24 @@ class ConceptController(@Autowired repository: ConceptRepository) : AbstractRest
         return ResponseEntity.ok(
             repository.saveAndFlush(parent).questionItems
         )
+    }
+
+    @ResponseBody
+    @Transactional(propagation = Propagation.NESTED)
+    @PostMapping("/concept/{uuid}/addcopy/{uri}", produces = ["application/hal+json"])
+    fun addCopy(@PathVariable uuid: UUID,@PathVariable uri: String): ResponseEntity<RepresentationModel<EntityModel<Concept>>> {
+
+        val uriId = UriId.fromAny(uri)
+
+        repository.findById(uuid).orElseThrow().let { parent ->
+            val basedonConcept = repository.findRevision(uriId.id!!, uriId.rev!! ).orElseThrow().let {
+                ConceptFactory().copy(it.entity, uriId.rev)
+            }
+            parent.childrenAdd(basedonConcept)
+            return ResponseEntity.ok(
+                entityModelBuilder(repository.saveAndFlush(parent).children.last() as Concept)
+            )
+        }
     }
 
     @Transactional(propagation = Propagation.NESTED)
