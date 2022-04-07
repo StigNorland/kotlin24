@@ -1,22 +1,27 @@
 package no.nsd.qddt.config
 
+import no.nsd.qddt.model.classes.AbstractEntityAudit
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item
+import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.envers.EntityTrackingRevisionListener
 import org.hibernate.envers.RevisionType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.stereotype.Component
 import java.io.Serializable
 import java.sql.Timestamp
 import java.time.Instant
+import java.util.UUID
 import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 
-
+@Component
 class AuditRevisionListener : EntityTrackingRevisionListener {
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     @PersistenceContext
-    protected val entityManager: EntityManager? = null
+    lateinit var entityManager: EntityManager
 
 
     override fun newRevision(revisionEntity: Any) {
@@ -34,8 +39,23 @@ class AuditRevisionListener : EntityTrackingRevisionListener {
         revisionType: RevisionType?,
         revisionEntity: Any?
     ) {
-//        val reader = AuditReaderFactory.get(entityManager)
+
         with (revisionEntity as RevisionEntityImpl) {
+//            entityManager!!.criteriaBuilder.let { cb ->
+//                cb.createQuery(entityClass).let { cq ->
+//                    cq.select(cq.from(entityClass).get("changeComment"))
+//                    cq.from(entityClass).let { entity ->
+//                        cq.where(cb.equal(entity.get<UUID>("id"),entityId))
+//                    }
+//                    entityManager.createQuery(cq).singleResult.let {
+//                        logger.debug(it.toString())
+//                    }
+//                }
+//            }
+            this@AuditRevisionListener.entityManager
+            var result =entityManager!!.find(entityClass,entityId)
+
+            changeComment = (result as AbstractEntityAudit).changeComment
 
 //            reader.findRevision(entityClass, revisionEntity.id).runCatching {
 //                with(this as IBasedOn) {
