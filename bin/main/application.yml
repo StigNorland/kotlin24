@@ -1,0 +1,131 @@
+spring:
+  profiles:
+    active: development
+  application:
+    name: qddt-service
+  data:
+    rest:
+      base-path: /
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari.connectionTimeout: 20000
+    hikari.maximumPoolSize: 5
+    username: ${QDDT_DB_USER:qddt}
+    password: ${QDDT_DB_PASSWORD_PSQL:qddt}
+    url: jdbc:postgresql://${QDDT_DB_HOST:localhost}:${QDDT_DB_PORT:5432}/${QDDT_DB_NAME:qddt-dev}
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  jmx:
+    enabled: false
+  jpa:
+    open-in-view: true
+#    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+#      use-new-id-generator-mappings: false
+    properties:
+      org:
+        hibernate:
+          use-new-id-generator-mappings: false
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          envers:
+            audit_table_suffix: _aud
+            default_schema: audit
+            store_data_at_delete: true
+            do_not_audit_optimistic_locking_field: false
+            audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  management:
+    endpoints:
+      web:
+        base-path: /actuator
+        exposure:
+          include: health,prometheus,metrics
+        path-mapping:
+          health: health
+        cors:
+          allowed-headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers
+    endpoint:
+      metrics:
+        enabled: true
+      prometheus:
+        enabled: true
+    metrics:
+      export:
+        prometheus:
+          enabled: true
+  hateoas:
+    use-hal-as-default-json-media-type: true
+  sql:
+    init:
+      continue-on-error: true
+
+
+security:
+  jwt:
+    token:
+      secret: somerandomsecret3254325323253245432535432532462465678654039205433
+      expiration-time: 28800000  # 8 timer
+      header: Authorization
+
+server:
+  forward-headers-strategy: framework
+  port:  ${QDDT_PORT:5001}
+  http2:
+    enabled: true
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/hal+json,application/hal
+
+qddt:
+  api:
+    origin: https://*.nsd.no/,http://localhost:4200,http://nsd404:4200,http://odin:4200
+    rooturl: http://localhost:5001/
+    fileroot: c:\\Projects\\qddt\\uploads\\
+
+
+logging:
+  level:
+    web: DEBUG
+#    org:
+#      springframework:
+#        cache: TRACE
+---
+spring:
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        show_sql: false
+  sql:
+    init:
+      continue-on-error: false
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    password: qddt
+    username: qddt
+    url: jdbc:postgresql://localhost:5432/qddt-dev
+#server:
+#  port: 8080
+#  servlet:
+#    context-path: /api
