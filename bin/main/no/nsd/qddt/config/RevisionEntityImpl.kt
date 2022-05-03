@@ -22,6 +22,6 @@ class RevisionEntityImpl : DefaultRevisionEntity() {
 
     lateinit var modified: Timestamp
 
-    lateinit var changeKind: IBasedOn.ChangeKind
-    lateinit var changeComment: String
+    // lateinit var changeKind: IBasedOn.ChangeKind
+    // lateinit var changeComment: String
 }

@@ -10,7 +10,7 @@ plugins {
 
 
 group = "no.nsd"
-version = "0.9.1-SNAPSHOT"
+version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 
